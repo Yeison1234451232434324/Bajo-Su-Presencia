@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Publicar Evento – Bajo Su Presencia</title>
+  <link rel="stylesheet" href="panel.css" />
+  <link rel="stylesheet" href="eventos.css" />
+</head>
+<body>
+
+  <main class="main" id="main">
+    <section class="panel active" style="display:block;">
+      <div class="panel-header">
+        <h2>Publicar Evento</h2>
+        <p>Crea un nuevo evento para la comunidad</p>
+      </div>
+      <div class="form-card">
+        <form onsubmit="submitEvent(event)">
+          <div class="form-group">
+            <label>Título del Evento</label>
+            <input type="text" class="form-control" placeholder="Ej: Culto Dominical" required />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Fecha</label>
+              <input type="date" class="form-control" required />
+            </div>
+            <div class="form-group">
+              <label>Horario</label>
+              <input type="text" class="form-control" placeholder="Ej: 10:00 AM - 12:00 PM" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Ubicación</label>
+              <input type="text" class="form-control" placeholder="Ej: Santuario Principal" required />
+            </div>
+            <div class="form-group">
+              <label>Asistentes Esperados</label>
+              <input type="text" class="form-control" placeholder="Ej: 200+" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Descripción</label>
+            <textarea class="form-control" rows="4" placeholder="Descripción del evento (opcional)"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Recursos Necesarios</label>
+            <div class="resources-grid">
+              <div class="resource-item" id="res-1">
+                <div class="resource-header">
+                  <div class="resource-name"><input type="checkbox" onchange="toggleResource('1')" /> Sillas</div>
+                  <span class="badge badge-green">Disponible</span>
+                </div>
+                <div class="resource-qty">
+                  <span>Disponibles: 150</span>
+                  <div id="qty-1" style="display:none;align-items:center;gap:0.4rem;">
+                    <span style="font-size:0.8rem;">Cant:</span>
+                    <input type="number" class="qty-input" min="1" max="150" value="1" />
+                  </div>
+                </div>
+              </div>
+              <div class="resource-item" id="res-2">
+                <div class="resource-header">
+                  <div class="resource-name"><input type="checkbox" onchange="toggleResource('2')" /> Mesas</div>
+                  <span class="badge badge-green">Disponible</span>
+                </div>
+                <div class="resource-qty">
+                  <span>Disponibles: 30</span>
+                  <div id="qty-2" style="display:none;align-items:center;gap:0.4rem;">
+                    <span style="font-size:0.8rem;">Cant:</span>
+                    <input type="number" class="qty-input" min="1" max="30" value="1" />
+                  </div>
+                </div>
+              </div>
+              <div class="resource-item" id="res-3">
+                <div class="resource-header">
+                  <div class="resource-name"><input type="checkbox" onchange="toggleResource('3')" /> Micrófonos</div>
+                  <span class="badge badge-green">Disponible</span>
+                </div>
+                <div class="resource-qty">
+                  <span>Disponibles: 8</span>
+                  <div id="qty-3" style="display:none;align-items:center;gap:0.4rem;">
+                    <span style="font-size:0.8rem;">Cant:</span>
+                    <input type="number" class="qty-input" min="1" max="8" value="1" />
+                  </div>
+                </div>
+              </div>
+              <div class="resource-item" id="res-4">
+                <div class="resource-header">
+                  <div class="resource-name"><input type="checkbox" onchange="toggleResource('4')" /> Proyector</div>
+                  <span class="badge badge-green">Disponible</span>
+                </div>
+                <div class="resource-qty">
+                  <span>Disponibles: 2</span>
+                  <div id="qty-4" style="display:none;align-items:center;gap:0.4rem;">
+                    <span style="font-size:0.8rem;">Cant:</span>
+                    <input type="number" class="qty-input" min="1" max="2" value="1" />
+                  </div>
+                </div>
+              </div>
+              <div class="resource-item unavailable">
+                <div class="resource-header">
+                  <div class="resource-name"><input type="checkbox" disabled /> Pantallas LED</div>
+                  <span class="badge" style="background:#fee2e2;color:#dc2626;">No disponible</span>
+                </div>
+                <div class="resource-qty"><span>Disponibles: 0</span></div>
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn-submit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:1.15rem;height:1.15rem;">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Publicar Evento
+          </button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script src="../../../controllers/sidebar.controller.js"></script>
+  <script src="../../../controllers/eventos.controller.js"></script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar Contraseña</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+    <!-- Reutilizamos el diseño del login -->
+    <link rel="stylesheet" href="login.css">
+    <!-- Archivo CSS específico para ajustes de recuperar contraseña -->
+    <link rel="stylesheet" href="recuperar.css">
+</head>
+<body>
+    <div class="container recuperar-container">
+        <!-- Botón para regresar al login -->
+        <a href="login.html" class="btn-cerrar" title="Volver al Login">
+            <i class='bx bx-arrow-back'></i>
+        </a>
+        
+        <form id="recuperarForm">
+            <h1>Recuperar Contraseña</h1>
+            
+            <p class="recuperar-texto">
+                Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.
+            </p>
+
+            <div class="input-box">
+                <input type="email" id="email" placeholder="Correo electrónico" required>
+                <i class='bx bxs-envelope'></i>
+            </div>
+            
+            <button type="submit" class="boton">Enviar enlace</button>
+            
+            <!-- Mensaje de éxito oculto por defecto -->
+            <p id="success-msg" style="color: green; text-align: center; margin-top: 15px; font-size: 14px; display: none;">
+                ✅ Si el correo está registrado, recibirás las instrucciones en breve. Serás redirigido al login...
+            </p>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('recuperarForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Mostramos el mensaje de éxito
+            document.getElementById('success-msg').style.display = 'block';
+            
+            // Simulamos la redirección de vuelta al login después de 4 segundos
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 4000);
+        });
+    </script>
+</body>
+</html>

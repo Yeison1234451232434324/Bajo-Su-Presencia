@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard – Bajo Su Presencia</title>
+  <link rel="stylesheet" href="panel.css" />
+  <link rel="stylesheet" href="dashboard.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<main class="main" id="main">
+  <section class="panel active" style="display:block;">
+
+    <!-- ══ ENCABEZADO ══════════════════════════════════════════════════════ -->
+    <div class="panel-header">
+      <h2>Dashboard</h2>
+      <p>Bienvenido al Panel de Administración. Aquí está el resumen de la comunidad.</p>
+    </div>
+
+    <!-- ══ 2.2 TARJETAS DE MÉTRICAS GENERALES ═════════════════════════════ -->
+    <div class="stats-grid">
+
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#dbeafe;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1E3A8A" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <div class="label">Miembros Activos</div>
+        <div class="value">247</div>
+        <div class="sub">↑ 12 este mes</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#fef3c7;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+        </div>
+        <div class="label">Eventos este Mes</div>
+        <div class="value">8</div>
+        <div class="sub">↑ 2 vs mes anterior</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#d1fae5;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2">
+            <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2z"/>
+            <path d="M4 6H2v14a2 2 0 0 0 2 2z"/>
+          </svg>
+        </div>
+        <div class="label">Noticias Publicadas</div>
+        <div class="value">15</div>
+        <div class="sub">↑ 3 esta semana</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#ede9fe;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+            <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+          </svg>
+        </div>
+        <div class="label">Oraciones Publicadas</div>
+        <div class="value">30</div>
+        <div class="sub">1 por día</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#fce7f3;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#db2777" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+        </div>
+        <div class="label">Voluntarios Activos</div>
+        <div class="value">34</div>
+        <div class="sub">↑ 5 este mes</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#ecfdf5;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+        </div>
+        <div class="label">Asistencia Promedio</div>
+        <div class="value">218</div>
+        <div class="sub">↑ 8% vs mes anterior</div>
+      </div>
+
+    </div>
+
+    <!-- ══ 2.3 GRÁFICA CRECIMIENTO DE USUARIOS  +  2.4 CONTENIDO PUBLICADO ═ -->
+    <div class="charts-grid">
+
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <h3>2.3 Crecimiento de Usuarios</h3>
+          <span class="chart-badge chart-badge--blue">Últimos 6 meses</span>
+        </div>
+        <canvas id="userGrowthChart" height="200"></canvas>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <h3>2.4 Contenido Publicado</h3>
+          <span class="chart-badge chart-badge--green">Por tipo</span>
+        </div>
+        <canvas id="contentChart" height="200"></canvas>
+      </div>
+
+    </div>
+
+    <!-- ══ 2.5 EVENTOS POR MES  +  2.6 DISTRIBUCIÓN DE VOLUNTARIOS ════════ -->
+    <div class="charts-grid">
+
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <h3>2.5 Eventos y Actividades por Mes</h3>
+          <span class="chart-badge chart-badge--amber">Comparativa</span>
+        </div>
+        <canvas id="eventsMonthChart" height="200"></canvas>
+      </div>
+
+      <div class="chart-card chart-card--donut">
+        <div class="chart-card-header">
+          <h3>2.6 Distribución de Voluntarios</h3>
+          <span class="chart-badge chart-badge--purple">Por área</span>
+        </div>
+        <div class="donut-wrap">
+          <canvas id="volunteersChart" height="220"></canvas>
+          <div class="donut-legend" id="volunteersLegend"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══ 2.7 ACTIVIDAD RECIENTE  +  2.8 VOLUNTARIOS DESTACADOS ══════════ -->
+    <div class="tables-grid">
+
+      <!-- 2.7 Actividad Reciente -->
+      <div class="table-card table-card--activity">
+        <h3>2.7 Actividad Reciente</h3>
+        <ul class="activity-list">
+          <li class="activity-item">
+            <div class="activity-dot activity-dot--green"></div>
+            <div class="activity-body">
+              <p class="activity-text">Nueva noticia publicada: <strong>Campaña de Ayuda</strong></p>
+              <span class="activity-time">Hace 10 min</span>
+            </div>
+          </li>
+          <li class="activity-item">
+            <div class="activity-dot activity-dot--blue"></div>
+            <div class="activity-body">
+              <p class="activity-text">Evento creado: <strong>Culto Dominical</strong></p>
+              <span class="activity-time">Hace 45 min</span>
+            </div>
+          </li>
+          <li class="activity-item">
+            <div class="activity-dot activity-dot--amber"></div>
+            <div class="activity-body">
+              <p class="activity-text">Oración del día actualizada</p>
+              <span class="activity-time">Hace 2 horas</span>
+            </div>
+          </li>
+          <li class="activity-item">
+            <div class="activity-dot activity-dot--purple"></div>
+            <div class="activity-body">
+              <p class="activity-text">Nuevo voluntario registrado: <strong>Luis Herrera</strong></p>
+              <span class="activity-time">Hace 3 horas</span>
+            </div>
+          </li>
+          <li class="activity-item">
+            <div class="activity-dot activity-dot--green"></div>
+            <div class="activity-body">
+              <p class="activity-text">Noticia publicada: <strong>Nueva Sede en el Norte</strong></p>
+              <span class="activity-time">Ayer, 4:30 PM</span>
+            </div>
+          </li>
+          <li class="activity-item">
+            <div class="activity-dot activity-dot--blue"></div>
+            <div class="activity-body">
+              <p class="activity-text">Evento actualizado: <strong>Retiro Espiritual</strong></p>
+              <span class="activity-time">Ayer, 2:00 PM</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- 2.8 Voluntarios Destacados -->
+      <div class="table-card">
+        <h3>2.8 Voluntarios Destacados</h3>
+        <div class="volunteer-list">
+
+          <div class="volunteer-item">
+            <div class="volunteer-avatar" style="background: linear-gradient(135deg,#1E3A8A,#2D4FAF);">MG</div>
+            <div class="volunteer-info">
+              <p class="volunteer-name">María González</p>
+              <p class="volunteer-area">Área: Música y Alabanza</p>
+            </div>
+            <div class="volunteer-stats">
+              <span class="badge badge-green">12 eventos</span>
+            </div>
+          </div>
+
+          <div class="volunteer-item">
+            <div class="volunteer-avatar" style="background: linear-gradient(135deg,#d97706,#F5C215);">CL</div>
+            <div class="volunteer-info">
+              <p class="volunteer-name">Carlos López</p>
+              <p class="volunteer-area">Área: Logística</p>
+            </div>
+            <div class="volunteer-stats">
+              <span class="badge badge-amber">9 eventos</span>
+            </div>
+          </div>
+
+          <div class="volunteer-item">
+            <div class="volunteer-avatar" style="background: linear-gradient(135deg,#059669,#10b981);">JP</div>
+            <div class="volunteer-info">
+              <p class="volunteer-name">Juan Pérez</p>
+              <p class="volunteer-area">Área: Jóvenes</p>
+            </div>
+            <div class="volunteer-stats">
+              <span class="badge badge-green">8 eventos</span>
+            </div>
+          </div>
+
+          <div class="volunteer-item">
+            <div class="volunteer-avatar" style="background: linear-gradient(135deg,#7c3aed,#a78bfa);">AM</div>
+            <div class="volunteer-info">
+              <p class="volunteer-name">Ana Martínez</p>
+              <p class="volunteer-area">Área: Comunicaciones</p>
+            </div>
+            <div class="volunteer-stats">
+              <span class="badge badge-blue">7 eventos</span>
+            </div>
+          </div>
+
+          <div class="volunteer-item">
+            <div class="volunteer-avatar" style="background: linear-gradient(135deg,#db2777,#f472b6);">LH</div>
+            <div class="volunteer-info">
+              <p class="volunteer-name">Luis Herrera</p>
+              <p class="volunteer-area">Área: Recepción</p>
+            </div>
+            <div class="volunteer-stats">
+              <span class="badge badge-blue">5 eventos</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══ 2.9 PRÓXIMOS EVENTOS ════════════════════════════════════════════ -->
+    <div class="table-card table-card--full">
+      <div class="table-card-header">
+        <h3>2.9 Próximos Eventos</h3>
+        <a href="eventos.html" class="btn-ver-mas">+ Crear evento</a>
+      </div>
+      <div class="events-table-wrap">
+        <table class="events-table">
+          <thead>
+            <tr>
+              <th>Evento</th>
+              <th>Fecha</th>
+              <th>Hora</th>
+              <th>Lugar</th>
+              <th>Asistentes</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Culto Dominical</strong></td>
+              <td>Dom, 18 May 2026</td>
+              <td>10:00 AM</td>
+              <td>Sede Principal</td>
+              <td>300</td>
+              <td><span class="badge badge-green">Confirmado</span></td>
+            </tr>
+            <tr>
+              <td><strong>Grupo de Oración</strong></td>
+              <td>Mar, 20 May 2026</td>
+              <td>7:00 PM</td>
+              <td>Salón B</td>
+              <td>80</td>
+              <td><span class="badge badge-amber">En preparación</span></td>
+            </tr>
+            <tr>
+              <td><strong>Encuentro Juvenil</strong></td>
+              <td>Vie, 23 May 2026</td>
+              <td>6:00 PM</td>
+              <td>Auditorio</td>
+              <td>150</td>
+              <td><span class="badge badge-amber">En preparación</span></td>
+            </tr>
+            <tr>
+              <td><strong>Cena Comunitaria</strong></td>
+              <td>Sáb, 24 May 2026</td>
+              <td>1:00 PM</td>
+              <td>Patio Central</td>
+              <td>200</td>
+              <td><span class="badge badge-blue">Planeado</span></td>
+            </tr>
+            <tr>
+              <td><strong>Retiro Espiritual</strong></td>
+              <td>Sáb, 7 Jun 2026</td>
+              <td>8:00 AM</td>
+              <td>Casa de Retiros</td>
+              <td>60</td>
+              <td><span class="badge badge-blue">Planeado</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </section>
+</main>
+
+<!-- Controller del sidebar -->
+<script src="../../../controllers/sidebar.controller.js"></script>
+
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+
+  const gridColor = '#f0ece0';
+  const fontColor = '#6b7280';
+
+  // ── 2.3 Crecimiento de Usuarios ──────────────────────────────────────────
+  new Chart(document.getElementById('userGrowthChart').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+      datasets: [
+        {
+          label: 'Miembros',
+          data: [180, 195, 210, 205, 230, 247],
+          fill: true,
+          backgroundColor: 'rgba(30,58,138,0.10)',
+          borderColor: '#1E3A8A',
+          tension: 0.4,
+          pointBackgroundColor: '#1E3A8A',
+          pointRadius: 5,
+          pointHoverRadius: 7
+        },
+        {
+          label: 'Voluntarios',
+          data: [20, 22, 25, 27, 30, 34],
+          fill: true,
+          backgroundColor: 'rgba(245,194,21,0.10)',
+          borderColor: '#F5C215',
+          tension: 0.4,
+          pointBackgroundColor: '#F5C215',
+          pointRadius: 5,
+          pointHoverRadius: 7
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'top', labels: { color: fontColor, font: { size: 12 } } }
+      },
+      scales: {
+        y: { beginAtZero: false, grid: { color: gridColor }, ticks: { color: fontColor } },
+        x: { grid: { display: false }, ticks: { color: fontColor } }
+      }
+    }
+  });
+
+  // ── 2.4 Contenido Publicado ───────────────────────────────────────────────
+  new Chart(document.getElementById('contentChart').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+      datasets: [
+        {
+          label: 'Noticias',
+          data: [3, 4, 2, 5, 4, 3],
+          backgroundColor: '#1E3A8A',
+          borderRadius: 6
+        },
+        {
+          label: 'Oraciones',
+          data: [28, 28, 31, 30, 31, 30],
+          backgroundColor: '#F5C215',
+          borderRadius: 6
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'top', labels: { color: fontColor, font: { size: 12 } } }
+      },
+      scales: {
+        y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: fontColor } },
+        x: { grid: { display: false }, ticks: { color: fontColor } }
+      }
+    }
+  });
+
+  // ── 2.5 Eventos y Actividades por Mes ────────────────────────────────────
+  new Chart(document.getElementById('eventsMonthChart').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+      datasets: [
+        {
+          label: 'Cultos',
+          data: [4, 4, 5, 4, 5, 4],
+          backgroundColor: '#1E3A8A',
+          borderRadius: 6
+        },
+        {
+          label: 'Actividades',
+          data: [2, 3, 2, 4, 3, 4],
+          backgroundColor: '#d97706',
+          borderRadius: 6
+        },
+        {
+          label: 'Misiones',
+          data: [1, 1, 2, 1, 0, 2],
+          backgroundColor: '#F5C215',
+          borderRadius: 6
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      aspectRatio: 2,
+      plugins: {
+        legend: { position: 'top', labels: { color: fontColor, font: { size: 12 } } }
+      },
+      scales: {
+        y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: fontColor } },
+        x: { grid: { display: false }, ticks: { color: fontColor } }
+      }
+    }
+  });
+
+  // ── 2.6 Distribución de Voluntarios ──────────────────────────────────────
+  const volLabels = ['Música', 'Logística', 'Jóvenes', 'Comunicaciones', 'Recepción', 'Otros'];
+  const volData   = [8, 6, 7, 5, 4, 4];
+  const volColors = ['#1E3A8A', '#d97706', '#059669', '#7c3aed', '#db2777', '#F5C215'];
+
+  new Chart(document.getElementById('volunteersChart').getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: volLabels,
+      datasets: [{
+        data: volData,
+        backgroundColor: volColors,
+        borderWidth: 2,
+        borderColor: '#faf8f3',
+        hoverOffset: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      aspectRatio: 1,
+      cutout: '65%',
+      plugins: {
+        legend: { display: false }
+      }
+    }
+  });
+
+  // Leyenda personalizada para la dona
+  const legendEl = document.getElementById('volunteersLegend');
+  volLabels.forEach((label, i) => {
+    legendEl.innerHTML += `
+      <div class="donut-legend-item">
+        <span class="donut-legend-dot" style="background:${volColors[i]}"></span>
+        <span class="donut-legend-label">${label}</span>
+        <span class="donut-legend-val">${volData[i]}</span>
+      </div>`;
+  });
+
+});
+</script>
+
+</body>
+</html>

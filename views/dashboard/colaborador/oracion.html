@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Oración del Día – Bajo Su Presencia</title>
+  <link rel="stylesheet" href="panel.css" />
+  <link rel="stylesheet" href="oracion.css" />
+</head>
+<body>
+
+  <main class="main" id="main">
+    <section class="panel active" style="display:block;">
+      <div class="panel-header">
+        <h2>Oración del Día</h2>
+        <p>Publica la oración diaria para la comunidad</p>
+      </div>
+      <div class="form-card">
+        <form onsubmit="submitPrayer(event)">
+          <div class="form-group">
+            <label>Texto de la Oración</label>
+            <textarea class="form-control" id="prayerText" rows="10"
+              placeholder="Escribe la oración del día aquí..."
+              oninput="updatePrayerPreview()" required></textarea>
+            <p class="char-count"><span id="prayerCount">0</span> caracteres</p>
+          </div>
+          <div class="form-group">
+            <label>Versículo o Frase Final</label>
+            <input type="text" class="form-control" id="prayerVerse"
+              placeholder="Ej: Amén 🙏 o versículo bíblico"
+              oninput="updatePrayerPreview()" />
+          </div>
+          <div class="form-group">
+            <label>Imagen (Opcional)</label>
+            <input type="url" class="form-control" id="prayerImage"
+              placeholder="https://ejemplo.com/imagen-oracion.jpg"
+              oninput="updatePrayerPreview()" />
+            <p class="char-count">Agrega una imagen inspiradora para acompañar la oración</p>
+          </div>
+          <div class="preview-box" id="prayerPreview" style="display:none;">
+            <h3>Vista Previa</h3>
+            <div id="previewImgWrap" style="display:none;margin-bottom:1rem;border-radius:0.75rem;overflow:hidden;">
+              <img id="previewImg" src="" alt="" style="width:100%;height:200px;object-fit:cover;" />
+            </div>
+            <p class="preview-text" id="previewText"></p>
+            <p class="preview-verse" id="previewVerse"></p>
+          </div>
+          <button type="submit" class="btn-submit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:1.15rem;height:1.15rem;">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+              <polyline points="17 21 17 13 7 13 7 21"/>
+              <polyline points="7 3 7 8 15 8"/>
+            </svg>
+            Publicar Oración
+          </button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script src="../../../controllers/sidebar.colaborador.controller.js"></script>
+  <script src="../../../controllers/oracion.controller.js"></script>
+</body>
+</html>

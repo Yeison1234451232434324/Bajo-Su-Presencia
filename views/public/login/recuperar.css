@@ -1,0 +1,27 @@
+/* Ajustes específicos para la pantalla de recuperar contraseña */
+
+.recuperar-container {
+    padding: 30px 40px;
+}
+
+.recuperar-container h1 {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.recuperar-texto {
+    font-size: 14.5px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.85);
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+.recuperar-container .input-box {
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.recuperar-container .boton {
+    margin-top: 10px;
+}

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bajo Su Presencia</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     HEADER (fijo)
+══════════════════════════════════════════ -->
+<header class="site-header" >
+  <div class="header-inner">
+    <!-- Logo + nombre -->
+    <div class="header-brand">
+      <img src="../../../assets/images/logo.png" alt="Bajo Su Presencia" class="header-logo" />
+      <div>
+        <h1 class="header-title">Bajo Su Presencia</h1>
+        <p class="header-subtitle">Donde mora su espíritu</p>
+      </div>
+    </div>
+
+    <!-- Menu -->
+     <div class="header-menu">
+      <ul class="lista-menu">
+        <li> <a href="#Inicio">Inicio</a></li>
+        <li><a href="#Oracion">Oracion</a></li>
+        <li><a href="#Noticias">Noticias</a></li>
+        <li><a href="#Eventos">Eventos</a></li>
+      </ul>
+     </div>
+
+
+    <!-- Botones -->
+    <div class="header-actions">
+      <a href="../../public/login/login.html">
+      <button class="btn btn-outline"> Iniciar Sesión</button>
+      </a>
+      <a href="#Contacto">
+      <button class="btn btn-primary">Contacto</button>
+      </a>
+    </div>
+  </div>
+</header>
+
+<main style="padding-top: 80px;">
+
+  <!-- ══════════════════════════════════════════
+       HERO
+  ══════════════════════════════════════════ -->
+  <section class="hero" id="Inicio">
+    <div class="hero-bg">
+      <img
+        src="https://images.unsplash.com/photo-1769590280436-41d1e2252e50?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+        alt="Fondo espiritual"
+        class="hero-img"
+      />
+      <!-- Overlay azul gradiente hacia abajo -->
+      <div class="hero-overlay"></div>
+    </div>
+
+    <!-- Luz dorada central animada -->
+    <div class="hero-light"></div>
+
+    <!-- Contenido centrado -->
+    <div class="hero-content">
+      <h2 class="hero-heading">
+        Bienvenidos a<br />
+        <span class="hero-heading-accent">Bajo Su Presencia</span>
+      </h2>
+      <p class="hero-verse">
+        "Porque donde están dos o tres congregados en mi nombre,<br />
+        allí estoy yo en medio de ellos."
+      </p>
+      <p class="hero-ref">Mateo 18:20</p>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       ORACIÓN DEL DÍA
+  ══════════════════════════════════════════ -->
+  <section class="prayer-section" id="Oracion">
+    <!-- Círculos decorativos -->
+    <div class="prayer-circle prayer-circle--tr"></div>
+    <div class="prayer-circle prayer-circle--bl"></div>
+
+    <div class="section-container">
+      <div class="section-header">
+        <div class="section-title-row">
+          <span class="icon-star">✦</span>
+          <h3 class="section-title">Oración del Día</h3>
+          <span class="icon-star">✦</span>
+        </div>
+        <div class="section-divider"></div>
+      </div>
+
+      <!-- Tarjeta de oración -->
+      <div class="prayer-card">
+        <div class="prayer-corner prayer-corner--tl"></div>
+        <div class="prayer-corner prayer-corner--br"></div>
+        <p class="prayer-text">
+          "Señor, guía nuestros pasos en tu camino de luz y amor.
+          Que tu paz que sobrepasa todo entendimiento guarde nuestros corazones
+          y nuestras mentes en Cristo Jesús."
+        </p>
+        <p class="prayer-verse-ref">Filipenses 4:7</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       NOTICIAS Y ANUNCIOS
+  ══════════════════════════════════════════ -->
+  <section class="news-section" id="Noticias">
+    <div class="section-container">
+      <div class="section-header">
+        <div class="section-title-row">
+          <span class="section-icon">📰</span>
+          <h3 class="section-title">Noticias y Anuncios</h3>
+        </div>
+        <p class="section-desc">Mantente informado sobre lo que sucede en nuestra comunidad</p>
+      </div>
+
+      <div class="news-grid">
+        <!-- Noticia 1 -->
+        <article class="news-card">
+          <div class="news-card-img-wrap">
+            <img src="https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=400&q=80" alt="Noticia 1" class="news-card-img" />
+            <div class="news-card-img-fade"></div>
+          </div>
+          <div class="news-card-body">
+            <h4 class="news-card-title">Campaña de Ayuda Comunitaria</h4>
+            <p class="news-card-excerpt">Este mes lanzamos nuestra campaña anual para apoyar a las familias más necesitadas de la comunidad.</p>
+            <div class="news-card-meta">
+              <span>📅 15 May 2026</span>
+              <span>👤 Pastor Carlos</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Noticia 2 -->
+        <article class="news-card">
+          <div class="news-card-img-wrap">
+            <img src="https://images.unsplash.com/photo-1545987796-200677ee1011?w=400&q=80" alt="Noticia 2" class="news-card-img" />
+            <div class="news-card-img-fade"></div>
+          </div>
+          <div class="news-card-body">
+            <h4 class="news-card-title">Nueva Sede en el Norte</h4>
+            <p class="news-card-excerpt">Con gran alegría anunciamos la apertura de nuestra nueva sede en el norte de la ciudad.</p>
+            <div class="news-card-meta">
+              <span>📅 10 May 2026</span>
+              <span>👤 Hna. María</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Noticia 3 -->
+        <article class="news-card">
+          <div class="news-card-img-wrap">
+            <img src="https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=400&q=80" alt="Noticia 3" class="news-card-img" />
+            <div class="news-card-img-fade"></div>
+          </div>
+          <div class="news-card-body">
+            <h4 class="news-card-title">Retiro Espiritual de Jóvenes</h4>
+            <p class="news-card-excerpt">El próximo mes realizaremos nuestro retiro espiritual anual para jóvenes. ¡Inscríbete ya!</p>
+            <div class="news-card-meta">
+              <span>📅 5 May 2026</span>
+              <span>👤 Jto. Juan</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       PRÓXIMOS EVENTOS
+  ══════════════════════════════════════════ -->
+  <section class="events-section" id="Eventos">
+    <!-- Patrón de puntos de fondo -->
+    <div class="events-dots"></div>
+
+    <div class="section-container">
+      <div class="section-header">
+        <div class="section-title-row">
+          <span class="section-icon">📅</span>
+          <h3 class="section-title">Próximos Eventos</h3>
+        </div>
+        <p class="section-desc">Únete a nosotros en estas experiencias espirituales</p>
+      </div>
+
+      <div class="events-grid">
+        <!-- Evento 1 -->
+        <div class="event-card">
+          <div class="event-card-bar event-card-bar--1"></div>
+          <div class="event-card-body">
+            <h4 class="event-card-title">Culto de Adoración</h4>
+            <div class="event-card-info">
+              <div class="event-info-row"><span class="event-icon">📅</span> 18 Mayo 2026</div>
+              <div class="event-info-row"><span class="event-icon">🕙</span> 10:00 AM</div>
+              <div class="event-info-row"><span class="event-icon">📍</span> Sede Principal</div>
+              <div class="event-info-row"><span class="event-icon">👥</span> 300 asistentes esperados</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Evento 2 -->
+        <div class="event-card">
+          <div class="event-card-bar event-card-bar--2"></div>
+          <div class="event-card-body">
+            <h4 class="event-card-title">Estudio Bíblico</h4>
+            <div class="event-card-info">
+              <div class="event-info-row"><span class="event-icon">📅</span> 21 Mayo 2026</div>
+              <div class="event-info-row"><span class="event-icon">🕙</span> 7:00 PM</div>
+              <div class="event-info-row"><span class="event-icon">📍</span> Salón B</div>
+              <div class="event-info-row"><span class="event-icon">👥</span> 80 asistentes esperados</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Evento 3 -->
+        <div class="event-card">
+          <div class="event-card-bar event-card-bar--3"></div>
+          <div class="event-card-body">
+            <h4 class="event-card-title">Reunión de Jóvenes</h4>
+            <div class="event-card-info">
+              <div class="event-info-row"><span class="event-icon">📅</span> 23 Mayo 2026</div>
+              <div class="event-info-row"><span class="event-icon">🕙</span> 6:00 PM</div>
+              <div class="event-info-row"><span class="event-icon">📍</span> Auditorio</div>
+              <div class="event-info-row"><span class="event-icon">👥</span> 150 asistentes esperados</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ══════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════ -->
+<footer class="site-footer" id="Contacto">
+  <!-- Línea dorada superior animada -->
+  <div class="footer-top-line"></div>
+
+  <div class="section-container">
+    <div class="footer-grid">
+
+      <!-- Columna 1: Logo + descripción -->
+      <div class="footer-col">
+        <img src="../../../assets/images/logo.png" alt="Logo" class="footer-logo" />
+        <h4 class="footer-col-title">Bajo Su Presencia</h4>
+        <p class="footer-text">
+          Somos una comunidad de fe fundada en 1995, dedicada a llevar el mensaje
+          de amor y esperanza de Cristo a todas las personas. Nuestra misión es crear
+          un espacio donde cada alma encuentre refugio, sanación y propósito bajo la
+          presencia divina.
+        </p>
+        <div class="footer-social">
+          <a href="https://facebook.com" class="footer-social-btn" target="_blank" rel="noopener noreferrer">f</a>
+        </div>
+      </div>
+
+      <!-- Columna 2: Contacto -->
+      <div class="footer-col">
+        <h4 class="footer-col-title footer-col-title--accent">Contacto</h4>
+        <div class="footer-contact-list">
+          <div class="footer-contact-item">
+            <span class="footer-contact-icon">📍</span>
+            <p class="footer-text">Calle 45 #12-34<br />Localidad de Chapinero<br />Bogotá, Colombia</p>
+          </div>
+          <div class="footer-contact-item">
+            <span class="footer-contact-icon">📞</span>
+            <a href="tel:+5716012345" class="footer-link">+57 (601) 234-5678</a>
+          </div>
+          <div class="footer-contact-item">
+            <span class="footer-contact-icon">✉️</span>
+            <a href="mailto:contacto@bajosupresencia.org" class="footer-link">contacto@bajosupresencia.org</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna 3: Horarios -->
+      <div class="footer-col">
+        <h4 class="footer-col-title footer-col-title--accent">Horarios de Servicio</h4>
+        <div class="footer-schedule">
+          <div class="footer-schedule-row">
+            <span>Domingo - Culto Principal</span>
+            <span class="footer-schedule-time">10:00 AM</span>
+          </div>
+          <div class="footer-schedule-row">
+            <span>Miércoles - Estudio Bíblico</span>
+            <span class="footer-schedule-time">7:00 PM</span>
+          </div>
+          <div class="footer-schedule-row">
+            <span>Viernes - Reunión Jóvenes</span>
+            <span class="footer-schedule-time">6:00 PM</span>
+          </div>
+          <div class="footer-schedule-row" style="border-bottom: none;">
+            <span>Sábado - Oración Matutina</span>
+            <span class="footer-schedule-time">8:00 AM</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="footer-bottom">
+      <p class="footer-copy">
+        © 2026 Iglesia Bajo Su Presencia. Todos los derechos reservados.<br />
+        <em class="footer-copy-gold">"En su presencia hay plenitud de gozo" — Salmos 16:11</em>
+      </p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

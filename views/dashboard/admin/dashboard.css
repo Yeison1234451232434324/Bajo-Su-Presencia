@@ -1,0 +1,260 @@
+/* ══════════════════════════════════════════════════════════════
+   Dashboard Admin – CSS específico
+   Complementa panel.css con los estilos propios de este módulo
+══════════════════════════════════════════════════════════════ */
+
+/* ── Alturas fijas de canvas ──────────────────────────────── */
+/* Evita que Chart.js estire las gráficas verticalmente */
+.chart-card canvas {
+  max-height: 260px;
+}
+.chart-card--donut canvas {
+  max-height: 180px;
+}
+.chart-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.chart-card-header h3 {
+  margin-bottom: 0;
+}
+
+/* Badges de las gráficas */
+.chart-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+}
+.chart-badge--blue   { background: #dbeafe; color: #1d4ed8; }
+.chart-badge--green  { background: #d1fae5; color: #059669; }
+.chart-badge--amber  { background: #fef3c7; color: #d97706; }
+.chart-badge--purple { background: #ede9fe; color: #7c3aed; }
+
+/* ── Gráfica de dona ──────────────────────────────────────── */
+.chart-card--donut .donut-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.chart-card--donut canvas {
+  width: 180px !important;
+  height: 180px !important;
+  flex-shrink: 0;
+}
+.donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+.donut-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #374151;
+}
+.donut-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.donut-legend-label {
+  flex: 1;
+}
+.donut-legend-val {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* ── Actividad Reciente ───────────────────────────────────── */
+.table-card--activity {
+  min-width: 0;
+}
+.activity-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f3f0e8;
+}
+.activity-item:last-child {
+  border-bottom: none;
+}
+.activity-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-top: 0.3rem;
+  flex-shrink: 0;
+}
+.activity-dot--green  { background: #10b981; }
+.activity-dot--blue   { background: #1E3A8A; }
+.activity-dot--amber  { background: #d97706; }
+.activity-dot--purple { background: #7c3aed; }
+
+.activity-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.activity-text {
+  font-size: 0.9rem;
+  color: #1a1a2e;
+  line-height: 1.4;
+}
+.activity-time {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+/* ── Voluntarios Destacados ───────────────────────────────── */
+.volunteer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.volunteer-item {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f3f0e8;
+}
+.volunteer-item:last-child {
+  border-bottom: none;
+}
+.volunteer-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.volunteer-info {
+  flex: 1;
+  min-width: 0;
+}
+.volunteer-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.volunteer-area {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 0.1rem;
+}
+.volunteer-stats {
+  flex-shrink: 0;
+}
+
+/* ── Tabla de Próximos Eventos (2.9) ──────────────────────── */
+.table-card--full {
+  width: 100%;
+  margin-top: 0;
+}
+.table-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--border);
+}
+.table-card-header h3 {
+  margin-bottom: 0;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.btn-ver-mas {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--primary);
+  background: #dbeafe;
+  padding: 0.35rem 0.875rem;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+}
+.btn-ver-mas:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+.events-table-wrap {
+  overflow-x: auto;
+}
+.events-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.events-table thead tr {
+  background: #f5f3ee;
+}
+.events-table th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.events-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #f3f0e8;
+  color: #374151;
+  white-space: nowrap;
+}
+.events-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.events-table tbody tr:hover td {
+  background: #faf8f3;
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .chart-card--donut .donut-wrap {
+    flex-direction: column;
+    align-items: center;
+  }
+  .chart-card--donut canvas {
+    width: 160px !important;
+    height: 160px !important;
+  }
+  .donut-legend {
+    width: 100%;
+  }
+  .events-table th,
+  .events-table td {
+    padding: 0.6rem 0.6rem;
+    font-size: 0.82rem;
+  }
+}

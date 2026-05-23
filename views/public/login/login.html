@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="login.css">
+</head>
+
+<body>
+    <div class="container">
+        <a href="../../public/inicio/index.html" class="btn-cerrar">
+            <i class='bx bx-x'></i>
+        </a>
+        <form id="loginForm">
+            <h1>Login</h1>
+
+            <div class="input-box">
+                <input type="text" id="username" placeholder="Nombre de Usuario" required>
+                <i class='bx bxs-user'></i>
+            </div>
+            <div class="input-box">
+                <input type="email" id="email" placeholder="Correo electrónico" required>
+                <i class='bx bxs-envelope'></i>
+            </div>
+            <div class="input-box">
+                <input type="password" id="password" placeholder="Contraseña" required>
+                <i class='bx bxs-lock-alt'></i>
+            </div>
+            <div class="recordar-contraseña">
+                <label for=""><input type="checkbox">Recordar</label>
+                <a href="recuperar.html">Recuperar contraseña</a>
+            </div>
+            <button type="submit" class="boton">Iniciar Sesión</button>
+            <!-- Mensaje de error oculto por defecto -->
+            <p id="error-msg" style="color: #ffb3b3; text-align: center; margin-top: 15px; font-size: 14px; display: none;">Usuario o contraseña incorrectos</p>
+        </form>
+    </div>
+
+    <script src="../../../controllers/auth.controller.js"></script>
+</body>
+
+</html>
