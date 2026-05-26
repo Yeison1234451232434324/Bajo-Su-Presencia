@@ -57,6 +57,27 @@ document.addEventListener("DOMContentLoaded", () => {
         </a>
         <span class="tooltip">Publicar Noticia</span>
       </li>
+      <li id="li-usuarios" style="display:none;">
+        <a href="usuarios.html" id="nav-usuarios">
+          <i class="bx bx-group"></i>
+          <span class="nav-item">Gestión de Usuarios</span>
+        </a>
+        <span class="tooltip">Gestión de Usuarios</span>
+      </li>
+      <li id="li-voluntarios" style="display:none;">
+        <a href="voluntarios.html" id="nav-voluntarios">
+          <i class="bx bx-medal"></i>
+          <span class="nav-item">Calificar Voluntarios</span>
+        </a>
+        <span class="tooltip">Calificar Voluntarios</span>
+      </li>
+      <li id="li-recursos" style="display:none;">
+        <a href="recursos.html" id="nav-recursos">
+          <i class="bx bx-package"></i>
+          <span class="nav-item">Gestión de Recursos</span>
+        </a>
+        <span class="tooltip">Gestión de Recursos</span>
+      </li>
       <li class="logout-li">
         <a href="../../public/login/login.html" id="nav-logout">
           <i class="bx bx-log-out"></i>
@@ -84,6 +105,9 @@ document.addEventListener("DOMContentLoaded", () => {
   else if (path.includes("eventos.html"))    document.getElementById("nav-eventos")?.parentElement.classList.add("active-item");
   else if (path.includes("oracion.html"))    document.getElementById("nav-oracion")?.parentElement.classList.add("active-item");
   else if (path.includes("noticias.html"))   document.getElementById("nav-noticias")?.parentElement.classList.add("active-item");
+  else if (path.includes("usuarios.html"))   document.getElementById("nav-usuarios")?.parentElement.classList.add("active-item");
+  else if (path.includes("voluntarios.html")) document.getElementById("nav-voluntarios")?.parentElement.classList.add("active-item");
+  else if (path.includes("recursos.html"))    document.getElementById("nav-recursos")?.parentElement.classList.add("active-item");
 
   // ── Cargar usuario desde localStorage ────────────────────────────────────
   const userData = localStorage.getItem('usuarioLogueado');
@@ -92,6 +116,18 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('sidebar-name').textContent   = user.nombre;
     document.getElementById('sidebar-role').textContent   = user.rol;
     document.getElementById('sidebar-avatar').textContent = user.nombre.charAt(0).toUpperCase();
+
+    // Mostrar ítem "Gestión de Usuarios" solo si es Administrador
+    if (user.rol === 'Administrador') {
+      const liUsuarios = document.getElementById('li-usuarios');
+      if (liUsuarios) liUsuarios.style.display = '';
+
+      const liVoluntarios = document.getElementById('li-voluntarios');
+      if (liVoluntarios) liVoluntarios.style.display = '';
+
+      const liRecursos = document.getElementById('li-recursos');
+      if (liRecursos) liRecursos.style.display = '';
+    }
   }
 });
 

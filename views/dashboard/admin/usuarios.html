@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestión de Usuarios – Bajo Su Presencia</title>
+  <link rel="stylesheet" href="panel.css" />
+  <link rel="stylesheet" href="usuarios.css" />
+</head>
+<body>
+
+  <!-- ══ CONTENIDO PRINCIPAL ══════════════════════════════════════════════ -->
+  <main class="main" id="main">
+    <section class="panel active" style="display:block;">
+
+      <!-- Encabezado -->
+      <div class="panel-header">
+        <h2>Gestión de Usuarios</h2>
+        <p>Crea, edita, activa o desactiva los usuarios del sistema</p>
+      </div>
+
+      <!-- Contadores -->
+      <div class="counters-grid">
+        <div class="counter-card">
+          <div class="counter-icon" style="background:#dbeafe;">
+            <i class="bx bx-group" style="color:#1E3A8A;"></i>
+          </div>
+          <div class="counter-info">
+            <p class="counter-label">Total Usuarios</p>
+            <p class="counter-value" id="cont-total">0</p>
+          </div>
+        </div>
+        <div class="counter-card">
+          <div class="counter-icon" style="background:#d1fae5;">
+            <i class="bx bx-user-check" style="color:#059669;"></i>
+          </div>
+          <div class="counter-info">
+            <p class="counter-label">Activos</p>
+            <p class="counter-value" id="cont-activos">0</p>
+          </div>
+        </div>
+        <div class="counter-card">
+          <div class="counter-icon" style="background:#fee2e2;">
+            <i class="bx bx-user-x" style="color:#dc2626;"></i>
+          </div>
+          <div class="counter-info">
+            <p class="counter-label">Inactivos</p>
+            <p class="counter-value" id="cont-inactivos">0</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra de herramientas -->
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <!-- Búsqueda -->
+          <div class="search-wrap">
+            <i class="bx bx-search"></i>
+            <input
+              type="text"
+              id="input-buscar"
+              class="input-buscar"
+              placeholder="Buscar por nombre, usuario o correo…"
+            />
+          </div>
+          <!-- Filtro rol -->
+          <select id="filtro-rol" class="select-filtro">
+            <option value="">Todos los roles</option>
+            <option value="Administrador">Administrador</option>
+            <option value="Colaborador">Colaborador</option>
+            <option value="Voluntario">Voluntario</option>
+          </select>
+          <!-- Filtro estado -->
+          <select id="filtro-estado" class="select-filtro">
+            <option value="">Todos los estados</option>
+            <option value="activo">Activos</option>
+            <option value="inactivo">Inactivos</option>
+          </select>
+        </div>
+        <!-- Botón nuevo -->
+        <button class="btn-nuevo" id="btn-nuevo-usuario">
+          <i class="bx bx-user-plus"></i>
+          Nuevo Usuario
+        </button>
+      </div>
+
+      <!-- Tabla -->
+      <div class="table-wrap">
+        <table class="usuarios-table">
+          <thead>
+            <tr>
+              <th>Usuario</th>
+              <th>Correo</th>
+              <th>Rol</th>
+              <th>Estado</th>
+              <th>Creado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="usuarios-tbody">
+            <!-- Filas generadas por el controller -->
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- ══ OVERLAY DEL MODAL ════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-overlay"></div>
+
+  <!-- ══ MODAL CREAR / EDITAR ═════════════════════════════════════════════ -->
+  <div class="modal" id="modal-usuario" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-header">
+      <h3 id="modal-title">Nuevo Usuario</h3>
+      <button class="btn-cerrar-modal" id="btn-cerrar-modal" aria-label="Cerrar modal">
+        <i class="bx bx-x"></i>
+      </button>
+    </div>
+
+    <!-- Mensaje de error -->
+    <div class="modal-error" id="modal-error" role="alert"></div>
+
+    <form id="form-usuario" novalidate>
+
+      <!-- Nombre completo -->
+      <div class="form-group">
+        <label for="campo-nombre">Nombre Completo</label>
+        <input
+          type="text"
+          id="campo-nombre"
+          class="form-control"
+          placeholder="Ej: María González"
+          required
+          minlength="3"
+        />
+      </div>
+
+      <!-- Username + Email -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="campo-username">Nombre de Usuario</label>
+          <input
+            type="text"
+            id="campo-username"
+            class="form-control"
+            placeholder="Ej: mgonzalez"
+            required
+            minlength="3"
+          />
+        </div>
+        <div class="form-group">
+          <label for="campo-email">Correo Electrónico</label>
+          <input
+            type="email"
+            id="campo-email"
+            class="form-control"
+            placeholder="Ej: maria@correo.com"
+            required
+          />
+        </div>
+      </div>
+
+      <!-- Rol + Contraseña -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="campo-rol">Rol</label>
+          <select id="campo-rol" class="form-control select-filtro" required style="width:100%;">
+            <option value="Colaborador">Colaborador</option>
+            <option value="Voluntario">Voluntario</option>
+            <option value="Administrador">Administrador</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="campo-password">Contraseña</label>
+          <input
+            type="password"
+            id="campo-password"
+            class="form-control"
+            placeholder="Mínimo 3 caracteres"
+            minlength="3"
+          />
+          <p class="pass-hint" id="pass-hint">Deja en blanco para mantener la contraseña actual.</p>
+        </div>
+      </div>
+
+      <!-- Footer del modal -->
+      <div class="modal-footer">
+        <button type="button" class="btn-cancelar" id="btn-cancelar">Cancelar</button>
+        <button type="submit" class="btn-guardar">
+          <i class="bx bx-save" style="margin-right:0.35rem;"></i>
+          Guardar
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
+  <!-- Sidebar del admin (inyecta el nav con el nuevo ítem) -->
+  <script src="../../../controllers/sidebar.controller.js"></script>
+  <!-- Model -->
+  <script src="../../../models/usuarios.model.js"></script>
+  <!-- Controller -->
+  <script src="../../../controllers/usuarios.controller.js"></script>
+
+</body>
+</html>

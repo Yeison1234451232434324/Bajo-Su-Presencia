@@ -1,0 +1,158 @@
+/* ══════════════════════════════════════════════════
+   PANEL VOLUNTARIO — Estilos base
+   Idéntico al panel del colaborador/admin para
+   mantener consistencia visual en todo el sistema.
+══════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Crimson+Text:wght@400;600&display=swap');
+
+:root {
+  --primary:       #1E3A8A;
+  --primary-dark:  #0F1E5A;
+  --primary-light: #2D4FAF;
+  --accent:        #F5C215;
+  --amber:         #d97706;
+  --sidebar-w:     250px;
+  --sidebar-min-w: 80px;
+  --font-title:    'Cormorant Garamond', serif;
+  --font-text:     'Crimson Text', serif;
+  --bg:            #faf8f3;
+  --border:        #e5e1d8;
+  --muted:         #6b7280;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-text);
+  background: var(--bg);
+  color: #1a1a2e;
+  min-height: 100vh;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  position: fixed; top: 0; left: 0;
+  height: 100vh;
+  width: var(--sidebar-min-w);
+  background: linear-gradient(180deg, var(--primary-dark) 0%, var(--primary) 60%, var(--primary-light) 100%);
+  padding: 0.4rem 0.8rem;
+  transition: width 0.5s ease;
+  z-index: 100; overflow: hidden;
+}
+.sidebar.active { width: var(--sidebar-w); }
+
+.sidebar .top .logo {
+  color: white; display: flex; height: 50px; width: 100%;
+  align-items: center; pointer-events: none;
+  opacity: 0; transition: opacity 0.3s; white-space: nowrap;
+}
+.sidebar.active .top .logo { opacity: 1; }
+.top .logo i { font-size: 2rem; margin-right: 8px; flex-shrink: 0; }
+.top .logo span { font-family: var(--font-title); font-size: 1.1rem; font-weight: 700; }
+
+.sidebar #btn {
+  position: absolute; color: white; top: 0.4rem; left: 50%;
+  font-size: 1.4rem; line-height: 50px;
+  transform: translateX(-50%); cursor: pointer;
+  transition: left 0.5s ease; z-index: 10;
+}
+.sidebar.active #btn { left: 90%; }
+
+.sidebar .user { display: flex; align-items: center; margin: 0.75rem 0; white-space: nowrap; }
+.sidebar .avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.3);
+  display: flex; align-items: center; justify-content: center;
+  color: white; background: linear-gradient(135deg, var(--accent), var(--amber));
+  font-weight: 700; font-size: 1rem; flex-shrink: 0;
+}
+.sidebar .user-info { margin-left: 0.75rem; opacity: 0; transition: opacity 0.3s; }
+.sidebar.active .user-info { opacity: 1; }
+.sidebar .user-info p { color: white; font-size: 0.9rem; line-height: 1.3; }
+.sidebar .user-info .bold { font-weight: 700; }
+
+.sidebar ul { margin-top: 0.5rem; }
+.sidebar ul li {
+  position: relative; list-style: none;
+  height: 50px; width: 90%; margin: 0.6rem auto; line-height: 50px;
+}
+.sidebar ul li a {
+  color: rgba(255,255,255,0.75); display: flex; align-items: center;
+  text-decoration: none; border-radius: 0.75rem;
+  transition: background 0.2s, color 0.2s; white-space: nowrap;
+}
+.sidebar ul li a i {
+  min-width: 50px; text-align: center; height: 50px;
+  border-radius: 12px; line-height: 50px; font-size: 1.35rem; flex-shrink: 0;
+}
+.sidebar ul li a:hover { background: rgba(255,255,255,0.15); color: #fff; }
+.sidebar ul li.active-item a {
+  background: rgba(245,194,21,0.20); color: var(--accent);
+  border-left: 3px solid var(--accent);
+}
+.sidebar .nav-item { opacity: 0; transition: opacity 0.3s; font-family: var(--font-text); font-size: 1rem; font-weight: 600; }
+.sidebar.active .nav-item { opacity: 1; }
+
+.sidebar ul li.logout-li { position: absolute; bottom: 1rem; width: 90%; margin: 0 auto; left: 5%; }
+.sidebar ul li.logout-li a:hover { background: rgba(239,68,68,0.20); color: #fca5a5; }
+
+.sidebar ul li .tooltip {
+  position: absolute; left: 70px; top: 50%; transform: translateY(-50%);
+  background: var(--primary-dark); color: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25); border-radius: 0.5rem;
+  padding: 0.3rem 0.9rem; font-size: 0.85rem; font-weight: 600;
+  white-space: nowrap; z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.sidebar ul li:hover .tooltip { opacity: 1; }
+.sidebar.active ul li .tooltip { display: none; }
+
+/* ── Main ── */
+.main {
+  margin-left: var(--sidebar-min-w); min-height: 100vh; padding: 2rem;
+  display: flex; flex-direction: column; align-items: center;
+  transition: margin-left 0.5s ease;
+}
+.main.sidebar-open { margin-left: var(--sidebar-w); }
+
+/* ── Panel ── */
+.panel { display: none; width: 100%; max-width: 80rem; }
+.panel.active { display: block; }
+
+.panel-header { margin-bottom: 2rem; }
+.panel-header h2 { font-family: var(--font-title); font-size: 2.75rem; font-weight: 700; color: var(--primary-dark); }
+.panel-header p  { font-size: 1.15rem; color: var(--muted); margin-top: 0.25rem; }
+
+/* ── Badges globales ── */
+.badge { padding: 0.2rem 0.65rem; border-radius: 999px; font-size: 0.78rem; font-weight: 600; }
+.badge-green  { background: #d1fae5; color: #059669; }
+.badge-amber  { background: #fef3c7; color: #d97706; }
+.badge-blue   { background: #dbeafe; color: #1d4ed8; }
+.badge-red    { background: #fee2e2; color: #dc2626; }
+.badge-muted  { background: #f3f4f6; color: #6b7280; }
+
+/* ── Estrellas ── */
+.estrellas-fijas { display: flex; align-items: center; gap: 2px; }
+.star-on  { color: #F5C215; }
+.star-off { color: #d1d5db; }
+
+/* ── Sin dato ── */
+.sin-dato { color: #9ca3af; font-size: 0.88rem; font-style: italic; }
+
+/* ── Toast ── */
+.toast-container {
+  position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999;
+  display: flex; flex-direction: column; gap: 0.75rem; pointer-events: none;
+}
+.toast {
+  background: #fff; border: 2px solid #d1fae5; border-radius: 1rem;
+  padding: 1rem 1.25rem; box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  max-width: 22rem; pointer-events: all; animation: slideIn 0.3s ease;
+}
+.toast-title { font-family: var(--font-text); font-size: 1rem; font-weight: 600; color: #065f46; }
+.toast-desc  { font-family: var(--font-text); font-size: 0.875rem; color: var(--muted); margin-top: 0.2rem; }
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(2rem); }
+  to   { opacity: 1; transform: translateX(0); }
+}

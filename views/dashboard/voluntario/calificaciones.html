@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mis Calificaciones – Bajo Su Presencia</title>
+  <link rel="stylesheet" href="panel.css" />
+  <link rel="stylesheet" href="calificaciones.css" />
+</head>
+<body>
+
+<main class="main" id="main">
+  <section class="panel active" style="display:block;">
+
+    <!-- Encabezado -->
+    <div class="panel-header">
+      <h2>Mis Calificaciones</h2>
+      <p>Hola, <strong id="vol-nombre-header">—</strong> · Aquí puedes ver tu desempeño y las observaciones del administrador</p>
+    </div>
+
+    <!-- ── Tarjetas de resumen estadístico ──────────────────────────────── -->
+    <div class="cal-stats-grid">
+
+      <!-- Promedio general -->
+      <div class="cal-stat-card cal-stat-promedio">
+        <div class="cal-stat-icon">
+          <i class="bx bxs-star"></i>
+        </div>
+        <div class="cal-stat-body">
+          <p class="cal-stat-label">Promedio General</p>
+          <p class="cal-stat-value" id="res-promedio">—</p>
+          <div id="res-promedio-stars"></div>
+        </div>
+      </div>
+
+      <!-- Total de eventos calificados -->
+      <div class="cal-stat-card">
+        <div class="cal-stat-icon" style="background:#dbeafe;color:#1d4ed8;">
+          <i class="bx bx-calendar-check"></i>
+        </div>
+        <div class="cal-stat-body">
+          <p class="cal-stat-label">Eventos Calificados</p>
+          <p class="cal-stat-value" id="res-total">0</p>
+        </div>
+      </div>
+
+      <!-- Mejor calificación -->
+      <div class="cal-stat-card">
+        <div class="cal-stat-icon" style="background:#d1fae5;color:#059669;">
+          <i class="bx bx-trophy"></i>
+        </div>
+        <div class="cal-stat-body">
+          <p class="cal-stat-label">🏆 Mejor Calificación</p>
+          <div id="res-mejor"><span class="sin-dato">—</span></div>
+        </div>
+      </div>
+
+      <!-- Calificación más baja -->
+      <div class="cal-stat-card">
+        <div class="cal-stat-icon" style="background:#fee2e2;color:#dc2626;">
+          <i class="bx bx-trending-down"></i>
+        </div>
+        <div class="cal-stat-body">
+          <p class="cal-stat-label">📉 Calificación más baja</p>
+          <div id="res-peor"><span class="sin-dato">—</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Distribución de estrellas ────────────────────────────────────── -->
+    <div class="cal-dist-card">
+      <h3 class="cal-section-title">
+        <i class="bx bx-bar-chart-alt-2"></i>
+        Distribución de Calificaciones
+      </h3>
+      <div id="res-dist">
+        <!-- Barras generadas por el controller -->
+      </div>
+    </div>
+
+    <!-- ── Historial de calificaciones ──────────────────────────────────── -->
+    <div class="cal-historial-section">
+      <h3 class="cal-section-title">
+        <i class="bx bx-history"></i>
+        Historial de Calificaciones y Observaciones
+      </h3>
+      <div id="historial-lista">
+        <!-- Tarjetas generadas por el controller -->
+      </div>
+    </div>
+
+  </section>
+</main>
+
+<!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
+<script src="../../../controllers/sidebar.voluntario.controller.js"></script>
+<script src="../../../models/voluntarios.model.js"></script>
+<script src="../../../controllers/voluntario.calificaciones.controller.js"></script>
+
+</body>
+</html>

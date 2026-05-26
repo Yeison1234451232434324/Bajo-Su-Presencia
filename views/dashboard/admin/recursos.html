@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestión de Recursos – Bajo Su Presencia</title>
+  <link rel="stylesheet" href="panel.css" />
+  <link rel="stylesheet" href="recursos.css" />
+</head>
+<body>
+
+<!-- ══ CONTENIDO PRINCIPAL ══════════════════════════════════════════════ -->
+<main class="main" id="main">
+  <section class="panel active" style="display:block;">
+
+    <!-- Encabezado -->
+    <div class="panel-header">
+      <h2>Gestión de Recursos</h2>
+      <p>Administra el inventario de recursos disponibles para los eventos</p>
+    </div>
+
+    <!-- ── Tarjetas de estadísticas ──────────────────────────────────── -->
+    <div class="stats-recursos">
+
+      <div class="stat-rec-card">
+        <div class="stat-rec-icon" style="background:#dbeafe;">
+          <i class="bx bx-package" style="color:#1E3A8A;"></i>
+        </div>
+        <div>
+          <p class="stat-rec-label">Total Recursos</p>
+          <p class="stat-rec-value" id="stat-total">0</p>
+        </div>
+      </div>
+
+      <div class="stat-rec-card">
+        <div class="stat-rec-icon" style="background:#d1fae5;">
+          <i class="bx bx-check-circle" style="color:#059669;"></i>
+        </div>
+        <div>
+          <p class="stat-rec-label">Disponibles</p>
+          <p class="stat-rec-value" id="stat-disponibles">0</p>
+        </div>
+      </div>
+
+      <div class="stat-rec-card">
+        <div class="stat-rec-icon" style="background:#fee2e2;">
+          <i class="bx bx-x-circle" style="color:#dc2626;"></i>
+        </div>
+        <div>
+          <p class="stat-rec-label">No Disponibles</p>
+          <p class="stat-rec-value" id="stat-nodisponibles">0</p>
+        </div>
+      </div>
+
+      <div class="stat-rec-card">
+        <div class="stat-rec-icon" style="background:#fef3c7;">
+          <i class="bx bx-error" style="color:#d97706;"></i>
+        </div>
+        <div>
+          <p class="stat-rec-label">Sin Stock</p>
+          <p class="stat-rec-value" id="stat-sinstock">0</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Barra de herramientas ──────────────────────────────────────── -->
+    <div class="toolbar">
+      <div class="toolbar-left">
+
+        <!-- Búsqueda por nombre, categoría o descripción -->
+        <div class="search-wrap">
+          <i class="bx bx-search"></i>
+          <input
+            type="text"
+            id="input-buscar"
+            class="input-buscar"
+            placeholder="Buscar por nombre, categoría…"
+          />
+        </div>
+
+        <!-- Filtro por categoría -->
+        <select id="filtro-categoria" class="select-filtro">
+          <option value="">Todas las categorías</option>
+          <option value="Mobiliario">Mobiliario</option>
+          <option value="Audio y Video">Audio y Video</option>
+          <option value="Iluminación">Iluminación</option>
+          <option value="Papelería">Papelería</option>
+          <option value="Cocina">Cocina</option>
+          <option value="Otros">Otros</option>
+        </select>
+
+        <!-- Filtro por disponibilidad / stock -->
+        <select id="filtro-disp" class="select-filtro">
+          <option value="">Todos los estados</option>
+          <option value="disponible">Disponibles</option>
+          <option value="nodisponible">No disponibles</option>
+          <option value="sinstock">Sin stock</option>
+        </select>
+
+      </div>
+
+      <!-- Botón para abrir el modal de nuevo recurso -->
+      <button class="btn-nuevo" id="btn-nuevo-recurso">
+        <i class="bx bx-plus"></i>
+        Nuevo Recurso
+      </button>
+    </div>
+
+    <!-- ── Layout: tabla + panel lateral ─────────────────────────────── -->
+    <div class="recursos-layout" id="recursos-layout">
+
+      <!-- Tabla de recursos -->
+      <div class="table-wrap">
+        <table class="recursos-table">
+          <thead>
+            <tr>
+              <th>Recurso</th>
+              <th>Categoría</th>
+              <th>Stock</th>
+              <th>Estado</th>
+              <th>Registrado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="recursos-tbody">
+            <!-- Filas generadas por el controller -->
+          </tbody>
+        </table>
+      </div>
+
+    </div><!-- /recursos-layout -->
+
+  </section>
+</main>
+
+<!-- ══ OVERLAY DEL MODAL ════════════════════════════════════════════════ -->
+<div class="modal-overlay-rec" id="modal-overlay-rec"></div>
+
+<!-- ══ MODAL CREAR / EDITAR RECURSO ═════════════════════════════════════ -->
+<div class="modal-recurso" id="modal-recurso" role="dialog" aria-modal="true" aria-labelledby="modal-title-rec">
+
+  <div class="modal-header">
+    <h3 id="modal-title-rec">Nuevo Recurso</h3>
+    <button class="btn-cerrar-modal" id="btn-cerrar-modal-rec" aria-label="Cerrar">
+      <i class="bx bx-x"></i>
+    </button>
+  </div>
+
+  <!-- Mensaje de error de validación -->
+  <div class="modal-error" id="modal-error-rec" role="alert"></div>
+
+  <form id="form-recurso" novalidate>
+
+    <!-- Nombre del recurso -->
+    <div class="form-group">
+      <label for="campo-nombre-rec">Nombre del Recurso</label>
+      <input
+        type="text"
+        id="campo-nombre-rec"
+        class="form-control"
+        placeholder="Ej: Sillas plegables"
+        required
+        minlength="3"
+      />
+    </div>
+
+    <!-- Categoría + Unidad de medida -->
+    <div class="form-row">
+      <div class="form-group">
+        <label for="campo-categoria">Categoría</label>
+        <select id="campo-categoria" class="form-control select-filtro" style="width:100%;" required>
+          <option value="Mobiliario">Mobiliario</option>
+          <option value="Audio y Video">Audio y Video</option>
+          <option value="Iluminación">Iluminación</option>
+          <option value="Papelería">Papelería</option>
+          <option value="Cocina">Cocina</option>
+          <option value="Otros">Otros</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="campo-unidad">Unidad de Medida</label>
+        <input
+          type="text"
+          id="campo-unidad"
+          class="form-control"
+          placeholder="Ej: unidades, metros, kg"
+          value="unidades"
+          required
+        />
+      </div>
+    </div>
+
+    <!-- Cantidad disponible -->
+    <div class="form-group">
+      <label for="campo-cantidad">Cantidad en Inventario</label>
+      <input
+        type="number"
+        id="campo-cantidad"
+        class="form-control"
+        min="0"
+        value="0"
+        required
+      />
+    </div>
+
+    <!-- Descripción -->
+    <div class="form-group">
+      <label for="campo-descripcion-rec">Descripción (opcional)</label>
+      <textarea
+        id="campo-descripcion-rec"
+        class="form-control"
+        rows="3"
+        placeholder="Características, estado, observaciones del recurso…"
+      ></textarea>
+    </div>
+
+    <!-- Botones del modal -->
+    <div class="modal-footer">
+      <button type="button" class="btn-cancelar" id="btn-cancelar-rec">Cancelar</button>
+      <button type="submit" class="btn-guardar">
+        <i class="bx bx-save" style="margin-right:0.35rem;"></i>
+        Guardar
+      </button>
+    </div>
+
+  </form>
+</div><!-- /modal-recurso -->
+
+<!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
+<!-- Sidebar del admin -->
+<script src="../../../controllers/sidebar.controller.js"></script>
+<!-- Modelo de recursos -->
+<script src="../../../models/recursos.model.js"></script>
+<!-- Controlador de recursos -->
+<script src="../../../controllers/recursos.controller.js"></script>
+
+</body>
+</html>

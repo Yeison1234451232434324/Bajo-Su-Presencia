@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calificación de Voluntarios – Bajo Su Presencia</title>
+  <link rel="stylesheet" href="panel.css" />
+  <link rel="stylesheet" href="voluntarios.css" />
+</head>
+<body>
+
+<!-- ══ CONTENIDO PRINCIPAL ══════════════════════════════════════════════ -->
+<main class="main" id="main">
+  <section class="panel active" style="display:block;">
+
+    <!-- Encabezado de la sección -->
+    <div class="panel-header">
+      <h2>Calificación de Voluntarios</h2>
+      <p>Evalúa el desempeño de los voluntarios por evento</p>
+    </div>
+
+    <!-- ── Selector de evento ─────────────────────────────────────────── -->
+    <div class="evento-selector-card">
+      <label for="select-evento">
+        <i class="bx bx-calendar-event" style="color:var(--primary);font-size:1.2rem;"></i>
+        Seleccionar Evento:
+      </label>
+      <select id="select-evento" class="select-evento">
+        <option value="">— Selecciona un evento —</option>
+        <!-- Opciones generadas por el controller -->
+      </select>
+    </div>
+
+    <!-- ── Barra de info del evento seleccionado ─────────────────────── -->
+    <div class="evento-info-bar" id="evento-info">
+      <div class="evento-info-item">
+        <i class="bx bx-calendar"></i>
+        <span>Fecha: <strong id="info-fecha">—</strong></span>
+      </div>
+      <div class="evento-info-item">
+        <i class="bx bx-map-pin"></i>
+        <span>Lugar: <strong id="info-lugar">—</strong></span>
+      </div>
+      <div class="evento-info-item">
+        <i class="bx bx-group"></i>
+        <span>Evento: <strong id="info-nombre">—</strong></span>
+      </div>
+      <div class="evento-info-item">
+        <i class="bx bx-user"></i>
+        <span><strong id="info-total">—</strong></span>
+      </div>
+    </div>
+
+    <!-- ── Layout: tabla + paneles laterales ─────────────────────────── -->
+    <div class="content-layout" id="content-layout">
+
+      <!-- Placeholder cuando no hay evento seleccionado -->
+      <div class="sin-evento" id="sin-evento">
+        <i class="bx bx-calendar-x"></i>
+        <p>Selecciona un evento para ver y calificar a sus voluntarios.</p>
+      </div>
+
+      <!-- Tabla de voluntarios (oculta hasta seleccionar evento) -->
+      <div class="table-wrap" id="tabla-wrap">
+        <table class="voluntarios-table">
+          <thead>
+            <tr>
+              <th>Voluntario</th>
+              <th>Calificación</th>
+              <th>Comentario</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="voluntarios-tbody">
+            <!-- Filas generadas por el controller -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ── Panel lateral: Historial de calificaciones ── -->
+      <div class="panel-lateral" id="panel-historial">
+        <div class="panel-lateral-header">
+          <div>
+            <h3>Historial</h3>
+            <p id="historial-nombre">—</p>
+          </div>
+          <button class="btn-cerrar-panel" id="btn-cerrar-historial" title="Cerrar">
+            <i class="bx bx-x"></i>
+          </button>
+        </div>
+        <!-- Lista de calificaciones pasadas, generada por el controller -->
+        <div class="historial-lista" id="historial-lista"></div>
+      </div>
+
+      <!-- ── Panel lateral: Resumen estadístico personal ── -->
+      <div class="panel-lateral" id="panel-resumen">
+        <div class="panel-lateral-header">
+          <div>
+            <h3>Resumen Estadístico</h3>
+            <p id="resumen-nombre">—</p>
+          </div>
+          <button class="btn-cerrar-panel" id="btn-cerrar-resumen" title="Cerrar">
+            <i class="bx bx-x"></i>
+          </button>
+        </div>
+
+        <!-- Tarjetas: promedio y total de eventos -->
+        <div class="resumen-grid">
+          <div class="resumen-card">
+            <p class="res-label">Promedio</p>
+            <p class="res-valor" id="res-promedio-num">—</p>
+            <div class="res-sub" id="res-promedio-stars"></div>
+          </div>
+          <div class="resumen-card">
+            <p class="res-label">Eventos</p>
+            <p class="res-valor" id="res-total">—</p>
+            <p style="font-size:0.78rem;color:var(--muted);margin-top:0.2rem;">calificados</p>
+          </div>
+        </div>
+
+        <!-- Mejor calificación -->
+        <div class="resumen-card-full">
+          <p class="res-label">🏆 Mejor Calificación</p>
+          <div id="res-mejor"></div>
+        </div>
+
+        <!-- Peor calificación -->
+        <div class="resumen-card-full">
+          <p class="res-label">📉 Calificación más baja</p>
+          <div id="res-peor"></div>
+        </div>
+
+        <!-- Distribución de estrellas -->
+        <p class="dist-titulo">Distribución de Calificaciones</p>
+        <div id="res-distribucion">
+          <!-- Barras generadas por el controller -->
+        </div>
+
+      </div><!-- /panel-resumen -->
+
+    </div><!-- /content-layout -->
+
+  </section>
+</main>
+
+<!-- ══ OVERLAY DEL MODAL ════════════════════════════════════════════════ -->
+<div class="modal-overlay-vol" id="modal-overlay-vol"></div>
+
+<!-- ══ MODAL DE CALIFICACIÓN ════════════════════════════════════════════ -->
+<div class="modal-calif" id="modal-calif" role="dialog" aria-modal="true">
+
+  <div class="modal-header">
+    <h3>Calificar Voluntario</h3>
+    <button class="btn-cerrar-modal" id="btn-cerrar-modal-vol" aria-label="Cerrar">
+      <i class="bx bx-x"></i>
+    </button>
+  </div>
+
+  <!-- Info del voluntario y evento -->
+  <div class="modal-vol-info">
+    <p>Voluntario: <strong id="modal-vol-nombre">—</strong></p>
+    <p>Evento: <strong id="modal-evento-nombre">—</strong></p>
+  </div>
+
+  <!-- Error de validación -->
+  <div class="modal-error" id="modal-error-vol" role="alert"></div>
+
+  <form id="form-calificacion" novalidate>
+
+    <!-- Sistema de estrellas interactivo -->
+    <div class="estrellas-section">
+      <label>Calificación de Desempeño</label>
+      <!-- Las estrellas se inyectan por JS para manejar eventos de hover/click -->
+      <div class="estrellas-interactivas" id="estrellas-modal"></div>
+      <p id="texto-estrellas">Selecciona una calificación</p>
+    </div>
+
+    <!-- Comentario y observaciones -->
+    <div class="form-group">
+      <label for="campo-comentario">Comentarios y Observaciones</label>
+      <textarea
+        id="campo-comentario"
+        class="form-control"
+        rows="4"
+        placeholder="Describe el desempeño del voluntario, áreas de mejora, actitud, puntualidad…"
+        maxlength="300"
+      ></textarea>
+      <p class="char-count" id="char-count">0 / 300</p>
+    </div>
+
+    <!-- Botones del modal -->
+    <div class="modal-footer">
+      <button type="button" class="btn-cancelar" id="btn-cancelar-vol">Cancelar</button>
+      <button type="submit" class="btn-guardar">
+        <i class="bx bx-save" style="margin-right:0.35rem;"></i>
+        Guardar Calificación
+      </button>
+    </div>
+
+  </form>
+</div><!-- /modal-calif -->
+
+<!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
+<!-- Sidebar del admin -->
+<script src="../../../controllers/sidebar.controller.js"></script>
+<!-- Modelo de voluntarios -->
+<script src="../../../models/voluntarios.model.js"></script>
+<!-- Controlador de voluntarios -->
+<script src="../../../controllers/voluntarios.controller.js"></script>
+
+</body>
+</html>

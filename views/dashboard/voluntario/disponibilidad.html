@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mis Eventos – Bajo Su Presencia</title>
+  <link rel="stylesheet" href="panel.css" />
+  <link rel="stylesheet" href="disponibilidad.css" />
+</head>
+<body>
+
+<main class="main" id="main">
+  <section class="panel active" style="display:block;">
+
+    <!-- Encabezado -->
+    <div class="panel-header">
+      <h2>Mis Eventos</h2>
+      <p>Hola, <strong id="vol-nombre-disp">—</strong> · Gestiona tu disponibilidad en los eventos publicados</p>
+    </div>
+
+    <!-- ── Tarjetas de contadores ────────────────────────────────────────── -->
+    <div class="disp-counters">
+
+      <div class="disp-counter-card">
+        <div class="disp-counter-icon" style="background:#dbeafe;color:#1E3A8A;">
+          <i class="bx bx-calendar"></i>
+        </div>
+        <div>
+          <p class="disp-counter-label">Eventos Publicados</p>
+          <p class="disp-counter-value" id="cnt-total">0</p>
+        </div>
+      </div>
+
+      <div class="disp-counter-card">
+        <div class="disp-counter-icon" style="background:#ede9fe;color:#7c3aed;">
+          <i class="bx bx-user-check"></i>
+        </div>
+        <div>
+          <p class="disp-counter-label">Eventos Inscritos</p>
+          <p class="disp-counter-value" id="cnt-conmigo">0</p>
+        </div>
+      </div>
+
+      <div class="disp-counter-card">
+        <div class="disp-counter-icon" style="background:#d1fae5;color:#059669;">
+          <i class="bx bx-check-circle"></i>
+        </div>
+        <div>
+          <p class="disp-counter-label">Disponible en</p>
+          <p class="disp-counter-value" id="cnt-disponible">0</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Grilla de tarjetas de eventos ────────────────────────────────── -->
+    <div class="disp-grid" id="eventos-grid">
+      <!-- Tarjetas generadas por el controller -->
+    </div>
+
+  </section>
+</main>
+
+<!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
+<script src="../../../controllers/sidebar.voluntario.controller.js"></script>
+<script src="../../../models/voluntarios.model.js"></script>
+<script src="../../../controllers/voluntario.disponibilidad.controller.js"></script>
+
+</body>
+</html>

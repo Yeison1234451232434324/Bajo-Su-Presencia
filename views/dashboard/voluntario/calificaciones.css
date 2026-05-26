@@ -1,0 +1,179 @@
+/* ══════════════════════════════════════════════════
+   MIS CALIFICACIONES — CSS específico del voluntario
+══════════════════════════════════════════════════ */
+
+/* ── Grilla de tarjetas de estadísticas ── */
+.cal-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+@media (max-width: 900px) { .cal-stats-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .cal-stats-grid { grid-template-columns: 1fr; } }
+
+/* Tarjeta de estadística */
+.cal-stat-card {
+  background: #fff;
+  border: 2px solid var(--border);
+  border-radius: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+/* Tarjeta de promedio con acento dorado */
+.cal-stat-promedio {
+  border-color: #F5C215;
+  background: linear-gradient(135deg, #fffbeb 0%, #fff 100%);
+}
+
+.cal-stat-icon {
+  width: 2.75rem; height: 2.75rem;
+  border-radius: 0.875rem;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; flex-shrink: 0;
+  background: #fef3c7; color: #d97706;
+}
+
+.cal-stat-label {
+  font-size: 0.82rem; color: var(--muted);
+  font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.04em; margin-bottom: 0.3rem;
+}
+
+.cal-stat-value {
+  font-family: var(--font-title);
+  font-size: 2.25rem; font-weight: 700;
+  color: var(--primary-dark); line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.res-evento-nombre {
+  display: block;
+  font-size: 0.82rem; color: var(--muted);
+  margin-top: 0.2rem; font-style: italic;
+}
+
+/* ── Distribución de estrellas ── */
+.cal-dist-card {
+  background: #fff;
+  border: 2px solid var(--border);
+  border-radius: 1.25rem;
+  padding: 1.5rem 2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.cal-section-title {
+  font-family: var(--font-title);
+  font-size: 1.5rem; font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 1.25rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.cal-section-title i { color: var(--primary); font-size: 1.4rem; }
+
+/* Filas de distribución */
+.dist-fila {
+  display: flex; align-items: center; gap: 0.75rem;
+  margin-bottom: 0.625rem;
+}
+.dist-label {
+  width: 2.75rem; font-size: 0.88rem; font-weight: 700;
+  color: #374151; text-align: right; flex-shrink: 0;
+  display: flex; align-items: center; gap: 3px; justify-content: flex-end;
+}
+.dist-barra-wrap {
+  flex: 1; background: #f3f0e8; border-radius: 999px; height: 12px; overflow: hidden;
+}
+.dist-barra {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  border-radius: 999px;
+  transition: width 0.5s ease;
+  min-width: 4px;
+}
+.dist-cant {
+  width: 1.75rem; font-size: 0.85rem; color: var(--muted);
+  font-weight: 700; text-align: right; flex-shrink: 0;
+}
+
+/* ── Historial de calificaciones ── */
+.cal-historial-section {
+  margin-top: 0.5rem;
+}
+
+/* Tarjeta individual de calificación */
+.hist-card {
+  background: #fff;
+  border: 2px solid var(--border);
+  border-left: 5px solid #059669; /* color dinámico por JS */
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  transition: box-shadow 0.2s;
+}
+.hist-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+
+/* Encabezado de la tarjeta: nombre del evento + nota grande */
+.hist-card-header {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+.hist-evento {
+  font-family: var(--font-title);
+  font-size: 1.35rem; font-weight: 700;
+  color: var(--primary-dark);
+}
+.hist-fecha {
+  font-size: 0.88rem; color: var(--muted);
+  display: flex; align-items: center; gap: 0.3rem;
+  margin-top: 0.2rem;
+}
+
+/* Número de calificación grande a la derecha */
+.hist-nota-grande {
+  font-family: var(--font-title);
+  font-size: 2.5rem; font-weight: 700;
+  line-height: 1; flex-shrink: 0;
+}
+
+/* Estrellas visuales */
+.hist-estrellas {
+  margin-bottom: 0.75rem;
+}
+.hist-estrellas .estrellas-fijas i { font-size: 1.2rem; }
+
+/* Bloque de observaciones del admin */
+.hist-observacion {
+  display: flex; gap: 0.75rem; align-items: flex-start;
+  background: #faf8f3;
+  border: 1px solid var(--border);
+  border-radius: 0.875rem;
+  padding: 0.875rem 1rem;
+  margin-top: 0.5rem;
+}
+.hist-obs-icon {
+  font-size: 1.2rem; color: var(--primary);
+  flex-shrink: 0; margin-top: 2px;
+}
+.hist-observacion p {
+  font-size: 0.95rem; color: #374151;
+  font-style: italic; line-height: 1.6;
+}
+
+/* Placeholder vacío */
+.hist-vacio {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 0.75rem; padding: 3rem;
+  background: #fff; border: 2px dashed var(--border);
+  border-radius: 1.25rem; text-align: center; color: #9ca3af;
+}
+.hist-vacio i { font-size: 3rem; color: #d1d5db; }
+.hist-vacio p { font-size: 1rem; font-weight: 600; }
+.hist-vacio small { font-size: 0.88rem; }

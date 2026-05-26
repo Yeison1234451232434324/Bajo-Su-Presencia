@@ -9,118 +9,123 @@
 </head>
 <body>
 
-  <main class="main" id="main">
-    <section class="panel active" style="display:block;">
-      <div class="panel-header">
-        <h2>Publicar Evento</h2>
-        <p>Crea un nuevo evento para la comunidad</p>
-      </div>
-      <div class="form-card">
-        <form onsubmit="submitEvent(event)">
-          <div class="form-group">
-            <label>Título del Evento</label>
-            <input type="text" class="form-control" placeholder="Ej: Culto Dominical" required />
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Fecha</label>
-              <input type="date" class="form-control" required />
-            </div>
-            <div class="form-group">
-              <label>Horario</label>
-              <input type="text" class="form-control" placeholder="Ej: 10:00 AM - 12:00 PM" required />
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Ubicación</label>
-              <input type="text" class="form-control" placeholder="Ej: Santuario Principal" required />
-            </div>
-            <div class="form-group">
-              <label>Asistentes Esperados</label>
-              <input type="text" class="form-control" placeholder="Ej: 200+" required />
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Descripción</label>
-            <textarea class="form-control" rows="4" placeholder="Descripción del evento (opcional)"></textarea>
-          </div>
-          <div class="form-group">
-            <label>Recursos Necesarios</label>
-            <div class="resources-grid">
-              <div class="resource-item" id="res-1">
-                <div class="resource-header">
-                  <div class="resource-name"><input type="checkbox" onchange="toggleResource('1')" /> Sillas</div>
-                  <span class="badge badge-green">Disponible</span>
-                </div>
-                <div class="resource-qty">
-                  <span>Disponibles: 150</span>
-                  <div id="qty-1" style="display:none;align-items:center;gap:0.4rem;">
-                    <span style="font-size:0.8rem;">Cant:</span>
-                    <input type="number" class="qty-input" min="1" max="150" value="1" />
-                  </div>
-                </div>
-              </div>
-              <div class="resource-item" id="res-2">
-                <div class="resource-header">
-                  <div class="resource-name"><input type="checkbox" onchange="toggleResource('2')" /> Mesas</div>
-                  <span class="badge badge-green">Disponible</span>
-                </div>
-                <div class="resource-qty">
-                  <span>Disponibles: 30</span>
-                  <div id="qty-2" style="display:none;align-items:center;gap:0.4rem;">
-                    <span style="font-size:0.8rem;">Cant:</span>
-                    <input type="number" class="qty-input" min="1" max="30" value="1" />
-                  </div>
-                </div>
-              </div>
-              <div class="resource-item" id="res-3">
-                <div class="resource-header">
-                  <div class="resource-name"><input type="checkbox" onchange="toggleResource('3')" /> Micrófonos</div>
-                  <span class="badge badge-green">Disponible</span>
-                </div>
-                <div class="resource-qty">
-                  <span>Disponibles: 8</span>
-                  <div id="qty-3" style="display:none;align-items:center;gap:0.4rem;">
-                    <span style="font-size:0.8rem;">Cant:</span>
-                    <input type="number" class="qty-input" min="1" max="8" value="1" />
-                  </div>
-                </div>
-              </div>
-              <div class="resource-item" id="res-4">
-                <div class="resource-header">
-                  <div class="resource-name"><input type="checkbox" onchange="toggleResource('4')" /> Proyector</div>
-                  <span class="badge badge-green">Disponible</span>
-                </div>
-                <div class="resource-qty">
-                  <span>Disponibles: 2</span>
-                  <div id="qty-4" style="display:none;align-items:center;gap:0.4rem;">
-                    <span style="font-size:0.8rem;">Cant:</span>
-                    <input type="number" class="qty-input" min="1" max="2" value="1" />
-                  </div>
-                </div>
-              </div>
-              <div class="resource-item unavailable">
-                <div class="resource-header">
-                  <div class="resource-name"><input type="checkbox" disabled /> Pantallas LED</div>
-                  <span class="badge" style="background:#fee2e2;color:#dc2626;">No disponible</span>
-                </div>
-                <div class="resource-qty"><span>Disponibles: 0</span></div>
-              </div>
-            </div>
-          </div>
-          <button type="submit" class="btn-submit">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:1.15rem;height:1.15rem;">
-              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-            Publicar Evento
-          </button>
-        </form>
-      </div>
-    </section>
-  </main>
+<main class="main" id="main">
+  <section class="panel active" style="display:block;">
 
-  <script src="../../../controllers/sidebar.controller.js"></script>
-  <script src="../../../controllers/eventos.controller.js"></script>
+    <!-- Encabezado -->
+    <div class="panel-header">
+      <h2>Publicar Evento</h2>
+      <p>Crea un nuevo evento y asigna los recursos del inventario</p>
+    </div>
+
+    <!-- ══ FORMULARIO ══════════════════════════════════════════════════════ -->
+    <div class="form-card">
+      <form id="form-evento" onsubmit="submitEvent(event)" novalidate>
+
+        <!-- Título -->
+        <div class="form-group">
+          <label for="ev-titulo">Título del Evento</label>
+          <input id="ev-titulo" type="text" class="form-control"
+            placeholder="Ej: Culto Dominical" required />
+        </div>
+
+        <!-- Fecha + Horario -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="ev-fecha">Fecha</label>
+            <input id="ev-fecha" type="date" class="form-control" required />
+          </div>
+          <div class="form-group">
+            <label for="ev-horario">Horario</label>
+            <input id="ev-horario" type="text" class="form-control"
+              placeholder="Ej: 10:00 AM - 12:00 PM" required />
+          </div>
+        </div>
+
+        <!-- Ubicación + Asistentes -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="ev-ubicacion">Ubicación</label>
+            <input id="ev-ubicacion" type="text" class="form-control"
+              placeholder="Ej: Santuario Principal" required />
+          </div>
+          <div class="form-group">
+            <label for="ev-asistentes">Asistentes Esperados</label>
+            <input id="ev-asistentes" type="text" class="form-control"
+              placeholder="Ej: 200+" />
+          </div>
+        </div>
+
+        <!-- Voluntarios necesarios + Descripción -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="ev-voluntarios">Voluntarios Necesarios</label>
+            <input id="ev-voluntarios" type="number" class="form-control"
+              min="1" value="1" placeholder="Ej: 10" required />
+          </div>
+          <div class="form-group">
+            <label for="ev-descripcion">Descripción</label>
+            <textarea id="ev-descripcion" class="form-control" rows="3"
+              placeholder="Descripción del evento (opcional)"></textarea>
+          </div>
+        </div>
+
+        <!-- ── SECCIÓN DE RECURSOS DEL INVENTARIO ──────────────────────── -->
+        <div class="form-group">
+          <div class="ev-recursos-header">
+            <label>Recursos del Inventario</label>
+            <!-- Contador dinámico de recursos seleccionados -->
+            <span id="contador-recursos" class="ev-contador">
+              Ningún recurso seleccionado (opcional)
+            </span>
+          </div>
+
+          <!-- Mensaje cuando no hay recursos disponibles en el inventario -->
+          <div id="sin-recursos-msg" class="ev-sin-recursos-msg" style="display:none;">
+            <i class="bx bx-error-circle"></i>
+            No hay recursos disponibles en el inventario.
+            <a href="recursos.html">Ir a Gestión de Recursos</a>
+          </div>
+
+          <!-- Grilla de tarjetas de recursos (generada por el controller) -->
+          <div id="recursos-grid" class="ev-recursos-grid"></div>
+        </div>
+
+        <!-- Botón publicar -->
+        <button type="submit" class="btn-submit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            style="width:1.15rem;height:1.15rem;">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Publicar Evento
+        </button>
+
+      </form>
+    </div>
+
+    <!-- ══ EVENTOS PUBLICADOS ═══════════════════════════════════════════════ -->
+    <div class="ev-publicados-section">
+      <h3 class="ev-publicados-titulo">
+        <i class="bx bx-calendar-check"></i>
+        Eventos Publicados
+      </h3>
+      <!-- Lista generada por el controller -->
+      <div id="lista-eventos-publicados"></div>
+    </div>
+
+  </section>
+</main>
+
+<!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
+<!-- Sidebar del admin -->
+<script src="../../../controllers/sidebar.controller.js"></script>
+<!-- Modelo de recursos (necesario para leer el inventario) -->
+<script src="../../../models/recursos.model.js"></script>
+<!-- Modelo de eventos (guardar y leer eventos publicados) -->
+<script src="../../../models/eventos.model.js"></script>
+<!-- Controlador de eventos -->
+<script src="../../../controllers/eventos.controller.js"></script>
+
 </body>
 </html>

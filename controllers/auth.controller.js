@@ -22,7 +22,7 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
             email:    'voluntario@correo.com',
             password: '123',
             rol:      'Voluntario',
-            url:      '../../dashboard/volunter/panel.html'
+            url:      '../../dashboard/voluntario/calificaciones.html'
         },
         {
             username: 'usuario',
