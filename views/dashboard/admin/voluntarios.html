@@ -1,3 +1,30 @@
+<!--
+  ================================================================
+  CALIFICACIÓN DE VOLUNTARIOS ADMIN — Evaluación por evento
+  ================================================================
+  ¿Qué hace esta página?
+  Permite al admin calificar el desempeño de los voluntarios
+  en cada evento con un sistema de estrellas (1-5) y comentarios.
+
+  Secciones:
+    1. Selector de evento → carga la lista de voluntarios del evento
+    2. Barra de info del evento seleccionado (fecha, lugar, total)
+    3. Tabla de voluntarios con calificación actual y acciones:
+       · Calificar / Editar calificación (estrellas + comentario)
+       · Ver historial completo del voluntario
+       · Ver resumen estadístico personal
+    4. Panel lateral de historial (calificaciones pasadas)
+    5. Panel lateral de resumen (promedio, distribución de estrellas)
+    6. Modal de calificación con estrellas interactivas
+
+  Archivos que usa:
+    - panel.css               → estilos base del panel
+    - voluntarios.css         → estilos específicos del módulo
+    - sidebar.controller.js   → sidebar del admin
+    - voluntarios.model.js    → datos de eventos y calificaciones
+    - voluntarios.controller.js → lógica completa del módulo
+  ================================================================
+-->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -9,7 +36,7 @@
 </head>
 <body>
 
-<!-- ══ CONTENIDO PRINCIPAL ══════════════════════════════════════════════ -->
+<!-- Área principal (el sidebar se inyecta por JS) -->
 <main class="main" id="main">
   <section class="panel active" style="display:block;">
 

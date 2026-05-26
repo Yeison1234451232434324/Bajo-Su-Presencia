@@ -1,1 +1,17 @@
+/*
+ * ================================================================
+ *  EVENTOS COLABORADOR — Estilos del módulo de eventos
+ * ================================================================
+ *  ¿Qué hace este archivo?
+ *  Contiene los estilos específicos de la vista de eventos
+ *  para el rol de colaborador (solo lectura / consulta).
+ *
+ *  Aquí van los estilos propios de este módulo que NO están
+ *  cubiertos por panel.css del colaborador.
+ *
+ *  ¿Cómo se usa?
+ *  Se carga DESPUÉS de panel.css en eventos.html del colaborador.
+ * ================================================================
+ */
+
 /* CSS específico para el módulo Eventos – Colaborador */

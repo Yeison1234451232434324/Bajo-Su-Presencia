@@ -1,3 +1,28 @@
+/*
+ * ================================================================
+ *  EVENTOS ADMIN — Estilos del módulo de publicación de eventos
+ * ================================================================
+ *  ¿Qué hace este archivo?
+ *  Estiliza la página donde el admin crea y gestiona eventos:
+ *
+ *  SECCIÓN 1 — Formulario de publicación:
+ *    - Encabezado de recursos con contador de seleccionados
+ *    - Mensaje de advertencia cuando no hay recursos en inventario
+ *    - Grilla de tarjetas de recursos (con checkbox de selección,
+ *      ícono de categoría, stock disponible y campo de cantidad)
+ *    - Estado visual "seleccionado" con borde azul y fondo suave
+ *
+ *  SECCIÓN 2 — Lista de eventos publicados:
+ *    - Tarjetas de cada evento con título, fecha, descripción
+ *    - Chips (etiquetas) de recursos asignados al evento
+ *    - Botón de eliminar evento
+ *    - Placeholder cuando la lista está vacía
+ *
+ *  ¿Cómo se usa?
+ *  Se carga DESPUÉS de panel.css en eventos.html del admin.
+ * ================================================================
+ */
+
 /* ══════════════════════════════════════════════════
    PUBLICAR EVENTO — CSS específico
    Complementa panel.css (variables y estilos base)
@@ -309,4 +334,444 @@
 @media (max-width: 640px) {
   .ev-recursos-grid { grid-template-columns: 1fr; }
   .ev-pub-header { flex-direction: column; }
+}
+
+/* ══════════════════════════════════════════════════
+   HISTORIAL — Badges de estado y acciones
+══════════════════════════════════════════════════ */
+
+/* Fila título + badge */
+.ev-pub-titulo-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+/* Info del encabezado (título + meta) */
+.ev-pub-header-info { flex: 1; min-width: 0; }
+
+/* Badge de estado del evento */
+.ev-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.ev-badge--activo {
+  background: #d1fae5;
+  color: #065f46;
+}
+.ev-badge--pasado {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+/* Grupo de botones de acción */
+.ev-pub-acciones {
+  display: flex;
+  gap: 0.4rem;
+  flex-shrink: 0;
+  align-items: flex-start;
+}
+
+/* Botón de acción base */
+.btn-ev-accion {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, transform 0.1s;
+}
+.btn-ev-accion:active { transform: scale(0.92); }
+
+/* Ver detalle — azul */
+.btn-ev-ver {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+.btn-ev-ver:hover { background: #bfdbfe; }
+
+/* Editar — amarillo */
+.btn-ev-editar {
+  background: #fef9c3;
+  color: #a16207;
+}
+.btn-ev-editar:hover { background: #fef08a; }
+
+/* Eliminar — rojo (reemplaza el anterior .btn-ev-eliminar) */
+.btn-ev-eliminar {
+  background: #fee2e2;
+  color: #dc2626;
+}
+.btn-ev-eliminar:hover { background: #fecaca; }
+
+/* Fecha de publicación */
+.ev-pub-fecha-pub {
+  font-size: 0.78rem;
+  color: #9ca3af;
+  margin-top: 0.6rem;
+  font-style: italic;
+}
+
+/* ══════════════════════════════════════════════════
+   MODALES — Ver detalle y Editar evento
+══════════════════════════════════════════════════ */
+
+/* Overlay oscuro */
+.ev-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  backdrop-filter: blur(2px);
+}
+
+/* Caja del modal */
+.ev-modal-box {
+  background: #fff;
+  border-radius: 1.25rem;
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  animation: ev-modal-in 0.2s ease;
+}
+
+/* Modal ancho para edición */
+.ev-modal-box--wide { max-width: 680px; }
+
+@keyframes ev-modal-in {
+  from { opacity: 0; transform: translateY(-16px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Encabezado del modal */
+.ev-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem 0;
+  gap: 1rem;
+}
+
+.ev-modal-title {
+  font-family: var(--font-title);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Botón cerrar modal */
+.ev-modal-close {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 0.5rem;
+  background: #f3f4f6;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.ev-modal-close:hover { background: #e5e7eb; color: #111; }
+
+/* Cuerpo del modal */
+.ev-modal-body {
+  padding: 1.25rem 1.5rem 1.5rem;
+}
+
+/* ── Detalle del evento ── */
+.ev-detalle-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.ev-detalle-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.ev-detalle-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.ev-detalle-label i { font-size: 0.9rem; }
+
+.ev-detalle-valor {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.ev-detalle-desc {
+  margin: 0.75rem 0;
+  padding: 0.75rem 1rem;
+  background: #f9fafb;
+  border-radius: 0.75rem;
+  border-left: 3px solid var(--primary);
+}
+.ev-detalle-desc p {
+  font-size: 0.92rem;
+  color: #374151;
+  margin-top: 0.4rem;
+  line-height: 1.5;
+}
+
+.ev-detalle-recursos { margin-top: 0.75rem; }
+
+/* ── Footer del modal de edición ── */
+.ev-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f3f0e8;
+}
+
+.btn-ev-cancelar {
+  padding: 0.6rem 1.25rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.75rem;
+  background: #fff;
+  color: #6b7280;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn-ev-cancelar:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+/* ── Responsive modales ── */
+@media (max-width: 640px) {
+  .ev-detalle-grid { grid-template-columns: 1fr; }
+  .ev-modal-box, .ev-modal-box--wide { max-width: 100%; }
+  .ev-pub-acciones { flex-wrap: wrap; }
+}
+
+/* ══════════════════════════════════════════════════
+   LAYOUT FORMULARIO + PREVISUALIZACIÓN
+══════════════════════════════════════════════════ */
+
+/* Contenedor de dos columnas */
+.ev-form-preview-layout {
+  display: grid;
+  grid-template-columns: 1fr 0px;   /* columna preview colapsada por defecto */
+  gap: 0;
+  align-items: flex-start;
+  max-width: 72rem;
+  margin: 0 auto;
+  width: 100%;
+  transition: grid-template-columns 0.35s ease, gap 0.35s ease;
+}
+
+/* Cuando hay datos: expande la columna de previsualización */
+.ev-form-preview-layout:has(.ev-preview-col--visible) {
+  grid-template-columns: 1fr 340px;
+  gap: 1.75rem;
+}
+
+/* Columna del formulario */
+.ev-form-col {
+  min-width: 0;
+}
+
+/* Columna de la previsualización — oculta por defecto */
+.ev-preview-col {
+  min-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  width: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease, width 0.35s ease;
+}
+
+/* Visible: se expande y aparece */
+.ev-preview-col--visible {
+  opacity: 1;
+  width: 340px;
+  pointer-events: auto;
+  overflow: visible;
+}
+
+/* Hace que la previsualización se quede fija mientras se hace scroll */
+.ev-preview-sticky {
+  position: sticky;
+  top: 1.5rem;
+}
+
+/* ── Etiqueta "Vista previa" ── */
+.ev-preview-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+.ev-preview-label i { font-size: 1rem; }
+
+/* ── Tarjeta de previsualización ── */
+.ev-preview-card {
+  background: #fff;
+  border: 2px solid var(--border);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+  transition: box-shadow 0.2s;
+  min-height: 200px;
+  display: flex;
+}
+.ev-preview-card:hover {
+  box-shadow: 0 6px 28px rgba(0,0,0,0.11);
+}
+
+/* Barra de color lateral (igual a las tarjetas de la página pública) */
+.ev-preview-bar {
+  width: 6px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, var(--primary) 0%, #2D4FAF 100%);
+  border-radius: 0 0 0 0;
+}
+
+/* Cuerpo de la tarjeta */
+.ev-preview-body {
+  flex: 1;
+  padding: 1.25rem 1.25rem 1.25rem 1rem;
+  min-width: 0;
+}
+
+/* ── Estado vacío ── */
+.ev-preview-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 2rem 1rem;
+  text-align: center;
+  color: #c4bfb0;
+  min-height: 160px;
+}
+.ev-preview-empty i {
+  font-size: 2.5rem;
+  color: #ddd8cc;
+}
+.ev-preview-empty p {
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+/* ── Contenido de la tarjeta ── */
+.ev-prev-titulo {
+  font-family: var(--font-title, 'Cormorant Garamond', serif);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 0.75rem;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+/* Lista de datos del evento */
+.ev-prev-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.ev-prev-info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  color: #374151;
+}
+
+.ev-prev-icon {
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Descripción en la previsualización */
+.ev-prev-desc {
+  font-size: 0.85rem;
+  color: #6b7280;
+  line-height: 1.5;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #f3f0e8;
+  word-break: break-word;
+}
+
+/* ── Nota informativa debajo de la tarjeta ── */
+.ev-preview-nota {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  color: #9ca3af;
+  margin-top: 0.75rem;
+  font-style: italic;
+}
+.ev-preview-nota i { font-size: 0.9rem; flex-shrink: 0; }
+
+/* ── Responsive: una columna en pantallas pequeñas ── */
+@media (max-width: 900px) {
+  .ev-form-preview-layout,
+  .ev-form-preview-layout:has(.ev-preview-col--visible) {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  .ev-preview-sticky {
+    position: static;
+  }
+  /* En móvil la previsualización va arriba del formulario */
+  .ev-preview-col {
+    order: -1;
+    width: 100% !important;
+  }
+  .ev-preview-col--visible {
+    width: 100% !important;
+  }
 }

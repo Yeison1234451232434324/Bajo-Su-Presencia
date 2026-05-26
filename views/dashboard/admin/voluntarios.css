@@ -1,3 +1,24 @@
+/*
+ * ================================================================
+ *  VOLUNTARIOS ADMIN — Estilos del módulo de calificación
+ * ================================================================
+ *  ¿Qué hace este archivo?
+ *  Estiliza la página donde el admin califica a los voluntarios
+ *  por su participación en cada evento:
+ *    - Selector de evento (dropdown) con barra de info del evento
+ *    - Placeholder cuando no hay evento seleccionado
+ *    - Layout tabla + paneles laterales (historial y resumen)
+ *    - Tabla de voluntarios con estrellas de solo lectura
+ *    - Botones de acción: disponibilidad, calificar, historial, resumen
+ *    - Modal de calificación con estrellas interactivas
+ *    - Panel lateral de historial: lista de calificaciones pasadas
+ *    - Panel lateral de resumen: estadísticas y distribución de estrellas
+ *
+ *  ¿Cómo se usa?
+ *  Se carga DESPUÉS de panel.css en voluntarios.html del admin.
+ * ================================================================
+ */
+
 /* ══════════════════════════════════════════════════
    CALIFICACIÓN DE VOLUNTARIOS — CSS específico
    Complementa panel.css (variables y estilos base)

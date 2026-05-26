@@ -1,3 +1,22 @@
+/*
+ * ================================================================
+ *  USUARIOS ADMIN — Estilos del módulo de gestión de usuarios
+ * ================================================================
+ *  ¿Qué hace este archivo?
+ *  Estiliza la página donde el admin crea y administra las
+ *  cuentas de usuarios del sistema (admins, colaboradores):
+ *    - Barra de herramientas: búsqueda, filtro por rol y botón "Nuevo"
+ *    - Tarjetas de contadores (total, admins, colaboradores)
+ *    - Tabla de usuarios con avatar de iniciales y badge de rol
+ *    - Filas inactivas con opacidad reducida
+ *    - Botones de acción: editar y activar/desactivar cuenta
+ *    - Modal de crear/editar usuario con campo de contraseña
+ *
+ *  ¿Cómo se usa?
+ *  Se carga DESPUÉS de panel.css en usuarios.html del admin.
+ * ================================================================
+ */
+
 /* ══════════════════════════════════════════════════
    GESTIÓN DE USUARIOS — CSS específico
 ══════════════════════════════════════════════════ */

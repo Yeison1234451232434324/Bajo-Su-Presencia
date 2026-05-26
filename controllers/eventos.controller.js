@@ -203,6 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('[id^="ev-qty-"]').forEach(d => d.style.display = 'none');
     document.querySelectorAll('[id^="chk-rec-"]').forEach(c => c.checked = false);
     actualizarContador();
+    actualizarPreview(); // Resetear previsualización
 
     // Recargar lista de eventos publicados
     renderEventosPublicados();
@@ -215,12 +216,12 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // ════════════════════════════════════════════════════════════════
-  // 4. LISTA DE EVENTOS PUBLICADOS
+  // 4. HISTORIAL DE EVENTOS PUBLICADOS
   // ════════════════════════════════════════════════════════════════
 
   /**
-   * Renderiza la lista de eventos ya publicados debajo del formulario.
-   * Muestra los recursos asignados a cada uno.
+   * Renderiza el historial de eventos publicados debajo del formulario.
+   * Cada tarjeta tiene botones: Ver detalle, Editar y Eliminar.
    */
   function renderEventosPublicados() {
     const eventos = EventosModel.getAll();
@@ -238,7 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Mostrar del más reciente al más antiguo
     [...eventos].reverse().forEach(ev => {
       // Construir chips de recursos asignados
-      const chipsRecursos = ev.recursos.length > 0
+      const chipsRecursos = ev.recursos && ev.recursos.length > 0
         ? ev.recursos.map(r =>
             `<span class="ev-chip-recurso">
                <i class="bx bx-package"></i> ${r.recursoNombre} × ${r.cantidad}
@@ -246,11 +247,20 @@ document.addEventListener('DOMContentLoaded', () => {
           ).join('')
         : '<span class="ev-sin-recursos">Sin recursos asignados</span>';
 
+      // Badge de estado según fecha
+      const hoy   = new Date().toISOString().split('T')[0];
+      const badge = ev.fecha >= hoy
+        ? '<span class="ev-badge ev-badge--activo">Próximo</span>'
+        : '<span class="ev-badge ev-badge--pasado">Realizado</span>';
+
       listaEventos.innerHTML += `
-        <div class="ev-publicado-card">
+        <div class="ev-publicado-card" id="ev-card-${ev.id}">
           <div class="ev-pub-header">
-            <div>
-              <h4 class="ev-pub-titulo">${ev.titulo}</h4>
+            <div class="ev-pub-header-info">
+              <div class="ev-pub-titulo-row">
+                <h4 class="ev-pub-titulo">${ev.titulo}</h4>
+                ${badge}
+              </div>
               <p class="ev-pub-meta">
                 <i class="bx bx-calendar"></i> ${ev.fecha}
                 &nbsp;·&nbsp;
@@ -258,13 +268,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 &nbsp;·&nbsp;
                 <i class="bx bx-map-pin"></i> ${ev.ubicacion}
                 &nbsp;·&nbsp;
-                <i class="bx bx-group"></i> ${ev.voluntariosNecesarios || 0} voluntario(s) necesario(s)
+                <i class="bx bx-group"></i> ${ev.voluntariosNecesarios || 0} voluntario(s)
               </p>
             </div>
-            <!-- Botón eliminar evento publicado -->
-            <button class="btn-ev-eliminar" onclick="eliminarEvento(${ev.id})" title="Eliminar evento">
-              <i class="bx bx-trash"></i>
-            </button>
+            <!-- Acciones: Ver · Editar · Eliminar -->
+            <div class="ev-pub-acciones">
+              <button class="btn-ev-accion btn-ev-ver"
+                onclick="verEvento(${ev.id})" title="Ver detalle">
+                <i class="bx bx-show"></i>
+              </button>
+              <button class="btn-ev-accion btn-ev-editar"
+                onclick="abrirEditar(${ev.id})" title="Editar evento">
+                <i class="bx bx-edit"></i>
+              </button>
+              <button class="btn-ev-accion btn-ev-eliminar"
+                onclick="eliminarEvento(${ev.id})" title="Eliminar evento">
+                <i class="bx bx-trash"></i>
+              </button>
+            </div>
           </div>
           ${ev.descripcion ? `<p class="ev-pub-desc">${ev.descripcion}</p>` : ''}
           <!-- Recursos asignados al evento -->
@@ -274,15 +295,147 @@ document.addEventListener('DOMContentLoaded', () => {
             </span>
             <div class="ev-chips-wrap">${chipsRecursos}</div>
           </div>
+          ${ev.publicado ? `<p class="ev-pub-fecha-pub">Publicado el ${ev.publicado}</p>` : ''}
         </div>`;
     });
   }
 
-  /** Elimina un evento de la lista publicada */
+  // ════════════════════════════════════════════════════════════════
+  // 5. VER DETALLE
+  // ════════════════════════════════════════════════════════════════
+
+  /** Abre el modal con el detalle completo del evento */
+  window.verEvento = function(id) {
+    const ev = EventosModel.getById(id);
+    if (!ev) return;
+
+    document.getElementById('modal-ver-titulo').textContent = ev.titulo;
+
+    const chipsRecursos = ev.recursos && ev.recursos.length > 0
+      ? ev.recursos.map(r =>
+          `<span class="ev-chip-recurso">
+             <i class="bx bx-package"></i> ${r.recursoNombre} × ${r.cantidad} ${r.unidad || ''}
+           </span>`
+        ).join('')
+      : '<span class="ev-sin-recursos">Sin recursos asignados</span>';
+
+    document.getElementById('modal-ver-body').innerHTML = `
+      <div class="ev-detalle-grid">
+        <div class="ev-detalle-item">
+          <span class="ev-detalle-label"><i class="bx bx-calendar"></i> Fecha</span>
+          <span class="ev-detalle-valor">${ev.fecha}</span>
+        </div>
+        <div class="ev-detalle-item">
+          <span class="ev-detalle-label"><i class="bx bx-time"></i> Horario</span>
+          <span class="ev-detalle-valor">${ev.horario}</span>
+        </div>
+        <div class="ev-detalle-item">
+          <span class="ev-detalle-label"><i class="bx bx-map-pin"></i> Ubicación</span>
+          <span class="ev-detalle-valor">${ev.ubicacion}</span>
+        </div>
+        <div class="ev-detalle-item">
+          <span class="ev-detalle-label"><i class="bx bx-user"></i> Asistentes</span>
+          <span class="ev-detalle-valor">${ev.asistentes || '—'}</span>
+        </div>
+        <div class="ev-detalle-item">
+          <span class="ev-detalle-label"><i class="bx bx-group"></i> Voluntarios necesarios</span>
+          <span class="ev-detalle-valor">${ev.voluntariosNecesarios || 0}</span>
+        </div>
+        <div class="ev-detalle-item">
+          <span class="ev-detalle-label"><i class="bx bx-calendar-plus"></i> Publicado</span>
+          <span class="ev-detalle-valor">${ev.publicado || '—'}</span>
+        </div>
+      </div>
+      ${ev.descripcion ? `
+        <div class="ev-detalle-desc">
+          <span class="ev-detalle-label"><i class="bx bx-note"></i> Descripción</span>
+          <p>${ev.descripcion}</p>
+        </div>` : ''}
+      <div class="ev-detalle-recursos">
+        <span class="ev-detalle-label"><i class="bx bx-package"></i> Recursos asignados</span>
+        <div class="ev-chips-wrap" style="margin-top:0.5rem;">${chipsRecursos}</div>
+      </div>`;
+
+    document.getElementById('modal-ver-evento').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  };
+
+  /** Cierra el modal de ver detalle */
+  window.cerrarModalVer = function(e) {
+    if (e && e.target !== document.getElementById('modal-ver-evento')) return;
+    document.getElementById('modal-ver-evento').style.display = 'none';
+    document.body.style.overflow = '';
+  };
+
+  // ════════════════════════════════════════════════════════════════
+  // 6. EDITAR EVENTO
+  // ════════════════════════════════════════════════════════════════
+
+  /** Abre el modal de edición con los datos del evento precargados */
+  window.abrirEditar = function(id) {
+    const ev = EventosModel.getById(id);
+    if (!ev) return;
+
+    document.getElementById('edit-id').value          = ev.id;
+    document.getElementById('edit-titulo').value      = ev.titulo;
+    document.getElementById('edit-fecha').value       = ev.fecha;
+    document.getElementById('edit-horario').value     = ev.horario;
+    document.getElementById('edit-ubicacion').value   = ev.ubicacion;
+    document.getElementById('edit-asistentes').value  = ev.asistentes !== '—' ? ev.asistentes : '';
+    document.getElementById('edit-voluntarios').value = ev.voluntariosNecesarios || 1;
+    document.getElementById('edit-descripcion').value = ev.descripcion || '';
+
+    document.getElementById('modal-editar-evento').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  };
+
+  /** Guarda los cambios del formulario de edición */
+  window.guardarEdicion = function(e) {
+    e.preventDefault();
+
+    const id = parseInt(document.getElementById('edit-id').value);
+    const ev = EventosModel.getById(id);
+
+    const data = {
+      titulo:                document.getElementById('edit-titulo').value,
+      fecha:                 document.getElementById('edit-fecha').value,
+      horario:               document.getElementById('edit-horario').value,
+      ubicacion:             document.getElementById('edit-ubicacion').value,
+      asistentes:            document.getElementById('edit-asistentes').value,
+      voluntariosNecesarios: document.getElementById('edit-voluntarios').value,
+      descripcion:           document.getElementById('edit-descripcion').value,
+      // Mantener los recursos originales del evento
+      recursos:              ev ? ev.recursos : []
+    };
+
+    const resultado = EventosModel.actualizar(id, data);
+
+    if (!resultado.ok) {
+      showToast('Error', resultado.error);
+      return;
+    }
+
+    cerrarModalEditar();
+    renderEventosPublicados();
+    showToast('Evento actualizado', `"${data.titulo}" fue actualizado correctamente.`);
+  };
+
+  /** Cierra el modal de edición */
+  window.cerrarModalEditar = function(e) {
+    if (e && e.target !== document.getElementById('modal-editar-evento')) return;
+    document.getElementById('modal-editar-evento').style.display = 'none';
+    document.body.style.overflow = '';
+  };
+
+  // ════════════════════════════════════════════════════════════════
+  // 7. ELIMINAR EVENTO
+  // ════════════════════════════════════════════════════════════════
+
+  /** Elimina un evento del historial */
   window.eliminarEvento = function(id) {
     const ev = EventosModel.getById(id);
     if (!ev) return;
-    if (!confirm(`¿Eliminar el evento "${ev.titulo}"?`)) return;
+    if (!confirm(`¿Eliminar el evento "${ev.titulo}"?\nEsta acción no se puede deshacer.`)) return;
     EventosModel.eliminar(id);
     renderEventosPublicados();
     showToast('Evento eliminado', `"${ev.titulo}" fue eliminado.`);
@@ -292,4 +445,98 @@ document.addEventListener('DOMContentLoaded', () => {
   cargarRecursos();
   actualizarContador();
   renderEventosPublicados();
+
+  // ════════════════════════════════════════════════════════════════
+  // 8. PREVISUALIZACIÓN EN TIEMPO REAL
+  // ════════════════════════════════════════════════════════════════
+
+  /**
+   * Lee los campos del formulario y actualiza la tarjeta de previsualización
+   * en tiempo real. Se llama desde los eventos oninput/onchange de cada campo.
+   * La columna de previsualización se muestra solo cuando hay algún dato.
+   */
+  window.actualizarPreview = function() {
+    const titulo      = document.getElementById('ev-titulo').value.trim();
+    const fecha       = document.getElementById('ev-fecha').value;
+    const horario     = document.getElementById('ev-horario').value.trim();
+    const ubicacion   = document.getElementById('ev-ubicacion').value.trim();
+    const asistentes  = document.getElementById('ev-asistentes').value.trim();
+    const voluntarios = document.getElementById('ev-voluntarios').value;
+    const descripcion = document.getElementById('ev-descripcion').value.trim();
+
+    const previewCol  = document.getElementById('ev-preview-col');
+    const empty       = document.getElementById('ev-preview-empty');
+    const content     = document.getElementById('ev-preview-content');
+
+    const hayDatos = titulo || fecha || horario || ubicacion;
+
+    // Mostrar u ocultar la columna completa de previsualización
+    if (hayDatos) {
+      previewCol.classList.add('ev-preview-col--visible');
+    } else {
+      previewCol.classList.remove('ev-preview-col--visible');
+      return; // No hay nada que renderizar
+    }
+
+    // Siempre mostrar contenido cuando hay datos
+    empty.style.display   = 'none';
+    content.style.display = 'block';
+
+    // Título
+    document.getElementById('prev-ev-titulo').textContent = titulo || 'Sin título';
+
+    // Fecha formateada
+    if (fecha) {
+      const [y, m, d] = fecha.split('-');
+      const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+      document.getElementById('prev-ev-fecha').textContent = `${parseInt(d)} ${meses[parseInt(m)-1]} ${y}`;
+      document.getElementById('prev-row-fecha').style.display = 'flex';
+    } else {
+      document.getElementById('prev-row-fecha').style.display = 'none';
+    }
+
+    // Horario
+    if (horario) {
+      document.getElementById('prev-ev-horario').textContent = horario;
+      document.getElementById('prev-row-horario').style.display = 'flex';
+    } else {
+      document.getElementById('prev-row-horario').style.display = 'none';
+    }
+
+    // Ubicación
+    if (ubicacion) {
+      document.getElementById('prev-ev-ubicacion').textContent = ubicacion;
+      document.getElementById('prev-row-ubicacion').style.display = 'flex';
+    } else {
+      document.getElementById('prev-row-ubicacion').style.display = 'none';
+    }
+
+    // Asistentes
+    if (asistentes) {
+      document.getElementById('prev-ev-asistentes').textContent = `${asistentes} asistentes esperados`;
+      document.getElementById('prev-row-asistentes').style.display = 'flex';
+    } else {
+      document.getElementById('prev-row-asistentes').style.display = 'none';
+    }
+
+    // Voluntarios
+    if (voluntarios && parseInt(voluntarios) > 0) {
+      document.getElementById('prev-ev-voluntarios').textContent = `${voluntarios} voluntario(s) necesario(s)`;
+      document.getElementById('prev-row-voluntarios').style.display = 'flex';
+    } else {
+      document.getElementById('prev-row-voluntarios').style.display = 'none';
+    }
+
+    // Descripción
+    const descEl = document.getElementById('prev-ev-desc');
+    if (descripcion) {
+      descEl.textContent   = descripcion;
+      descEl.style.display = 'block';
+    } else {
+      descEl.style.display = 'none';
+    }
+  };
+
+  // Al cargar la página la previsualización está oculta (sin datos aún)
+  actualizarPreview();
 });

@@ -141,14 +141,76 @@ const EventosModel = (() => {
     }
   }
 
+  /**
+   * Actualiza un evento existente manteniendo sus recursos y sincronización.
+   * @param {number} id
+   * @param {object} data - mismos campos que publicar()
+   */
+  function actualizar(id, data) {
+    if (!data.titulo?.trim())    return { ok: false, error: 'El título es obligatorio.' };
+    if (!data.fecha)             return { ok: false, error: 'La fecha es obligatoria.' };
+    if (!data.horario?.trim())   return { ok: false, error: 'El horario es obligatorio.' };
+    if (!data.ubicacion?.trim()) return { ok: false, error: 'La ubicación es obligatoria.' };
+
+    const eventos = getAll();
+    const idx     = eventos.findIndex(e => e.id === id);
+    if (idx === -1) return { ok: false, error: 'Evento no encontrado.' };
+
+    eventos[idx] = {
+      ...eventos[idx],
+      titulo:                data.titulo.trim(),
+      fecha:                 data.fecha,
+      horario:               data.horario.trim(),
+      ubicacion:             data.ubicacion.trim(),
+      asistentes:            data.asistentes?.trim() || '—',
+      voluntariosNecesarios: parseInt(data.voluntariosNecesarios) || 0,
+      descripcion:           data.descripcion?.trim() || '',
+      recursos:              data.recursos || eventos[idx].recursos || []
+    };
+
+    localStorage.setItem(KEY, JSON.stringify(eventos));
+
+    // Sincronizar cambios en bsp_eventos_vol también
+    _actualizarEventosVol(eventos[idx]);
+
+    return { ok: true, evento: eventos[idx] };
+  }
+
+  /**
+   * Actualiza el nombre, fecha y lugar del evento en bsp_eventos_vol
+   * para que los módulos de voluntarios reflejen los cambios.
+   */
+  function _actualizarEventosVol(evento) {
+    const KEY_VOL = 'bsp_eventos_vol';
+    try {
+      const eventosVol = JSON.parse(localStorage.getItem(KEY_VOL) || '[]');
+      const idx = eventosVol.findIndex(e => e.id === evento.id);
+      if (idx !== -1) {
+        eventosVol[idx].nombre = evento.titulo;
+        eventosVol[idx].fecha  = evento.fecha;
+        eventosVol[idx].lugar  = evento.ubicacion;
+        eventosVol[idx].voluntariosNecesarios = evento.voluntariosNecesarios || 0;
+        localStorage.setItem(KEY_VOL, JSON.stringify(eventosVol));
+      }
+    } catch (_) {}
+  }
+
   /** Elimina un evento publicado */
   function eliminar(id) {
     const eventos = getAll().filter(e => e.id !== id);
     localStorage.setItem(KEY, JSON.stringify(eventos));
+
+    // Eliminar también de bsp_eventos_vol
+    try {
+      const KEY_VOL  = 'bsp_eventos_vol';
+      const vol      = JSON.parse(localStorage.getItem(KEY_VOL) || '[]').filter(e => e.id !== id);
+      localStorage.setItem(KEY_VOL, JSON.stringify(vol));
+    } catch (_) {}
+
     return { ok: true };
   }
 
   // ── API pública ──────────────────────────────────────────────────────────
-  return { getAll, getById, publicar, eliminar };
+  return { getAll, getById, publicar, actualizar, eliminar };
 
 })();

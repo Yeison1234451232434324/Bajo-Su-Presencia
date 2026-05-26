@@ -1,3 +1,25 @@
+/*
+ * ================================================================
+ *  PANEL COLABORADOR — Estilos base compartidos
+ * ================================================================
+ *  ¿Qué hace este archivo?
+ *  Es la copia del panel.css del admin adaptada para el rol
+ *  de colaborador. Define exactamente los mismos estilos base:
+ *    - Variables de color y tipografía (idénticas al admin)
+ *    - Sidebar con animación de colapso/expansión
+ *    - Área principal (.main) y paneles de contenido (.panel)
+ *    - Tarjetas de estadísticas, gráficas, tablas y formularios
+ *    - Botón de publicar y sistema de notificaciones (Toast)
+ *
+ *  ¿Por qué existe separado del panel del admin?
+ *  Para que el colaborador tenga su propio archivo base y se
+ *  puedan hacer ajustes de rol sin afectar al admin.
+ *
+ *  ¿Cómo se usa?
+ *  Cada página del colaborador importa PRIMERO este archivo.
+ * ================================================================
+ */
+
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Crimson+Text:wght@400;600&display=swap');
 
 :root {

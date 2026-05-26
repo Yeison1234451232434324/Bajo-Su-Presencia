@@ -1,3 +1,27 @@
+<!--
+  ================================================================
+  GESTIÓN DE USUARIOS ADMIN — Administración de cuentas
+  ================================================================
+  ¿Qué hace esta página?
+  Permite al admin crear, editar, activar y desactivar las cuentas
+  de usuarios del sistema (admins, colaboradores, voluntarios).
+
+  Secciones:
+    1. Tarjetas de contadores (total, activos, inactivos)
+    2. Barra de herramientas: búsqueda + filtro por rol y estado
+       + botón "Nuevo Usuario"
+    3. Tabla de usuarios con avatar de iniciales, rol y estado
+    4. Modal de crear/editar usuario (nombre, username, email, rol,
+       contraseña — la contraseña es opcional al editar)
+
+  Archivos que usa:
+    - panel.css             → estilos base del panel
+    - usuarios.css          → estilos específicos del módulo
+    - sidebar.controller.js → sidebar del admin
+    - usuarios.model.js     → CRUD de usuarios en localStorage
+    - usuarios.controller.js → lógica de tabla, filtros y modal
+  ================================================================
+-->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -9,7 +33,7 @@
 </head>
 <body>
 
-  <!-- ══ CONTENIDO PRINCIPAL ══════════════════════════════════════════════ -->
+  <!-- Área principal (el sidebar se inyecta por JS) -->
   <main class="main" id="main">
     <section class="panel active" style="display:block;">
 

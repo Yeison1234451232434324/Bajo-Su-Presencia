@@ -1,1 +1,428 @@
-/* CSS específico para el módulo Noticias */
+/*
+ * ================================================================
+ *  NOTICIAS ADMIN — Estilos del módulo de noticias
+ * ================================================================
+ *  ¿Qué hace este archivo?
+ *  Estiliza la página de noticias del panel de administración:
+ *    - Vista previa de la tarjeta de noticia (en tiempo real)
+ *    - Botón "Cancelar edición" en modo editar
+ *    - Sección del historial con título y grilla de tarjetas
+ *    - Tarjetas de noticia: imagen, título, resumen, meta (fecha/autor)
+ *    - Botones de acción: ver, editar, eliminar
+ *    - Placeholder cuando el historial está vacío
+ *    - Modal de lectura completa de una noticia
+ *
+ *  ¿Cómo se usa?
+ *  Se carga DESPUÉS de panel.css en noticias.html del admin.
+ * ================================================================
+ */
+
+/* ── Vista previa de la noticia ────────────────────────────────────────── */
+
+/* Contenedor de la vista previa (aparece debajo del formulario) */
+.news-preview-box {
+  margin-top: 1.5rem;
+  border: 2px solid var(--border);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+}
+
+/* Etiqueta "Vista Previa" encima de la tarjeta */
+.news-preview-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+  color: rgba(255,255,255,0.9);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.news-preview-label i { font-size: 1rem; color: var(--accent); }
+
+/* Imagen de la vista previa */
+.prev-img-wrap {
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  position: relative;
+}
+.prev-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.prev-img-fade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.45), transparent);
+}
+
+/* Cuerpo de la vista previa */
+.prev-body {
+  padding: 1.25rem 1.5rem;
+}
+.prev-titulo {
+  font-family: var(--font-title);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 0.5rem;
+  line-height: 1.25;
+}
+.prev-resumen {
+  font-family: var(--font-text);
+  font-size: 0.97rem;
+  color: #374151;
+  line-height: 1.6;
+  margin-bottom: 0.875rem;
+}
+.prev-meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  padding-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* ── Botón cancelar edición ────────────────────────────────────────────── */
+.btn-cancelar-noticia {
+  display: none; /* el controller lo muestra con display:flex al editar */
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem 2rem;
+  background: #f3f4f6;
+  color: #374151;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.875rem;
+  font-family: var(--font-text);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background 0.15s;
+}
+.btn-cancelar-noticia:hover { background: #e5e7eb; }
+
+/* ── Sección del historial ─────────────────────────────────────────────── */
+.nt-historial-section {
+  margin-top: 2.5rem;
+  max-width: 56rem;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
+/* Título del historial */
+.nt-historial-titulo {
+  font-family: var(--font-title);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.nt-historial-titulo i { color: var(--primary); }
+
+/* Grilla de tarjetas de noticias */
+.nt-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+/* ── Tarjeta de noticia ────────────────────────────────────────────────── */
+.nt-card {
+  background: #fff;
+  border: 2px solid var(--border);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  transition: box-shadow 0.2s, transform 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+.nt-card:hover {
+  box-shadow: 0 6px 20px rgba(0,0,0,0.10);
+  transform: translateY(-2px);
+}
+
+/* Imagen de portada */
+.nt-card-img-wrap {
+  position: relative;
+  height: 150px;
+  overflow: hidden;
+}
+.nt-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s;
+}
+.nt-card:hover .nt-card-img { transform: scale(1.06); }
+.nt-card-img-fade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.40), transparent);
+}
+
+/* Placeholder cuando no hay imagen */
+.nt-card-img-placeholder {
+  height: 100px;
+  background: linear-gradient(135deg, #f0f4ff, #e8edf8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.nt-card-img-placeholder i {
+  font-size: 2.5rem;
+  color: #c7d2fe;
+}
+
+/* Cuerpo de la tarjeta */
+.nt-card-body {
+  padding: 1.1rem 1.25rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Encabezado: título + botones de acción */
+.nt-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+/* Título de la noticia */
+.nt-card-titulo {
+  font-family: var(--font-title);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  line-height: 1.3;
+  flex: 1;
+}
+
+/* Grupo de botones de acción */
+.nt-card-acciones {
+  display: flex;
+  gap: 0.35rem;
+  flex-shrink: 0;
+  align-items: flex-start;
+}
+
+/* Botón de acción individual */
+.btn-accion-nt {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 0.45rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: background 0.15s, transform 0.1s;
+}
+.btn-accion-nt:active { transform: scale(0.90); }
+
+/* Ver → azul */
+.btn-ver-nt     { background: #dbeafe; color: #1d4ed8; }
+.btn-ver-nt:hover     { background: #bfdbfe; }
+
+/* Editar → ámbar */
+.btn-editar-nt  { background: #fef3c7; color: #d97706; }
+.btn-editar-nt:hover  { background: #fde68a; }
+
+/* Eliminar → rojo */
+.btn-eliminar-nt { background: #fee2e2; color: #dc2626; }
+.btn-eliminar-nt:hover { background: #fecaca; }
+
+/* Resumen de la noticia */
+.nt-card-resumen {
+  font-family: var(--font-text);
+  font-size: 0.92rem;
+  color: #374151;
+  line-height: 1.55;
+  flex: 1;
+}
+
+/* Meta: fecha y autor */
+.nt-card-meta {
+  display: flex;
+  gap: 0.875rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+  border-top: 1px solid #f3f0e8;
+  padding-top: 0.6rem;
+  flex-wrap: wrap;
+}
+.nt-card-meta i { margin-right: 0.2rem; }
+
+/* ── Placeholder lista vacía ───────────────────────────────────────────── */
+.nt-lista-vacia {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2.5rem;
+  background: #fff;
+  border: 2px dashed var(--border);
+  border-radius: 1.25rem;
+  color: #9ca3af;
+  text-align: center;
+  grid-column: 1 / -1; /* ocupa todo el ancho de la grilla */
+}
+.nt-lista-vacia i     { font-size: 2.5rem; color: #d1d5db; }
+.nt-lista-vacia p     { font-size: 1rem; font-weight: 600; }
+.nt-lista-vacia small { font-size: 0.88rem; }
+
+/* ── Modal de lectura completa ─────────────────────────────────────────── */
+.modal-overlay-noticia {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 30, 90, 0.50);
+  backdrop-filter: blur(3px);
+  z-index: 500;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+.modal-overlay-noticia.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.modal-ver-noticia {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -48%) scale(0.96);
+  z-index: 600;
+  background: #fff;
+  border-radius: 1.5rem;
+  padding: 0;
+  width: min(620px, 95vw);
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.20);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s, transform 0.25s;
+}
+.modal-ver-noticia.visible {
+  opacity: 1;
+  pointer-events: all;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Imagen de cabecera del modal */
+.modal-nt-img-wrap {
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  border-radius: 1.5rem 1.5rem 0 0;
+  position: relative;
+}
+.modal-nt-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.modal-nt-img-fade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(15,30,90,0.55), transparent);
+}
+
+/* Contenido del modal */
+.modal-nt-content {
+  padding: 1.75rem 2rem;
+}
+
+/* Encabezado: título + botón cerrar */
+.modal-nt-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+.modal-nt-titulo {
+  font-family: var(--font-title);
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  line-height: 1.2;
+  flex: 1;
+}
+
+/* Meta: fecha y autor */
+.modal-nt-meta {
+  font-size: 0.88rem;
+  color: var(--muted);
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border);
+}
+
+/* Resumen destacado */
+.modal-nt-resumen {
+  font-family: var(--font-text);
+  font-size: 1.1rem;
+  color: #374151;
+  font-style: italic;
+  line-height: 1.7;
+  margin-bottom: 1.25rem;
+  padding: 1rem 1.25rem;
+  background: #faf8f3;
+  border-left: 4px solid var(--primary);
+  border-radius: 0 0.75rem 0.75rem 0;
+}
+
+/* Contenido completo */
+.modal-nt-contenido {
+  font-family: var(--font-text);
+  font-size: 1.05rem;
+  color: #1a1a2e;
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+
+/* Botón cerrar modal */
+.btn-cerrar-modal-nt {
+  background: #f3f4f6;
+  border: none;
+  border-radius: 0.5rem;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.25rem;
+  color: #6b7280;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.btn-cerrar-modal-nt:hover { background: #e5e7eb; color: #1a1a2e; }
+
+/* ── Responsive ────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .nt-grid { grid-template-columns: 1fr; }
+  .modal-nt-content { padding: 1.25rem; }
+  .modal-nt-titulo  { font-size: 1.5rem; }
+}

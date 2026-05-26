@@ -1,3 +1,22 @@
+/*
+ * ================================================================
+ *  PANEL VOLUNTARIO — Estilos base compartidos
+ * ================================================================
+ *  ¿Qué hace este archivo?
+ *  Es la base visual del dashboard del voluntario. Mantiene
+ *  el mismo diseño que el admin y colaborador para consistencia:
+ *    - Variables de color y tipografía (idénticas al resto)
+ *    - Sidebar con animación de colapso/expansión
+ *    - Área principal (.main) y paneles de contenido (.panel)
+ *    - Badges de colores reutilizables (verde, ámbar, azul, rojo)
+ *    - Estrellas de calificación (llenas y vacías)
+ *    - Sistema de notificaciones emergentes (Toast)
+ *
+ *  ¿Cómo se usa?
+ *  Cada página del voluntario importa PRIMERO este archivo.
+ * ================================================================
+ */
+
 /* ══════════════════════════════════════════════════
    PANEL VOLUNTARIO — Estilos base
    Idéntico al panel del colaborador/admin para

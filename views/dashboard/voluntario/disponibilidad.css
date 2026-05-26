@@ -1,3 +1,23 @@
+/*
+ * ================================================================
+ *  MIS EVENTOS / DISPONIBILIDAD — Estilos del módulo del voluntario
+ * ================================================================
+ *  ¿Qué hace este archivo?
+ *  Estiliza la página donde el voluntario ve los eventos
+ *  disponibles y gestiona su propia disponibilidad:
+ *    - Tarjetas de contadores superiores (total, disponible, no disponible)
+ *    - Grilla de tarjetas de eventos con estado visual:
+ *        · Borde verde = el voluntario está disponible
+ *        · Borde rojo  = el voluntario no está disponible
+ *    - Información del evento: nombre, fecha, lugar, responsable
+ *    - Botones de acción: unirse, marcar disponible, marcar no disponible
+ *    - Placeholder cuando no hay eventos asignados
+ *
+ *  ¿Cómo se usa?
+ *  Se carga DESPUÉS de panel.css en disponibilidad.html del voluntario.
+ * ================================================================
+ */
+
 /* ══════════════════════════════════════════════════
    MIS EVENTOS / DISPONIBILIDAD — CSS del voluntario
 ══════════════════════════════════════════════════ */

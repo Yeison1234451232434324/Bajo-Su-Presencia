@@ -1,3 +1,30 @@
+/*
+ * ================================================================
+ *  PÁGINA DE INICIO PÚBLICA — Estilos del sitio web principal
+ * ================================================================
+ *  ¿Qué hace este archivo?
+ *  Define el diseño completo de la página de inicio que ven
+ *  los visitantes antes de iniciar sesión. Incluye:
+ *    - Variables de color y tipografía del sitio público
+ *    - Reset base y utilidades de layout (contenedor, encabezados)
+ *    - Header fijo con logo, menú de navegación y botones de acceso
+ *    - Sección Hero: imagen de fondo, overlay azul, texto centrado
+ *      y efecto de luz pulsante dorada
+ *    - Sección Oración del Día: tarjeta con esquinas decorativas
+ *      y círculos animados de fondo
+ *    - Sección Noticias: grilla de tarjetas con imagen, título
+ *      y extracto, con efecto hover de elevación
+ *    - Sección Eventos: grilla de tarjetas con barra de color
+ *      superior y datos del evento (fecha, lugar, hora)
+ *    - Footer: columnas con logo, contacto y horarios de servicio
+ *    - Responsive: ajustes para pantallas pequeñas (móvil)
+ *
+ *  ¿Cómo se usa?
+ *  Es el único CSS de la página pública (index.html).
+ *  No depende de ningún otro archivo CSS del proyecto.
+ * ================================================================
+ */
+
 /* ── Variables ── */
 :root {
   --primary:          #1E3A8A;

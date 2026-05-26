@@ -1,3 +1,23 @@
+/*
+ * ================================================================
+ *  RECURSOS ADMIN — Estilos del módulo de gestión de recursos
+ * ================================================================
+ *  ¿Qué hace este archivo?
+ *  Estiliza la página donde el admin administra el inventario
+ *  de recursos físicos (sillas, micrófonos, proyectores, etc.):
+ *    - Barra de herramientas: búsqueda, filtros y botón "Nuevo"
+ *    - Tarjetas de estadísticas (total, disponibles, en uso, etc.)
+ *    - Layout de tabla + panel lateral (se activa al editar)
+ *    - Tabla de recursos con íconos por categoría y badges de stock
+ *    - Colores de categoría: mobiliario, audio, iluminación, etc.
+ *    - Botones de acción: editar, activar/desactivar, eliminar
+ *    - Modal de crear/editar recurso con validación visual
+ *
+ *  ¿Cómo se usa?
+ *  Se carga DESPUÉS de panel.css en recursos.html del admin.
+ * ================================================================
+ */
+
 /* ══════════════════════════════════════════════════
    GESTIÓN DE RECURSOS — CSS específico
    Complementa panel.css (variables y estilos base)

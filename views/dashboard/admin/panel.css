@@ -1,5 +1,30 @@
+/*
+ * ================================================================
+ *  PANEL ADMIN — Estilos base compartidos
+ * ================================================================
+ *  ¿Qué hace este archivo?
+ *  Define los estilos GLOBALES que usan TODAS las páginas del
+ *  panel de administración:
+ *    - Variables de color, tipografía y tamaños (--primary, etc.)
+ *    - Sidebar lateral con animación de colapso/expansión
+ *    - Área principal (.main) que se desplaza cuando el sidebar abre
+ *    - Paneles de contenido (.panel) que se muestran/ocultan por JS
+ *    - Tarjetas de estadísticas, gráficas y tablas reutilizables
+ *    - Formularios, campos de texto y botón de publicar
+ *    - Sistema de notificaciones emergentes (Toast)
+ *
+ *  ¿Cómo se usa?
+ *  Cada página del admin importa PRIMERO este archivo y luego
+ *  su propio CSS específico (ej: eventos.css, usuarios.css).
+ * ================================================================
+ */
+
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Crimson+Text:wght@400;600&display=swap');
 
+/* ── Variables globales de diseño ─────────────────────────────
+   Colores, fuentes y medidas usadas en todo el panel.
+   Cambiar un valor aquí lo actualiza en toda la interfaz.
+──────────────────────────────────────────────────────────── */
 :root {
   --primary:       #1E3A8A;
   --primary-dark:  #0F1E5A;

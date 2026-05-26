@@ -1,1 +1,316 @@
-/* CSS específico para el módulo Oración del Día */
+/*
+ * ================================================================
+ *  ORACIÓN DEL DÍA ADMIN — Estilos del módulo de oración
+ * ================================================================
+ *  ¿Qué hace este archivo?
+ *  Estiliza la página de oración del panel de administración:
+ *    - Botón "Cancelar edición" que aparece al editar una oración
+ *    - Sección del historial con título y lista de tarjetas
+ *    - Tarjetas de oración: imagen, fecha, texto truncado, versículo
+ *    - Botones de acción: ver, editar, eliminar
+ *    - Placeholder cuando el historial está vacío
+ *    - Modal de vista completa de una oración
+ *
+ *  ¿Cómo se usa?
+ *  Se carga DESPUÉS de panel.css en oracion.html del admin.
+ * ================================================================
+ */
+
+/* ── Botón cancelar edición (aparece solo en modo editar) ─────────────── */
+.btn-cancelar-edicion {
+  display: none; /* el controller lo muestra con display:flex al editar */
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem 2rem;
+  background: #f3f4f6;
+  color: #374151;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.875rem;
+  font-family: var(--font-text);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background 0.15s;
+}
+.btn-cancelar-edicion:hover { background: #e5e7eb; }
+
+/* ── Sección del historial ─────────────────────────────────────────────── */
+.or-historial-section {
+  margin-top: 2.5rem;
+  max-width: 56rem;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
+/* Título del historial */
+.or-historial-titulo {
+  font-family: var(--font-title);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.or-historial-titulo i { color: var(--primary); }
+
+/* ── Tarjeta de oración ────────────────────────────────────────────────── */
+.or-card {
+  background: #fff;
+  border: 2px solid var(--border);
+  border-radius: 1.25rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+.or-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+
+/* Imagen de portada de la oración */
+.or-card-img-wrap {
+  width: 100%;
+  height: 160px;
+  overflow: hidden;
+}
+.or-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s;
+}
+.or-card:hover .or-card-img { transform: scale(1.04); }
+
+/* Cuerpo de la tarjeta */
+.or-card-body {
+  padding: 1.25rem 1.5rem;
+}
+
+/* Encabezado: fecha a la izquierda, botones a la derecha */
+.or-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Fecha de publicación */
+.or-card-fecha {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.or-card-fecha i { color: var(--primary); }
+
+/* Grupo de botones de acción */
+.or-card-acciones {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* Botón de acción individual (ver / editar / eliminar) */
+.btn-accion-or {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+  transition: background 0.15s, transform 0.1s;
+}
+.btn-accion-or:active { transform: scale(0.92); }
+
+/* Ver → azul claro */
+.btn-ver-or     { background: #dbeafe; color: #1d4ed8; }
+.btn-ver-or:hover     { background: #bfdbfe; }
+
+/* Editar → ámbar */
+.btn-editar-or  { background: #fef3c7; color: #d97706; }
+.btn-editar-or:hover  { background: #fde68a; }
+
+/* Eliminar → rojo */
+.btn-eliminar-or { background: #fee2e2; color: #dc2626; }
+.btn-eliminar-or:hover { background: #fecaca; }
+
+/* Texto de la oración (truncado a 2 líneas) */
+.or-card-texto {
+  font-family: var(--font-text);
+  font-size: 1rem;
+  color: #374151;
+  line-height: 1.65;
+  font-style: italic;
+  margin-bottom: 0.6rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Versículo bíblico */
+.or-card-versiculo {
+  font-family: var(--font-title);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.or-card-versiculo i { font-size: 1rem; }
+
+/* ── Placeholder lista vacía ───────────────────────────────────────────── */
+.or-lista-vacia {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2.5rem;
+  background: #fff;
+  border: 2px dashed var(--border);
+  border-radius: 1.25rem;
+  color: #9ca3af;
+  text-align: center;
+}
+.or-lista-vacia i    { font-size: 2.5rem; color: #d1d5db; }
+.or-lista-vacia p    { font-size: 1rem; font-weight: 600; }
+.or-lista-vacia small { font-size: 0.88rem; }
+
+/* ── Modal de vista completa ───────────────────────────────────────────── */
+.modal-overlay-oracion {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 30, 90, 0.50);
+  backdrop-filter: blur(3px);
+  z-index: 500;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+.modal-overlay-oracion.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.modal-ver-oracion {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -48%) scale(0.96);
+  z-index: 600;
+  background: #fff;
+  border-radius: 1.5rem;
+  padding: 2rem 2.25rem;
+  width: min(560px, 95vw);
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s, transform 0.25s;
+}
+.modal-ver-oracion.visible {
+  opacity: 1;
+  pointer-events: all;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Encabezado del modal */
+.modal-or-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border);
+}
+.modal-or-header h3 {
+  font-family: var(--font-title);
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+.modal-or-fecha-badge {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.2rem;
+}
+
+/* Imagen dentro del modal */
+.modal-or-img-wrap {
+  width: 100%;
+  height: 200px;
+  border-radius: 0.875rem;
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+}
+.modal-or-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Texto completo de la oración */
+.modal-or-texto {
+  font-family: var(--font-text);
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #1a1a2e;
+  font-style: italic;
+  text-align: center;
+  margin-bottom: 1.25rem;
+  white-space: pre-wrap; /* respeta saltos de línea */
+}
+
+/* Versículo en el modal */
+.modal-or-versiculo {
+  font-family: var(--font-title);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+/* Botón cerrar modal */
+.btn-cerrar-modal-or {
+  background: #f3f4f6;
+  border: none;
+  border-radius: 0.5rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: #6b7280;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.btn-cerrar-modal-or:hover { background: #e5e7eb; color: #1a1a2e; }
+
+/* ── Responsive ────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .or-card-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  .or-card-acciones { align-self: flex-end; }
+}

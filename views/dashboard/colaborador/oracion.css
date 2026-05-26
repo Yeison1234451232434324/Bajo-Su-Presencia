@@ -1,1 +1,17 @@
+/*
+ * ================================================================
+ *  ORACIÓN COLABORADOR — Estilos del módulo de oración
+ * ================================================================
+ *  ¿Qué hace este archivo?
+ *  Contiene los estilos específicos de la vista de oración
+ *  del día para el rol de colaborador.
+ *
+ *  Aquí van los estilos propios de este módulo que NO están
+ *  cubiertos por panel.css del colaborador.
+ *
+ *  ¿Cómo se usa?
+ *  Se carga DESPUÉS de panel.css en oracion.html del colaborador.
+ * ================================================================
+ */
+
 /* CSS específico para el módulo Oración del Día – Colaborador */

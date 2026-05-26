@@ -1,14 +1,39 @@
+<!--
+  ================================================================
+  PUBLICAR EVENTO ADMIN — Formulario y lista de eventos
+  ================================================================
+  ¿Qué hace esta página?
+  Permite al administrador crear nuevos eventos y asignarles
+  recursos del inventario. También muestra los eventos ya publicados.
+
+  Secciones:
+    1. Formulario: título, fecha, horario, ubicación, voluntarios
+       necesarios, descripción y selección de recursos del inventario
+    2. Lista de eventos publicados con sus recursos asignados
+
+  Archivos que usa:
+    - panel.css              → estilos base del panel
+    - eventos.css            → estilos específicos de tarjetas de recursos
+    - sidebar.controller.js  → sidebar del admin
+    - recursos.model.js      → leer el inventario disponible
+    - eventos.model.js       → guardar y leer eventos publicados
+    - eventos.controller.js  → lógica del formulario y la lista
+  ================================================================
+-->
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Publicar Evento – Bajo Su Presencia</title>
+  <!-- Estilos base del panel -->
   <link rel="stylesheet" href="panel.css" />
+  <!-- Estilos específicos del módulo de eventos -->
   <link rel="stylesheet" href="eventos.css" />
 </head>
 <body>
 
+<!-- Área principal (el sidebar se inyecta por JS) -->
 <main class="main" id="main">
   <section class="panel active" style="display:block;">
 
@@ -18,97 +43,175 @@
       <p>Crea un nuevo evento y asigna los recursos del inventario</p>
     </div>
 
-    <!-- ══ FORMULARIO ══════════════════════════════════════════════════════ -->
-    <div class="form-card">
-      <form id="form-evento" onsubmit="submitEvent(event)" novalidate>
+    <!-- ══ FORMULARIO + PREVISUALIZACIÓN ══════════════════════════════════ -->
+    <div class="ev-form-preview-layout">
 
-        <!-- Título -->
-        <div class="form-group">
-          <label for="ev-titulo">Título del Evento</label>
-          <input id="ev-titulo" type="text" class="form-control"
-            placeholder="Ej: Culto Dominical" required />
+      <!-- ── Columna izquierda: formulario ── -->
+      <div class="ev-form-col">
+        <div class="form-card">
+          <form id="form-evento" onsubmit="submitEvent(event)" novalidate>
+
+            <!-- Título -->
+            <div class="form-group">
+              <label for="ev-titulo">Título del Evento</label>
+              <input id="ev-titulo" type="text" class="form-control"
+                placeholder="Ej: Culto Dominical" required
+                oninput="actualizarPreview()" />
+            </div>
+
+            <!-- Fecha + Horario -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="ev-fecha">Fecha</label>
+                <input id="ev-fecha" type="date" class="form-control" required
+                  onchange="actualizarPreview()" />
+              </div>
+              <div class="form-group">
+                <label for="ev-horario">Horario</label>
+                <input id="ev-horario" type="text" class="form-control"
+                  placeholder="Ej: 10:00 AM - 12:00 PM" required
+                  oninput="actualizarPreview()" />
+              </div>
+            </div>
+
+            <!-- Ubicación + Asistentes -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="ev-ubicacion">Ubicación</label>
+                <input id="ev-ubicacion" type="text" class="form-control"
+                  placeholder="Ej: Santuario Principal" required
+                  oninput="actualizarPreview()" />
+              </div>
+              <div class="form-group">
+                <label for="ev-asistentes">Asistentes Esperados</label>
+                <input id="ev-asistentes" type="text" class="form-control"
+                  placeholder="Ej: 200+"
+                  oninput="actualizarPreview()" />
+              </div>
+            </div>
+
+            <!-- Voluntarios necesarios + Descripción -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="ev-voluntarios">Voluntarios Necesarios</label>
+                <input id="ev-voluntarios" type="number" class="form-control"
+                  min="1" value="1" placeholder="Ej: 10" required
+                  oninput="actualizarPreview()" />
+              </div>
+              <div class="form-group">
+                <label for="ev-descripcion">Descripción</label>
+                <textarea id="ev-descripcion" class="form-control" rows="3"
+                  placeholder="Descripción del evento (opcional)"
+                  oninput="actualizarPreview()"></textarea>
+              </div>
+            </div>
+
+            <!-- ── SECCIÓN DE RECURSOS DEL INVENTARIO ──────────────────── -->
+            <div class="form-group">
+              <div class="ev-recursos-header">
+                <label>Recursos del Inventario</label>
+                <!-- Contador dinámico de recursos seleccionados -->
+                <span id="contador-recursos" class="ev-contador">
+                  Ningún recurso seleccionado (opcional)
+                </span>
+              </div>
+
+              <!-- Mensaje cuando no hay recursos disponibles en el inventario -->
+              <div id="sin-recursos-msg" class="ev-sin-recursos-msg" style="display:none;">
+                <i class="bx bx-error-circle"></i>
+                No hay recursos disponibles en el inventario.
+                <a href="recursos.html">Ir a Gestión de Recursos</a>
+              </div>
+
+              <!-- Grilla de tarjetas de recursos (generada por el controller) -->
+              <div id="recursos-grid" class="ev-recursos-grid"></div>
+            </div>
+
+            <!-- Botón publicar -->
+            <button type="submit" class="btn-submit">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                style="width:1.15rem;height:1.15rem;">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Publicar Evento
+            </button>
+
+          </form>
         </div>
+      </div>
 
-        <!-- Fecha + Horario -->
-        <div class="form-row">
-          <div class="form-group">
-            <label for="ev-fecha">Fecha</label>
-            <input id="ev-fecha" type="date" class="form-control" required />
+      <!-- ── Columna derecha: previsualización ── -->
+      <div class="ev-preview-col" id="ev-preview-col">
+        <div class="ev-preview-sticky">
+
+          <!-- Etiqueta -->
+          <div class="ev-preview-label">
+            <i class="bx bx-show"></i>
+            Vista previa — así se verá el evento
           </div>
-          <div class="form-group">
-            <label for="ev-horario">Horario</label>
-            <input id="ev-horario" type="text" class="form-control"
-              placeholder="Ej: 10:00 AM - 12:00 PM" required />
+
+          <!-- Tarjeta de previsualización (imita la tarjeta pública) -->
+          <div class="ev-preview-card" id="ev-preview-card">
+
+            <!-- Barra de color lateral (decorativa) -->
+            <div class="ev-preview-bar"></div>
+
+            <div class="ev-preview-body">
+
+              <!-- Estado vacío (se oculta al escribir) -->
+              <div class="ev-preview-empty" id="ev-preview-empty">
+                <i class="bx bx-calendar-edit"></i>
+                <p>Empieza a llenar el formulario para ver la previsualización</p>
+              </div>
+
+              <!-- Contenido de la tarjeta (se muestra al escribir) -->
+              <div class="ev-preview-content" id="ev-preview-content" style="display:none;">
+                <h4 class="ev-prev-titulo" id="prev-ev-titulo">—</h4>
+                <div class="ev-prev-info">
+                  <div class="ev-prev-info-row" id="prev-row-fecha">
+                    <span class="ev-prev-icon">📅</span>
+                    <span id="prev-ev-fecha">—</span>
+                  </div>
+                  <div class="ev-prev-info-row" id="prev-row-horario">
+                    <span class="ev-prev-icon">🕙</span>
+                    <span id="prev-ev-horario">—</span>
+                  </div>
+                  <div class="ev-prev-info-row" id="prev-row-ubicacion">
+                    <span class="ev-prev-icon">📍</span>
+                    <span id="prev-ev-ubicacion">—</span>
+                  </div>
+                  <div class="ev-prev-info-row" id="prev-row-asistentes">
+                    <span class="ev-prev-icon">👥</span>
+                    <span id="prev-ev-asistentes">—</span>
+                  </div>
+                  <div class="ev-prev-info-row" id="prev-row-voluntarios">
+                    <span class="ev-prev-icon">🙋</span>
+                    <span id="prev-ev-voluntarios">—</span>
+                  </div>
+                </div>
+                <p class="ev-prev-desc" id="prev-ev-desc" style="display:none;"></p>
+              </div>
+
+            </div>
           </div>
+
+          <!-- Nota informativa -->
+          <p class="ev-preview-nota">
+            <i class="bx bx-info-circle"></i>
+            La previsualización se actualiza en tiempo real mientras escribes.
+          </p>
+
         </div>
+      </div>
 
-        <!-- Ubicación + Asistentes -->
-        <div class="form-row">
-          <div class="form-group">
-            <label for="ev-ubicacion">Ubicación</label>
-            <input id="ev-ubicacion" type="text" class="form-control"
-              placeholder="Ej: Santuario Principal" required />
-          </div>
-          <div class="form-group">
-            <label for="ev-asistentes">Asistentes Esperados</label>
-            <input id="ev-asistentes" type="text" class="form-control"
-              placeholder="Ej: 200+" />
-          </div>
-        </div>
-
-        <!-- Voluntarios necesarios + Descripción -->
-        <div class="form-row">
-          <div class="form-group">
-            <label for="ev-voluntarios">Voluntarios Necesarios</label>
-            <input id="ev-voluntarios" type="number" class="form-control"
-              min="1" value="1" placeholder="Ej: 10" required />
-          </div>
-          <div class="form-group">
-            <label for="ev-descripcion">Descripción</label>
-            <textarea id="ev-descripcion" class="form-control" rows="3"
-              placeholder="Descripción del evento (opcional)"></textarea>
-          </div>
-        </div>
-
-        <!-- ── SECCIÓN DE RECURSOS DEL INVENTARIO ──────────────────────── -->
-        <div class="form-group">
-          <div class="ev-recursos-header">
-            <label>Recursos del Inventario</label>
-            <!-- Contador dinámico de recursos seleccionados -->
-            <span id="contador-recursos" class="ev-contador">
-              Ningún recurso seleccionado (opcional)
-            </span>
-          </div>
-
-          <!-- Mensaje cuando no hay recursos disponibles en el inventario -->
-          <div id="sin-recursos-msg" class="ev-sin-recursos-msg" style="display:none;">
-            <i class="bx bx-error-circle"></i>
-            No hay recursos disponibles en el inventario.
-            <a href="recursos.html">Ir a Gestión de Recursos</a>
-          </div>
-
-          <!-- Grilla de tarjetas de recursos (generada por el controller) -->
-          <div id="recursos-grid" class="ev-recursos-grid"></div>
-        </div>
-
-        <!-- Botón publicar -->
-        <button type="submit" class="btn-submit">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-            style="width:1.15rem;height:1.15rem;">
-            <line x1="12" y1="5" x2="12" y2="19"/>
-            <line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-          Publicar Evento
-        </button>
-
-      </form>
-    </div>
+    </div><!-- /ev-form-preview-layout -->
 
     <!-- ══ EVENTOS PUBLICADOS ═══════════════════════════════════════════════ -->
     <div class="ev-publicados-section">
       <h3 class="ev-publicados-titulo">
         <i class="bx bx-calendar-check"></i>
-        Eventos Publicados
+        Historial de Eventos
       </h3>
       <!-- Lista generada por el controller -->
       <div id="lista-eventos-publicados"></div>
@@ -116,6 +219,86 @@
 
   </section>
 </main>
+
+<!-- ══ MODAL VER DETALLE ══════════════════════════════════════════════════ -->
+<div id="modal-ver-evento" class="ev-modal-overlay" style="display:none;" onclick="cerrarModalVer(event)">
+  <div class="ev-modal-box">
+    <div class="ev-modal-header">
+      <h3 id="modal-ver-titulo" class="ev-modal-title"></h3>
+      <button class="ev-modal-close" onclick="cerrarModalVer()">
+        <i class="bx bx-x"></i>
+      </button>
+    </div>
+    <div class="ev-modal-body" id="modal-ver-body"></div>
+  </div>
+</div>
+
+<!-- ══ MODAL EDITAR EVENTO ════════════════════════════════════════════════ -->
+<div id="modal-editar-evento" class="ev-modal-overlay" style="display:none;" onclick="cerrarModalEditar(event)">
+  <div class="ev-modal-box ev-modal-box--wide">
+    <div class="ev-modal-header">
+      <h3 class="ev-modal-title">
+        <i class="bx bx-edit"></i> Editar Evento
+      </h3>
+      <button class="ev-modal-close" onclick="cerrarModalEditar()">
+        <i class="bx bx-x"></i>
+      </button>
+    </div>
+    <div class="ev-modal-body">
+      <form id="form-editar-evento" onsubmit="guardarEdicion(event)" novalidate>
+        <input type="hidden" id="edit-id" />
+
+        <div class="form-group">
+          <label for="edit-titulo">Título del Evento</label>
+          <input id="edit-titulo" type="text" class="form-control" required />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-fecha">Fecha</label>
+            <input id="edit-fecha" type="date" class="form-control" required />
+          </div>
+          <div class="form-group">
+            <label for="edit-horario">Horario</label>
+            <input id="edit-horario" type="text" class="form-control"
+              placeholder="Ej: 10:00 AM - 12:00 PM" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-ubicacion">Ubicación</label>
+            <input id="edit-ubicacion" type="text" class="form-control" required />
+          </div>
+          <div class="form-group">
+            <label for="edit-asistentes">Asistentes Esperados</label>
+            <input id="edit-asistentes" type="text" class="form-control" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-voluntarios">Voluntarios Necesarios</label>
+            <input id="edit-voluntarios" type="number" class="form-control" min="1" value="1" />
+          </div>
+          <div class="form-group">
+            <label for="edit-descripcion">Descripción</label>
+            <textarea id="edit-descripcion" class="form-control" rows="3"></textarea>
+          </div>
+        </div>
+
+        <div class="ev-modal-footer">
+          <button type="button" class="btn-ev-cancelar" onclick="cerrarModalEditar()">
+            Cancelar
+          </button>
+          <button type="submit" class="btn-submit" style="margin:0;">
+            <i class="bx bx-save"></i> Guardar Cambios
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
 <!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
 <!-- Sidebar del admin -->

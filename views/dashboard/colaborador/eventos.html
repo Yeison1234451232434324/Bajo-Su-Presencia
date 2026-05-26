@@ -1,3 +1,19 @@
+<!--
+  ================================================================
+  PUBLICAR EVENTO COLABORADOR — Formulario de eventos
+  ================================================================
+  ¿Qué hace esta página?
+  Permite al colaborador crear eventos para la comunidad.
+  A diferencia del admin, los recursos están hardcodeados
+  (no se conecta al inventario dinámico).
+
+  Archivos que usa:
+    - panel.css                        → estilos base del panel
+    - eventos.css                      → estilos específicos
+    - sidebar.colaborador.controller.js → sidebar del colaborador
+    - eventos.controller.js            → lógica del formulario
+  ================================================================
+-->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -9,6 +25,7 @@
 </head>
 <body>
 
+  <!-- Área principal (el sidebar se inyecta por JS) -->
   <main class="main" id="main">
     <section class="panel active" style="display:block;">
       <div class="panel-header">
@@ -120,7 +137,9 @@
     </section>
   </main>
 
+  <!-- Sidebar del colaborador -->
   <script src="../../../controllers/sidebar.colaborador.controller.js"></script>
+  <!-- Lógica del formulario de eventos -->
   <script src="../../../controllers/eventos.controller.js"></script>
 </body>
 </html>

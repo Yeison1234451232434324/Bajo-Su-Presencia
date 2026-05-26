@@ -1,3 +1,23 @@
+/*
+ * ================================================================
+ *  MIS CALIFICACIONES — Estilos del módulo del voluntario
+ * ================================================================
+ *  ¿Qué hace este archivo?
+ *  Estiliza la página donde el voluntario consulta sus propias
+ *  calificaciones recibidas por participar en eventos:
+ *    - Grilla de 4 tarjetas de estadísticas (promedio, total,
+ *      mejor y peor calificación con nombre del evento)
+ *    - Tarjeta de distribución de estrellas con barras de progreso
+ *    - Historial de calificaciones: tarjetas individuales con
+ *      nombre del evento, fecha, estrellas visuales y observación
+ *      del administrador
+ *    - Placeholder cuando aún no hay calificaciones registradas
+ *
+ *  ¿Cómo se usa?
+ *  Se carga DESPUÉS de panel.css en calificaciones.html del voluntario.
+ * ================================================================
+ */
+
 /* ══════════════════════════════════════════════════
    MIS CALIFICACIONES — CSS específico del voluntario
 ══════════════════════════════════════════════════ */

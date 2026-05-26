@@ -1,3 +1,26 @@
+<!--
+  ================================================================
+  GESTIÓN DE RECURSOS ADMIN — Inventario de recursos
+  ================================================================
+  ¿Qué hace esta página?
+  Permite al admin administrar el inventario de recursos físicos
+  (sillas, micrófonos, proyectores, etc.) disponibles para eventos.
+
+  Secciones:
+    1. Tarjetas de estadísticas (total, disponibles, no disp., sin stock)
+    2. Barra de herramientas: búsqueda por texto + filtros de categoría
+       y disponibilidad + botón "Nuevo Recurso"
+    3. Tabla de recursos con acciones: editar, activar/desactivar, eliminar
+    4. Modal de crear/editar recurso (nombre, categoría, cantidad, unidad)
+
+  Archivos que usa:
+    - panel.css              → estilos base del panel
+    - recursos.css           → estilos específicos del módulo
+    - sidebar.controller.js  → sidebar del admin
+    - recursos.model.js      → CRUD del inventario en localStorage
+    - recursos.controller.js → lógica de tabla, filtros y modal
+  ================================================================
+-->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -9,7 +32,7 @@
 </head>
 <body>
 
-<!-- ══ CONTENIDO PRINCIPAL ══════════════════════════════════════════════ -->
+<!-- Área principal (el sidebar se inyecta por JS) -->
 <main class="main" id="main">
   <section class="panel active" style="display:block;">
 

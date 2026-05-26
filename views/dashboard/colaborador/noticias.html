@@ -1,62 +1,184 @@
+<!--
+  ================================================================
+  NOTICIAS COLABORADOR — Formulario + Vista previa + Historial
+  ================================================================
+  Misma funcionalidad que noticias.html del admin.
+  El colaborador puede publicar, ver, editar y eliminar noticias.
+
+  Archivos que usa:
+    - panel.css                        → estilos base del panel
+    - noticias.css (admin)             → estilos de preview, historial y modal
+    - sidebar.colaborador.controller.js → sidebar del colaborador
+    - noticias.model.js                → CRUD de noticias en localStorage
+    - noticias.controller.js           → lógica completa del módulo
+  ================================================================
+-->
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Publicar Noticia – Bajo Su Presencia</title>
+  <!-- Estilos base del panel -->
   <link rel="stylesheet" href="panel.css" />
-  <link rel="stylesheet" href="noticias.css" />
+  <!-- Estilos de noticias (reutilizamos el del admin) -->
+  <link rel="stylesheet" href="../admin/noticias.css" />
 </head>
 <body>
 
+  <!-- Área principal (el sidebar se inyecta por JS) -->
   <main class="main" id="main">
     <section class="panel active" style="display:block;">
+
+      <!-- Encabezado -->
       <div class="panel-header">
         <h2>Publicar Noticia</h2>
-        <p>Comparte novedades con la comunidad</p>
+        <p>Crea, edita y gestiona las noticias de la comunidad</p>
       </div>
+
+      <!-- ══ FORMULARIO ════════════════════════════════════════════════════ -->
       <div class="form-card">
-        <form onsubmit="submitNews(event)">
+        <form id="form-noticia" novalidate>
+
+          <!-- Título -->
           <div class="form-group">
-            <label>Título de la Noticia</label>
-            <input type="text" class="form-control" placeholder="Ej: Inauguración del Nuevo Salón de Oración" required />
+            <label for="news-titulo">
+              <i class="bx bx-news" style="color:var(--primary);"></i>
+              Título de la Noticia
+            </label>
+            <input type="text" id="news-titulo" class="form-control"
+              placeholder="Ej: Inauguración del Nuevo Salón de Oración" required />
           </div>
+
+          <!-- Resumen -->
           <div class="form-group">
-            <label>Resumen Breve</label>
-            <textarea class="form-control" rows="2"
+            <label for="news-resumen">
+              <i class="bx bx-align-left" style="color:var(--primary);"></i>
+              Resumen Breve
+            </label>
+            <textarea id="news-resumen" class="form-control" rows="2"
               placeholder="Resumen que aparecerá en la tarjeta de vista previa" required></textarea>
           </div>
+
+          <!-- Fecha + Autor -->
           <div class="form-row">
             <div class="form-group">
-              <label>Fecha</label>
-              <input type="date" class="form-control" required />
+              <label for="news-fecha">
+                <i class="bx bx-calendar" style="color:var(--primary);"></i>
+                Fecha
+              </label>
+              <input type="date" id="news-fecha" class="form-control" required />
             </div>
             <div class="form-group">
-              <label>Autor</label>
-              <input type="text" class="form-control" placeholder="Ej: Pastor Miguel Ángel" required />
+              <label for="news-autor">
+                <i class="bx bx-user" style="color:var(--primary);"></i>
+                Autor
+              </label>
+              <input type="text" id="news-autor" class="form-control"
+                placeholder="Ej: Pastor Miguel Ángel" required />
             </div>
           </div>
+
+          <!-- Imagen -->
           <div class="form-group">
-            <label>URL de la Imagen</label>
-            <input type="url" class="form-control" placeholder="https://ejemplo.com/imagen.jpg" />
+            <label for="news-imagen">
+              <i class="bx bx-image" style="color:var(--primary);"></i>
+              URL de la Imagen (Opcional)
+            </label>
+            <input type="url" id="news-imagen" class="form-control"
+              placeholder="https://ejemplo.com/imagen.jpg" />
           </div>
+
+          <!-- Contenido completo -->
           <div class="form-group">
-            <label>Contenido Completo</label>
-            <textarea class="form-control" rows="6"
-              placeholder="Contenido completo de la noticia (opcional)"></textarea>
+            <label for="news-contenido">
+              <i class="bx bx-file-blank" style="color:var(--primary);"></i>
+              Contenido Completo (Opcional)
+            </label>
+            <textarea id="news-contenido" class="form-control" rows="5"
+              placeholder="Escribe el contenido completo de la noticia aquí…"></textarea>
           </div>
-          <button type="submit" class="btn-submit">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:1.15rem;height:1.15rem;">
-              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+
+          <!-- Vista previa en tiempo real -->
+          <div class="news-preview-box" id="news-preview-box" style="display:none;">
+            <div class="news-preview-label">
+              <i class="bx bx-show"></i>
+              Así se verá la noticia en la página pública
+            </div>
+            <div class="prev-img-wrap" id="prev-img-wrap" style="display:none;">
+              <img id="prev-img" src="" alt="Vista previa" class="prev-img" />
+              <div class="prev-img-fade"></div>
+            </div>
+            <div class="prev-body">
+              <h4 class="prev-titulo" id="prev-titulo">Título de la noticia</h4>
+              <p  class="prev-resumen" id="prev-resumen">El resumen aparecerá aquí…</p>
+              <div class="prev-meta">
+                <span id="prev-fecha">📅 Fecha</span>
+                <span id="prev-autor">👤 Autor</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botón publicar / guardar cambios -->
+          <button type="submit" class="btn-submit" id="btn-submit-noticia">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              style="width:1.15rem;height:1.15rem;">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
             Publicar Noticia
           </button>
+
+          <!-- Botón cancelar edición -->
+          <button type="button" class="btn-cancelar-noticia" id="btn-cancelar-noticia">
+            <i class="bx bx-x-circle"></i>
+            Cancelar edición
+          </button>
+
         </form>
       </div>
+
+      <!-- ══ HISTORIAL ════════════════════════════════════════════════════ -->
+      <div class="nt-historial-section">
+        <h3 class="nt-historial-titulo">
+          <i class="bx bx-history"></i>
+          Noticias Publicadas
+        </h3>
+        <div class="nt-grid" id="lista-noticias"></div>
+      </div>
+
     </section>
   </main>
 
+  <!-- Overlay del modal -->
+  <div class="modal-overlay-noticia" id="modal-overlay-noticia"></div>
+
+  <!-- Modal: leer noticia completa -->
+  <div class="modal-ver-noticia" id="modal-ver-noticia" role="dialog" aria-modal="true">
+    <div class="modal-nt-img-wrap" id="modal-noticia-img-wrap" style="display:none;">
+      <img id="modal-noticia-img" src="" alt="Imagen de la noticia" class="modal-nt-img" />
+      <div class="modal-nt-img-fade"></div>
+    </div>
+    <div class="modal-nt-content">
+      <div class="modal-nt-header">
+        <h3 class="modal-nt-titulo" id="modal-noticia-titulo">—</h3>
+        <button class="btn-cerrar-modal-nt" id="btn-cerrar-modal-noticia" aria-label="Cerrar">
+          <i class="bx bx-x"></i>
+        </button>
+      </div>
+      <p class="modal-nt-meta"      id="modal-noticia-meta">—</p>
+      <p class="modal-nt-resumen"   id="modal-noticia-resumen"></p>
+      <p class="modal-nt-contenido" id="modal-noticia-contenido"></p>
+    </div>
+  </div>
+
+  <!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
+  <!-- Sidebar del colaborador -->
   <script src="../../../controllers/sidebar.colaborador.controller.js"></script>
+  <!-- Modelo de noticias -->
+  <script src="../../../models/noticias.model.js"></script>
+  <!-- Controlador de noticias -->
   <script src="../../../controllers/noticias.controller.js"></script>
+
 </body>
 </html>

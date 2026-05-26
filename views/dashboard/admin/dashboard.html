@@ -1,15 +1,37 @@
+<!--
+  ================================================================
+  DASHBOARD ADMIN — Pantalla de inicio del panel de administración
+  ================================================================
+  ¿Qué hace esta página?
+  Muestra un resumen visual del estado general de la comunidad:
+    - 6 tarjetas de métricas (miembros, eventos, noticias, etc.)
+    - 4 gráficas con Chart.js (crecimiento, contenido, eventos, voluntarios)
+    - Lista de actividad reciente y voluntarios destacados
+    - Tabla de próximos eventos con estado y botón "Crear evento"
+
+  Archivos que usa:
+    - panel.css       → estilos base del panel (sidebar, layout, etc.)
+    - dashboard.css   → estilos específicos de las gráficas y tablas
+    - chart.js        → librería de gráficas (CDN)
+    - sidebar.controller.js → inyecta el sidebar y carga el usuario
+  ================================================================
+-->
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard – Bajo Su Presencia</title>
+  <!-- Estilos base del panel (sidebar, variables, layout) -->
   <link rel="stylesheet" href="panel.css" />
+  <!-- Estilos específicos del dashboard (gráficas, actividad, voluntarios) -->
   <link rel="stylesheet" href="dashboard.css" />
+  <!-- Librería de gráficas Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
+<!-- Área principal de contenido (el sidebar se inyecta por JS) -->
 <main class="main" id="main">
   <section class="panel active" style="display:block;">
 
@@ -327,9 +349,14 @@
   </section>
 </main>
 
-<!-- Controller del sidebar -->
+<!-- Controller del sidebar (inyecta el nav y carga el usuario logueado) -->
 <script src="../../../controllers/sidebar.controller.js"></script>
 
+<!--
+  Gráficas del dashboard (Chart.js)
+  Se inicializan cuando el DOM está listo (DOMContentLoaded).
+  Cada gráfica lee datos estáticos de ejemplo.
+-->
 <script>
 window.addEventListener('DOMContentLoaded', () => {
 

@@ -1,63 +1,193 @@
+<!--
+  ================================================================
+  ORACIÓN DEL DÍA ADMIN — Formulario + Historial
+  ================================================================
+  ¿Qué hace esta página?
+  Permite al admin publicar, ver, editar y eliminar las oraciones
+  del día que aparecen en la página pública.
+
+  Secciones:
+    1. Formulario: texto, versículo, imagen opcional y vista previa
+       en tiempo real. En modo edición muestra "Guardar Cambios"
+       y un botón "Cancelar".
+    2. Historial: lista de oraciones publicadas con tarjetas que
+       muestran fecha, texto truncado, versículo y 3 botones:
+         · Ver  → abre modal con el texto completo
+         · Editar → pre-llena el formulario para modificar
+         · Eliminar → elimina con confirmación
+
+  Archivos que usa:
+    - panel.css             → estilos base del panel
+    - oracion.css           → estilos del historial y modal
+    - sidebar.controller.js → sidebar del admin
+    - oracion.model.js      → CRUD de oraciones en localStorage
+    - oracion.controller.js → lógica completa del módulo
+  ================================================================
+-->
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Oración del Día – Bajo Su Presencia</title>
+  <!-- Estilos base del panel (sidebar, variables, layout) -->
   <link rel="stylesheet" href="panel.css" />
+  <!-- Estilos específicos del módulo de oración e historial -->
   <link rel="stylesheet" href="oracion.css" />
 </head>
 <body>
 
-  <main class="main" id="main">
-    <section class="panel active" style="display:block;">
-      <div class="panel-header">
-        <h2>Oración del Día</h2>
-        <p>Publica la oración diaria para la comunidad</p>
-      </div>
-      <div class="form-card">
-        <form onsubmit="submitPrayer(event)">
-          <div class="form-group">
-            <label>Texto de la Oración</label>
-            <textarea class="form-control" id="prayerText" rows="10"
-              placeholder="Escribe la oración del día aquí..."
-              oninput="updatePrayerPreview()" required></textarea>
-            <p class="char-count"><span id="prayerCount">0</span> caracteres</p>
-          </div>
-          <div class="form-group">
-            <label>Versículo o Frase Final</label>
-            <input type="text" class="form-control" id="prayerVerse"
-              placeholder="Ej: Amén 🙏 o versículo bíblico"
-              oninput="updatePrayerPreview()" />
-          </div>
-          <div class="form-group">
-            <label>Imagen (Opcional)</label>
-            <input type="url" class="form-control" id="prayerImage"
-              placeholder="https://ejemplo.com/imagen-oracion.jpg"
-              oninput="updatePrayerPreview()" />
-            <p class="char-count">Agrega una imagen inspiradora para acompañar la oración</p>
-          </div>
-          <div class="preview-box" id="prayerPreview" style="display:none;">
-            <h3>Vista Previa</h3>
-            <div id="previewImgWrap" style="display:none;margin-bottom:1rem;border-radius:0.75rem;overflow:hidden;">
-              <img id="previewImg" src="" alt="" style="width:100%;height:200px;object-fit:cover;" />
-            </div>
-            <p class="preview-text" id="previewText"></p>
-            <p class="preview-verse" id="previewVerse"></p>
-          </div>
-          <button type="submit" class="btn-submit">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:1.15rem;height:1.15rem;">
-              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-              <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
-            </svg>
-            Publicar Oración
-          </button>
-        </form>
-      </div>
-    </section>
-  </main>
+<!-- Área principal (el sidebar se inyecta por JS) -->
+<main class="main" id="main">
+  <section class="panel active" style="display:block;">
 
-  <script src="../../../controllers/sidebar.controller.js"></script>
-  <script src="../../../controllers/oracion.controller.js"></script>
+    <!-- Encabezado de la sección -->
+    <div class="panel-header">
+      <h2>Oración del Día</h2>
+      <p>Publica, edita y gestiona las oraciones diarias de la comunidad</p>
+    </div>
+
+    <!-- ══ FORMULARIO DE PUBLICACIÓN ══════════════════════════════════════ -->
+    <div class="form-card">
+      <form id="form-oracion" novalidate>
+
+        <!-- Campo: texto de la oración -->
+        <div class="form-group">
+          <label for="prayerText">
+            <i class="bx bx-church" style="color:var(--primary);"></i>
+            Texto de la Oración
+          </label>
+          <textarea
+            class="form-control"
+            id="prayerText"
+            rows="8"
+            placeholder="Escribe la oración del día aquí..."
+            oninput="updatePrayerPreview()"
+            required
+          ></textarea>
+          <!-- Contador de caracteres -->
+          <p class="char-count"><span id="prayerCount">0</span> caracteres</p>
+        </div>
+
+        <!-- Campo: versículo o frase final -->
+        <div class="form-group">
+          <label for="prayerVerse">
+            <i class="bx bx-book-open" style="color:var(--primary);"></i>
+            Versículo o Frase Final
+          </label>
+          <input
+            type="text"
+            class="form-control"
+            id="prayerVerse"
+            placeholder="Ej: Filipenses 4:7 o Amén 🙏"
+            oninput="updatePrayerPreview()"
+          />
+        </div>
+
+        <!-- Campo: imagen opcional -->
+        <div class="form-group">
+          <label for="prayerImage">
+            <i class="bx bx-image" style="color:var(--primary);"></i>
+            Imagen Inspiradora (Opcional)
+          </label>
+          <input
+            type="url"
+            class="form-control"
+            id="prayerImage"
+            placeholder="https://ejemplo.com/imagen-oracion.jpg"
+            oninput="updatePrayerPreview()"
+          />
+          <p class="char-count">Agrega una imagen para acompañar la oración</p>
+        </div>
+
+        <!-- Vista previa en tiempo real (se muestra al escribir) -->
+        <div class="preview-box" id="prayerPreview" style="display:none;">
+          <h3>Vista Previa</h3>
+          <!-- Imagen de vista previa -->
+          <div id="previewImgWrap" style="display:none;margin-bottom:1rem;border-radius:0.75rem;overflow:hidden;">
+            <img id="previewImg" src="" alt="Vista previa imagen"
+              style="width:100%;height:200px;object-fit:cover;" />
+          </div>
+          <!-- Texto de la oración -->
+          <p class="preview-text" id="previewText"></p>
+          <!-- Versículo -->
+          <p class="preview-verse" id="previewVerse"></p>
+        </div>
+
+        <!-- Botón publicar / guardar cambios (el controller cambia el texto al editar) -->
+        <button type="submit" class="btn-submit" id="btn-submit-oracion">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            style="width:1.15rem;height:1.15rem;">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+            <polyline points="17 21 17 13 7 13 7 21"/>
+            <polyline points="7 3 7 8 15 8"/>
+          </svg>
+          Publicar Oración
+        </button>
+
+        <!-- Botón cancelar edición (solo visible en modo editar) -->
+        <button type="button" class="btn-cancelar-edicion" id="btn-cancelar-edicion">
+          <i class="bx bx-x-circle"></i>
+          Cancelar edición
+        </button>
+
+      </form>
+    </div>
+
+    <!-- ══ HISTORIAL DE ORACIONES ══════════════════════════════════════════ -->
+    <div class="or-historial-section">
+      <h3 class="or-historial-titulo">
+        <i class="bx bx-history"></i>
+        Historial de Oraciones
+      </h3>
+      <!-- Las tarjetas se generan dinámicamente por el controller -->
+      <div id="lista-oraciones"></div>
+    </div>
+
+  </section>
+</main>
+
+<!-- ══ OVERLAY DEL MODAL DE VISTA ═════════════════════════════════════════ -->
+<div class="modal-overlay-oracion" id="modal-overlay-oracion"></div>
+
+<!-- ══ MODAL: VER ORACIÓN COMPLETA ════════════════════════════════════════ -->
+<div class="modal-ver-oracion" id="modal-ver-oracion" role="dialog" aria-modal="true">
+
+  <div class="modal-or-header">
+    <div>
+      <h3>Oración del Día</h3>
+      <!-- Fecha de la oración que se está viendo -->
+      <p class="modal-or-fecha-badge">
+        <i class="bx bx-calendar"></i>
+        <span id="modal-oracion-fecha">—</span>
+      </p>
+    </div>
+    <!-- Botón cerrar modal -->
+    <button class="btn-cerrar-modal-or" id="btn-cerrar-modal-oracion" aria-label="Cerrar">
+      <i class="bx bx-x"></i>
+    </button>
+  </div>
+
+  <!-- Imagen de la oración (se oculta si no tiene imagen) -->
+  <div class="modal-or-img-wrap" id="modal-oracion-img-wrap" style="display:none;">
+    <img id="modal-oracion-img" src="" alt="Imagen de la oración" class="modal-or-img" />
+  </div>
+
+  <!-- Texto completo de la oración -->
+  <p class="modal-or-texto" id="modal-oracion-texto"></p>
+
+  <!-- Versículo bíblico -->
+  <p class="modal-or-versiculo" id="modal-oracion-versiculo"></p>
+
+</div><!-- /modal-ver-oracion -->
+
+<!-- ══ SCRIPTS ════════════════════════════════════════════════════════════ -->
+<!-- Sidebar del admin (inyecta el nav y carga el usuario logueado) -->
+<script src="../../../controllers/sidebar.controller.js"></script>
+<!-- Modelo de oraciones (CRUD en localStorage) -->
+<script src="../../../models/oracion.model.js"></script>
+<!-- Controlador: formulario, historial, editar, eliminar y modal -->
+<script src="../../../controllers/oracion.controller.js"></script>
+
 </body>
 </html>
