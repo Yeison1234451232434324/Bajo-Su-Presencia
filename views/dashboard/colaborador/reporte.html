@@ -1,0 +1,149 @@
+<!--
+  ================================================================
+  SUBIR REPORTE DE EVENTO — Colaborador
+  ================================================================
+  Permite al colaborador registrar el reporte de un evento
+  finalizado: ofrenda recaudada, incidentes y observaciones.
+
+  Archivos que usa:
+    - panel.css                        → estilos base
+    - reporte.css                      → estilos específicos
+    - sidebar.colaborador.controller.js → sidebar del colaborador
+    - eventos.model.js                 → leer eventos pasados
+    - reportes.model.js                → CRUD de reportes
+    - reporte.controller.js            → lógica completa
+  ================================================================
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Subir Reporte – Bajo Su Presencia</title>
+  <link rel="stylesheet" href="panel.css" />
+  <link rel="stylesheet" href="reporte.css" />
+</head>
+<body>
+
+<main class="main" id="main">
+  <section class="panel active" style="display:block;">
+
+    <!-- Encabezado -->
+    <div class="panel-header">
+      <h2>Subir Reporte de Evento</h2>
+      <p>Registra los datos del evento finalizado para alimentar los reportes</p>
+    </div>
+
+    <!-- ══ VISTA 1: GRID DE EVENTOS PASADOS ══════════════════════════════ -->
+    <div id="rep-vista-eventos">
+      <div class="rep-eventos-wrap">
+        <h3>Selecciona un Evento Finalizado</h3>
+        <div class="rep-grid-eventos" id="rep-grid-eventos">
+          <!-- Tarjetas generadas por el controller -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ VISTA 2: FORMULARIO DE REPORTE ════════════════════════════════ -->
+    <div id="rep-vista-formulario" style="display:none;">
+
+      <!-- Botón volver -->
+      <div class="rep-topbar">
+        <button class="rep-btn-volver" onclick="volverAEventosReporte()">
+          <i class="bx bx-chevron-left"></i> Volver a Eventos
+        </button>
+      </div>
+
+      <!-- Banner del evento -->
+      <div class="rep-banner" id="rep-banner">
+        <div class="rep-banner-titulo">—</div>
+        <div class="rep-banner-meta">
+          <span><i class="bx bx-calendar"></i> <span class="rep-banner-fecha">—</span></span>
+          <span><i class="bx bx-time"></i> <span class="rep-banner-hora">—</span></span>
+          <span><i class="bx bx-map-pin" style="color:#f87171;"></i> <span class="rep-banner-lugar">—</span></span>
+        </div>
+      </div>
+
+      <!-- Formulario -->
+      <div class="rep-form-card">
+        <div class="rep-form-card-header">
+          <div class="rep-form-card-icon"><i class="bx bx-file"></i></div>
+          <h3>Datos del Evento</h3>
+        </div>
+
+        <form id="form-reporte" novalidate>
+
+          <!-- Ofrenda -->
+          <div class="rep-field">
+            <label for="rep-ofrenda">
+              <i class="bx bx-dollar"></i> Ofrenda Recaudada (COP) *
+            </label>
+            <input
+              type="number"
+              id="rep-ofrenda"
+              class="rep-input"
+              placeholder="Ej: 1500000"
+              min="0"
+              required
+            />
+          </div>
+
+          <!-- Incidentes -->
+          <div class="rep-field">
+            <label for="rep-incidentes">
+              <i class="bx bx-error-circle"></i> Incidentes
+            </label>
+            <textarea
+              id="rep-incidentes"
+              class="rep-textarea"
+              rows="3"
+              placeholder="Describe cualquier incidente ocurrido durante el evento (deja vacío si no hubo incidentes)"
+            ></textarea>
+            <p class="rep-field-hint">Si no hubo incidentes, se registrará como "Ninguno" automáticamente</p>
+          </div>
+
+          <!-- Observaciones -->
+          <div class="rep-field">
+            <label for="rep-observaciones">
+              <i class="bx bx-comment-detail"></i> Observaciones *
+            </label>
+            <textarea
+              id="rep-observaciones"
+              class="rep-textarea"
+              rows="4"
+              placeholder="Comentarios generales, nivel de asistencia, participación, aspectos a mejorar, logros destacados, etc."
+              required
+            ></textarea>
+          </div>
+
+          <!-- Botones -->
+          <div class="rep-form-footer">
+            <button type="submit" class="rep-btn-guardar" id="rep-btn-guardar">
+              <i class="bx bx-upload"></i> Cargar Reporte
+            </button>
+            <button type="button" class="rep-btn-cancelar" onclick="cancelarReporte()">
+              Cancelar
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- Reporte existente -->
+      <div class="rep-existente" id="rep-existente" style="display:none;">
+        <!-- Contenido generado por el controller -->
+      </div>
+
+    </div><!-- /rep-vista-formulario -->
+
+  </section>
+</main>
+
+<!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
+<script src="../../../controllers/sidebar.colaborador.controller.js"></script>
+<script src="../../../models/eventos.model.js"></script>
+<script src="../../../models/reportes.model.js"></script>
+<script src="../../../controllers/reporte.controller.js"></script>
+
+</body>
+</html>

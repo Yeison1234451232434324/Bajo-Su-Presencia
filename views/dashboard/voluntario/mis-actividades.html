@@ -1,0 +1,78 @@
+<!--
+  ================================================================
+  MIS ACTIVIDADES ASIGNADAS — Panel del voluntario
+  ================================================================
+  Muestra al voluntario sus actividades asignadas agrupadas
+  por evento. Puede marcar/desmarcar cada actividad como
+  completada. Incluye barra de progreso global y por evento.
+  Cuando todas están completas, la barra se pone verde.
+
+  Archivos que usa:
+    - panel.css                              → estilos base
+    - mis-actividades.css                    → estilos específicos
+    - sidebar.voluntario.controller.js       → sidebar del voluntario
+    - eventos.model.js                       → info de eventos
+    - voluntarios.model.js                   → info de eventos (fallback)
+    - actividades.model.js                   → actividades asignadas
+    - voluntario.actividades.controller.js   → lógica de la vista
+  ================================================================
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mis Actividades – Bajo Su Presencia</title>
+  <link rel="stylesheet" href="panel.css" />
+  <link rel="stylesheet" href="mis-actividades.css" />
+</head>
+<body>
+
+<main class="main" id="main">
+  <section class="panel active" style="display:block;">
+
+    <!-- ── Encabezado con ícono + progreso total ─────────────────────── -->
+    <div class="mact-header-row">
+      <div class="mact-header-left">
+        <div class="mact-header-icon">
+          <i class="bx bx-list-check"></i>
+        </div>
+        <div class="mact-header-text">
+          <h2>Mis Actividades Asignadas</h2>
+          <p>Tareas asignadas en los eventos donde confirmaste disponibilidad</p>
+        </div>
+      </div>
+      <div class="mact-progreso-total">
+        <div class="mact-progreso-label">Progreso total</div>
+        <div class="mact-progreso-num" id="mact-progreso-num">0/0</div>
+      </div>
+    </div>
+
+    <!-- ── Barra de progreso global ──────────────────────────────────── -->
+    <div class="mact-barra-wrap">
+      <div class="mact-barra-label">
+        <span>Actividades completadas</span>
+        <span id="mact-barra-pct">0%</span>
+      </div>
+      <div class="mact-barra-track">
+        <div class="mact-barra-fill" id="mact-barra-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- ── Contenedor de secciones por evento ────────────────────────── -->
+    <div id="mact-contenedor">
+      <!-- Secciones generadas por el controller -->
+    </div>
+
+  </section>
+</main>
+
+<!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
+<script src="../../../controllers/sidebar.voluntario.controller.js"></script>
+<script src="../../../models/eventos.model.js"></script>
+<script src="../../../models/voluntarios.model.js"></script>
+<script src="../../../models/actividades.model.js"></script>
+<script src="../../../controllers/voluntario.actividades.controller.js"></script>
+
+</body>
+</html>

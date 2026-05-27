@@ -55,6 +55,14 @@ document.addEventListener("DOMContentLoaded", () => {
         </a>
         <span class="tooltip">Mis Eventos</span>
       </li>
+      <!-- Actividades asignadas al voluntario -->
+      <li>
+        <a href="mis-actividades.html" id="nav-mis-actividades">
+          <i class="bx bx-task"></i>
+          <span class="nav-item">Actividades Asignadas</span>
+        </a>
+        <span class="tooltip">Actividades Asignadas</span>
+      </li>
       <!-- Cerrar sesión -->
       <li class="logout-li">
         <a href="../../public/login/login.html" id="nav-logout">
@@ -80,7 +88,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // ── Marcar ítem activo según la página actual ─────────────────────────────
   const path = window.location.pathname;
   if      (path.includes("calificaciones.html"))  document.getElementById("nav-calificaciones")?.parentElement.classList.add("active-item");
-  else if (path.includes("disponibilidad.html"))  document.getElementById("nav-disponibilidad")?.parentElement.classList.add("active-item");
+  else if (path.includes("disponibilidad.html"))    document.getElementById("nav-disponibilidad")?.parentElement.classList.add("active-item");
+  else if (path.includes("mis-actividades.html"))   document.getElementById("nav-mis-actividades")?.parentElement.classList.add("active-item");
 
   // ── Cargar datos del usuario desde localStorage ───────────────────────────
   const userData = localStorage.getItem('usuarioLogueado');

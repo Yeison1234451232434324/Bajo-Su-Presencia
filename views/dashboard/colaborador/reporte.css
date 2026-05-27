@@ -1,0 +1,301 @@
+/* ================================================================
+   SUBIR REPORTE DE EVENTO — Estilos específicos
+   ================================================================ */
+
+/* ── Contenedor de eventos ───────────────────────────────────── */
+.rep-eventos-wrap {
+  background: #fff;
+  border-radius: 1.25rem;
+  padding: 2rem;
+  border: 2px solid var(--border);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+  width: 100%;
+}
+.rep-eventos-wrap h3 {
+  font-family: var(--font-title);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 1.5rem;
+}
+
+/* ── Grid de tarjetas de eventos ─────────────────────────────── */
+.rep-grid-eventos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+/* ── Tarjeta de evento ───────────────────────────────────────── */
+.rep-evento-card {
+  display: flex;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 2px solid var(--border);
+  border-radius: 1rem;
+  background: #faf8f3;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+.rep-evento-card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 6px 20px rgba(30,58,138,0.12);
+  transform: translateY(-2px);
+}
+.rep-evento-card--con-reporte {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+.rep-evento-card--con-reporte:hover {
+  border-color: #16a34a;
+  box-shadow: 0 6px 20px rgba(22,163,74,0.15);
+}
+
+.rep-ev-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 0.875rem;
+  background: #22c55e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.rep-ev-icon i { font-size: 1.5rem; color: #fff; }
+.rep-ev-icon--done { background: #16a34a; }
+
+.rep-ev-body { flex: 1; min-width: 0; }
+.rep-ev-titulo {
+  font-family: var(--font-title);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 0.35rem;
+}
+.rep-ev-meta {
+  font-size: 0.88rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.2rem;
+}
+.rep-ev-meta i { font-size: 0.95rem; color: var(--primary); }
+.rep-ev-cargado {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #16a34a;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+}
+
+/* ── Barra superior ──────────────────────────────────────────── */
+.rep-topbar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+.rep-btn-volver {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.2rem;
+  background: #f3f4f6;
+  border: 2px solid var(--border);
+  border-radius: 0.75rem;
+  font-family: var(--font-text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--primary-dark);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.rep-btn-volver:hover { background: #e5e7eb; }
+
+/* ── Banner del evento ───────────────────────────────────────── */
+.rep-banner {
+  background: linear-gradient(135deg, var(--primary-dark) 0%, #2d4faf 60%, var(--accent) 100%);
+  border-radius: 1rem;
+  padding: 1.5rem 2rem;
+  margin-bottom: 1.5rem;
+  color: #fff;
+}
+.rep-banner-titulo {
+  font-family: var(--font-title);
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+.rep-banner-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  font-size: 0.95rem;
+  opacity: 0.92;
+}
+.rep-banner-meta span {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* ── Tarjeta del formulario ──────────────────────────────────── */
+.rep-form-card {
+  background: #fff;
+  border-radius: 1.25rem;
+  padding: 2rem;
+  border: 2px solid var(--border);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+  margin-bottom: 1.5rem;
+}
+
+.rep-form-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+.rep-form-card-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 0.75rem;
+  background: #e0e7ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.rep-form-card-icon i { font-size: 1.3rem; color: var(--primary); }
+.rep-form-card-header h3 {
+  font-family: var(--font-title);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+
+/* ── Campos del formulario ───────────────────────────────────── */
+.rep-field { margin-bottom: 1.25rem; }
+.rep-field label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-text);
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-bottom: 0.45rem;
+}
+.rep-field label i { font-size: 1.1rem; }
+.rep-field label i.bx-dollar       { color: #16a34a; }
+.rep-field label i.bx-error-circle { color: #d97706; }
+.rep-field label i.bx-comment-detail { color: var(--primary); }
+
+.rep-input, .rep-textarea {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.875rem;
+  font-family: var(--font-text);
+  font-size: 1rem;
+  color: #1a1a2e;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.rep-input:focus, .rep-textarea:focus { border-color: var(--primary); }
+.rep-input::placeholder, .rep-textarea::placeholder { color: #9ca3af; }
+.rep-textarea { resize: vertical; min-height: 90px; }
+
+.rep-field-hint {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: 0.35rem;
+}
+
+/* ── Botones del formulario ──────────────────────────────────── */
+.rep-form-footer {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+.rep-btn-guardar {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--accent) 100%);
+  color: #fff;
+  border: none;
+  border-radius: 0.875rem;
+  font-family: var(--font-text);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 4px 14px rgba(30,58,138,0.3);
+}
+.rep-btn-guardar:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(30,58,138,0.4); }
+
+.rep-btn-cancelar {
+  padding: 1rem 1.75rem;
+  background: #f3f4f6;
+  color: var(--muted);
+  border: 2px solid var(--border);
+  border-radius: 0.875rem;
+  font-family: var(--font-text);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.rep-btn-cancelar:hover { background: #e5e7eb; }
+
+/* ── Reporte existente ───────────────────────────────────────── */
+.rep-existente {
+  background: #f0fdf4;
+  border: 2px solid #bbf7d0;
+  border-radius: 1.25rem;
+  padding: 1.5rem 2rem;
+}
+.rep-existente-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+.rep-existente-icon {
+  font-size: 1.4rem;
+  color: #16a34a;
+}
+.rep-existente-titulo {
+  font-family: var(--font-title);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #15803d;
+}
+.rep-existente-body p {
+  font-size: 0.95rem;
+  color: #1a1a2e;
+  margin-bottom: 0.4rem;
+  line-height: 1.5;
+}
+.rep-existente-body strong { font-weight: 700; }
+.rep-existente-meta {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: 0.75rem !important;
+  font-style: italic;
+}
+
+/* ── Estado vacío ────────────────────────────────────────────── */
+.rep-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--muted);
+}
+.rep-empty i { font-size: 3rem; display: block; margin-bottom: 0.75rem; color: #d1d5db; }
+.rep-empty p { font-size: 1rem; }

@@ -78,6 +78,34 @@ document.addEventListener("DOMContentLoaded", () => {
         </a>
         <span class="tooltip">Gestión de Recursos</span>
       </li>
+      <li id="li-actividades" style="display:none;">
+        <a href="actividades.html" id="nav-actividades">
+          <i class="bx bx-task"></i>
+          <span class="nav-item">Actividades</span>
+        </a>
+        <span class="tooltip">Actividades</span>
+      </li>
+      <li id="li-reporte" style="display:none;">
+        <a href="reporte.html" id="nav-reporte">
+          <i class="bx bx-upload"></i>
+          <span class="nav-item">Subir Reporte</span>
+        </a>
+        <span class="tooltip">Subir Reporte</span>
+      </li>
+      <li id="li-generar-reportes" style="display:none;">
+        <a href="generar-reportes.html" id="nav-generar-reportes">
+          <i class="bx bx-bar-chart-alt-2"></i>
+          <span class="nav-item">Generar Reportes</span>
+        </a>
+        <span class="tooltip">Generar Reportes</span>
+      </li>
+      <li id="li-sedes" style="display:none;">
+        <a href="sedes.html" id="nav-sedes">
+          <i class="bx bx-buildings"></i>
+          <span class="nav-item">Gestión de Sedes</span>
+        </a>
+        <span class="tooltip">Gestión de Sedes</span>
+      </li>
       <li class="logout-li">
         <a href="../../public/login/login.html" id="nav-logout">
           <i class="bx bx-log-out"></i>
@@ -108,6 +136,10 @@ document.addEventListener("DOMContentLoaded", () => {
   else if (path.includes("usuarios.html"))   document.getElementById("nav-usuarios")?.parentElement.classList.add("active-item");
   else if (path.includes("voluntarios.html")) document.getElementById("nav-voluntarios")?.parentElement.classList.add("active-item");
   else if (path.includes("recursos.html"))    document.getElementById("nav-recursos")?.parentElement.classList.add("active-item");
+  else if (path.includes("actividades.html")) document.getElementById("nav-actividades")?.parentElement.classList.add("active-item");
+  else if (path.includes("reporte.html"))          document.getElementById("nav-reporte")?.parentElement.classList.add("active-item");
+  else if (path.includes("generar-reportes.html")) document.getElementById("nav-generar-reportes")?.parentElement.classList.add("active-item");
+  else if (path.includes("sedes.html"))            document.getElementById("nav-sedes")?.parentElement.classList.add("active-item");
 
   // ── Cargar usuario desde localStorage ────────────────────────────────────
   const userData = localStorage.getItem('usuarioLogueado');
@@ -127,6 +159,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const liRecursos = document.getElementById('li-recursos');
       if (liRecursos) liRecursos.style.display = '';
+
+      const liActividades = document.getElementById('li-actividades');
+      if (liActividades) liActividades.style.display = '';
+
+      const liReporte = document.getElementById('li-reporte');
+      if (liReporte) liReporte.style.display = '';
+
+      const liGenerarReportes = document.getElementById('li-generar-reportes');
+      if (liGenerarReportes) liGenerarReportes.style.display = '';
+
+      const liSedes = document.getElementById('li-sedes');
+      if (liSedes) liSedes.style.display = '';
     }
   }
 });

@@ -1,0 +1,168 @@
+<!--
+  ================================================================
+  GESTIÓN DE ACTIVIDADES — Admin
+  ================================================================
+  Permite al administrador organizar y asignar actividades
+  específicas para cada evento.
+
+  Flujo:
+    1. Vista inicial: grid de eventos publicados
+    2. Al hacer clic en un evento: lista de actividades del evento
+    3. Botón "Nueva Actividad": modal con formulario
+    4. Editar / Eliminar / Completar actividades
+
+  Archivos que usa:
+    - panel.css                  → estilos base del panel
+    - actividades.css            → estilos específicos
+    - sidebar.controller.js      → sidebar del admin
+    - eventos.model.js           → leer eventos publicados
+    - voluntarios.model.js       → leer voluntarios por evento
+    - actividades.model.js       → CRUD de actividades
+    - actividades.controller.js  → lógica completa
+  ================================================================
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestión de Actividades – Bajo Su Presencia</title>
+  <link rel="stylesheet" href="panel.css" />
+  <link rel="stylesheet" href="actividades.css" />
+</head>
+<body>
+
+<main class="main" id="main">
+  <section class="panel active" style="display:block;">
+
+    <!-- Encabezado -->
+    <div class="panel-header">
+      <h2>Gestión de Actividades</h2>
+      <p>Organiza y asigna tareas específicas para cada evento</p>
+    </div>
+
+    <!-- ══ VISTA 1: GRID DE EVENTOS ══════════════════════════════════════ -->
+    <div id="vista-eventos">
+      <div class="act-eventos-wrap">
+        <h3>Selecciona un Evento</h3>
+        <div class="act-grid-eventos" id="grid-eventos">
+          <!-- Tarjetas generadas por el controller -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ VISTA 2: ACTIVIDADES DEL EVENTO ═══════════════════════════════ -->
+    <div id="vista-actividades" style="display:none;">
+
+      <!-- Barra superior: Volver + Nueva Actividad -->
+      <div class="act-topbar">
+        <button class="btn-volver" onclick="volverAEventos()">
+          <i class="bx bx-chevron-left"></i> Volver a Eventos
+        </button>
+        <button class="btn-nueva-actividad" onclick="abrirNuevaActividad()">
+          <i class="bx bx-plus"></i> Nueva Actividad
+        </button>
+      </div>
+
+      <!-- Banner del evento seleccionado -->
+      <div class="act-banner" id="banner-evento">
+        <div class="act-banner-titulo">—</div>
+        <div class="act-banner-meta">
+          <span><i class="bx bx-calendar"></i> <span class="act-banner-fecha">—</span></span>
+          <span><i class="bx bx-time"></i> <span class="act-banner-hora">—</span></span>
+          <span><i class="bx bx-map-pin" style="color:#f87171;"></i> <span class="act-banner-lugar">—</span></span>
+        </div>
+      </div>
+
+      <!-- Lista de actividades -->
+      <div class="act-section">
+        <div class="act-section-header">
+          <h3>Actividades del Evento</h3>
+          <span class="act-contador" id="contador-acts">0 de 0 completadas</span>
+        </div>
+        <div id="lista-actividades">
+          <!-- Items generados por el controller -->
+        </div>
+      </div>
+
+    </div><!-- /vista-actividades -->
+
+  </section>
+</main>
+
+<!-- ══ OVERLAY DEL MODAL ════════════════════════════════════════════════ -->
+<div class="act-modal-overlay" id="modal-overlay-act"></div>
+
+<!-- ══ MODAL: NUEVA / EDITAR ACTIVIDAD ══════════════════════════════════ -->
+<div class="act-modal" id="modal-actividad">
+  <div class="act-modal-box">
+
+    <div class="act-modal-header">
+      <h3 id="modal-act-titulo">Nueva Actividad</h3>
+      <button class="act-modal-close" onclick="cerrarModalActividad()" aria-label="Cerrar">
+        <i class="bx bx-x"></i>
+      </button>
+    </div>
+
+    <form id="form-actividad" novalidate>
+
+      <!-- Fila: Título + Voluntario -->
+      <div class="act-form-row">
+        <div class="form-group">
+          <label for="act-titulo-input">Título de la Actividad *</label>
+          <input
+            type="text"
+            id="act-titulo-input"
+            class="form-control"
+            placeholder="Ej: Recibir invitados"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="act-voluntario">Asignado a *</label>
+          <select id="act-voluntario" class="form-control" required>
+            <option value="">Selecciona un voluntario</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Descripción -->
+      <div class="form-group">
+        <label for="act-descripcion">Descripción</label>
+        <textarea
+          id="act-descripcion"
+          class="form-control"
+          rows="3"
+          placeholder="Describe los detalles de la actividad..."
+        ></textarea>
+      </div>
+
+      <!-- Prioridad -->
+      <div class="form-group">
+        <label for="act-prioridad">Prioridad</label>
+        <select id="act-prioridad" class="form-control">
+          <option value="alta">Alta</option>
+          <option value="media" selected>Media</option>
+          <option value="baja">Baja</option>
+        </select>
+      </div>
+
+      <!-- Botones -->
+      <div class="act-modal-footer">
+        <button type="submit" class="btn-act-crear">Crear Actividad</button>
+        <button type="button" class="btn-act-cancelar" onclick="cerrarModalActividad()">Cancelar</button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
+<script src="../../../controllers/sidebar.controller.js"></script>
+<script src="../../../models/eventos.model.js"></script>
+<script src="../../../models/voluntarios.model.js"></script>
+<script src="../../../models/actividades.model.js"></script>
+<script src="../../../controllers/actividades.controller.js"></script>
+
+</body>
+</html>

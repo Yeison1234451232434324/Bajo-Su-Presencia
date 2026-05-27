@@ -1,0 +1,264 @@
+/* ================================================================
+   MIS ACTIVIDADES ASIGNADAS — Estilos del voluntario
+   ================================================================ */
+
+/* ── Encabezado con ícono y progreso total ───────────────────── */
+.mact-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.mact-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mact-header-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--amber));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.mact-header-icon i { font-size: 1.6rem; color: #fff; }
+
+.mact-header-text h2 {
+  font-family: var(--font-title);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  line-height: 1.2;
+}
+.mact-header-text p {
+  font-size: 0.95rem;
+  color: var(--muted);
+  margin-top: 0.2rem;
+}
+
+.mact-progreso-total {
+  text-align: right;
+  flex-shrink: 0;
+}
+.mact-progreso-label {
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.mact-progreso-num {
+  font-family: var(--font-title);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  line-height: 1.1;
+}
+
+/* ── Barra de progreso global ────────────────────────────────── */
+.mact-barra-wrap {
+  margin-bottom: 2rem;
+}
+.mact-barra-label {
+  font-size: 0.88rem;
+  color: var(--muted);
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  display: flex;
+  justify-content: space-between;
+}
+.mact-barra-label span:last-child {
+  color: var(--amber);
+  font-weight: 700;
+}
+.mact-barra-track {
+  width: 100%;
+  height: 10px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.mact-barra-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--amber));
+  transition: width 0.5s ease, background 0.5s ease;
+  min-width: 0;
+}
+.mact-barra-fill--completa {
+  background: linear-gradient(90deg, #16a34a, #22c55e) !important;
+}
+
+/* ── Sección por evento ──────────────────────────────────────── */
+.mact-evento-section {
+  background: #fff;
+  border-radius: 1.25rem;
+  border: 2px solid var(--border);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.mact-evento-header {
+  padding: 1.25rem 1.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.mact-evento-titulo-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.mact-evento-titulo {
+  font-family: var(--font-title);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+
+.mact-evento-completadas {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--amber);
+}
+.mact-evento-completadas--verde { color: #16a34a !important; }
+
+.mact-evento-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+.mact-evento-meta span {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.mact-evento-meta i { font-size: 0.95rem; color: var(--primary); }
+
+/* ── Mini barra de progreso por evento ───────────────────────── */
+.mact-mini-barra-track {
+  height: 5px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 0.75rem 1.5rem 0;
+}
+.mact-mini-barra-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--amber));
+  transition: width 0.5s ease, background 0.5s ease;
+}
+.mact-mini-barra-fill--completa {
+  background: linear-gradient(90deg, #16a34a, #22c55e) !important;
+}
+
+/* ── Lista de actividades del evento ─────────────────────────── */
+.mact-lista {
+  padding: 0.75rem 1.5rem 1.25rem;
+}
+
+/* ── Item de actividad ───────────────────────────────────────── */
+.mact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 0.875rem 1rem;
+  border: 2px solid var(--border);
+  border-radius: 0.875rem;
+  margin-bottom: 0.75rem;
+  background: #faf8f3;
+  transition: background 0.2s, border-color 0.2s;
+}
+.mact-item:last-child { margin-bottom: 0; }
+.mact-item--completada {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.mact-check-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 0.1rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.mact-check-icon {
+  font-size: 1.5rem;
+  color: #d1d5db;
+  transition: color 0.2s;
+}
+.mact-check-icon--done { color: #16a34a; }
+.mact-check-btn:hover .mact-check-icon:not(.mact-check-icon--done) {
+  color: var(--primary);
+}
+
+.mact-item-body { flex: 1; min-width: 0; }
+
+.mact-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.25rem;
+}
+
+.mact-item-titulo {
+  font-family: var(--font-text);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+.mact-titulo--tachado {
+  text-decoration: line-through;
+  color: #6b7280;
+}
+
+.mact-item-desc {
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* ── Badges de prioridad ─────────────────────────────────────── */
+.mact-prio-badge {
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.mact-prio--alta  { background: #fee2e2; color: #dc2626; }
+.mact-prio--media { background: #fef3c7; color: #d97706; }
+.mact-prio--baja  { background: #dbeafe; color: #1d4ed8; }
+
+/* ── Estado vacío ────────────────────────────────────────────── */
+.mact-empty {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: var(--muted);
+}
+.mact-empty i {
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+  display: block;
+  color: #d1d5db;
+}
+.mact-empty p { font-size: 1.05rem; }

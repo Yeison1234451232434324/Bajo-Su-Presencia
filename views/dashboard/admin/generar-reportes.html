@@ -1,0 +1,157 @@
+<!--
+  ================================================================
+  GENERADOR DE REPORTES — Solo Administrador
+  ================================================================
+  Permite al admin generar 3 tipos de reporte en PDF:
+    1. Reporte de Eventos
+    2. Reporte de Voluntarios
+    3. Reporte de Ofrendas y Diezmo
+
+  Flujo:
+    1. Seleccionar tipo de reporte (columna)
+    2. Definir rango de fechas (opcional)
+    3. Clic en "Generar Reporte" → previsualización en modal
+    4. Botón "Descargar PDF" → window.print()
+
+  Archivos que usa:
+    - panel.css                    → estilos base
+    - generar-reportes.css         → estilos específicos
+    - sidebar.controller.js        → sidebar del admin
+    - eventos.model.js             → datos de eventos
+    - voluntarios.model.js         → datos de voluntarios
+    - reportes.model.js            → datos de reportes subidos
+    - generar-reportes.controller.js → lógica completa
+  ================================================================
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generar Reportes – Bajo Su Presencia</title>
+  <link rel="stylesheet" href="panel.css" />
+  <link rel="stylesheet" href="generar-reportes.css" />
+</head>
+<body>
+
+<main class="main" id="main">
+  <section class="panel active" style="display:block;">
+
+    <!-- Encabezado -->
+    <div class="panel-header">
+      <h2>Generar Reportes</h2>
+      <p>Genere reportes detallados del sistema</p>
+    </div>
+
+    <!-- ══ TARJETA PRINCIPAL ══════════════════════════════════════════════ -->
+    <div class="gr-card">
+
+      <!-- Encabezado con ícono -->
+      <div class="gr-header">
+        <div class="gr-header-icon"><i class="bx bx-file"></i></div>
+        <div class="gr-header-text">
+          <h3>Generador de Reportes</h3>
+          <p>Genere reportes detallados del sistema</p>
+        </div>
+      </div>
+
+      <!-- Tipo de reporte -->
+      <div class="gr-section-label">Seleccione el tipo de reporte</div>
+      <div class="gr-tipos">
+
+        <button class="gr-tipo-btn" data-tipo="eventos">
+          <div class="gr-tipo-icon"><i class="bx bx-calendar-event"></i></div>
+          <div class="gr-tipo-info">
+            <div class="gr-tipo-nombre">Reporte de Eventos</div>
+            <div class="gr-tipo-desc">Resumen de eventos realizados</div>
+          </div>
+        </button>
+
+        <button class="gr-tipo-btn" data-tipo="voluntarios">
+          <div class="gr-tipo-icon"><i class="bx bx-group"></i></div>
+          <div class="gr-tipo-info">
+            <div class="gr-tipo-nombre">Reporte de Voluntarios</div>
+            <div class="gr-tipo-desc">Actividad y calificaciones de voluntarios</div>
+          </div>
+        </button>
+
+        <button class="gr-tipo-btn" data-tipo="ofrendas">
+          <div class="gr-tipo-icon"><i class="bx bx-trending-up"></i></div>
+          <div class="gr-tipo-info">
+            <div class="gr-tipo-nombre">Reporte de Ofrendas y Diezmo</div>
+            <div class="gr-tipo-desc">Resumen de ofrendas y diezmos recibidos</div>
+          </div>
+        </button>
+
+      </div>
+
+      <!-- Rango de fechas -->
+      <div class="gr-section-label">Rango de fechas</div>
+      <div class="gr-fechas">
+        <div class="gr-fecha-group">
+          <label for="gr-fecha-desde">Desde</label>
+          <input type="date" id="gr-fecha-desde" class="gr-fecha-input" />
+        </div>
+        <div class="gr-fecha-group">
+          <label for="gr-fecha-hasta">Hasta</label>
+          <input type="date" id="gr-fecha-hasta" class="gr-fecha-input" />
+        </div>
+      </div>
+
+      <!-- Botón generar -->
+      <button class="gr-btn-generar" onclick="generarReporte()">
+        <i class="bx bx-file-find"></i> Generar Reporte
+      </button>
+
+    </div>
+
+    <!-- ══ REPORTES RECIENTES ═════════════════════════════════════════════ -->
+    <div class="gr-card">
+      <div class="gr-recientes-titulo">Reportes Recientes</div>
+      <div id="gr-lista-recientes">
+        <!-- Generado por el controller -->
+      </div>
+    </div>
+
+  </section>
+</main>
+
+<!-- ══ OVERLAY DEL MODAL ════════════════════════════════════════════════ -->
+<div class="gr-modal-overlay" id="gr-modal-overlay"></div>
+
+<!-- ══ MODAL DE PREVISUALIZACIÓN PDF ════════════════════════════════════ -->
+<div class="gr-modal" id="gr-modal">
+  <div class="gr-modal-box">
+
+    <!-- Barra superior del modal -->
+    <div class="gr-modal-topbar">
+      <h3><i class="bx bx-file" style="margin-right:0.4rem;color:var(--primary);"></i> Vista Previa del Reporte</h3>
+      <div class="gr-modal-topbar-btns">
+        <button class="gr-btn-descargar" onclick="descargarPDF()">
+          <i class="bx bx-download"></i> Descargar PDF
+        </button>
+        <button class="gr-btn-cerrar-modal" onclick="cerrarModalReporte()" aria-label="Cerrar">
+          <i class="bx bx-x"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Contenido del PDF -->
+    <div class="gr-modal-content">
+      <div id="gr-pdf-contenido">
+        <!-- Generado dinámicamente por el controller -->
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
+<script src="../../../controllers/sidebar.controller.js"></script>
+<script src="../../../models/eventos.model.js"></script>
+<script src="../../../models/voluntarios.model.js"></script>
+<script src="../../../models/reportes.model.js"></script>
+<script src="../../../controllers/generar-reportes.controller.js"></script>
+
+</body>
+</html>

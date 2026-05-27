@@ -1,0 +1,415 @@
+/* ================================================================
+   GESTIÓN DE ACTIVIDADES — Estilos específicos
+   ================================================================ */
+
+/* ── Grid de eventos ─────────────────────────────────────────── */
+.act-eventos-wrap {
+  background: #fff;
+  border-radius: 1.25rem;
+  padding: 2rem;
+  border: 2px solid var(--border);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+  width: 100%;
+}
+
+.act-eventos-wrap h3 {
+  font-family: var(--font-title);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 1.5rem;
+}
+
+.act-grid-eventos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+/* Tarjeta de evento */
+.act-evento-card {
+  display: flex;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 2px solid var(--border);
+  border-radius: 1rem;
+  background: #faf8f3;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+.act-evento-card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 6px 20px rgba(30,58,138,0.12);
+  transform: translateY(-2px);
+}
+
+.act-ev-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 0.875rem;
+  background: linear-gradient(135deg, var(--primary-dark), var(--accent));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.act-ev-icon i {
+  font-size: 1.5rem;
+  color: #fff;
+}
+
+.act-ev-body { flex: 1; min-width: 0; }
+
+.act-ev-titulo {
+  font-family: var(--font-title);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 0.4rem;
+  line-height: 1.3;
+}
+
+.act-ev-meta {
+  font-size: 0.88rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.2rem;
+}
+.act-ev-meta i { font-size: 0.95rem; color: var(--primary); }
+.act-ev-vol { color: #059669 !important; }
+.act-ev-vol i { color: #059669 !important; }
+
+/* ── Barra superior de la vista de actividades ───────────────── */
+.act-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.btn-volver {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.2rem;
+  background: #f3f4f6;
+  border: 2px solid var(--border);
+  border-radius: 0.75rem;
+  font-family: var(--font-text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--primary-dark);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-volver:hover { background: #e5e7eb; }
+
+.btn-nueva-actividad {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.4rem;
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--accent) 100%);
+  border: none;
+  border-radius: 0.875rem;
+  font-family: var(--font-text);
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(30,58,138,0.3);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.btn-nueva-actividad:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(30,58,138,0.4);
+}
+
+/* ── Banner del evento seleccionado ─────────────────────────── */
+.act-banner {
+  background: linear-gradient(135deg, var(--primary-dark) 0%, #2d4faf 60%, var(--accent) 100%);
+  border-radius: 1rem;
+  padding: 1.5rem 2rem;
+  margin-bottom: 1.5rem;
+  color: #fff;
+}
+.act-banner-titulo {
+  font-family: var(--font-title);
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+.act-banner-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  font-size: 0.95rem;
+  opacity: 0.92;
+}
+.act-banner-meta span {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.act-banner-meta i { font-size: 1rem; }
+
+/* ── Sección de actividades ──────────────────────────────────── */
+.act-section {
+  background: #fff;
+  border-radius: 1.25rem;
+  padding: 1.75rem;
+  border: 2px solid var(--border);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+}
+
+.act-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+.act-section-header h3 {
+  font-family: var(--font-title);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+.act-contador {
+  font-size: 0.9rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* ── Item de actividad ───────────────────────────────────────── */
+.act-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 1rem 1.25rem;
+  border: 2px solid var(--border);
+  border-radius: 0.875rem;
+  margin-bottom: 0.875rem;
+  background: #fff;
+  transition: background 0.2s, border-color 0.2s;
+}
+.act-item--completada {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.act-check-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 0.1rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.act-check-icon {
+  font-size: 1.5rem;
+  color: #d1d5db;
+  transition: color 0.2s;
+}
+.act-check-icon--done { color: #16a34a; }
+.act-check-btn:hover .act-check-icon:not(.act-check-icon--done) { color: var(--primary); }
+
+.act-item-body { flex: 1; min-width: 0; }
+
+.act-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.act-item-titulo {
+  font-family: var(--font-text);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+.act-titulo--tachado {
+  text-decoration: line-through;
+  color: #6b7280;
+}
+
+.act-item-desc {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+  line-height: 1.4;
+}
+
+.act-item-asignado {
+  font-size: 0.88rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.act-item-asignado i { color: var(--primary); }
+
+/* ── Badges de prioridad ─────────────────────────────────────── */
+.act-prio-badge {
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.act-prio--alta  { background: #fee2e2; color: #dc2626; }
+.act-prio--media { background: #fef3c7; color: #d97706; }
+.act-prio--baja  { background: #dbeafe; color: #1d4ed8; }
+
+/* ── Botones de acción del item ──────────────────────────────── */
+.act-item-acciones {
+  display: flex;
+  gap: 0.4rem;
+  flex-shrink: 0;
+  align-items: flex-start;
+  margin-top: 0.1rem;
+}
+
+.act-btn-accion {
+  width: 34px;
+  height: 34px;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: background 0.2s, transform 0.1s;
+}
+.act-btn-accion:active { transform: scale(0.93); }
+
+.act-btn-editar  { background: #dbeafe; color: #1d4ed8; }
+.act-btn-editar:hover  { background: #bfdbfe; }
+.act-btn-eliminar { background: #fee2e2; color: #dc2626; }
+.act-btn-eliminar:hover { background: #fecaca; }
+
+/* ── Estado vacío ────────────────────────────────────────────── */
+.act-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--muted);
+}
+.act-empty i {
+  font-size: 3rem;
+  margin-bottom: 0.75rem;
+  display: block;
+  color: #d1d5db;
+}
+.act-empty p { font-size: 1rem; }
+
+/* ── Modal ───────────────────────────────────────────────────── */
+.act-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 200;
+}
+
+.act-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 201;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.act-modal-box {
+  background: #fff;
+  border-radius: 1.25rem;
+  padding: 2rem;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  animation: actModalIn 0.25s ease;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+@keyframes actModalIn {
+  from { opacity: 0; transform: translateY(-1.5rem) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.act-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+.act-modal-header h3 {
+  font-family: var(--font-title);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+.act-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  color: var(--muted);
+  cursor: pointer;
+  line-height: 1;
+  padding: 0.2rem;
+  border-radius: 0.4rem;
+  transition: background 0.2s;
+}
+.act-modal-close:hover { background: #f3f4f6; color: #1a1a2e; }
+
+.act-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+@media (max-width: 540px) { .act-form-row { grid-template-columns: 1fr; } }
+
+.act-modal-footer {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.btn-act-crear {
+  flex: 1;
+  padding: 0.875rem;
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--accent) 100%);
+  color: #fff;
+  border: none;
+  border-radius: 0.875rem;
+  font-family: var(--font-text);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.btn-act-crear:hover { transform: translateY(-1px); }
+
+.btn-act-cancelar {
+  padding: 0.875rem 1.5rem;
+  background: #f3f4f6;
+  color: var(--muted);
+  border: 2px solid var(--border);
+  border-radius: 0.875rem;
+  font-family: var(--font-text);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-act-cancelar:hover { background: #e5e7eb; }

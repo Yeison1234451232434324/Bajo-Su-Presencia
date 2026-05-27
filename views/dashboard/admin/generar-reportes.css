@@ -1,0 +1,424 @@
+/* ================================================================
+   GENERADOR DE REPORTES — Estilos específicos
+   ================================================================ */
+
+/* ── Tarjeta principal ───────────────────────────────────────── */
+.gr-card {
+  background: #fff;
+  border-radius: 1.25rem;
+  padding: 2rem;
+  border: 2px solid var(--border);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Encabezado con ícono ────────────────────────────────────── */
+.gr-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+.gr-header-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--amber));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.gr-header-icon i { font-size: 1.5rem; color: #fff; }
+.gr-header-text h3 {
+  font-family: var(--font-title);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+.gr-header-text p { font-size: 0.95rem; color: var(--muted); margin-top: 0.15rem; }
+
+/* ── Sección de tipos de reporte ─────────────────────────────── */
+.gr-section-label {
+  font-family: var(--font-text);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 0.875rem;
+}
+
+/* ── Opciones de reporte en columna ──────────────────────────── */
+.gr-tipos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
+}
+
+.gr-tipo-btn {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border: 2px solid var(--border);
+  border-radius: 0.875rem;
+  background: #faf8f3;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  text-align: left;
+  width: 100%;
+}
+.gr-tipo-btn:hover {
+  border-color: var(--accent);
+  background: #fffbeb;
+}
+.gr-tipo-btn.gr-tipo-btn--activo {
+  border-color: var(--accent);
+  background: #fffbeb;
+  box-shadow: 0 0 0 3px rgba(245,194,21,0.2);
+}
+
+.gr-tipo-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 0.625rem;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.gr-tipo-btn--activo .gr-tipo-icon,
+.gr-tipo-btn:hover .gr-tipo-icon {
+  background: linear-gradient(135deg, var(--accent), var(--amber));
+}
+.gr-tipo-icon i { font-size: 1.2rem; color: var(--primary); }
+.gr-tipo-btn--activo .gr-tipo-icon i,
+.gr-tipo-btn:hover .gr-tipo-icon i { color: #fff; }
+
+.gr-tipo-info { flex: 1; }
+.gr-tipo-nombre {
+  font-family: var(--font-text);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+.gr-tipo-desc { font-size: 0.85rem; color: var(--muted); margin-top: 0.1rem; }
+
+/* ── Rango de fechas ─────────────────────────────────────────── */
+.gr-fechas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+}
+@media (max-width: 540px) { .gr-fechas { grid-template-columns: 1fr; } }
+
+.gr-fecha-group label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+}
+.gr-fecha-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.75rem;
+  font-family: var(--font-text);
+  font-size: 0.95rem;
+  color: #1a1a2e;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.gr-fecha-input:focus { border-color: var(--accent); }
+
+/* ── Botón generar ───────────────────────────────────────────── */
+.gr-btn-generar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--amber) 100%);
+  color: #fff;
+  border: none;
+  border-radius: 0.875rem;
+  font-family: var(--font-text);
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(245,194,21,0.4);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.gr-btn-generar:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(245,194,21,0.5); }
+.gr-btn-generar:active { transform: translateY(0); }
+
+/* ── Reportes recientes ──────────────────────────────────────── */
+.gr-recientes-titulo {
+  font-family: var(--font-title);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 1rem;
+}
+
+.gr-reciente-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1rem;
+  border-radius: 0.75rem;
+  background: #faf8f3;
+  border: 1px solid var(--border);
+  margin-bottom: 0.625rem;
+  transition: background 0.2s;
+}
+.gr-reciente-item:hover { background: #fffbeb; }
+
+.gr-reciente-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 0.625rem;
+  background: linear-gradient(135deg, var(--accent), var(--amber));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.gr-reciente-icon i { font-size: 1.1rem; color: #fff; }
+
+.gr-reciente-info { flex: 1; }
+.gr-reciente-nombre {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+.gr-reciente-fecha { font-size: 0.82rem; color: var(--muted); margin-top: 0.1rem; }
+
+.gr-reciente-dl {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--amber);
+  font-size: 1.3rem;
+  padding: 0.25rem;
+  border-radius: 0.4rem;
+  transition: color 0.2s, background 0.2s;
+}
+.gr-reciente-dl:hover { color: var(--primary); background: #f3f4f6; }
+
+/* ════════════════════════════════════════════════════════════════
+   MODAL DE PREVISUALIZACIÓN PDF
+════════════════════════════════════════════════════════════════ */
+.gr-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 300;
+}
+.gr-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 301;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.gr-modal-box {
+  background: #fff;
+  border-radius: 1.25rem;
+  width: 100%;
+  max-width: 780px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.25);
+  animation: grModalIn 0.25s ease;
+  overflow: hidden;
+}
+@keyframes grModalIn {
+  from { opacity: 0; transform: scale(0.96) translateY(-1rem); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.gr-modal-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 2px solid var(--border);
+  flex-shrink: 0;
+}
+.gr-modal-topbar h3 {
+  font-family: var(--font-title);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+.gr-modal-topbar-btns { display: flex; gap: 0.5rem; align-items: center; }
+
+.gr-btn-descargar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.1rem;
+  background: linear-gradient(135deg, var(--primary-dark), var(--accent));
+  color: #fff;
+  border: none;
+  border-radius: 0.625rem;
+  font-family: var(--font-text);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.gr-btn-descargar:hover { transform: translateY(-1px); }
+
+.gr-btn-cerrar-modal {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0.2rem;
+  border-radius: 0.4rem;
+  transition: background 0.2s;
+  line-height: 1;
+}
+.gr-btn-cerrar-modal:hover { background: #f3f4f6; color: #1a1a2e; }
+
+/* ── Contenido del PDF dentro del modal ──────────────────────── */
+.gr-modal-content {
+  overflow-y: auto;
+  flex: 1;
+  padding: 2rem;
+  background: #f3f4f6;
+}
+
+/* ── Hoja del documento PDF ──────────────────────────────────── */
+.gr-pdf-page {
+  background: #fff;
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 2.5rem 3rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  border-radius: 0.5rem;
+  font-family: 'Crimson Text', serif;
+  color: #1a1a2e;
+}
+
+.gr-pdf-logo-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 3px solid #1E3A8A;
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+.gr-pdf-org {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1E3A8A;
+}
+.gr-pdf-org-sub { font-size: 0.8rem; color: #6b7280; margin-top: 0.1rem; }
+.gr-pdf-fecha-gen { font-size: 0.82rem; color: #6b7280; text-align: right; }
+
+.gr-pdf-titulo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1E3A8A;
+  margin-bottom: 0.25rem;
+}
+.gr-pdf-subtitulo { font-size: 0.9rem; color: #6b7280; margin-bottom: 1.5rem; }
+
+.gr-pdf-seccion {
+  margin-bottom: 1.5rem;
+}
+.gr-pdf-seccion-titulo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1E3A8A;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 0.3rem;
+  margin-bottom: 0.875rem;
+}
+
+.gr-pdf-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+.gr-pdf-tabla th {
+  background: #1E3A8A;
+  color: #fff;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  font-weight: 600;
+}
+.gr-pdf-tabla td {
+  padding: 0.45rem 0.75rem;
+  border-bottom: 1px solid #f3f4f6;
+  vertical-align: top;
+}
+.gr-pdf-tabla tr:nth-child(even) td { background: #f9fafb; }
+
+.gr-pdf-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+.gr-pdf-stat {
+  background: #f0f4ff;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  text-align: center;
+}
+.gr-pdf-stat-val {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1E3A8A;
+}
+.gr-pdf-stat-lbl { font-size: 0.75rem; color: #6b7280; margin-top: 0.1rem; }
+
+.gr-pdf-footer {
+  margin-top: 2rem;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 0.75rem;
+  font-size: 0.78rem;
+  color: #9ca3af;
+  text-align: center;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   ESTILOS DE IMPRESIÓN
+════════════════════════════════════════════════════════════════ */
+@media print {
+  body * { visibility: hidden; }
+  #gr-pdf-contenido, #gr-pdf-contenido * { visibility: visible; }
+  #gr-pdf-contenido {
+    position: fixed;
+    inset: 0;
+    padding: 1.5cm 2cm;
+    background: #fff;
+  }
+  .gr-pdf-page {
+    box-shadow: none;
+    border-radius: 0;
+    padding: 0;
+    max-width: 100%;
+  }
+}

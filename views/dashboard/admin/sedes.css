@@ -1,0 +1,261 @@
+/* ================================================================
+   GESTIÓN DE SEDES — Estilos específicos
+   ================================================================ */
+
+/* ── Barra superior ──────────────────────────────────────────── */
+.sed-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.sed-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.sed-header-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--amber));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.sed-header-icon i { font-size: 1.5rem; color: #fff; }
+.sed-header-text h2 {
+  font-family: var(--font-title);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  line-height: 1.2;
+}
+.sed-header-text p { font-size: 0.9rem; color: var(--muted); margin-top: 0.1rem; }
+
+.sed-btn-agregar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.4rem;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--amber) 100%);
+  border: none;
+  border-radius: 0.875rem;
+  font-family: var(--font-text);
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(245,194,21,0.4);
+  transition: transform 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+}
+.sed-btn-agregar:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(245,194,21,0.5); }
+
+/* ── Tarjeta contenedora ─────────────────────────────────────── */
+.sed-card {
+  background: #fff;
+  border-radius: 1.25rem;
+  padding: 2rem;
+  border: 2px solid var(--border);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+  width: 100%;
+}
+
+/* ── Grid de sedes ───────────────────────────────────────────── */
+.sed-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.25rem;
+}
+
+/* ── Tarjeta de sede ─────────────────────────────────────────── */
+.sed-item {
+  border: 2px solid var(--border);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  background: #faf8f3;
+  position: relative;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.sed-item:hover {
+  border-color: var(--accent);
+  box-shadow: 0 4px 16px rgba(245,194,21,0.15);
+}
+
+.sed-item-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.875rem;
+}
+.sed-item-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 0.625rem;
+  background: linear-gradient(135deg, var(--accent), var(--amber));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.sed-item-icon i { font-size: 1.2rem; color: #fff; }
+
+.sed-item-nombre {
+  font-family: var(--font-title);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  flex: 1;
+  line-height: 1.3;
+}
+
+.sed-btn-eliminar {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #f87171;
+  font-size: 1.1rem;
+  padding: 0.2rem;
+  border-radius: 0.4rem;
+  transition: background 0.2s, color 0.2s;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.sed-btn-eliminar:hover { background: #fee2e2; color: #dc2626; }
+
+.sed-item-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.sed-item-meta p {
+  font-size: 0.88rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.sed-item-meta i { font-size: 0.95rem; }
+.sed-item-meta .bx-map-pin    { color: var(--amber); }
+.sed-item-meta .bx-phone      { color: #10b981; }
+.sed-item-meta .bx-user-circle{ color: var(--primary); }
+
+/* ── Estado vacío ────────────────────────────────────────────── */
+.sed-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--muted);
+  grid-column: 1 / -1;
+}
+.sed-empty i { font-size: 3rem; display: block; margin-bottom: 0.75rem; color: #d1d5db; }
+
+/* ── Modal ───────────────────────────────────────────────────── */
+.sed-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 200;
+}
+.sed-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 201;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.sed-modal-box {
+  background: #fff;
+  border-radius: 1.25rem;
+  padding: 2rem;
+  width: 100%;
+  max-width: 680px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  animation: sedModalIn 0.25s ease;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+@keyframes sedModalIn {
+  from { opacity: 0; transform: translateY(-1.5rem) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.sed-modal-titulo {
+  font-family: var(--font-title);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 1.5rem;
+}
+
+.sed-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+@media (max-width: 540px) { .sed-form-row { grid-template-columns: 1fr; } }
+
+.sed-field label {
+  display: block;
+  font-family: var(--font-text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 0.4rem;
+}
+.sed-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.875rem;
+  font-family: var(--font-text);
+  font-size: 0.95rem;
+  color: #1a1a2e;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.sed-input:focus { border-color: var(--primary); }
+.sed-input::placeholder { color: #9ca3af; }
+
+.sed-modal-footer {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+.sed-btn-guardar {
+  flex: 1;
+  padding: 0.875rem;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--amber) 100%);
+  color: #fff;
+  border: none;
+  border-radius: 0.875rem;
+  font-family: var(--font-text);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s;
+  box-shadow: 0 4px 14px rgba(245,194,21,0.4);
+}
+.sed-btn-guardar:hover { transform: translateY(-1px); }
+.sed-btn-cancelar {
+  padding: 0.875rem 1.5rem;
+  background: #f3f4f6;
+  color: var(--muted);
+  border: 2px solid var(--border);
+  border-radius: 0.875rem;
+  font-family: var(--font-text);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.sed-btn-cancelar:hover { background: #e5e7eb; }

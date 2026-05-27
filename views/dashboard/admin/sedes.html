@@ -1,0 +1,123 @@
+<!--
+  ================================================================
+  GESTIÓN DE SEDES — Solo Administrador
+  ================================================================
+  Permite al admin ver, agregar y eliminar sedes de la iglesia.
+  Sin botón "Seleccionar Sede".
+
+  Archivos que usa:
+    - panel.css             → estilos base
+    - sedes.css             → estilos específicos
+    - sidebar.controller.js → sidebar del admin
+    - sedes.model.js        → CRUD de sedes
+    - sedes.controller.js   → lógica completa
+  ================================================================
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestión de Sedes – Bajo Su Presencia</title>
+  <link rel="stylesheet" href="panel.css" />
+  <link rel="stylesheet" href="sedes.css" />
+</head>
+<body>
+
+<main class="main" id="main">
+  <section class="panel active" style="display:block;">
+
+    <!-- ── Barra superior: encabezado + botón Agregar Sede ─────────────── -->
+    <div class="sed-topbar">
+      <div class="sed-header-left">
+        <div class="sed-header-icon"><i class="bx bx-buildings"></i></div>
+        <div class="sed-header-text">
+          <h2>Gestión de Múltiples Sedes</h2>
+          <p>Administre contenido para diferentes ubicaciones</p>
+        </div>
+      </div>
+      <button class="sed-btn-agregar" onclick="abrirModalSede()">
+        <i class="bx bx-plus"></i> Agregar Sede
+      </button>
+    </div>
+
+    <!-- ── Grid de sedes ───────────────────────────────────────────────── -->
+    <div class="sed-card">
+      <div class="sed-grid" id="sed-grid">
+        <!-- Generado por el controller -->
+      </div>
+    </div>
+
+  </section>
+</main>
+
+<!-- ══ OVERLAY ══════════════════════════════════════════════════════════ -->
+<div class="sed-modal-overlay" id="sed-modal-overlay"></div>
+
+<!-- ══ MODAL: NUEVA SEDE ════════════════════════════════════════════════ -->
+<div class="sed-modal" id="sed-modal">
+  <div class="sed-modal-box">
+
+    <div class="sed-modal-titulo">Nueva Sede</div>
+
+    <form id="form-sede" novalidate>
+
+      <!-- Fila 1: Nombre + Ciudad -->
+      <div class="sed-form-row">
+        <div class="sed-field">
+          <label for="sed-nombre">Nombre de la Sede *</label>
+          <input type="text" id="sed-nombre" class="sed-input"
+            placeholder="Ej: Sede Norte - Suba" required />
+        </div>
+        <div class="sed-field">
+          <label for="sed-ciudad">Ciudad *</label>
+          <input type="text" id="sed-ciudad" class="sed-input"
+            placeholder="Ej: Bogotá" required />
+        </div>
+      </div>
+
+      <!-- Fila 2: Dirección + Teléfono -->
+      <div class="sed-form-row">
+        <div class="sed-field">
+          <label for="sed-direccion">Dirección *</label>
+          <input type="text" id="sed-direccion" class="sed-input"
+            placeholder="Ej: Calle 45 #12-34" required />
+        </div>
+        <div class="sed-field">
+          <label for="sed-telefono">Teléfono</label>
+          <input type="text" id="sed-telefono" class="sed-input"
+            placeholder="Ej: +57 (601) 234-5678" />
+        </div>
+      </div>
+
+      <!-- Fila 3: Pastor + Miembros -->
+      <div class="sed-form-row">
+        <div class="sed-field">
+          <label for="sed-pastor">Pastor/a Responsable</label>
+          <input type="text" id="sed-pastor" class="sed-input"
+            placeholder="Ej: Pastor Juan García" />
+        </div>
+        <div class="sed-field">
+          <label for="sed-miembros">Número de Miembros</label>
+          <input type="number" id="sed-miembros" class="sed-input"
+            placeholder="Ej: 150" min="0" />
+        </div>
+      </div>
+
+      <!-- Botones -->
+      <div class="sed-modal-footer">
+        <button type="submit" class="sed-btn-guardar">Agregar Sede</button>
+        <button type="button" class="sed-btn-cancelar" onclick="cerrarModalSede()">Cancelar</button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
+<script src="../../../controllers/sidebar.controller.js"></script>
+<script src="../../../models/sedes.model.js"></script>
+<script src="../../../controllers/sedes.controller.js"></script>
+
+</body>
+</html>

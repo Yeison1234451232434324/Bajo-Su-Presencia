@@ -50,6 +50,20 @@ document.addEventListener("DOMContentLoaded", () => {
         </a>
         <span class="tooltip">Publicar Noticia</span>
       </li>
+      <li>
+        <a href="actividades.html" id="nav-actividades">
+          <i class="bx bx-task"></i>
+          <span class="nav-item">Actividades</span>
+        </a>
+        <span class="tooltip">Actividades</span>
+      </li>
+      <li>
+        <a href="reporte.html" id="nav-reporte">
+          <i class="bx bx-upload"></i>
+          <span class="nav-item">Subir Reporte</span>
+        </a>
+        <span class="tooltip">Subir Reporte</span>
+      </li>
       <li class="logout-li">
         <a href="../../public/login/login.html" id="nav-logout">
           <i class="bx bx-log-out"></i>
@@ -75,7 +89,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const path = window.location.pathname;
   if      (path.includes("eventos.html"))  document.getElementById("nav-eventos")?.parentElement.classList.add("active-item");
   else if (path.includes("oracion.html"))  document.getElementById("nav-oracion")?.parentElement.classList.add("active-item");
-  else if (path.includes("noticias.html")) document.getElementById("nav-noticias")?.parentElement.classList.add("active-item");
+  else if (path.includes("noticias.html"))   document.getElementById("nav-noticias")?.parentElement.classList.add("active-item");
+  else if (path.includes("actividades.html")) document.getElementById("nav-actividades")?.parentElement.classList.add("active-item");
+  else if (path.includes("reporte.html"))     document.getElementById("nav-reporte")?.parentElement.classList.add("active-item");
 
   // ── Cargar usuario desde localStorage ────────────────────────────────────
   const userData = localStorage.getItem('usuarioLogueado');
