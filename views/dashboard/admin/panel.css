@@ -470,3 +470,91 @@ body {
   from { opacity: 0; transform: translateX(2rem); }
   to   { opacity: 1; transform: translateX(0); }
 }
+
+/* ══════════════════════════════════════════════════
+   RESPONSIVE — Menú hamburguesa en móvil
+══════════════════════════════════════════════════ */
+
+/* ── Botón hamburguesa (solo visible en móvil) ── */
+.mobile-menu-btn {
+  display: none;
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 300;
+  width: 44px;
+  height: 44px;
+  background: var(--primary-dark);
+  border: none;
+  border-radius: 0.625rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+.mobile-menu-btn i { font-size: 1.5rem; color: #fff; }
+
+/* ── Overlay oscuro detrás del sidebar en móvil ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 149;
+}
+.sidebar-overlay.active { display: block; }
+
+@media (max-width: 768px) {
+
+  /* Mostrar botón hamburguesa */
+  .mobile-menu-btn { display: flex; }
+
+  /* Sidebar: oculto fuera de pantalla por defecto */
+  .sidebar {
+    width: var(--sidebar-w) !important;
+    left: calc(-1 * var(--sidebar-w));
+    transition: left 0.35s ease;
+    overflow-y: auto;
+  }
+
+  /* Sidebar abierto en móvil */
+  .sidebar.mobile-open {
+    left: 0;
+  }
+
+  /* Logo siempre visible en móvil cuando está abierto */
+  .sidebar.mobile-open .top .logo { opacity: 1; }
+  .sidebar.mobile-open .user-info  { opacity: 1; }
+  .sidebar.mobile-open .nav-item   { opacity: 1; }
+  .sidebar.mobile-open #btn        { left: 90%; }
+
+  /* Main ocupa todo el ancho */
+  .main {
+    margin-left: 0 !important;
+    padding: 4.5rem 1rem 1.5rem;
+  }
+  .main.sidebar-open { margin-left: 0 !important; }
+
+  /* Encabezado más pequeño */
+  .panel-header h2 { font-size: 1.8rem; }
+  .panel-header p  { font-size: 1rem; }
+
+  /* Formularios en columna */
+  .form-row          { grid-template-columns: 1fr !important; }
+  .resources-grid    { grid-template-columns: 1fr !important; }
+  .stats-grid        { grid-template-columns: 1fr 1fr; }
+  .charts-grid       { grid-template-columns: 1fr; }
+  .tables-grid       { grid-template-columns: 1fr; }
+
+  /* Tarjetas de formulario con menos padding */
+  .form-card { padding: 1.25rem; }
+
+  /* Toast más pequeño en móvil */
+  .toast-container { bottom: 1rem; right: 0.75rem; left: 0.75rem; }
+  .toast { max-width: 100%; }
+}
+
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .panel-header h2 { font-size: 1.5rem; }
+}

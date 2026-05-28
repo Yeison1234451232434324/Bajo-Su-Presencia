@@ -79,10 +79,45 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.body.insertAdjacentHTML('afterbegin', sidebarHTML);
 
-  // ── Toggle sidebar ────────────────────────────────────────────────────────
+  // ── Inyectar botón hamburguesa y overlay para móvil ───────────────────────
+  document.body.insertAdjacentHTML('afterbegin', `
+    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Abrir menú">
+      <i class="bx bx-menu"></i>
+    </button>
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  `);
+
+  // ── Toggle desktop ────────────────────────────────────────────────────────
   document.getElementById('btn').addEventListener('click', () => {
     document.getElementById('sidebar').classList.toggle('active');
     document.getElementById('main').classList.toggle('sidebar-open');
+  });
+
+  // ── Toggle móvil ──────────────────────────────────────────────────────────
+  const mobileBtn = document.getElementById('mobile-menu-btn');
+  const sidebarEl = document.getElementById('sidebar');
+  const overlayEl = document.getElementById('sidebar-overlay');
+
+  function abrirMenuMovil() {
+    sidebarEl.classList.add('mobile-open');
+    overlayEl.classList.add('active');
+    mobileBtn.querySelector('i').className = 'bx bx-x';
+  }
+  function cerrarMenuMovil() {
+    sidebarEl.classList.remove('mobile-open');
+    overlayEl.classList.remove('active');
+    mobileBtn.querySelector('i').className = 'bx bx-menu';
+  }
+
+  mobileBtn.addEventListener('click', () => {
+    sidebarEl.classList.contains('mobile-open') ? cerrarMenuMovil() : abrirMenuMovil();
+  });
+  overlayEl.addEventListener('click', cerrarMenuMovil);
+
+  document.querySelectorAll('.sidebar ul li a').forEach(a => {
+    a.addEventListener('click', () => {
+      if (window.innerWidth <= 768) cerrarMenuMovil();
+    });
   });
 
   // ── Marcar ítem activo según la página actual ─────────────────────────────
