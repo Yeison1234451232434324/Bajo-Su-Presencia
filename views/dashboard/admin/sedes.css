@@ -259,3 +259,18 @@
   transition: background 0.2s;
 }
 .sed-btn-cancelar:hover { background: #e5e7eb; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .sed-topbar { flex-direction: column; align-items: stretch; gap: 0.75rem; }
+  .sed-btn-agregar { width: 100%; justify-content: center; }
+  .sed-grid { grid-template-columns: 1fr; }
+  .sed-form-row { grid-template-columns: 1fr !important; }
+  .sed-modal-box { padding: 1.25rem; }
+  .sed-modal-footer { flex-direction: column; }
+  .sed-btn-cancelar { width: 100%; text-align: center; }
+}
+@media (max-width: 480px) {
+  .sed-header-left { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  .sed-header-text h2 { font-size: 1.3rem; }
+}

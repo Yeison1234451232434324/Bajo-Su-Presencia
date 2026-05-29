@@ -121,3 +121,20 @@ body {
   font-weight: 600;
   margin: 20px 0 15px;
 }
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .container {
+    width: 95vw;
+    padding: 24px 20px;
+    margin: 1rem;
+  }
+  .container h1 { font-size: 28px; }
+  .container .input-box { margin: 20px 0; }
+  .recordar-contraseña { flex-direction: column; gap: 0.5rem; }
+}
+
+@media (max-width: 360px) {
+  .container { padding: 20px 14px; }
+  .container h1 { font-size: 24px; }
+}

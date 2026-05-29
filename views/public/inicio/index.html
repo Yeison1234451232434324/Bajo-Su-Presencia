@@ -48,18 +48,24 @@
     </div>
 
     <!-- Menu -->
-     <div class="header-menu">
+     <div class="header-menu" id="header-menu">
       <ul class="lista-menu">
-        <li> <a href="#Inicio">Inicio</a></li>
-        <li><a href="#Oracion">Oracion</a></li>
-        <li><a href="#Noticias">Noticias</a></li>
-        <li><a href="#Eventos">Eventos</a></li>
+        <li> <a href="#Inicio" onclick="cerrarMenu()">Inicio</a></li>
+        <li><a href="#Oracion" onclick="cerrarMenu()">Oracion</a></li>
+        <li><a href="#Noticias" onclick="cerrarMenu()">Noticias</a></li>
+        <li><a href="#Eventos" onclick="cerrarMenu()">Eventos</a></li>
+        <li class="menu-mobile-login">
+          <a href="../../public/login/login.html" onclick="cerrarMenu()">Iniciar Sesión</a>
+        </li>
       </ul>
      </div>
 
-
     <!-- Botones -->
     <div class="header-actions">
+      <!-- Botón hamburguesa (visible solo en móvil) -->
+      <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
+      </button>
       <a href="../../public/login/login.html">
       <button class="btn btn-outline"> Iniciar Sesión</button>
       </a>
@@ -70,7 +76,24 @@
   </div>
 </header>
 
-<main style="padding-top: 80px;">
+<script>
+  function toggleMenu() {
+    const menu   = document.getElementById('header-menu');
+    const toggle = document.getElementById('nav-toggle');
+    menu.classList.toggle('open');
+    toggle.classList.toggle('open');
+    document.body.style.overflow = menu.classList.contains('open') ? 'hidden' : '';
+  }
+  function cerrarMenu() {
+    const menu   = document.getElementById('header-menu');
+    const toggle = document.getElementById('nav-toggle');
+    menu.classList.remove('open');
+    toggle.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+</script>
+
+<main style="padding-top: 70px;">
 
   <!-- ══════════════════════════════════════════
        HERO

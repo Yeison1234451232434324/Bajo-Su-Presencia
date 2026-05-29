@@ -61,8 +61,15 @@ body {
   padding: 0.4rem 0.8rem;
   transition: width 0.5s ease;
   z-index: 100;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
+
+/* Scrollbar delgado y discreto en el sidebar */
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+.sidebar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
 
 /* Expandido */
 .sidebar.active { width: var(--sidebar-w); }
@@ -192,11 +199,11 @@ body {
 
 /* ── Logout al fondo ── */
 .sidebar ul li.logout-li {
-  position: absolute;
-  bottom: 1rem;
+  position: relative;
+  bottom: auto;
   width: 90%;
-  margin: 0 auto;
-  left: 5%;
+  margin: 1.5rem auto 0.5rem;
+  left: auto;
 }
 .sidebar ul li.logout-li a:hover {
   background: rgba(239,68,68,0.20);
@@ -481,7 +488,7 @@ body {
   position: fixed;
   top: 0.75rem;
   left: 0.75rem;
-  z-index: 300;
+  z-index: 500;
   width: 44px;
   height: 44px;
   background: var(--primary-dark);
@@ -490,17 +497,18 @@ body {
   cursor: pointer;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
 }
-.mobile-menu-btn i { font-size: 1.5rem; color: #fff; }
+.mobile-menu-btn i { font-size: 1.5rem; color: #fff; pointer-events: none; }
 
 /* ── Overlay oscuro detrás del sidebar en móvil ── */
 .sidebar-overlay {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 149;
+  background: rgba(0,0,0,0.55);
+  z-index: 399;
+  cursor: pointer;
 }
 .sidebar-overlay.active { display: block; }
 
@@ -509,52 +517,82 @@ body {
   /* Mostrar botón hamburguesa */
   .mobile-menu-btn { display: flex; }
 
-  /* Sidebar: oculto fuera de pantalla por defecto */
+  /* Sidebar: fuera de pantalla por defecto, z-index alto */
   .sidebar {
-    width: var(--sidebar-w) !important;
-    left: calc(-1 * var(--sidebar-w));
-    transition: left 0.35s ease;
-    overflow-y: auto;
+    width: 260px !important;
+    left: -260px !important;
+    transition: left 0.3s ease !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    z-index: 400 !important;
+    height: 100vh !important;
+    padding-bottom: 5rem !important;
   }
 
-  /* Sidebar abierto en móvil */
+  /* Items del nav con más espacio en móvil */
+  .sidebar ul li {
+    height: auto !important;
+    line-height: 1 !important;
+    margin: 0.3rem auto !important;
+  }
+  .sidebar ul li a {
+    padding: 0.75rem 0.5rem !important;
+    height: auto !important;
+  }
+  .sidebar ul li a i {
+    height: auto !important;
+    line-height: 1 !important;
+    padding: 0.75rem 0 !important;
+    min-width: 44px !important;
+  }
+  /* Logout no absoluto en móvil */
+  .sidebar ul li.logout-li {
+    position: relative !important;
+    bottom: auto !important;
+    left: auto !important;
+    width: 90% !important;
+    margin-top: 1rem !important;
+  }
+
+  /* Sidebar abierto */
   .sidebar.mobile-open {
-    left: 0;
+    left: 0 !important;
   }
 
-  /* Logo siempre visible en móvil cuando está abierto */
+  /* Mostrar textos cuando está abierto */
   .sidebar.mobile-open .top .logo { opacity: 1; }
   .sidebar.mobile-open .user-info  { opacity: 1; }
   .sidebar.mobile-open .nav-item   { opacity: 1; }
-  .sidebar.mobile-open #btn        { left: 90%; }
 
-  /* Main ocupa todo el ancho */
+  /* Ocultar el botón toggle interno del sidebar en móvil */
+  .sidebar #btn { display: none; }
+
+  /* Main ocupa todo el ancho, sin margen del sidebar */
   .main {
     margin-left: 0 !important;
-    padding: 4.5rem 1rem 1.5rem;
+    padding: 4.5rem 1rem 1.5rem !important;
+    transition: none !important;
   }
   .main.sidebar-open { margin-left: 0 !important; }
 
-  /* Encabezado más pequeño */
+  /* Encabezado */
   .panel-header h2 { font-size: 1.8rem; }
   .panel-header p  { font-size: 1rem; }
 
-  /* Formularios en columna */
+  /* Grids en columna */
   .form-row          { grid-template-columns: 1fr !important; }
   .resources-grid    { grid-template-columns: 1fr !important; }
-  .stats-grid        { grid-template-columns: 1fr 1fr; }
-  .charts-grid       { grid-template-columns: 1fr; }
-  .tables-grid       { grid-template-columns: 1fr; }
+  .stats-grid        { grid-template-columns: 1fr 1fr !important; }
+  .charts-grid       { grid-template-columns: 1fr !important; }
+  .tables-grid       { grid-template-columns: 1fr !important; }
 
-  /* Tarjetas de formulario con menos padding */
   .form-card { padding: 1.25rem; }
 
-  /* Toast más pequeño en móvil */
   .toast-container { bottom: 1rem; right: 0.75rem; left: 0.75rem; }
   .toast { max-width: 100%; }
 }
 
 @media (max-width: 480px) {
-  .stats-grid { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: 1fr !important; }
   .panel-header h2 { font-size: 1.5rem; }
 }

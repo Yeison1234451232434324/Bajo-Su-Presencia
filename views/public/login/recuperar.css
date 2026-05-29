@@ -25,3 +25,10 @@
 .recuperar-container .boton {
     margin-top: 10px;
 }
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .recuperar-container { padding: 24px 18px; }
+  .recuperar-container h1 { font-size: 22px; }
+  .recuperar-texto { font-size: 13px; }
+}

@@ -102,11 +102,13 @@ document.addEventListener("DOMContentLoaded", () => {
     sidebarEl.classList.add('mobile-open');
     overlayEl.classList.add('active');
     mobileBtn.querySelector('i').className = 'bx bx-x';
+    document.body.style.overflow = 'hidden';
   }
   function cerrarMenuMovil() {
     sidebarEl.classList.remove('mobile-open');
     overlayEl.classList.remove('active');
     mobileBtn.querySelector('i').className = 'bx bx-menu';
+    document.body.style.overflow = '';
   }
 
   mobileBtn.addEventListener('click', () => {

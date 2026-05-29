@@ -299,3 +299,18 @@
 }
 .rep-empty i { font-size: 3rem; display: block; margin-bottom: 0.75rem; color: #d1d5db; }
 .rep-empty p { font-size: 1rem; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .rep-grid-eventos { grid-template-columns: 1fr; }
+  .rep-banner { padding: 1rem 1.25rem; }
+  .rep-banner-titulo { font-size: 1.3rem; }
+  .rep-banner-meta { gap: 0.75rem; font-size: 0.85rem; }
+  .rep-form-card { padding: 1.25rem; }
+  .rep-form-footer { flex-direction: column; }
+  .rep-btn-cancelar { width: 100%; text-align: center; }
+}
+@media (max-width: 480px) {
+  .rep-evento-card { flex-direction: column; }
+  .rep-ev-icon { width: 40px; height: 40px; }
+}
