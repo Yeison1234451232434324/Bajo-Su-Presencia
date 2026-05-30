@@ -382,3 +382,49 @@
   .usuarios-table thead th:nth-child(2),
   .usuarios-table tbody td:nth-child(2) { display: none; }
 }
+
+/* ── DataTable de usuarios — encabezado fijo ── */
+.usuarios-dt-thead {
+  margin-bottom: 0;
+  border-radius: 0.875rem 0.875rem 0 0;
+  overflow: hidden;
+}
+
+.usuarios-dt-thead .usuarios-table {
+  border-radius: 0;
+}
+
+/* Quitar borde superior de la primera fila del DT body */
+#usuarios-lista .bsp-dt-inner-table {
+  border-radius: 0;
+  margin-bottom: 0;
+}
+
+#usuarios-lista .bsp-dt-inner-table tbody tr:first-child td {
+  border-top: none;
+}
+
+/* Separador visual entre filas del DT */
+#usuarios-lista .bsp-dt-row-wrap + .bsp-dt-row-wrap .usuarios-table tbody tr td {
+  border-top: 1px solid #f3f0e8;
+}
+
+/* Contenedor del DT de usuarios */
+#usuarios-dt-container {
+  background: #fff;
+  border: 2px solid var(--border);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  padding: 1.25rem 1.5rem;
+}
+
+/* Ajuste del bsp-dt dentro del contenedor de usuarios */
+#usuarios-dt-container .bsp-dt-topbar {
+  margin-bottom: 1rem;
+}
+
+#usuarios-dt-container .bsp-dt-filters {
+  background: #f0f4ff;
+  border-color: #c7d2fe;
+}

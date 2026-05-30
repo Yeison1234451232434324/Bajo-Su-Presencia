@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ============================================================
  * CONTROLADOR: oracion.controller.js
  * ============================================================
@@ -204,12 +204,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ════════════════════════════════════════════════════════════════
-  // 6. RENDERIZAR HISTORIAL — DataTable
+  // 6. RENDERIZAR HISTORIAL — DataTable v3 con filtros
   // ════════════════════════════════════════════════════════════════
 
   let dtOraciones = null;
 
-  /** Renderiza la lista de oraciones publicadas con DataTable */
   function renderHistorial() {
     const oraciones = OracionModel.getAll();
 
@@ -262,10 +261,18 @@ document.addEventListener('DOMContentLoaded', () => {
         data:         oraciones,
         pageSize:     6,
         searchFields: ['texto', 'versiculo', 'fecha'],
+        filters: [
+          { key: 'fechaISO', label: 'Desde', type: 'date-from' },
+          { key: 'fechaISO', label: 'Hasta', type: 'date-to' },
+        ],
         renderRow:    renderCard,
+        exportable:   true,
+        exportName:   'oraciones',
+        exportFields: ['fecha', 'texto', 'versiculo'],
+        exportLabels: ['Fecha', 'Texto', 'Versículo'],
         emptyHTML:    `<div class="dt-empty"><i class="bx bx-church"></i><p>Aún no hay oraciones publicadas.</p></div>`
       });
-      window.__dtInstances['lista-oraciones'] = dtOraciones;
+      window.__bspDT['lista-oraciones'] = dtOraciones;
       dtOraciones.init();
     } else {
       dtOraciones.refresh(oraciones);

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ============================================================
  * CONTROLADOR: noticias.controller.js
  * ============================================================
@@ -244,16 +244,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ════════════════════════════════════════════════════════════════
-  // 6. RENDERIZAR HISTORIAL — DataTable
+  // 6. RENDERIZAR HISTORIAL — DataTable v3 con filtros
   // ════════════════════════════════════════════════════════════════
 
   let dtNoticias = null;
 
-  /** Renderiza la lista de noticias publicadas como DataTable */
   function renderHistorial() {
     const noticias = NoticiasModel.getAll();
 
-    // Función que genera el HTML de cada tarjeta
+    // Extraer autores únicos para el filtro
+    const autores = [...new Set(noticias.map(n => n.autor).filter(Boolean))].sort();
+
     function renderCard(noticia) {
       const resumenCorto = noticia.resumen.length > 110
         ? noticia.resumen.substring(0, 110) + '…'
@@ -301,10 +302,19 @@ document.addEventListener('DOMContentLoaded', () => {
         data:         noticias,
         pageSize:     6,
         searchFields: ['titulo', 'resumen', 'autor', 'fecha'],
+        filters: [
+          { key: 'autor',    label: 'Autor',   type: 'select', options: autores },
+          { key: 'fechaISO', label: 'Desde',   type: 'date-from' },
+          { key: 'fechaISO', label: 'Hasta',   type: 'date-to' },
+        ],
         renderRow:    renderCard,
+        exportable:   true,
+        exportName:   'noticias',
+        exportFields: ['titulo', 'autor', 'fecha', 'resumen'],
+        exportLabels: ['Título', 'Autor', 'Fecha', 'Resumen'],
         emptyHTML:    `<div class="dt-empty"><i class="bx bx-news"></i><p>Aún no hay noticias publicadas.</p></div>`
       });
-      window.__dtInstances['lista-noticias'] = dtNoticias;
+      window.__bspDT['lista-noticias'] = dtNoticias;
       dtNoticias.init();
     } else {
       dtNoticias.refresh(noticias);

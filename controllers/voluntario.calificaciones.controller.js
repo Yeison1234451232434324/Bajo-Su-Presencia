@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ============================================================
  * CONTROLADOR: voluntario.calificaciones.controller.js
  * ============================================================
@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ════════════════════════════════════════════════════════════════
-  // HISTORIAL DE CALIFICACIONES — DataTable
+  // HISTORIAL DE CALIFICACIONES — DataTable v3 con filtros
   // ════════════════════════════════════════════════════════════════
 
   let dtCalif = null;
@@ -130,6 +130,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const historial = voluntarioId
       ? VoluntariosModel.getHistorialVoluntario(voluntarioId)
       : [];
+
+    // Extraer eventos únicos para el filtro
+    const eventos = [...new Set(historial.map(c => c.eventoNombre).filter(Boolean))].sort();
 
     function renderCard(c) {
       const colorBorde = c.estrellas >= 4 ? '#059669' : c.estrellas === 3 ? '#d97706' : '#dc2626';
@@ -162,10 +165,20 @@ document.addEventListener('DOMContentLoaded', () => {
         data:         ordenado,
         pageSize:     5,
         searchFields: ['eventoNombre', 'fecha', 'comentario'],
+        filters: [
+          { key: 'eventoNombre', label: 'Evento',        type: 'select', options: eventos },
+          { key: 'estrellas',    label: 'Calificación',  type: 'stars' },
+          { key: 'fecha',        label: 'Desde',         type: 'date-from' },
+          { key: 'fecha',        label: 'Hasta',         type: 'date-to' },
+        ],
         renderRow:    renderCard,
+        exportable:   true,
+        exportName:   'mis_calificaciones',
+        exportFields: ['eventoNombre', 'fecha', 'estrellas', 'comentario'],
+        exportLabels: ['Evento', 'Fecha', 'Estrellas', 'Comentario'],
         emptyHTML:    `<div class="dt-empty"><i class="bx bx-star"></i><p>Aún no tienes calificaciones registradas.</p><small>El administrador calificará tu desempeño después de cada evento.</small></div>`
       });
-      window.__dtInstances['historial-lista'] = dtCalif;
+      window.__bspDT['historial-lista'] = dtCalif;
       dtCalif.init();
     } else {
       dtCalif.refresh(ordenado);

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ============================================================
  * CONTROLADOR: voluntario.disponibilidad.controller.js
  * ============================================================
@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ════════════════════════════════════════════════════════════════
-  // RENDERIZAR TARJETAS DE EVENTOS — DataTable
+  // RENDERIZAR TARJETAS DE EVENTOS — DataTable v3 con filtros
   // ════════════════════════════════════════════════════════════════
 
   let dtDisp = null;
@@ -109,18 +109,18 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderEventos() {
     const eventos = obtenerTodosLosEventos();
 
-    let totalEventos   = eventos.length;
-    let eventosConmigo = 0;
-    let disponibleCount= 0;
-
-    // Pre-calcular estados para contadores
+    // Pre-calcular contadores
+    let totalEventos = eventos.length, eventosConmigo = 0, disponibleCount = 0;
     eventos.forEach(ev => {
-      const volEnEvento = ev.voluntarios.find(v =>
+      const vol = ev.voluntarios.find(v =>
         v.nombre.toLowerCase() === nombreSesion.toLowerCase() || v.id === voluntarioId
       );
-      if (volEnEvento) { eventosConmigo++; if (volEnEvento.disponible) disponibleCount++; }
+      if (vol) { eventosConmigo++; if (vol.disponible) disponibleCount++; }
     });
     actualizarContadores(totalEventos, eventosConmigo, disponibleCount);
+
+    // Lugares únicos para filtro
+    const lugares = [...new Set(eventos.map(e => e.lugar).filter(Boolean))].sort();
 
     function renderCard(ev) {
       const volEnEvento    = ev.voluntarios.find(v =>
@@ -182,19 +182,40 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>`;
     }
 
+    // Enriquecer datos con campo _estado para el filtro
+    const eventosConEstado = eventos.map(ev => {
+      const vol = ev.voluntarios.find(v =>
+        v.nombre.toLowerCase() === nombreSesion.toLowerCase() || v.id === voluntarioId
+      );
+      return {
+        ...ev,
+        _estado: !vol ? 'No inscrito' : vol.disponible ? 'Disponible' : 'No disponible'
+      };
+    });
+
     if (!dtDisp) {
       dtDisp = new BSPDataTable({
         containerId:  'eventos-grid',
-        data:         eventos,
+        data:         eventosConEstado,
         pageSize:     6,
         searchFields: ['nombre', 'fecha', 'lugar'],
+        filters: [
+          { key: 'lugar',   label: 'Lugar',        type: 'select', options: lugares },
+          { key: '_estado', label: 'Mi estado',     type: 'select', options: ['No inscrito','Disponible','No disponible'] },
+          { key: 'fecha',   label: 'Desde',         type: 'date-from' },
+          { key: 'fecha',   label: 'Hasta',         type: 'date-to' },
+        ],
         renderRow:    renderCard,
+        exportable:   true,
+        exportName:   'mis_eventos',
+        exportFields: ['nombre', 'fecha', 'lugar', '_estado'],
+        exportLabels: ['Evento', 'Fecha', 'Lugar', 'Mi Estado'],
         emptyHTML:    `<div class="dt-empty"><i class="bx bx-calendar-x"></i><p>No hay eventos publicados por el momento.</p></div>`
       });
-      window.__dtInstances['eventos-grid'] = dtDisp;
+      window.__bspDT['eventos-grid'] = dtDisp;
       dtDisp.init();
     } else {
-      dtDisp.refresh(eventos);
+      dtDisp.refresh(eventosConEstado);
     }
   }
 

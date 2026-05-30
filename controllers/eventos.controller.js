@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ============================================================
  * CONTROLADOR: eventos.controller.js
  * ============================================================
@@ -216,13 +216,16 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // ════════════════════════════════════════════════════════════════
-  // 4. HISTORIAL DE EVENTOS PUBLICADOS — DataTable
+  // 4. HISTORIAL DE EVENTOS PUBLICADOS — DataTable v3 con filtros
   // ════════════════════════════════════════════════════════════════
 
   let dtEventos = null;
 
   function renderEventosPublicados() {
     const eventos = EventosModel.getAll();
+
+    // Extraer ubicaciones únicas para el filtro
+    const ubicaciones = [...new Set(eventos.map(e => e.ubicacion).filter(Boolean))].sort();
 
     function renderCard(ev) {
       const chipsRecursos = ev.recursos && ev.recursos.length > 0
@@ -282,7 +285,6 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>`;
     }
 
-    // Ordenar del más reciente al más antiguo antes de pasar al DT
     const ordenados = [...eventos].reverse();
 
     if (!dtEventos) {
@@ -291,10 +293,19 @@ document.addEventListener('DOMContentLoaded', () => {
         data:         ordenados,
         pageSize:     5,
         searchFields: ['titulo', 'fecha', 'horario', 'ubicacion', 'descripcion'],
+        filters: [
+          { key: 'ubicacion', label: 'Ubicación', type: 'select', options: ubicaciones },
+          { key: 'fecha',     label: 'Desde',     type: 'date-from' },
+          { key: 'fecha',     label: 'Hasta',     type: 'date-to' },
+        ],
         renderRow:    renderCard,
+        exportable:   true,
+        exportName:   'eventos',
+        exportFields: ['titulo', 'fecha', 'horario', 'ubicacion', 'asistentes', 'descripcion', 'publicado'],
+        exportLabels: ['Título', 'Fecha', 'Horario', 'Ubicación', 'Asistentes', 'Descripción', 'Publicado'],
         emptyHTML:    `<div class="dt-empty"><i class="bx bx-calendar-x"></i><p>Aún no hay eventos publicados.</p></div>`
       });
-      window.__dtInstances['lista-eventos-publicados'] = dtEventos;
+      window.__bspDT['lista-eventos-publicados'] = dtEventos;
       dtEventos.init();
     } else {
       dtEventos.refresh(ordenados);
