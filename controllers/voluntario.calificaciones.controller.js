@@ -121,69 +121,55 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ════════════════════════════════════════════════════════════════
-  // HISTORIAL DE CALIFICACIONES
+  // HISTORIAL DE CALIFICACIONES — DataTable
   // ════════════════════════════════════════════════════════════════
 
+  let dtCalif = null;
+
   function renderHistorial() {
-    const lista = document.getElementById('historial-lista');
+    const historial = voluntarioId
+      ? VoluntariosModel.getHistorialVoluntario(voluntarioId)
+      : [];
 
-    if (!voluntarioId) {
-      lista.innerHTML = `
-        <div class="hist-vacio">
-          <i class="bx bx-star"></i>
-          <p>Aún no tienes calificaciones registradas.</p>
-          <small>El administrador calificará tu desempeño después de cada evento.</small>
-        </div>`;
-      return;
-    }
-
-    const historial = VoluntariosModel.getHistorialVoluntario(voluntarioId);
-
-    if (historial.length === 0) {
-      lista.innerHTML = `
-        <div class="hist-vacio">
-          <i class="bx bx-star"></i>
-          <p>Aún no tienes calificaciones registradas.</p>
-          <small>El administrador calificará tu desempeño después de cada evento.</small>
-        </div>`;
-      return;
-    }
-
-    lista.innerHTML = '';
-
-    // Ordenar del más reciente al más antiguo
-    [...historial].sort((a, b) => b.fecha.localeCompare(a.fecha)).forEach(c => {
-      // Color del borde según calificación
+    function renderCard(c) {
       const colorBorde = c.estrellas >= 4 ? '#059669' : c.estrellas === 3 ? '#d97706' : '#dc2626';
-
-      lista.innerHTML += `
+      return `
         <div class="hist-card" style="border-left-color:${colorBorde}">
           <div class="hist-card-header">
             <div>
               <h4 class="hist-evento">${c.eventoNombre}</h4>
-              <p class="hist-fecha">
-                <i class="bx bx-calendar"></i> ${c.fecha}
-              </p>
+              <p class="hist-fecha"><i class="bx bx-calendar"></i> ${c.fecha}</p>
             </div>
-            <!-- Calificación numérica grande -->
             <div class="hist-nota-grande" style="color:${colorBorde}">
               ${c.estrellas}<span style="font-size:1rem;">/5</span>
             </div>
           </div>
-
-          <!-- Estrellas visuales -->
           <div class="hist-estrellas">${renderEstrellasFijas(c.estrellas)}</div>
-
-          <!-- Observaciones / comentario del admin -->
           ${c.comentario
             ? `<div class="hist-observacion">
                  <i class="bx bx-comment-detail hist-obs-icon"></i>
                  <p>"${c.comentario}"</p>
                </div>`
-            : `<p class="sin-dato" style="margin-top:0.5rem;">Sin observaciones registradas.</p>`
-          }
+            : `<p class="sin-dato" style="margin-top:0.5rem;">Sin observaciones registradas.</p>`}
         </div>`;
-    });
+    }
+
+    const ordenado = [...historial].sort((a, b) => b.fecha.localeCompare(a.fecha));
+
+    if (!dtCalif) {
+      dtCalif = new BSPDataTable({
+        containerId:  'historial-lista',
+        data:         ordenado,
+        pageSize:     5,
+        searchFields: ['eventoNombre', 'fecha', 'comentario'],
+        renderRow:    renderCard,
+        emptyHTML:    `<div class="dt-empty"><i class="bx bx-star"></i><p>Aún no tienes calificaciones registradas.</p><small>El administrador calificará tu desempeño después de cada evento.</small></div>`
+      });
+      window.__dtInstances['historial-lista'] = dtCalif;
+      dtCalif.init();
+    } else {
+      dtCalif.refresh(ordenado);
+    }
   }
 
   // ── Helper: estrellas fijas (solo lectura) ────────────────────────────────

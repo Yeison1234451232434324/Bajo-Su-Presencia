@@ -204,82 +204,72 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ════════════════════════════════════════════════════════════════
-  // 6. RENDERIZAR HISTORIAL
+  // 6. RENDERIZAR HISTORIAL — DataTable
   // ════════════════════════════════════════════════════════════════
 
-  /** Renderiza la lista de oraciones publicadas */
+  let dtOraciones = null;
+
+  /** Renderiza la lista de oraciones publicadas con DataTable */
   function renderHistorial() {
-    const lista    = document.getElementById('lista-oraciones');
     const oraciones = OracionModel.getAll();
 
-    if (oraciones.length === 0) {
-      lista.innerHTML = `
-        <div class="or-lista-vacia">
-          <i class="bx bx-church"></i>
-          <p>Aún no hay oraciones publicadas.</p>
-          <small>Usa el formulario de arriba para publicar la primera.</small>
-        </div>`;
-      return;
-    }
-
-    lista.innerHTML = '';
-
-    oraciones.forEach(oracion => {
-      // Texto truncado para la tarjeta (máx 160 caracteres)
+    function renderCard(oracion) {
       const textoCorto = oracion.texto.length > 160
         ? oracion.texto.substring(0, 160) + '…'
         : oracion.texto;
 
-      lista.innerHTML += `
+      return `
         <div class="or-card" id="or-card-${oracion.id}">
-
-          <!-- Imagen de portada si existe -->
           ${oracion.imagen
             ? `<div class="or-card-img-wrap">
                  <img src="${oracion.imagen}" alt="Imagen de la oración" class="or-card-img"
                    onerror="this.parentElement.style.display='none'" />
                </div>`
             : ''}
-
           <div class="or-card-body">
-
-            <!-- Encabezado: fecha + botones de acción -->
             <div class="or-card-header">
               <span class="or-card-fecha">
                 <i class="bx bx-calendar"></i> ${oracion.fecha}
               </span>
               <div class="or-card-acciones">
-                <!-- Ver oración completa -->
                 <button class="btn-accion-or btn-ver-or"
                   onclick="verOracion(${oracion.id})" title="Ver oración completa">
                   <i class="bx bx-show"></i>
                 </button>
-                <!-- Editar oración -->
                 <button class="btn-accion-or btn-editar-or"
                   onclick="editarOracion(${oracion.id})" title="Editar oración">
                   <i class="bx bx-edit"></i>
                 </button>
-                <!-- Eliminar oración -->
                 <button class="btn-accion-or btn-eliminar-or"
                   onclick="eliminarOracion(${oracion.id})" title="Eliminar oración">
                   <i class="bx bx-trash"></i>
                 </button>
               </div>
             </div>
-
-            <!-- Texto de la oración (truncado) -->
             <p class="or-card-texto">"${textoCorto}"</p>
-
-            <!-- Versículo si existe -->
             ${oracion.versiculo
               ? `<p class="or-card-versiculo">
                    <i class="bx bx-book-open"></i> ${oracion.versiculo}
                  </p>`
               : ''}
-
           </div>
         </div>`;
-    });
+    }
+
+    if (!dtOraciones) {
+      dtOraciones = new BSPDataTable({
+        containerId:  'lista-oraciones',
+        data:         oraciones,
+        pageSize:     6,
+        searchFields: ['texto', 'versiculo', 'fecha'],
+        renderRow:    renderCard,
+        emptyHTML:    `<div class="dt-empty"><i class="bx bx-church"></i><p>Aún no hay oraciones publicadas.</p></div>`
+      });
+      window.__dtInstances['lista-oraciones'] = dtOraciones;
+      dtOraciones.init();
+    } else {
+      dtOraciones.refresh(oraciones);
+    }
   }
 
   // ════════════════════════════════════════════════════════════════

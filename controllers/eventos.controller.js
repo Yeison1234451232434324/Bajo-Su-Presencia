@@ -216,29 +216,15 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // ════════════════════════════════════════════════════════════════
-  // 4. HISTORIAL DE EVENTOS PUBLICADOS
+  // 4. HISTORIAL DE EVENTOS PUBLICADOS — DataTable
   // ════════════════════════════════════════════════════════════════
 
-  /**
-   * Renderiza el historial de eventos publicados debajo del formulario.
-   * Cada tarjeta tiene botones: Ver detalle, Editar y Eliminar.
-   */
+  let dtEventos = null;
+
   function renderEventosPublicados() {
     const eventos = EventosModel.getAll();
-    listaEventos.innerHTML = '';
 
-    if (eventos.length === 0) {
-      listaEventos.innerHTML = `
-        <div class="ev-lista-vacia">
-          <i class="bx bx-calendar-x"></i>
-          <p>Aún no hay eventos publicados.</p>
-        </div>`;
-      return;
-    }
-
-    // Mostrar del más reciente al más antiguo
-    [...eventos].reverse().forEach(ev => {
-      // Construir chips de recursos asignados
+    function renderCard(ev) {
       const chipsRecursos = ev.recursos && ev.recursos.length > 0
         ? ev.recursos.map(r =>
             `<span class="ev-chip-recurso">
@@ -247,13 +233,12 @@ document.addEventListener('DOMContentLoaded', () => {
           ).join('')
         : '<span class="ev-sin-recursos">Sin recursos asignados</span>';
 
-      // Badge de estado según fecha
       const hoy   = new Date().toISOString().split('T')[0];
       const badge = ev.fecha >= hoy
         ? '<span class="ev-badge ev-badge--activo">Próximo</span>'
         : '<span class="ev-badge ev-badge--pasado">Realizado</span>';
 
-      listaEventos.innerHTML += `
+      return `
         <div class="ev-publicado-card" id="ev-card-${ev.id}">
           <div class="ev-pub-header">
             <div class="ev-pub-header-info">
@@ -271,7 +256,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 <i class="bx bx-group"></i> ${ev.voluntariosNecesarios || 0} voluntario(s)
               </p>
             </div>
-            <!-- Acciones: Ver · Editar · Eliminar -->
             <div class="ev-pub-acciones">
               <button class="btn-ev-accion btn-ev-ver"
                 onclick="verEvento(${ev.id})" title="Ver detalle">
@@ -288,7 +272,6 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
           </div>
           ${ev.descripcion ? `<p class="ev-pub-desc">${ev.descripcion}</p>` : ''}
-          <!-- Recursos asignados al evento -->
           <div class="ev-pub-recursos">
             <span class="ev-pub-recursos-label">
               <i class="bx bx-package"></i> Recursos:
@@ -297,7 +280,25 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
           ${ev.publicado ? `<p class="ev-pub-fecha-pub">Publicado el ${ev.publicado}</p>` : ''}
         </div>`;
-    });
+    }
+
+    // Ordenar del más reciente al más antiguo antes de pasar al DT
+    const ordenados = [...eventos].reverse();
+
+    if (!dtEventos) {
+      dtEventos = new BSPDataTable({
+        containerId:  'lista-eventos-publicados',
+        data:         ordenados,
+        pageSize:     5,
+        searchFields: ['titulo', 'fecha', 'horario', 'ubicacion', 'descripcion'],
+        renderRow:    renderCard,
+        emptyHTML:    `<div class="dt-empty"><i class="bx bx-calendar-x"></i><p>Aún no hay eventos publicados.</p></div>`
+      });
+      window.__dtInstances['lista-eventos-publicados'] = dtEventos;
+      dtEventos.init();
+    } else {
+      dtEventos.refresh(ordenados);
+    }
   }
 
   // ════════════════════════════════════════════════════════════════

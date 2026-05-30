@@ -244,82 +244,71 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ════════════════════════════════════════════════════════════════
-  // 6. RENDERIZAR HISTORIAL
+  // 6. RENDERIZAR HISTORIAL — DataTable
   // ════════════════════════════════════════════════════════════════
 
-  /** Renderiza la lista de noticias publicadas como tarjetas */
+  let dtNoticias = null;
+
+  /** Renderiza la lista de noticias publicadas como DataTable */
   function renderHistorial() {
-    const lista    = document.getElementById('lista-noticias');
     const noticias = NoticiasModel.getAll();
 
-    if (noticias.length === 0) {
-      lista.innerHTML = `
-        <div class="nt-lista-vacia">
-          <i class="bx bx-news"></i>
-          <p>Aún no hay noticias publicadas.</p>
-          <small>Usa el formulario de arriba para publicar la primera.</small>
-        </div>`;
-      return;
-    }
-
-    lista.innerHTML = '';
-
-    noticias.forEach(noticia => {
-      // Resumen truncado para la tarjeta
+    // Función que genera el HTML de cada tarjeta
+    function renderCard(noticia) {
       const resumenCorto = noticia.resumen.length > 110
         ? noticia.resumen.substring(0, 110) + '…'
         : noticia.resumen;
 
-      lista.innerHTML += `
+      return `
         <div class="nt-card" id="nt-card-${noticia.id}">
-
-          <!-- Imagen de portada -->
           ${noticia.imagen
             ? `<div class="nt-card-img-wrap">
                  <img src="${noticia.imagen}" alt="${noticia.titulo}" class="nt-card-img"
                    onerror="this.parentElement.style.display='none'" />
                  <div class="nt-card-img-fade"></div>
                </div>`
-            : `<div class="nt-card-img-placeholder">
-                 <i class="bx bx-news"></i>
-               </div>`}
-
+            : `<div class="nt-card-img-placeholder"><i class="bx bx-news"></i></div>`}
           <div class="nt-card-body">
-
-            <!-- Encabezado: título + botones -->
             <div class="nt-card-header">
               <h4 class="nt-card-titulo">${noticia.titulo}</h4>
               <div class="nt-card-acciones">
-                <!-- Ver noticia completa -->
                 <button class="btn-accion-nt btn-ver-nt"
                   onclick="verNoticia(${noticia.id})" title="Leer noticia completa">
                   <i class="bx bx-show"></i>
                 </button>
-                <!-- Editar noticia -->
                 <button class="btn-accion-nt btn-editar-nt"
                   onclick="editarNoticia(${noticia.id})" title="Editar noticia">
                   <i class="bx bx-edit"></i>
                 </button>
-                <!-- Eliminar noticia -->
                 <button class="btn-accion-nt btn-eliminar-nt"
                   onclick="eliminarNoticia(${noticia.id})" title="Eliminar noticia">
                   <i class="bx bx-trash"></i>
                 </button>
               </div>
             </div>
-
-            <!-- Resumen -->
             <p class="nt-card-resumen">${resumenCorto}</p>
-
-            <!-- Meta: fecha y autor -->
             <div class="nt-card-meta">
               <span><i class="bx bx-calendar"></i> ${noticia.fecha}</span>
               <span><i class="bx bx-user"></i> ${noticia.autor}</span>
             </div>
-
           </div>
         </div>`;
-    });
+    }
+
+    if (!dtNoticias) {
+      dtNoticias = new BSPDataTable({
+        containerId:  'lista-noticias',
+        data:         noticias,
+        pageSize:     6,
+        searchFields: ['titulo', 'resumen', 'autor', 'fecha'],
+        renderRow:    renderCard,
+        emptyHTML:    `<div class="dt-empty"><i class="bx bx-news"></i><p>Aún no hay noticias publicadas.</p></div>`
+      });
+      window.__dtInstances['lista-noticias'] = dtNoticias;
+      dtNoticias.init();
+    } else {
+      dtNoticias.refresh(noticias);
+    }
   }
 
   // ════════════════════════════════════════════════════════════════

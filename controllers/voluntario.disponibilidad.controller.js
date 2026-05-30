@@ -101,137 +101,101 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ════════════════════════════════════════════════════════════════
-  // RENDERIZAR TARJETAS DE EVENTOS
+  // RENDERIZAR TARJETAS DE EVENTOS — DataTable
   // ════════════════════════════════════════════════════════════════
 
+  let dtDisp = null;
+
   function renderEventos() {
-    const grid    = document.getElementById('eventos-grid');
     const eventos = obtenerTodosLosEventos();
 
-    // Contadores para las tarjetas superiores
-    let totalEventos    = eventos.length;
-    let eventosConmigo  = 0;
-    let disponibleCount = 0;
+    let totalEventos   = eventos.length;
+    let eventosConmigo = 0;
+    let disponibleCount= 0;
 
-    grid.innerHTML = '';
-
-    if (eventos.length === 0) {
-      grid.innerHTML = `
-        <div class="disp-vacio">
-          <i class="bx bx-calendar-x"></i>
-          <p>No hay eventos publicados por el momento.</p>
-          <small>El administrador publicará los próximos eventos aquí.</small>
-        </div>`;
-      actualizarContadores(0, 0, 0);
-      return;
-    }
-
+    // Pre-calcular estados para contadores
     eventos.forEach(ev => {
-      // Buscar si el voluntario ya está en este evento
       const volEnEvento = ev.voluntarios.find(v =>
-        v.nombre.toLowerCase() === nombreSesion.toLowerCase() ||
-        v.id === voluntarioId
+        v.nombre.toLowerCase() === nombreSesion.toLowerCase() || v.id === voluntarioId
       );
+      if (volEnEvento) { eventosConmigo++; if (volEnEvento.disponible) disponibleCount++; }
+    });
+    actualizarContadores(totalEventos, eventosConmigo, disponibleCount);
 
+    function renderCard(ev) {
+      const volEnEvento    = ev.voluntarios.find(v =>
+        v.nombre.toLowerCase() === nombreSesion.toLowerCase() || v.id === voluntarioId
+      );
       const estaRegistrado = !!volEnEvento;
       const estaDisponible = volEnEvento?.disponible ?? false;
 
-      if (estaRegistrado) eventosConmigo++;
-      if (estaDisponible) disponibleCount++;
-
-      // Determinar estado visual de la tarjeta
-      let estadoClass = '';
-      let estadoBadge = '';
-      let btnTexto    = '';
-      let btnClass    = '';
-      let btnIcono    = '';
-
+      let estadoClass = '', estadoBadge = '', btnTexto = '', btnClass = '', btnIcono = '';
       if (!estaRegistrado) {
-        // No está en el evento → puede unirse
         estadoBadge = '<span class="badge badge-muted">No inscrito</span>';
-        btnTexto    = 'Unirme como voluntario';
-        btnClass    = 'btn-unirse';
-        btnIcono    = 'bx-user-plus';
+        btnTexto = 'Unirme como voluntario'; btnClass = 'btn-unirse'; btnIcono = 'bx-user-plus';
       } else if (estaDisponible) {
-        // Está registrado y disponible
         estadoClass = 'card-disponible';
         estadoBadge = '<span class="badge badge-green">Disponible</span>';
-        btnTexto    = 'Marcar no disponible';
-        btnClass    = 'btn-no-disponible';
-        btnIcono    = 'bx-x-circle';
+        btnTexto = 'Marcar no disponible'; btnClass = 'btn-no-disponible'; btnIcono = 'bx-x-circle';
       } else {
-        // Está registrado pero no disponible
         estadoClass = 'card-no-disponible';
         estadoBadge = '<span class="badge badge-red">No disponible</span>';
-        btnTexto    = 'Marcar disponible';
-        btnClass    = 'btn-disponible';
-        btnIcono    = 'bx-check-circle';
+        btnTexto = 'Marcar disponible'; btnClass = 'btn-disponible'; btnIcono = 'bx-check-circle';
       }
 
-      // Fecha formateada
-      const fechaObj = new Date(ev.fecha + 'T00:00:00');
-      const fechaStr = fechaObj.toLocaleDateString('es-ES', {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-      });
-
-      // Rol del voluntario en el evento (si está registrado)
+      const fechaObj  = new Date(ev.fecha + 'T00:00:00');
+      const fechaStr  = fechaObj.toLocaleDateString('es-ES', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
       const rolEnEvento = volEnEvento?.rol || '—';
-
-      // Número de voluntarios inscritos actualmente en este evento
-      const inscritos  = ev.voluntarios.length;
-      const necesarios = ev.voluntariosNecesarios || 0;
-      // Cuántos hacen falta aún (nunca negativo)
-      const faltan     = Math.max(necesarios - inscritos, 0);
-
-      // Badge de cupo: muestra necesarios y cuántos faltan
-      const badgeCupo = necesarios > 0
+      const inscritos   = ev.voluntarios.length;
+      const necesarios  = ev.voluntariosNecesarios || 0;
+      const faltan      = Math.max(necesarios - inscritos, 0);
+      const badgeCupo   = necesarios > 0
         ? faltan === 0
           ? `<span class="badge badge-red">Cupo completo</span>`
           : `<span class="badge badge-amber">Necesitan ${necesarios} · Faltan ${faltan}</span>`
         : `<span class="badge badge-muted">Sin cupo definido</span>`;
 
-      grid.innerHTML += `
+      return `
         <div class="disp-card ${estadoClass}" id="card-ev-${ev.id}">
           <div class="disp-card-header">
             <div class="disp-card-info">
               <h4 class="disp-evento-nombre">${ev.nombre}</h4>
-              <p class="disp-evento-meta">
-                <i class="bx bx-calendar"></i> ${fechaStr}
-              </p>
-              <p class="disp-evento-meta">
-                <i class="bx bx-map-pin"></i> ${ev.lugar || '—'}
-              </p>
-              <!-- Voluntarios necesarios vs cuántos faltan -->
+              <p class="disp-evento-meta"><i class="bx bx-calendar"></i> ${fechaStr}</p>
+              <p class="disp-evento-meta"><i class="bx bx-map-pin"></i> ${ev.lugar || '—'}</p>
               <p class="disp-evento-meta">
                 <i class="bx bx-group"></i>
                 ${necesarios > 0
                   ? `Se necesitan <strong>${necesarios}</strong> · Faltan <strong>${faltan}</strong>`
                   : 'Sin cupo de voluntarios definido'}
               </p>
-              ${estaRegistrado
-                ? `<p class="disp-evento-meta">
-                     <i class="bx bx-briefcase"></i> Rol: <strong>${rolEnEvento}</strong>
-                   </p>`
-                : ''}
+              ${estaRegistrado ? `<p class="disp-evento-meta"><i class="bx bx-briefcase"></i> Rol: <strong>${rolEnEvento}</strong></p>` : ''}
             </div>
             <div class="disp-card-estado" style="display:flex;flex-direction:column;gap:0.4rem;align-items:flex-end;">
               ${estadoBadge}
               ${badgeCupo}
             </div>
           </div>
-
-          <!-- Botón de acción -->
-          <button
-            class="btn-disp-accion ${btnClass}"
-            onclick="accionEvento(${ev.id}, '${estaRegistrado ? 'toggle' : 'unirse'}')"
-          >
-            <i class="bx ${btnIcono}"></i>
-            ${btnTexto}
+          <button class="btn-disp-accion ${btnClass}"
+            onclick="accionEvento(${ev.id}, '${estaRegistrado ? 'toggle' : 'unirse'}')">
+            <i class="bx ${btnIcono}"></i> ${btnTexto}
           </button>
         </div>`;
-    });
+    }
 
-    actualizarContadores(totalEventos, eventosConmigo, disponibleCount);
+    if (!dtDisp) {
+      dtDisp = new BSPDataTable({
+        containerId:  'eventos-grid',
+        data:         eventos,
+        pageSize:     6,
+        searchFields: ['nombre', 'fecha', 'lugar'],
+        renderRow:    renderCard,
+        emptyHTML:    `<div class="dt-empty"><i class="bx bx-calendar-x"></i><p>No hay eventos publicados por el momento.</p></div>`
+      });
+      window.__dtInstances['eventos-grid'] = dtDisp;
+      dtDisp.init();
+    } else {
+      dtDisp.refresh(eventos);
+    }
   }
 
   /** Actualiza las tarjetas de contadores superiores */
