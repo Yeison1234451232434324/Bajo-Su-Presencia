@@ -21,7 +21,7 @@
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent), var(--amber));
+  background: linear-gradient(135deg, var(--primary) 0%, var(--amber) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -42,7 +42,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.65rem 1.4rem;
-  background: linear-gradient(135deg, var(--accent) 0%, var(--amber) 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--amber) 100%);
   border: none;
   border-radius: 0.875rem;
   font-family: var(--font-text);
@@ -50,11 +50,11 @@
   font-weight: 700;
   color: #fff;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(245,194,21,0.4);
+  box-shadow: 0 4px 14px rgba(30,58,138,0.3);
   transition: transform 0.15s, box-shadow 0.15s;
   white-space: nowrap;
 }
-.sed-btn-agregar:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(245,194,21,0.5); }
+.sed-btn-agregar:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(30,58,138,0.4); }
 
 /* ── Tarjeta contenedora ─────────────────────────────────────── */
 .sed-card {
@@ -83,8 +83,8 @@
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .sed-item:hover {
-  border-color: var(--accent);
-  box-shadow: 0 4px 16px rgba(245,194,21,0.15);
+  border-color: var(--primary);
+  box-shadow: 0 4px 16px rgba(30,58,138,0.12);
 }
 
 .sed-item-header {
@@ -97,7 +97,7 @@
   width: 40px;
   height: 40px;
   border-radius: 0.625rem;
-  background: linear-gradient(135deg, var(--accent), var(--amber));
+  background: linear-gradient(135deg, var(--primary) 0%, var(--amber) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -234,7 +234,7 @@
 .sed-btn-guardar {
   flex: 1;
   padding: 0.875rem;
-  background: linear-gradient(135deg, var(--accent) 0%, var(--amber) 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--amber) 100%);
   color: #fff;
   border: none;
   border-radius: 0.875rem;
@@ -243,7 +243,7 @@
   font-weight: 700;
   cursor: pointer;
   transition: transform 0.15s;
-  box-shadow: 0 4px 14px rgba(245,194,21,0.4);
+  box-shadow: 0 4px 14px rgba(30,58,138,0.3);
 }
 .sed-btn-guardar:hover { transform: translateY(-1px); }
 .sed-btn-cancelar {

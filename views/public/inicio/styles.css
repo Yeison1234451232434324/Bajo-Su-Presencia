@@ -247,6 +247,13 @@ a    { text-decoration: none; }
   text-shadow: 0 2px 8px rgba(0,0,0,0.25);
 }
 
+.hero-ref span {
+  color: #fbff00;
+  font-size: 20px;
+}
+
+
+
 /* ─────────────────────────────────────────────
    ORACIÓN DEL DÍA
 ───────────────────────────────────────────── */
@@ -556,12 +563,631 @@ a    { text-decoration: none; }
 .footer-copy-gold { color: var(--accent); font-style: italic; }
 
 /* ─────────────────────────────────────────────
-   RESPONSIVE
+   RESPONSIVE COMPLETO — Página pública
 ───────────────────────────────────────────── */
+
+/* ── 1024px ── */
+@media (max-width: 1024px) {
+  .header-logo { margin-right: 2rem; }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
+}
+
+/* ── 768px ── */
+@media (max-width: 768px) {
+  .header-inner {
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+  }
+  .header-brand { flex: 1; min-width: 0; }
+  .header-logo  { height: 44px; margin-right: 0.75rem; }
+  .header-title { font-size: 1.15rem; }
+  .header-subtitle { display: none; }
+
+  .hero { min-height: 55vh; }
+  .hero-heading { font-size: clamp(1.75rem, 5vw, 3rem); }
+  .hero-heading-accent { font-size: clamp(2rem, 6vw, 3.5rem); }
+  .hero-verse { font-size: clamp(0.9rem, 2vw, 1.2rem); }
+
+  .prayer-section { padding: 3rem 1rem; }
+  .prayer-card { padding: 2rem 1.5rem; }
+
+  .news-section  { padding: 3rem 1rem; }
+  .events-section { padding: 3rem 1rem; }
+
+  .footer-grid { grid-template-columns: 1fr; gap: 2rem; }
+  .footer-col-title--accent { text-align: center; }
+  .footer-schedule-row { font-size: 0.9rem; }
+}
+
+/* ── 640px ── */
 @media (max-width: 640px) {
   .header-actions .btn-outline { display: none; }
+  .header-logo { height: 36px; }
+  .header-title { font-size: 1.05rem; }
+
+  .hero { min-height: 50vh; }
+  .hero-content { padding: 0 1rem; }
+  .hero-verse br { display: none; }
+
+  .section-header { margin-bottom: 1.75rem; }
   .news-grid, .events-grid { grid-template-columns: 1fr; }
+
+  .prayer-card { padding: 1.5rem 1rem; }
+  .prayer-corner { width: 3rem; height: 3rem; }
+
   .footer-grid { grid-template-columns: 1fr; }
-  .prayer-card { padding: 2rem 1.25rem; }
+  .footer-logo { height: 6rem; }
   .footer-col-title--accent { text-align: center; }
+
+  .carousel-btn { width: 2.25rem; height: 2.25rem; font-size: 1.3rem; }
+}
+
+/* ── 480px ── */
+@media (max-width: 480px) {
+  .header-inner { padding: 0.625rem 0.75rem; }
+  .header-logo  { height: 30px; }
+  .header-title { font-size: 0.95rem; }
+  .lista-menu   { gap: 0.75rem; }
+  .lista-menu a { font-size: 0.82rem; }
+
+  .hero { min-height: 45vh; }
+
+  .news-card-title  { font-size: 1.25rem; }
+  .event-card-title { font-size: 1.4rem; }
+
+  .mf-ev-cards { grid-template-columns: 1fr; }
+  .modal-flotante-body { padding: 1.25rem 1rem 1.5rem; }
+  .mf-ev-header { padding: 1.25rem 1rem; gap: 0.75rem; }
+  .mf-ev-header-icon { font-size: 2.25rem; }
+  .mf-titulo { font-size: 1.3rem; }
+
+  .footer-schedule-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   CARRUSEL — contenedor y controles
+───────────────────────────────────────────── */
+.carousel-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.carousel-viewport {
+  flex: 1;
+  overflow: hidden;
+  padding: 1rem 0.25rem;   /* espacio vertical para sombras */
+}
+
+.carousel-track {
+  display: flex;
+  gap: 1.5rem;              /* espacio real entre tarjetas */
+  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+/* Cada tarjeta: ancho = (100% - 2 gaps) / 3  →  calc((100% - 3rem) / 3) */
+.carousel-card {
+  flex: 0 0 calc((100% - 3rem) / 3);
+  min-width: 0;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+@media (max-width: 1023px) {
+  .carousel-track { gap: 1.25rem; }
+  .carousel-card  { flex: 0 0 calc((100% - 1.25rem) / 2); }
+}
+@media (max-width: 639px) {
+  .carousel-track { gap: 1rem; }
+  .carousel-card  { flex: 0 0 100%; }
+}
+
+/* Botones prev / next */
+.carousel-btn {
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: white;
+  color: var(--primary);
+  font-size: 1.6rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  z-index: 2;
+}
+.carousel-btn:hover:not(:disabled) {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 4px 16px rgba(30,58,138,0.25);
+}
+.carousel-btn:disabled { opacity: 0.3; cursor: default; }
+
+/* Puntos indicadores */
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+.carousel-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(30,58,138,0.20);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  padding: 0;
+}
+.carousel-dot--active {
+  background: var(--primary);
+  transform: scale(1.3);
+}
+
+/* Estado vacío */
+.carousel-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3rem;
+  color: var(--muted-foreground);
+  font-family: var(--font-text);
+  font-size: 1.1rem;
+  font-style: italic;
+}
+.carousel-empty span { font-size: 2.5rem; }
+
+/* Etiqueta "Leer más" en tarjetas */
+.card-leer-mas {
+  display: inline-block;
+  margin-top: 0.75rem;
+  font-family: var(--font-text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--primary);
+  transition: color 0.2s;
+}
+.news-card:hover .card-leer-mas,
+.event-card:hover .card-leer-mas { color: var(--accent); }
+
+/* Placeholder imagen sin URL */
+.news-card-img-placeholder {
+  width: 100%; height: 100%;
+  background: linear-gradient(135deg, #dbeafe, #eff6ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+}
+
+/* ─────────────────────────────────────────────
+   MODAL FLOTANTE CON BLUR
+───────────────────────────────────────────── */
+
+/* Overlay con blur */
+.modal-blur-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 30, 90, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+.modal-blur-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Ventana flotante */
+.modal-flotante {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -48%) scale(0.94);
+  z-index: 201;
+  width: min(92vw, 640px);
+  max-height: 88vh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 1.5rem;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.28);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+.modal-flotante.active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Botón cerrar */
+.modal-flotante-close {
+  position: absolute;
+  top: 1rem; right: 1rem;
+  width: 2.25rem; height: 2.25rem;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,0.08);
+  color: #374151;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: background 0.2s;
+}
+.modal-flotante-close:hover { background: rgba(0,0,0,0.16); }
+
+/* Imagen de cabecera */
+.modal-flotante-img-wrap {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+  border-radius: 1.5rem 1.5rem 0 0;
+}
+.modal-flotante-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+.modal-flotante-img-fade {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.55), transparent 60%);
+}
+
+/* Cuerpo del modal */
+.modal-flotante-body {
+  padding: 1.75rem 2rem 2rem;
+}
+
+/* Badge tipo */
+.mf-badge {
+  display: inline-block;
+  padding: 0.2rem 0.75rem;
+  border-radius: 999px;
+  font-family: var(--font-text);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.75rem;
+}
+.mf-badge--noticia { background: #dbeafe; color: #1d4ed8; }
+.mf-badge--evento  { background: #fef3c7; color: #92400e; }
+
+/* Título */
+.mf-titulo {
+  font-family: var(--font-serif);
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 700;
+  color: var(--foreground);
+  line-height: 1.25;
+  margin-bottom: 0.5rem;
+}
+
+/* Meta (fecha, autor) */
+.mf-meta {
+  font-family: var(--font-text);
+  font-size: 0.95rem;
+  color: var(--muted-foreground);
+  margin-bottom: 1rem;
+}
+
+/* Resumen / descripción */
+.mf-texto {
+  font-family: var(--font-text);
+  font-size: 1.05rem;
+  color: #374151;
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+
+/* Contenido completo de noticia */
+.mf-contenido {
+  padding: 1rem 1.25rem;
+  background: #f9fafb;
+  border-left: 4px solid var(--primary);
+  border-radius: 0 0.75rem 0.75rem 0;
+  font-family: var(--font-text);
+  font-size: 1rem;
+  color: #374151;
+  line-height: 1.75;
+}
+
+/* Grid de datos del evento */
+.mf-ev-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem 1.25rem;
+  background: #f9fafb;
+  border-radius: 0.75rem;
+}
+.mf-ev-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-text);
+  font-size: 1rem;
+  color: #374151;
+}
+.mf-ev-item span:first-child { font-size: 1.1rem; flex-shrink: 0; }
+
+/* Scrollbar del modal */
+.modal-flotante::-webkit-scrollbar { width: 6px; }
+.modal-flotante::-webkit-scrollbar-track { background: transparent; }
+.modal-flotante::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+
+/* ─────────────────────────────────────────────
+   MODAL — cabecera visual para EVENTOS
+───────────────────────────────────────────── */
+
+/* Header con gradiente cuando no hay imagen */
+.mf-ev-header {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 2rem 2rem 1.5rem;
+  background: linear-gradient(135deg, #1E3A8A 0%, #2D4FAF 60%, #1a6b4a 100%);
+  border-radius: 1.5rem 1.5rem 0 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Círculo decorativo de fondo */
+.mf-ev-header::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 160px; height: 160px;
+  background: rgba(245,194,21,0.15);
+  border-radius: 50%;
+}
+.mf-ev-header::after {
+  content: '';
+  position: absolute;
+  bottom: -30px; left: 30%;
+  width: 100px; height: 100px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 50%;
+}
+
+/* Ícono grande del evento */
+.mf-ev-header-icon {
+  font-size: 3.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+  position: relative;
+  z-index: 1;
+}
+
+.mf-ev-header-info {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+}
+
+/* Título sobre el header oscuro */
+.mf-titulo--over {
+  color: #ffffff !important;
+  font-size: clamp(1.3rem, 3vw, 1.9rem);
+  margin-top: 0.35rem;
+  margin-bottom: 0;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+/* Meta sobre el header oscuro */
+.mf-meta--over {
+  color: rgba(255,255,255,0.80) !important;
+  margin-top: 0.35rem;
+  margin-bottom: 0;
+}
+
+/* Badge sobre imagen o header */
+.mf-badge--over {
+  position: absolute;
+  top: 1rem; left: 1rem;
+  z-index: 5;
+}
+
+/* Badge de evento dentro del header */
+.mf-ev-header .mf-badge--evento {
+  background: rgba(245,194,21,0.25);
+  color: #fef3c7;
+  border: 1px solid rgba(245,194,21,0.4);
+}
+
+/* ─── Tarjetas de datos del evento ─── */
+.mf-ev-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.mf-ev-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background: #f8faff;
+  border: 1px solid rgba(30,58,138,0.10);
+  border-radius: 0.875rem;
+  padding: 0.875rem 1rem;
+  transition: background 0.2s;
+}
+.mf-ev-card:hover { background: #eff6ff; }
+
+.mf-ev-card-icon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.mf-ev-card-label {
+  font-family: var(--font-text);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.2rem;
+}
+
+.mf-ev-card-val {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+@media (max-width: 480px) {
+  .mf-ev-cards { grid-template-columns: 1fr; }
+  .mf-ev-header { padding: 1.5rem 1.25rem 1.25rem; gap: 1rem; }
+  .mf-ev-header-icon { font-size: 2.75rem; }
+}
+
+/* ─────────────────────────────────────────────
+   MENÚ HAMBURGUESA — Botón y menú móvil
+───────────────────────────────────────────── */
+
+/* Botón hamburguesa — oculto en desktop, visible en móvil */
+.header-hamburger {
+  display: none;          /* desktop: oculto */
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 42px;
+  height: 42px;
+  background: none;
+  border: 2px solid var(--border);
+  border-radius: 0.625rem;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background 0.2s, border-color 0.2s;
+  z-index: 60;
+}
+.header-hamburger:hover {
+  background: rgba(30,58,138,0.08);
+  border-color: var(--primary);
+}
+
+/* Las 3 líneas */
+.header-hamburger span {
+  display: block;
+  width: 20px;
+  height: 2.5px;
+  background: var(--primary);
+  border-radius: 2px;
+  transition: transform 0.3s ease, opacity 0.2s ease, width 0.3s ease;
+  transform-origin: center;
+}
+
+/* Animación → X */
+.header-hamburger--open span:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+.header-hamburger--open span:nth-child(2) { opacity: 0; width: 0; }
+.header-hamburger--open span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
+
+/* ── Menú móvil ── */
+.header-mobile-menu {
+  display: none;          /* desktop: oculto */
+  flex-direction: column;
+  background: rgba(242, 246, 255, 0.98);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              padding 0.3s ease;
+  position: relative;
+  z-index: 55;
+}
+.header-mobile-menu--open {
+  max-height: 500px;
+  padding-bottom: 1.25rem;
+}
+
+/* Lista de enlaces */
+.mobile-lista-menu {
+  list-style: none;
+  padding: 0.5rem 0 0;
+  margin: 0;
+}
+.mobile-lista-menu li {
+  border-bottom: 1px solid rgba(30,58,138,0.08);
+}
+.mobile-lista-menu li:last-child { border-bottom: none; }
+.mobile-lista-menu a {
+  display: block;
+  padding: 1rem 1.5rem;
+  font-family: var(--font-text);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--foreground);
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s, padding-left 0.2s;
+}
+.mobile-lista-menu a:hover {
+  background: rgba(30,58,138,0.06);
+  color: var(--primary);
+  padding-left: 2rem;
+}
+
+/* Botón Iniciar Sesión */
+.mobile-menu-actions {
+  padding: 1rem 1.5rem 0;
+}
+.mobile-btn-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.9rem 1.5rem;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+  color: #fff;
+  font-family: var(--font-text);
+  font-size: 1.05rem;
+  font-weight: 700;
+  border-radius: 999px;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(30,58,138,0.3);
+  transition: box-shadow 0.2s, transform 0.15s;
+}
+.mobile-btn-login:hover {
+  box-shadow: 0 6px 20px rgba(30,58,138,0.4);
+  transform: translateY(-1px);
+}
+
+/* ── Activar en móvil ── */
+@media (max-width: 768px) {
+  /* Mostrar hamburguesa */
+  .header-hamburger {
+    display: flex !important;
+  }
+  /* Mostrar contenedor del menú móvil (el max-height lo controla JS) */
+  .header-mobile-menu {
+    display: flex !important;
+  }
+  /* Ocultar menú y botones desktop */
+  .header-menu    { display: none !important; }
+  .header-actions { display: none !important; }
 }

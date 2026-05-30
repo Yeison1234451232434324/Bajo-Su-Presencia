@@ -176,13 +176,15 @@
 .table-card--full {
   width: 100%;
   margin-top: 0;
+  padding: 0;                /* quitar padding para que la tabla llegue a los bordes */
+  overflow: hidden;
 }
 .table-card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
+  margin-bottom: 0;
+  padding: 1.25rem 1.75rem 1rem;
   border-bottom: 2px solid var(--border);
 }
 .table-card-header h3 {
@@ -218,7 +220,7 @@
 }
 .events-table th {
   text-align: left;
-  padding: 0.75rem 1rem;
+  padding: 0.875rem 1.75rem;
   font-weight: 700;
   color: var(--primary-dark);
   font-size: 0.82rem;
@@ -227,16 +229,20 @@
   white-space: nowrap;
 }
 .events-table td {
-  padding: 0.75rem 1rem;
+  padding: 1.1rem 1.75rem;
   border-bottom: 1px solid #f3f0e8;
   color: #374151;
   white-space: nowrap;
 }
-.events-table tbody tr:last-child td {
+/* Separador visual entre filas usando una fila de espacio */
+.events-table tbody tr {
+  border-bottom: 4px solid var(--bg);
+}
+.events-table tbody tr:last-child {
   border-bottom: none;
 }
 .events-table tbody tr:hover td {
-  background: #faf8f3;
+  background: #f0f4ff;
 }
 
 /* ── Responsive ───────────────────────────────────────────── */

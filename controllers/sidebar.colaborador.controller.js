@@ -79,10 +79,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.body.insertAdjacentHTML('afterbegin', sidebarHTML);
 
+  // ── Overlay para móvil ────────────────────────────────────────────────────
+  const overlay = document.createElement('div');
+  overlay.className = 'sidebar-overlay';
+  overlay.id        = 'sidebar-overlay';
+  document.body.appendChild(overlay);
+
   // ── Toggle ────────────────────────────────────────────────────────────────
   document.getElementById('btn').addEventListener('click', () => {
-    document.getElementById('sidebar').classList.toggle('active');
-    document.getElementById('main').classList.toggle('sidebar-open');
+    const sidebar  = document.getElementById('sidebar');
+    const main     = document.getElementById('main');
+    const isMobile = window.innerWidth <= 768;
+    sidebar.classList.toggle('active');
+    if (isMobile) {
+      overlay.classList.toggle('active', sidebar.classList.contains('active'));
+    } else {
+      main.classList.toggle('sidebar-open');
+    }
+  });
+  overlay.addEventListener('click', () => {
+    document.getElementById('sidebar').classList.remove('active');
+    overlay.classList.remove('active');
   });
 
   // ── Marcar ítem activo ────────────────────────────────────────────────────
