@@ -1,0 +1,306 @@
+<!--
+  ================================================================
+  GESTIÓN DE PQR — Solo Administrador
+  ================================================================
+  Panel del admin para gestionar Peticiones, Quejas y Reclamos.
+
+  Secciones:
+    1. Encabezado con ícono (gradiente azul→dorado)
+    2. Tarjetas de contadores: Total, Pendientes, En proceso, Resueltos
+    3. Barra de herramientas: búsqueda + filtros de tipo, estado y prioridad
+    4. Tabla de PQR con columnas: Tipo, Nombre, Asunto, Prioridad, Estado, Fecha, Acciones
+    5. Modal de detalle/respuesta
+
+  Archivos que usa:
+    - panel.css              → estilos base del panel
+    - pqr-admin.css          → estilos específicos del módulo
+    - sidebar.controller.js  → sidebar del admin
+    - pqr.model.js           → CRUD de PQR en localStorage
+    - pqr-admin.controller.js → lógica completa del panel
+  ================================================================
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestión de PQR – Bajo Su Presencia</title>
+  <link rel="stylesheet" href="panel.css" />
+  <link rel="stylesheet" href="pqr-admin.css" />
+</head>
+<body>
+
+<!-- Área principal (el sidebar se inyecta por JS) -->
+<main class="main" id="main">
+  <section class="panel active" style="display:block;">
+
+    <!-- ── Encabezado del módulo ──────────────────────────────────────── -->
+    <div class="pqr-topbar">
+      <div class="pqr-header-left">
+        <div class="pqr-header-icon">
+          <i class="bx bx-message-detail"></i>
+        </div>
+        <div class="pqr-header-text">
+          <h2>Peticiones, Quejas y Reclamos</h2>
+          <p>Gestiona y responde las solicitudes de la comunidad</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Guía de sección -->
+    <div class="guia-seccion">
+      <p class="guia-seccion-label"><i class="bx bx-info-circle"></i> Guía de sección</p>
+      <p class="guia-seccion-texto">Gestiona las Peticiones, Quejas y Reclamos enviados por la comunidad. Revisa cada solicitud, escribe una respuesta, cambia el estado del proceso y lleva un seguimiento completo de cada caso.</p>
+    </div>
+
+    <!-- ── Tarjetas de contadores ─────────────────────────────────────── -->
+    <div class="stats-pqr">
+
+      <div class="stat-pqr-card">
+        <div class="stat-pqr-icon" style="background:#dbeafe;">
+          <i class="bx bx-message-detail" style="color:#1E3A8A;"></i>
+        </div>
+        <div>
+          <p class="stat-pqr-label">Total PQR</p>
+          <p class="stat-pqr-value" id="stat-pqr-total">0</p>
+        </div>
+      </div>
+
+      <div class="stat-pqr-card">
+        <div class="stat-pqr-icon" style="background:#fef3c7;">
+          <i class="bx bx-time-five" style="color:#d97706;"></i>
+        </div>
+        <div>
+          <p class="stat-pqr-label">Pendientes</p>
+          <p class="stat-pqr-value" id="stat-pqr-pendientes">0</p>
+        </div>
+      </div>
+
+      <div class="stat-pqr-card">
+        <div class="stat-pqr-icon" style="background:#dbeafe;">
+          <i class="bx bx-loader-circle" style="color:#1d4ed8;"></i>
+        </div>
+        <div>
+          <p class="stat-pqr-label">En Proceso</p>
+          <p class="stat-pqr-value" id="stat-pqr-enproceso">0</p>
+        </div>
+      </div>
+
+      <div class="stat-pqr-card">
+        <div class="stat-pqr-icon" style="background:#d1fae5;">
+          <i class="bx bx-check-circle" style="color:#059669;"></i>
+        </div>
+        <div>
+          <p class="stat-pqr-label">Resueltos</p>
+          <p class="stat-pqr-value" id="stat-pqr-resueltos">0</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Barra de herramientas ──────────────────────────────────────── -->
+    <div class="pqr-toolbar">
+      <div class="pqr-toolbar-left">
+
+        <!-- Búsqueda por texto -->
+        <div class="pqr-search-wrap">
+          <i class="bx bx-search"></i>
+          <input
+            type="text"
+            id="pqr-input-buscar"
+            class="pqr-input-buscar"
+            placeholder="Buscar por nombre, asunto…"
+          />
+        </div>
+
+        <!-- Filtro por tipo -->
+        <select id="pqr-filtro-tipo" class="pqr-select-filtro">
+          <option value="">Todos los tipos</option>
+          <option value="Petición">Petición</option>
+          <option value="Queja">Queja</option>
+          <option value="Reclamo">Reclamo</option>
+        </select>
+
+        <!-- Filtro por estado -->
+        <select id="pqr-filtro-estado" class="pqr-select-filtro">
+          <option value="">Todos los estados</option>
+          <option value="Pendiente">Pendiente</option>
+          <option value="En proceso">En proceso</option>
+          <option value="Resuelto">Resuelto</option>
+          <option value="Cerrado">Cerrado</option>
+        </select>
+
+        <!-- Filtro por prioridad -->
+        <select id="pqr-filtro-prioridad" class="pqr-select-filtro">
+          <option value="">Todas las prioridades</option>
+          <option value="Alta">Alta</option>
+          <option value="Media">Media</option>
+          <option value="Baja">Baja</option>
+        </select>
+
+      </div>
+    </div>
+
+    <!-- ── Tabla de PQR ───────────────────────────────────────────────── -->
+    <div class="pqr-table-wrap">
+      <table class="pqr-table">
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Nombre / Email</th>
+            <th>Asunto</th>
+            <th>Prioridad</th>
+            <th>Estado</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="pqr-tbody">
+          <!-- Filas generadas por el controller -->
+        </tbody>
+      </table>
+    </div>
+
+  </section>
+</main>
+
+<!-- ══ OVERLAY DEL MODAL ════════════════════════════════════════════════ -->
+<div class="pqr-modal-overlay" id="pqr-modal-overlay"></div>
+
+<!-- ══ MODAL DETALLE / RESPUESTA ════════════════════════════════════════ -->
+<div class="pqr-modal" id="pqr-modal" role="dialog" aria-modal="true" aria-labelledby="pqr-modal-title">
+
+  <!-- Cabecera -->
+  <div class="pqr-modal-header">
+    <div class="pqr-modal-header-left">
+      <i class="bx bx-message-detail"></i>
+      <h3 id="pqr-modal-title">Detalle del PQR</h3>
+    </div>
+    <button class="pqr-modal-close" id="pqr-modal-close" aria-label="Cerrar">
+      <i class="bx bx-x"></i>
+    </button>
+  </div>
+
+  <!-- Cuerpo -->
+  <div class="pqr-modal-body">
+
+    <!-- Metadatos del PQR -->
+    <div class="pqr-meta-grid">
+      <div class="pqr-meta-item">
+        <p class="pqr-meta-label">Tipo</p>
+        <p class="pqr-meta-value" id="modal-tipo">—</p>
+      </div>
+      <div class="pqr-meta-item">
+        <p class="pqr-meta-label">Estado actual</p>
+        <p class="pqr-meta-value" id="modal-estado">—</p>
+      </div>
+      <div class="pqr-meta-item">
+        <p class="pqr-meta-label">Nombre</p>
+        <p class="pqr-meta-value" id="modal-nombre">—</p>
+      </div>
+      <div class="pqr-meta-item">
+        <p class="pqr-meta-label">Correo electrónico</p>
+        <p class="pqr-meta-value" id="modal-email">—</p>
+      </div>
+      <div class="pqr-meta-item">
+        <p class="pqr-meta-label">Teléfono</p>
+        <p class="pqr-meta-value" id="modal-telefono">—</p>
+      </div>
+      <div class="pqr-meta-item">
+        <p class="pqr-meta-label">Prioridad</p>
+        <p class="pqr-meta-value" id="modal-prioridad">—</p>
+      </div>
+      <div class="pqr-meta-item">
+        <p class="pqr-meta-label">Fecha de envío</p>
+        <p class="pqr-meta-value" id="modal-fecha">—</p>
+      </div>
+      <div class="pqr-meta-item">
+        <p class="pqr-meta-label">Asunto</p>
+        <p class="pqr-meta-value" id="modal-asunto">—</p>
+      </div>
+    </div>
+
+    <!-- Descripción -->
+    <div class="pqr-modal-section">
+      <h4 class="pqr-modal-section-title">
+        <i class="bx bx-text"></i>
+        Descripción
+      </h4>
+      <p class="pqr-descripcion-text" id="modal-descripcion">—</p>
+    </div>
+
+    <!-- Respuesta existente (se muestra si ya fue respondido) -->
+    <div class="pqr-modal-section" id="modal-respuesta-existente-wrap" style="display:none;">
+      <h4 class="pqr-modal-section-title">
+        <i class="bx bx-check-circle"></i>
+        Respuesta enviada
+      </h4>
+      <div class="pqr-respuesta-existente">
+        <p id="modal-respuesta-texto">—</p>
+        <p class="pqr-respuesta-meta" id="modal-respuesta-meta">—</p>
+      </div>
+    </div>
+
+    <!-- Formulario de respuesta -->
+    <div class="pqr-modal-section">
+      <h4 class="pqr-modal-section-title">
+        <i class="bx bx-reply"></i>
+        Responder / Actualizar
+      </h4>
+
+      <!-- Error del modal -->
+      <div class="pqr-modal-error" id="pqr-modal-error" role="alert"></div>
+
+      <div class="pqr-form-respuesta">
+
+        <div>
+          <label for="modal-campo-respuesta">
+            <i class="bx bx-message-square-edit"></i>
+            Respuesta al solicitante
+          </label>
+          <textarea
+            id="modal-campo-respuesta"
+            class="pqr-textarea-respuesta"
+            rows="4"
+            placeholder="Escribe aquí la respuesta para el solicitante…"
+          ></textarea>
+        </div>
+
+        <div>
+          <label for="modal-campo-estado" style="margin-bottom:0.5rem;">
+            <i class="bx bx-transfer-alt"></i>
+            Cambiar estado
+          </label>
+          <select id="modal-campo-estado" class="pqr-select-estado-modal">
+            <option value="Pendiente">Pendiente</option>
+            <option value="En proceso">En proceso</option>
+            <option value="Resuelto">Resuelto</option>
+            <option value="Cerrado">Cerrado</option>
+          </select>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /pqr-modal-body -->
+
+  <!-- Footer del modal -->
+  <div class="pqr-modal-footer">
+    <button type="button" class="pqr-btn-cancelar-modal" id="pqr-btn-cancelar-modal">
+      Cancelar
+    </button>
+    <button type="button" class="pqr-btn-guardar-respuesta" id="pqr-btn-guardar-respuesta">
+      <i class="bx bx-save"></i>
+      Guardar respuesta
+    </button>
+  </div>
+
+</div><!-- /pqr-modal -->
+
+<!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
+<script src="../../../controllers/sidebar.controller.js"></script>
+<script src="../../../models/pqr.model.js"></script>
+<script src="../../../controllers/pqr-admin.controller.js"></script>
+
+</body>
+</html>

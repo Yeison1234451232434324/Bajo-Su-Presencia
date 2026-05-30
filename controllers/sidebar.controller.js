@@ -106,6 +106,13 @@ document.addEventListener("DOMContentLoaded", () => {
         </a>
         <span class="tooltip">Gestión de Sedes</span>
       </li>
+      <li id="li-pqr" style="display:none;">
+        <a href="pqr.html" id="nav-pqr">
+          <i class="bx bx-message-detail"></i>
+          <span class="nav-item">PQR</span>
+        </a>
+        <span class="tooltip">PQR</span>
+      </li>
       <li class="logout-li">
         <a href="../../public/login/login.html" id="nav-logout">
           <i class="bx bx-log-out"></i>
@@ -121,10 +128,43 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.body.insertAdjacentHTML('afterbegin', sidebarHTML);
 
+  // ── Botón flotante móvil ──────────────────────────────────────────────────
+  const mobileBtn = document.createElement('button');
+  mobileBtn.className   = 'sidebar-toggle-mobile';
+  mobileBtn.id          = 'sidebar-toggle-mobile';
+  mobileBtn.setAttribute('aria-label', 'Abrir menú');
+  mobileBtn.innerHTML   = '<span></span><span></span><span></span>';
+  document.body.appendChild(mobileBtn);
+
+  // ── Overlay para móvil ────────────────────────────────────────────────────
+  const overlay = document.createElement('div');
+  overlay.className = 'sidebar-overlay';
+  overlay.id        = 'sidebar-overlay';
+  document.body.appendChild(overlay);
+
   // ── Toggle ────────────────────────────────────────────────────────────────
-  document.getElementById('btn').addEventListener('click', () => {
-    document.getElementById('sidebar').classList.toggle('active');
-    document.getElementById('main').classList.toggle('sidebar-open');
+  function toggleSidebar() {
+    const sidebar  = document.getElementById('sidebar');
+    const main     = document.getElementById('main');
+    const isMobile = window.innerWidth <= 768;
+    const abierto  = sidebar.classList.toggle('active');
+
+    if (isMobile) {
+      overlay.classList.toggle('active', abierto);
+      mobileBtn.classList.toggle('open', abierto);
+    } else {
+      main.classList.toggle('sidebar-open', abierto);
+    }
+  }
+
+  document.getElementById('btn').addEventListener('click', toggleSidebar);
+  mobileBtn.addEventListener('click', toggleSidebar);
+
+  // Cerrar sidebar al hacer clic en el overlay
+  overlay.addEventListener('click', () => {
+    document.getElementById('sidebar').classList.remove('active');
+    overlay.classList.remove('active');
+    mobileBtn.classList.remove('open');
   });
 
   // ── Marcar ítem activo ────────────────────────────────────────────────────
@@ -140,6 +180,7 @@ document.addEventListener("DOMContentLoaded", () => {
   else if (path.includes("reporte.html"))          document.getElementById("nav-reporte")?.parentElement.classList.add("active-item");
   else if (path.includes("generar-reportes.html")) document.getElementById("nav-generar-reportes")?.parentElement.classList.add("active-item");
   else if (path.includes("sedes.html"))            document.getElementById("nav-sedes")?.parentElement.classList.add("active-item");
+  else if (path.includes("pqr.html"))              document.getElementById("nav-pqr")?.parentElement.classList.add("active-item");
 
   // ── Cargar usuario desde localStorage ────────────────────────────────────
   const userData = localStorage.getItem('usuarioLogueado');
@@ -171,6 +212,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const liSedes = document.getElementById('li-sedes');
       if (liSedes) liSedes.style.display = '';
+
+      const liPqr = document.getElementById('li-pqr');
+      if (liPqr) liPqr.style.display = '';
     }
   }
 });

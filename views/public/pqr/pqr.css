@@ -1,0 +1,360 @@
+/*
+ * ================================================================
+ *  PQR PÚBLICO — Estilos del formulario de Peticiones, Quejas y Reclamos
+ * ================================================================
+ *  Estiliza la página pública donde cualquier persona puede
+ *  enviar un PQR a la iglesia.
+ *
+ *  Variables heredadas de styles.css del inicio:
+ *    --primary #1E3A8A, --primary-dark #0F1E5A, --primary-light #2D4FAF
+ *    --accent #F5C215, --amber #d97706, --bg #faf8f3, --border #e5e1d8
+ * ================================================================
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+
+:root {
+  --primary:       #1E3A8A;
+  --primary-dark:  #0F1E5A;
+  --primary-light: #2D4FAF;
+  --accent:        #F5C215;
+  --amber:         #d97706;
+  --bg:            #faf8f3;
+  --border:        #e5e1d8;
+  --muted:         #6b7280;
+  --font-title:    'Cormorant Garamond', serif;
+  --font-text:     'Crimson Text', serif;
+}
+
+/* ── Sección principal ── */
+.pqr-section {
+  min-height: calc(100vh - 80px);
+  background: var(--bg);
+  padding: 4rem 1.5rem 5rem;
+}
+
+.pqr-container {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* ── Encabezado de sección ── */
+.pqr-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.pqr-header-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 1.25rem;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--amber) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+  box-shadow: 0 8px 24px rgba(30, 58, 138, 0.3);
+}
+
+.pqr-header-icon i {
+  font-size: 2rem;
+  color: #fff;
+}
+
+.pqr-header h2 {
+  font-family: var(--font-title);
+  font-size: 2.75rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 0.75rem;
+  line-height: 1.15;
+}
+
+.pqr-header p {
+  font-family: var(--font-text);
+  font-size: 1.15rem;
+  color: var(--muted);
+  max-width: 520px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ── Tarjeta del formulario ── */
+.pqr-card {
+  background: #fff;
+  border-radius: 1.5rem;
+  padding: 2.5rem 2.75rem;
+  border: 2px solid var(--border);
+  box-shadow: 0 8px 32px rgba(30, 58, 138, 0.08);
+}
+
+/* ── Grupos de formulario ── */
+.pqr-form-group {
+  margin-bottom: 1.5rem;
+}
+
+.pqr-form-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-text);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-bottom: 0.5rem;
+}
+
+.pqr-form-group label i {
+  color: var(--primary);
+  font-size: 1.1rem;
+}
+
+.pqr-form-group .optional-tag {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-weight: 400;
+  margin-left: 0.25rem;
+}
+
+.pqr-input,
+.pqr-select,
+.pqr-textarea {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.875rem;
+  font-family: var(--font-text);
+  font-size: 1rem;
+  color: #1a1a2e;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  appearance: none;
+}
+
+.pqr-input:focus,
+.pqr-select:focus,
+.pqr-textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+}
+
+.pqr-input::placeholder,
+.pqr-textarea::placeholder {
+  color: #9ca3af;
+}
+
+.pqr-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 2.5rem;
+  cursor: pointer;
+}
+
+.pqr-textarea {
+  resize: vertical;
+  min-height: 130px;
+  line-height: 1.6;
+}
+
+/* ── Fila de dos columnas ── */
+.pqr-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+/* ── Botón enviar ── */
+.pqr-btn-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--amber) 100%);
+  color: #fff;
+  border: none;
+  border-radius: 0.875rem;
+  font-family: var(--font-text);
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(30, 58, 138, 0.3);
+  transition: transform 0.15s, box-shadow 0.15s;
+  margin-top: 0.5rem;
+}
+
+.pqr-btn-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(30, 58, 138, 0.4);
+}
+
+.pqr-btn-submit:active {
+  transform: translateY(0);
+}
+
+.pqr-btn-submit i {
+  font-size: 1.2rem;
+}
+
+/* ── Mensaje de éxito ── */
+.pqr-success {
+  display: none;
+  text-align: center;
+  padding: 2.5rem 2rem;
+  animation: fadeInUp 0.4s ease;
+}
+
+.pqr-success.visible {
+  display: block;
+}
+
+.pqr-success-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #10b981, #059669);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+}
+
+.pqr-success-icon i {
+  font-size: 2.5rem;
+  color: #fff;
+}
+
+.pqr-success h3 {
+  font-family: var(--font-title);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 0.75rem;
+}
+
+.pqr-success p {
+  font-family: var(--font-text);
+  font-size: 1.1rem;
+  color: var(--muted);
+  line-height: 1.6;
+  max-width: 420px;
+  margin: 0 auto 1.5rem;
+}
+
+.pqr-success-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--amber) 100%);
+  color: #fff;
+  border: none;
+  border-radius: 0.875rem;
+  font-family: var(--font-text);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(30, 58, 138, 0.25);
+  transition: transform 0.15s;
+  text-decoration: none;
+}
+
+.pqr-success-btn:hover {
+  transform: translateY(-1px);
+}
+
+/* ── Mensaje de error de validación ── */
+.pqr-error-msg {
+  display: none;
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-family: var(--font-text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+}
+
+.pqr-error-msg.visible {
+  display: block;
+}
+
+/* ── Nota informativa ── */
+.pqr-info-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 0.875rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.75rem;
+}
+
+.pqr-info-note i {
+  color: var(--primary);
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.pqr-info-note p {
+  font-family: var(--font-text);
+  font-size: 0.95rem;
+  color: #1e40af;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Animaciones ── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .pqr-section {
+    padding: 2.5rem 1rem 4rem;
+  }
+
+  .pqr-card {
+    padding: 1.75rem 1.25rem;
+    border-radius: 1.25rem;
+  }
+
+  .pqr-header h2 {
+    font-size: 2rem;
+  }
+
+  .pqr-form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .pqr-btn-submit {
+    font-size: 1rem;
+    padding: 0.875rem 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .pqr-header h2 {
+    font-size: 1.75rem;
+  }
+
+  .pqr-header-icon {
+    width: 60px;
+    height: 60px;
+  }
+
+  .pqr-header-icon i {
+    font-size: 1.6rem;
+  }
+}
