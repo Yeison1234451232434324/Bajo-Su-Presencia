@@ -57,8 +57,17 @@ body {
   background: linear-gradient(180deg, var(--primary-dark) 0%, var(--primary) 60%, var(--primary-light) 100%);
   padding: 0.4rem 0.8rem;
   transition: width 0.5s ease;
-  z-index: 100; overflow: hidden;
+  z-index: 100;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
+
+/* Scrollbar delgado */
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+.sidebar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+
 .sidebar.active { width: var(--sidebar-w); }
 
 .sidebar .top .logo {
@@ -174,4 +183,76 @@ body {
 @keyframes slideIn {
   from { opacity: 0; transform: translateX(2rem); }
   to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ══════════════════════════════════════════════════
+   RESPONSIVE — Menú hamburguesa en móvil
+══════════════════════════════════════════════════ */
+
+.mobile-menu-btn {
+  display: none;
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 500;
+  width: 44px;
+  height: 44px;
+  background: var(--primary-dark);
+  border: none;
+  border-radius: 0.625rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+}
+.mobile-menu-btn i { font-size: 1.5rem; color: #fff; pointer-events: none; }
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 399;
+  cursor: pointer;
+}
+.sidebar-overlay.active { display: block; }
+
+@media (max-width: 768px) {
+  .mobile-menu-btn { display: flex; }
+
+  .sidebar {
+    width: 260px !important;
+    left: -260px !important;
+    transition: left 0.3s ease !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    z-index: 400 !important;
+  }
+  .sidebar.mobile-open { left: 0 !important; }
+  .sidebar.mobile-open .top .logo { opacity: 1; }
+  .sidebar.mobile-open .user-info  { opacity: 1; }
+  .sidebar.mobile-open .nav-item   { opacity: 1; }
+  .sidebar #btn { display: none; }
+
+  .main {
+    margin-left: 0 !important;
+    padding: 4.5rem 1rem 1.5rem !important;
+    transition: none !important;
+  }
+  .main.sidebar-open { margin-left: 0 !important; }
+
+  .panel-header h2 { font-size: 1.8rem; }
+  .panel-header p  { font-size: 1rem; }
+  .form-row       { grid-template-columns: 1fr !important; }
+  .stats-grid     { grid-template-columns: 1fr 1fr !important; }
+  .charts-grid    { grid-template-columns: 1fr !important; }
+  .tables-grid    { grid-template-columns: 1fr !important; }
+  .form-card { padding: 1.25rem; }
+  .toast-container { bottom: 1rem; right: 0.75rem; left: 0.75rem; }
+  .toast { max-width: 100%; }
+}
+
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr !important; }
+  .panel-header h2 { font-size: 1.5rem; }
 }
