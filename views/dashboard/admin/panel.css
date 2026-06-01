@@ -586,82 +586,122 @@ body {
 
 /* ── 768px: tablet portrait ── */
 @media (max-width: 768px) {
-  /* Sidebar: se oculta fuera de pantalla, aparece al activarse */
+  /* Sidebar: desliza desde la izquierda, ocupa ancho fijo */
   .sidebar {
-    width: var(--sidebar-w) !important;
+    width: 280px !important;
     transform: translateX(-100%);
     transition: transform 0.35s ease;
     box-shadow: none;
     z-index: 101;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
   .sidebar.active {
     transform: translateX(0);
-    box-shadow: 4px 0 24px rgba(0,0,0,0.3);
+    box-shadow: 6px 0 32px rgba(0,0,0,0.35);
   }
 
+  /* Mostrar el logo y nav-items siempre en móvil */
+  .sidebar .top .logo { opacity: 1 !important; }
+  .sidebar .nav-item  { opacity: 1 !important; }
+  .sidebar .user-info { opacity: 1 !important; }
+
   /* Ocultar el botón toggle interno del sidebar en móvil */
-  .sidebar #btn { display: none; }
+  .sidebar #btn { display: none !important; }
 
   /* El main ocupa todo el ancho siempre */
   .main {
     margin-left: 0 !important;
-    padding: 1.25rem 1rem;
+    padding: 3.5rem 0.875rem 1.5rem;
+    width: 100%;
+    overflow-x: hidden;
   }
   .main.sidebar-open {
     margin-left: 0 !important;
   }
 
-  /* Botón hamburguesa flotante para abrir el sidebar */
+  /* Botón hamburguesa flotante */
   .sidebar-toggle-mobile {
     display: flex !important;
   }
 
-  /* Overlay oscuro detrás del sidebar cuando está abierto */
+  /* Overlay oscuro */
   .sidebar-overlay {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.55);
     z-index: 100;
   }
   .sidebar-overlay.active {
     display: block;
   }
 
-  .panel-header {
-    margin-bottom: 1.25rem;
-    padding-top: 0.5rem;
-  }
-  .panel-header h2 { font-size: 1.75rem; }
-  .panel-header p  { font-size: 1rem; }
+  /* Panel y contenido */
+  .panel { max-width: 100%; }
+  .panel-header { margin-bottom: 1rem; padding-top: 0.25rem; }
+  .panel-header h2 { font-size: 1.6rem; }
+  .panel-header p  { font-size: 0.95rem; }
 
+  /* Stats */
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.875rem;
+    gap: 0.75rem;
   }
-  .stat-card { padding: 1.1rem; }
-  .stat-card .value { font-size: 1.75rem; }
+  .stat-card { padding: 1rem; }
+  .stat-card .value { font-size: 1.6rem; }
 
+  /* Gráficas */
   .charts-grid  { grid-template-columns: 1fr; gap: 1rem; }
   .tables-grid  { grid-template-columns: 1fr; gap: 1rem; }
 
-  .form-card { padding: 1.25rem 1rem; border-radius: 1rem; }
+  /* Formularios */
+  .form-card { padding: 1.1rem 0.875rem; border-radius: 0.875rem; }
   .form-row  { grid-template-columns: 1fr; gap: 0; }
-  .form-group { margin-bottom: 1.1rem; }
+  .form-group { margin-bottom: 1rem; }
   .resources-grid { grid-template-columns: 1fr; }
-  .btn-submit { font-size: 1rem; padding: 0.875rem 1.5rem; }
+  .btn-submit { font-size: 0.95rem; padding: 0.875rem 1rem; }
 
+  /* Tablas — scroll horizontal */
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 0.875rem;
+  }
+
+  /* Toolbar */
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  .toolbar-left {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.625rem;
+  }
+  .input-buscar  { width: 100%; }
+  .select-filtro { width: 100%; }
+  .btn-nuevo     { width: 100%; justify-content: center; }
+
+  /* Tabla de eventos del dashboard */
   .table-card-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
-    padding: 1rem 1.25rem 0.875rem;
+    padding: 1rem 1rem 0.875rem;
   }
+  .events-table { min-width: 520px; }
   .events-table th,
-  .events-table td { padding: 0.75rem 1rem; font-size: 0.82rem; }
+  .events-table td { padding: 0.7rem 0.875rem; font-size: 0.82rem; }
 
+  /* Toast */
   .toast-container { bottom: 1rem; right: 0.75rem; left: 0.75rem; }
   .toast { max-width: 100%; }
+
+  /* Guía de sección */
+  .guia-seccion { padding: 0.875rem 1rem; margin-bottom: 1.25rem; }
+  .guia-seccion-texto { font-size: 0.92rem; }
 }
 
 /* Botón flotante — oculto en desktop */
@@ -1194,4 +1234,84 @@ body {
   .bsp-dt-filter-item { min-width: 100%; }
   .bsp-dt-filter-clear { align-self: stretch; justify-content: center; }
   .bsp-dt-export-group { flex-wrap: wrap; }
+}
+
+/* ── Prevenir desbordamiento horizontal global en móvil ── */
+@media (max-width: 768px) {
+  html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
+  /* Todas las tablas del panel con scroll horizontal */
+  .table-wrap,
+  .pqr-table-wrap,
+  .recursos-layout .table-wrap,
+  [class*="-table-wrap"] {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Evitar que elementos fijos rompan el layout */
+  .panel {
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  /* Toolbar siempre en columna */
+  .toolbar,
+  .pqr-toolbar,
+  .bsp-dt-topbar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .toolbar-left,
+  .pqr-toolbar-left,
+  .bsp-dt-topbar-left,
+  .bsp-dt-topbar-right {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100%;
+  }
+  .input-buscar,
+  .select-filtro,
+  .pqr-input-buscar,
+  .pqr-select-filtro,
+  .bsp-dt-search {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .btn-nuevo,
+  .btn-submit,
+  .gr-btn-generar {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* Modales siempre al 95% del ancho */
+  .modal,
+  .modal-calif,
+  .modal-recurso,
+  .pqr-modal,
+  .gr-modal-box,
+  [class*="-modal-box"],
+  [class*="-modal"]:not(.modal-overlay):not([class*="-overlay"]) {
+    width: min(95vw, 560px) !important;
+    max-height: 92vh !important;
+    overflow-y: auto !important;
+  }
+  .modal-footer,
+  .pqr-modal-footer,
+  .sed-modal-footer {
+    flex-direction: column-reverse !important;
+  }
+  .btn-cancelar,
+  .btn-guardar,
+  .pqr-btn-cancelar-modal,
+  .pqr-btn-guardar-respuesta,
+  .sed-btn-guardar,
+  .sed-btn-cancelar {
+    width: 100% !important;
+    justify-content: center !important;
+  }
 }

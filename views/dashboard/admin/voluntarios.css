@@ -524,3 +524,27 @@
   .voluntarios-table tbody td:nth-child(4) { display: none; }
   .evento-selector-card { flex-direction: column; align-items: stretch; }
 }
+
+/* ── Responsive voluntarios adicional ── */
+@media (max-width: 1024px) {
+  .content-layout.con-panel { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .evento-selector-card { flex-direction: column; align-items: stretch; }
+  .select-evento { min-width: 100%; }
+  .table-wrap { overflow-x: auto; }
+  .voluntarios-table { min-width: 560px; }
+  .voluntarios-table thead th:nth-child(3),
+  .voluntarios-table tbody td:nth-child(3) { display: none; }
+  .modal-calif { padding: 1.5rem; width: min(95vw, 500px); }
+  .modal-footer { flex-direction: column-reverse; }
+  .btn-cancelar, .btn-guardar { width: 100%; justify-content: center; }
+  .resumen-grid { grid-template-columns: 1fr; }
+  .panel-lateral { display: none !important; }
+}
+@media (max-width: 640px) {
+  .evento-info-bar { gap: 0.75rem; }
+  .evento-info-item { font-size: 0.85rem; }
+  .voluntarios-table thead th:nth-child(4),
+  .voluntarios-table tbody td:nth-child(4) { display: none; }
+}

@@ -692,3 +692,29 @@
     font-size: 1.5rem;
   }
 }
+
+/* ── Responsive PQR adicional ── */
+@media (max-width: 1024px) {
+  .stats-pqr { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 768px) {
+  .pqr-input-buscar { width: 100%; }
+  .pqr-select-filtro { width: 100%; }
+  .pqr-table-wrap { overflow-x: auto; }
+  .pqr-table { min-width: 700px; }
+  .pqr-table thead th:nth-child(4),
+  .pqr-table tbody td:nth-child(4) { display: none; }
+  .pqr-modal { width: min(95vw, 680px); }
+  .pqr-meta-grid { grid-template-columns: 1fr; }
+  .pqr-modal-footer { flex-direction: column-reverse; padding: 1rem; }
+  .pqr-btn-cancelar-modal, .pqr-btn-guardar-respuesta { width: 100%; justify-content: center; }
+}
+@media (max-width: 640px) {
+  .stats-pqr { grid-template-columns: 1fr 1fr; }
+  .stat-pqr-value { font-size: 1.6rem; }
+  .pqr-header-text h2 { font-size: 1.5rem; }
+}
+@media (max-width: 480px) {
+  .stats-pqr { grid-template-columns: 1fr; }
+  .pqr-topbar { flex-direction: column; align-items: flex-start; }
+}
