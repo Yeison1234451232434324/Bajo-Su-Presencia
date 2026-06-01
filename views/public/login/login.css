@@ -122,6 +122,26 @@ body {
   margin: 20px 0 15px;
 }
 
+/* ── Toggle mostrar/ocultar contraseña ── */
+.toggle-password {
+  position: absolute;
+  right: 45px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: white;
+  font-size: 18px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  z-index: 2;
+  transition: opacity 0.2s;
+}
+.toggle-password:hover { opacity: 0.75; }
+.toggle-password i { font-size: 1.15rem; line-height: 1; }
+
 /* ── Responsive ── */
 @media (max-width: 480px) {
   .container {

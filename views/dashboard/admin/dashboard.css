@@ -176,8 +176,8 @@
 .table-card--full {
   width: 100%;
   margin-top: 0;
-  padding: 0;                /* quitar padding para que la tabla llegue a los bordes */
-  overflow: hidden;
+  padding: 0;
+  overflow: visible;  /* permitir que la toolbar y el contenido sean visibles */
 }
 .table-card-header {
   display: flex;
@@ -209,6 +209,7 @@
 
 .events-table-wrap {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .events-table {
   width: 100%;
@@ -271,13 +272,15 @@
 
 /* Barra de herramientas */
 .dash-dt-toolbar {
-  display: flex;
+  display: flex !important;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 0.75rem;
   padding: 1rem 1.75rem 0.75rem;
   border-bottom: 1px solid #f3f0e8;
+  background: #faf8f3;
+  border-radius: 0 0 0 0;
 }
 
 .dash-dt-toolbar-left,
