@@ -155,3 +155,23 @@
 .disp-vacio i { font-size: 3rem; color: #d1d5db; }
 .disp-vacio p { font-size: 1rem; font-weight: 600; }
 .disp-vacio small { font-size: 0.88rem; }
+
+/* ── Responsive disponibilidad ── */
+@media (max-width: 768px) {
+  .disp-counters { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+  .disp-counter-card { padding: 1rem; }
+  .disp-grid { grid-template-columns: 1fr; }
+  .disp-card { padding: 1.1rem; }
+  .disp-card-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+  .disp-card-estado { flex-direction: row !important; flex-wrap: wrap; gap: 0.4rem; align-self: flex-start; }
+  .btn-disp-accion { width: 100%; justify-content: center; }
+}
+@media (max-width: 640px) {
+  .disp-counters { grid-template-columns: 1fr 1fr; }
+  .disp-counter-value { font-size: 1.6rem; }
+  .disp-evento-nombre { font-size: 1rem; }
+  .disp-evento-meta { font-size: 0.85rem; }
+}
+@media (max-width: 480px) {
+  .disp-counters { grid-template-columns: 1fr; }
+}

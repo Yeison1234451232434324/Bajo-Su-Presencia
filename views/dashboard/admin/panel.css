@@ -203,6 +203,21 @@ body {
   color: #fca5a5;
 }
 
+/* En móvil el logout va en flujo normal, no absoluto */
+@media (max-width: 768px) {
+  .sidebar ul li.logout-li {
+    position: static;
+    width: 90%;
+    margin: 0.6rem auto;
+    left: auto;
+    bottom: auto;
+  }
+  /* Dar espacio al final de la lista para que no quede pegado */
+  .sidebar ul {
+    padding-bottom: 1.5rem;
+  }
+}
+
 /* ── Tooltip (solo cuando está colapsado) ── */
 .sidebar ul li .tooltip {
   position: absolute;
@@ -595,6 +610,21 @@ body {
     z-index: 101;
     overflow-y: auto;
     overflow-x: hidden;
+    height: 100vh;
+    /* Asegurar que el contenido interno fluya normalmente */
+    display: flex;
+    flex-direction: column;
+  }
+  .sidebar .top {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 1rem;
+  }
+  .sidebar ul {
+    flex: 1;
+    overflow-y: visible;
+    padding-bottom: 1rem;
   }
   .sidebar.active {
     transform: translateX(0);

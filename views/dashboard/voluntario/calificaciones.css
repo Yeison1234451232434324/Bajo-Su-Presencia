@@ -197,3 +197,23 @@
 .hist-vacio i { font-size: 3rem; color: #d1d5db; }
 .hist-vacio p { font-size: 1rem; font-weight: 600; }
 .hist-vacio small { font-size: 0.88rem; }
+
+/* ── Responsive calificaciones ── */
+@media (max-width: 768px) {
+  .cal-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+  .cal-stat-card { padding: 1rem; }
+  .cal-dist-card { padding: 1.25rem; }
+  .hist-card { padding: 1rem; }
+  .hist-card-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  .hist-nota-grande { align-self: flex-end; font-size: 1.75rem; }
+  .hist-observacion { padding: 0.75rem; }
+}
+@media (max-width: 640px) {
+  .cal-stats-grid { grid-template-columns: 1fr 1fr; }
+  .cal-stat-value { font-size: 1.6rem; }
+  .dist-fila { gap: 0.35rem; }
+  .dist-label { width: 2rem; font-size: 0.78rem; }
+}
+@media (max-width: 480px) {
+  .cal-stats-grid { grid-template-columns: 1fr; }
+}

@@ -314,3 +314,19 @@
   .rep-evento-card { flex-direction: column; }
   .rep-ev-icon { width: 40px; height: 40px; }
 }
+
+/* ── Responsive reporte ── */
+@media (max-width: 768px) {
+  .rep-eventos-wrap { padding: 1.25rem; }
+  .rep-grid-eventos { grid-template-columns: 1fr; }
+  .rep-form-card { padding: 1.25rem; }
+  .rep-banner { padding: 1rem 1.25rem; flex-direction: column; gap: 0.5rem; }
+  .rep-banner-titulo { font-size: 1.3rem; }
+  .rep-banner-meta { flex-wrap: wrap; gap: 0.5rem; }
+  .rep-form-footer { flex-direction: column-reverse; }
+  .rep-btn-guardar, .rep-btn-cancelar { width: 100%; justify-content: center; }
+}
+@media (max-width: 640px) {
+  .rep-evento-card { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+  .rep-ev-icon { align-self: flex-start; }
+}

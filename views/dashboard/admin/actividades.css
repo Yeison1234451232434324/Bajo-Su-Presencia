@@ -432,3 +432,21 @@
   .act-ev-icon { width: 40px; height: 40px; }
   .act-item-header { flex-direction: column; align-items: flex-start; gap: 0.4rem; }
 }
+
+/* ── Responsive actividades ── */
+@media (max-width: 768px) {
+  .act-eventos-wrap { padding: 1.25rem; }
+  .act-grid-eventos { grid-template-columns: 1fr; }
+  .act-banner { padding: 1rem 1.25rem; flex-direction: column; gap: 0.5rem; }
+  .act-banner-titulo { font-size: 1.3rem; }
+  .act-topbar { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+  .act-btn-nueva { width: 100%; justify-content: center; }
+  .act-lista-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  .act-item { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  .act-item-acciones { align-self: flex-end; }
+  .modal-actividad { width: min(95vw, 560px) !important; max-height: 92vh; overflow-y: auto; padding: 1.5rem; }
+}
+@media (max-width: 640px) {
+  .act-evento-card { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  .act-ev-stats { flex-wrap: wrap; gap: 0.5rem; }
+}
