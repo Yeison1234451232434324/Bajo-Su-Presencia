@@ -428,3 +428,78 @@
   background: #f0f4ff;
   border-color: #c7d2fe;
 }
+
+/* ── Filtros de fecha en toolbar ── */
+#filtro-desde,
+#filtro-hasta {
+  padding: 0.55rem 0.75rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.75rem;
+  font-family: var(--font-text);
+  font-size: 0.9rem;
+  color: var(--primary-dark);
+  background: #fff;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  max-width: 150px;
+}
+#filtro-desde:focus,
+#filtro-hasta:focus { border-color: var(--primary); }
+
+@media (max-width: 768px) {
+  #filtro-desde, #filtro-hasta { max-width: 100%; }
+}
+
+/* ── Grupos de filtros de fecha ── */
+.usr-fecha-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.usr-fecha-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.usr-fecha-input {
+  min-width: 130px;
+}
+
+/* Botón limpiar filtros */
+.btn-limpiar-usr {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.55rem 0.875rem;
+  border: 2px solid #fecaca;
+  border-radius: 0.75rem;
+  background: #fff;
+  color: #dc2626;
+  font-family: var(--font-text);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+  align-self: flex-end;
+}
+.btn-limpiar-usr:hover {
+  background: #fee2e2;
+}
+
+/* Ajuste del toolbar para que los grupos de fecha queden alineados */
+.toolbar-left {
+  align-items: flex-end;
+}
+
+@media (max-width: 768px) {
+  .usr-fecha-group { width: 100%; }
+  .usr-fecha-input { min-width: 100%; }
+  .btn-limpiar-usr { width: 100%; justify-content: center; }
+}

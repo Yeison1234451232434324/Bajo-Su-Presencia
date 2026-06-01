@@ -59,6 +59,8 @@ class BSPDataTable {
     this._wrapId       = this.containerId + '-bsp-dt';
     this._debounce     = null;
     this._xlsxLoaded   = false;
+    this.tableMode     = opts.tableMode || false;     // true = renderRow devuelve <tr>
+    this.tableClass    = opts.tableClass || '';       // clase CSS de la tabla
   }
 
   // ── Inicializar ──────────────────────────────────────────────────────────
@@ -371,10 +373,20 @@ class BSPDataTable {
       info.innerHTML = `Mostrando <strong>${start + 1}–${end}</strong> de <strong>${total}</strong> registro${total !== 1 ? 's' : ''}`;
     }
 
-    // Cuerpo
+    // Cuerpo — modo tabla o modo tarjetas
     if (total === 0) {
       body.innerHTML = this.emptyHTML;
+    } else if (this.tableMode) {
+      // Modo tabla: renderRow devuelve <tr>...</tr>
+      body.innerHTML = `<table class="${this.tableClass}" style="width:100%;border-collapse:collapse;">
+        <tbody>${page.map((item, i) =>
+          `<tr style="animation:bspDtFadeIn 0.25s ease ${i*25}ms both;">${
+            this.renderRow(item).replace(/^\s*<tr[^>]*>|<\/tr>\s*$/gi, '')
+          }</tr>`
+        ).join('')}</tbody>
+      </table>`;
     } else {
+      // Modo tarjetas (default)
       body.innerHTML = page.map((item, i) =>
         `<div class="bsp-dt-row-wrap" style="animation-delay:${i * 25}ms">${this.renderRow(item)}</div>`
       ).join('');
