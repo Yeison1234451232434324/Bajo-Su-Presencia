@@ -1,30 +1,25 @@
-/**
- * Usuarios Controller — con BSPDataTable v3
- * Maneja toda la lógica de la vista de gestión de usuarios (solo admin).
- * Depende de: UsuariosModel (usuarios.model.js)
+﻿/**
+ * Usuarios Controller — con paginación, filtros de fecha y selector de registros
  */
-
 document.addEventListener('DOMContentLoaded', () => {
 
-  // ── Verificar que sea admin ──────────────────────────────────────────────
   const sesion = JSON.parse(localStorage.getItem('usuarioLogueado') || '{}');
   if (sesion.rol !== 'Administrador') {
-    document.body.innerHTML = `
-      <div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:serif;flex-direction:column;gap:1rem;">
-        <h2 style="color:#1E3A8A;font-size:2rem;">Acceso Denegado</h2>
-        <p style="color:#6b7280;">Solo el administrador puede acceder a esta sección.</p>
-        <a href="../../public/login/login.html" style="color:#1E3A8A;font-weight:600;">Volver al inicio</a>
-      </div>`;
+    document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:serif;flex-direction:column;gap:1rem;"><h2 style="color:#1E3A8A;">Acceso Denegado</h2><a href="../../public/login/login.html" style="color:#1E3A8A;font-weight:600;">Volver al inicio</a></div>';
     return;
   }
 
   // ── Referencias DOM ──────────────────────────────────────────────────────
+  const tablaBody      = document.getElementById('usuarios-tbody');
   const modal          = document.getElementById('modal-usuario');
   const modalTitle     = document.getElementById('modal-title');
   const formUsuario    = document.getElementById('form-usuario');
   const btnNuevo       = document.getElementById('btn-nuevo-usuario');
   const btnCerrarModal = document.getElementById('btn-cerrar-modal');
   const btnCancelar    = document.getElementById('btn-cancelar');
+  const inputBuscar    = document.getElementById('input-buscar');
+  const filtroRol      = document.getElementById('filtro-rol');
+  const filtroEstado   = document.getElementById('filtro-estado');
   const modalError     = document.getElementById('modal-error');
   const passHint       = document.getElementById('pass-hint');
   const contTotal      = document.getElementById('cont-total');
@@ -33,9 +28,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalOverlay   = document.getElementById('modal-overlay');
 
   let editandoId = null;
-  let dtUsuarios = null;
+  let paginaActual = 1;
+  let registrosPorPagina = 10;
+  let datosFiltrados = [];
 
-  // ── Helpers de estilo ────────────────────────────────────────────────────
+  // ── Helpers ──────────────────────────────────────────────────────────────
   function rolBadge(rol) {
     const map = {
       'Administrador': '<span class="badge badge-blue">Administrador</span>',
@@ -54,131 +51,117 @@ document.addEventListener('DOMContentLoaded', () => {
     return map[rol] || '#6b7280';
   }
 
-  // ── Renderizar tabla con BSPDataTable ────────────────────────────────────
+  // ── Aplicar filtros y renderizar ─────────────────────────────────────────
   function renderTabla() {
-    const todos = UsuariosModel.getAll();
+    const buscar  = (inputBuscar?.value || '').toLowerCase();
+    const rol     = filtroRol?.value || '';
+    const estado  = filtroEstado?.value || '';
+    const desde   = document.getElementById('filtro-desde')?.value || '';
+    const hasta   = document.getElementById('filtro-hasta')?.value || '';
 
-    // Actualizar contadores (siempre sobre el total, sin filtros)
-    contTotal.textContent     = todos.length;
-    contActivos.textContent   = todos.filter(u => u.activo).length;
-    contInactivos.textContent = todos.filter(u => !u.activo).length;
+    let todos = UsuariosModel.getAll();
 
-    // Enriquecer con campo _estado para el filtro
-    const usuarios = todos.map(u => ({
-      ...u,
-      _estado: u.activo ? 'Activo' : 'Inactivo'
-    }));
+    // Actualizar contadores (siempre sobre el total sin filtros)
+    if (contTotal)     contTotal.textContent     = todos.length;
+    if (contActivos)   contActivos.textContent   = todos.filter(u => u.activo).length;
+    if (contInactivos) contInactivos.textContent = todos.filter(u => !u.activo).length;
 
-    function renderRow(u) {
-      const badgeRol    = rolBadge(u.rol);
-      const badgeEstado = u.activo
-        ? '<span class="badge badge-green">Activo</span>'
-        : '<span class="badge badge-red">Inactivo</span>';
+    // Aplicar filtros
+    datosFiltrados = todos.filter(u => {
+      if (buscar && !(
+        u.nombre.toLowerCase().includes(buscar) ||
+        u.username.toLowerCase().includes(buscar) ||
+        u.email.toLowerCase().includes(buscar)
+      )) return false;
+      if (rol && u.rol !== rol) return false;
+      if (estado === 'activo'   && !u.activo) return false;
+      if (estado === 'inactivo' &&  u.activo) return false;
+      if (desde && u.creado < desde) return false;
+      if (hasta && u.creado > hasta) return false;
+      return true;
+    });
 
-      const btnToggle = u.id === 1
-        ? `<button class="btn-accion btn-toggle" disabled title="No se puede desactivar al admin principal">
-             <i class="bx bx-lock"></i>
-           </button>`
-        : `<button class="btn-accion btn-toggle" onclick="toggleUsuario(${u.id})"
-             title="${u.activo ? 'Desactivar' : 'Activar'} usuario">
-             <i class="bx ${u.activo ? 'bx-toggle-right' : 'bx-toggle-left'}"></i>
-           </button>`;
+    paginaActual = 1;
+    renderPagina();
+  }
 
-      const avatar      = u.nombre.charAt(0).toUpperCase();
-      const avatarColor = colorAvatar(u.rol);
+  // ── Renderizar página actual ─────────────────────────────────────────────
+  function renderPagina() {
+    if (!tablaBody) return;
 
-      // Cada fila se envuelve en una tabla para mantener el estilo existente
-      return `
-        <table class="usuarios-table bsp-dt-inner-table" style="margin-bottom:0;">
-          <tbody>
-            <tr class="${u.activo ? '' : 'fila-inactiva'}">
-              <td>
-                <div class="user-cell">
-                  <div class="user-avatar-sm" style="background:${avatarColor}">${avatar}</div>
-                  <div>
-                    <p class="user-nombre">${u.nombre}</p>
-                    <p class="user-username">@${u.username}</p>
-                  </div>
-                </div>
-              </td>
-              <td>${u.email}</td>
-              <td>${badgeRol}</td>
-              <td>${badgeEstado}</td>
-              <td>${u.creado}</td>
-              <td>
-                <div class="acciones-cell">
-                  <button class="btn-accion btn-editar" onclick="abrirEditar(${u.id})" title="Editar usuario">
-                    <i class="bx bx-edit"></i>
-                  </button>
-                  ${btnToggle}
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>`;
+    const total  = datosFiltrados.length;
+    const todos  = UsuariosModel.getAll().length;
+    const pages  = Math.max(1, Math.ceil(total / registrosPorPagina));
+    paginaActual = Math.min(paginaActual, pages);
+    const start  = (paginaActual - 1) * registrosPorPagina;
+    const end    = Math.min(start + registrosPorPagina, total);
+    const page   = datosFiltrados.slice(start, end);
+
+    // Info de registros
+    const info = document.getElementById('usr-info');
+    if (info) {
+      if (total === 0) {
+        info.innerHTML = '<span style="color:#9ca3af;font-style:italic;">Sin resultados para los filtros aplicados</span>';
+      } else if (total < todos) {
+        info.innerHTML = `Mostrando <strong>${start+1}–${end}</strong> de <strong>${total}</strong> filtrados <span style="color:#9ca3af;">(${todos} total)</span>`;
+      } else {
+        info.innerHTML = `Mostrando <strong>${start+1}–${end}</strong> de <strong>${total}</strong> registros`;
+      }
     }
 
-    if (!dtUsuarios) {
-      // Reemplazar la tabla existente con el DataTable
-      const tablaWrap = document.querySelector('.table-wrap');
-      if (tablaWrap) {
-        // Crear contenedor para el DT
-        const dtContainer = document.createElement('div');
-        dtContainer.id = 'usuarios-dt-container';
-        tablaWrap.parentNode.insertBefore(dtContainer, tablaWrap);
-        tablaWrap.remove();
-      }
-
-      // Agregar encabezado de columnas fijo
-      const thead = document.createElement('div');
-      thead.className = 'usuarios-dt-thead';
-      thead.innerHTML = `
-        <table class="usuarios-table" style="margin-bottom:0;">
-          <thead>
-            <tr>
-              <th>Usuario</th>
-              <th>Correo</th>
-              <th>Rol</th>
-              <th>Estado</th>
-              <th>Creado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-        </table>`;
-      const container = document.getElementById('usuarios-dt-container');
-      if (container) container.appendChild(thead);
-
-      // Crear contenedor para el DT body
-      const dtBody = document.createElement('div');
-      dtBody.id = 'usuarios-lista';
-      if (container) container.appendChild(dtBody);
-
-      dtUsuarios = new BSPDataTable({
-        containerId:  'usuarios-lista',
-        data:         usuarios,
-        pageSize:     10,
-        searchFields: ['nombre', 'username', 'email', 'rol', 'creado'],
-        filters: [
-          { key: 'rol',     label: 'Rol',    type: 'select', options: ['Administrador','Colaborador','Voluntario'] },
-          { key: '_estado', label: 'Estado', type: 'select', options: ['Activo','Inactivo'] },
-          { key: 'creado',  label: 'Desde',  type: 'date-from' },
-          { key: 'creado',  label: 'Hasta',  type: 'date-to' },
-        ],
-        renderRow,
-        exportable:   true,
-        exportName:   'usuarios',
-        exportFields: ['nombre', 'username', 'email', 'rol', '_estado', 'creado'],
-        exportLabels: ['Nombre', 'Usuario', 'Correo', 'Rol', 'Estado', 'Fecha Creación'],
-        emptyHTML:    `<div class="dt-empty"><i class="bx bx-group"></i><p>No se encontraron usuarios con esos criterios.</p></div>`
-      });
-      window.__bspDT['usuarios-lista'] = dtUsuarios;
-      dtUsuarios.init();
+    // Filas
+    if (total === 0) {
+      tablaBody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:2rem;color:#9ca3af;">No se encontraron usuarios con esos criterios.</td></tr>`;
     } else {
-      dtUsuarios.refresh(usuarios);
+      tablaBody.innerHTML = page.map(u => {
+        const badgeRol    = rolBadge(u.rol);
+        const badgeEstado = u.activo
+          ? '<span class="badge badge-green">Activo</span>'
+          : '<span class="badge badge-red">Inactivo</span>';
+        const btnToggle = u.id === 1
+          ? `<button class="btn-accion btn-toggle" disabled title="No se puede desactivar al admin principal"><i class="bx bx-lock"></i></button>`
+          : `<button class="btn-accion btn-toggle" onclick="toggleUsuario(${u.id})" title="${u.activo ? 'Desactivar' : 'Activar'} usuario"><i class="bx ${u.activo ? 'bx-toggle-right' : 'bx-toggle-left'}"></i></button>`;
+        const avatar      = u.nombre.charAt(0).toUpperCase();
+        const avatarColor = colorAvatar(u.rol);
+        return `<tr class="${u.activo ? '' : 'fila-inactiva'}">
+          <td><div class="user-cell">
+            <div class="user-avatar-sm" style="background:${avatarColor}">${avatar}</div>
+            <div><p class="user-nombre">${u.nombre}</p><p class="user-username">@${u.username}</p></div>
+          </div></td>
+          <td>${u.email}</td>
+          <td>${badgeRol}</td>
+          <td>${badgeEstado}</td>
+          <td>${u.creado}</td>
+          <td><div class="acciones-cell">
+            <button class="btn-accion btn-editar" onclick="abrirEditar(${u.id})" title="Editar usuario"><i class="bx bx-edit"></i></button>
+            ${btnToggle}
+          </div></td>
+        </tr>`;
+      }).join('');
+    }
+
+    // Paginación
+    const pag = document.getElementById('usr-pag');
+    if (pag) {
+      if (pages <= 1) { pag.innerHTML = ''; return; }
+      let html = '';
+      html += `<button class="bsp-dt-pag-btn bsp-dt-pag-nav" ${paginaActual===1?'disabled':''} onclick="window._usrGoPage(1)">«</button>`;
+      html += `<button class="bsp-dt-pag-btn bsp-dt-pag-nav" ${paginaActual===1?'disabled':''} onclick="window._usrGoPage(${paginaActual-1})">‹</button>`;
+      for (let i = Math.max(1, paginaActual-2); i <= Math.min(pages, paginaActual+2); i++) {
+        html += `<button class="bsp-dt-pag-btn ${i===paginaActual?'bsp-dt-pag-active':''}" onclick="window._usrGoPage(${i})">${i}</button>`;
+      }
+      html += `<button class="bsp-dt-pag-btn bsp-dt-pag-nav" ${paginaActual===pages?'disabled':''} onclick="window._usrGoPage(${paginaActual+1})">›</button>`;
+      html += `<button class="bsp-dt-pag-btn bsp-dt-pag-nav" ${paginaActual===pages?'disabled':''} onclick="window._usrGoPage(${pages})">»</button>`;
+      pag.innerHTML = html;
     }
   }
 
-  // ── Abrir modal CREAR ────────────────────────────────────────────────────
+  window._usrGoPage = function(n) {
+    paginaActual = n;
+    renderPagina();
+  };
+
+  // ── Modal CREAR ──────────────────────────────────────────────────────────
   function abrirCrear() {
     editandoId = null;
     modalTitle.textContent = 'Nuevo Usuario';
@@ -190,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
     modalOverlay.classList.add('visible');
   }
 
-  // ── Abrir modal EDITAR ───────────────────────────────────────────────────
+  // ── Modal EDITAR ─────────────────────────────────────────────────────────
   window.abrirEditar = function(id) {
     const u = UsuariosModel.getById(id);
     if (!u) return;
@@ -208,7 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
     modalOverlay.classList.add('visible');
   };
 
-  // ── Cerrar modal ─────────────────────────────────────────────────────────
   function cerrarModal() {
     modal.classList.remove('visible');
     modalOverlay.classList.remove('visible');
@@ -216,11 +198,10 @@ document.addEventListener('DOMContentLoaded', () => {
     editandoId = null;
   }
 
-  // ── Submit del formulario ────────────────────────────────────────────────
+  // ── Submit formulario ────────────────────────────────────────────────────
   formUsuario.addEventListener('submit', (e) => {
     e.preventDefault();
     modalError.style.display = 'none';
-
     const data = {
       nombre:   document.getElementById('campo-nombre').value,
       username: document.getElementById('campo-username').value,
@@ -228,17 +209,14 @@ document.addEventListener('DOMContentLoaded', () => {
       rol:      document.getElementById('campo-rol').value,
       password: document.getElementById('campo-password').value
     };
-
     const resultado = editandoId === null
       ? UsuariosModel.create(data)
       : UsuariosModel.update(editandoId, data);
-
     if (!resultado.ok) {
       modalError.textContent   = resultado.error;
       modalError.style.display = 'block';
       return;
     }
-
     cerrarModal();
     renderTabla();
     showToast(
@@ -253,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.toggleUsuario = function(id) {
     const resultado = UsuariosModel.toggleActivo(id);
     if (!resultado.ok) {
-      showToastError('No permitido', resultado.error);
+      showToast('No permitido', resultado.error);
       return;
     }
     renderTabla();
@@ -263,28 +241,37 @@ document.addEventListener('DOMContentLoaded', () => {
     );
   };
 
-  // ── Toast de error ───────────────────────────────────────────────────────
-  function showToastError(title, desc) {
-    let container = document.getElementById('toastContainer');
-    if (!container) {
-      container = document.createElement('div');
-      container.id        = 'toastContainer';
-      container.className = 'toast-container';
-      document.body.appendChild(container);
-    }
-    const toast = document.createElement('div');
-    toast.className = 'toast toast-error';
-    toast.innerHTML = `<div class="toast-title">❌ ${title}</div><div class="toast-desc">${desc}</div>`;
-    container.appendChild(toast);
-    setTimeout(() => toast.remove(), 4000);
-  }
-
   // ── Event listeners ──────────────────────────────────────────────────────
   btnNuevo.addEventListener('click', abrirCrear);
   btnCerrarModal.addEventListener('click', cerrarModal);
   btnCancelar.addEventListener('click', cerrarModal);
   modalOverlay.addEventListener('click', cerrarModal);
 
-  // ── Render inicial ───────────────────────────────────────────────────────
+  inputBuscar.addEventListener('input', renderTabla);
+  filtroRol.addEventListener('change', renderTabla);
+  filtroEstado.addEventListener('change', renderTabla);
+  document.getElementById('filtro-desde')?.addEventListener('change', renderTabla);
+  document.getElementById('filtro-hasta')?.addEventListener('change', renderTabla);
+
+  // Selector de registros por página
+  document.getElementById('usr-page-size')?.addEventListener('change', (e) => {
+    registrosPorPagina = parseInt(e.target.value);
+    paginaActual = 1;
+    renderPagina();
+  });
+
+  // Limpiar todos los filtros
+  document.getElementById('btn-limpiar-filtros')?.addEventListener('click', () => {
+    inputBuscar.value = '';
+    filtroRol.value   = '';
+    filtroEstado.value = '';
+    const d = document.getElementById('filtro-desde');
+    const h = document.getElementById('filtro-hasta');
+    if (d) d.value = '';
+    if (h) h.value = '';
+    renderTabla();
+  });
+
+  // ── Render inicial ────────────────────────────────────────────────────────
   renderTabla();
 });
