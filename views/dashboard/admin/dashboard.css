@@ -264,3 +264,140 @@
     font-size: 0.82rem;
   }
 }
+
+/* ══════════════════════════════════════════════════
+   DATATABLE — Próximos Eventos (sección 2.9)
+══════════════════════════════════════════════════ */
+
+/* Barra de herramientas */
+.dash-dt-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 1rem 1.75rem 0.75rem;
+  border-bottom: 1px solid #f3f0e8;
+}
+
+.dash-dt-toolbar-left,
+.dash-dt-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex-wrap: wrap;
+}
+
+.dash-dt-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.dash-dt-select {
+  padding: 0.4rem 0.625rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.5rem;
+  font-family: var(--font-text);
+  font-size: 0.88rem;
+  color: var(--primary-dark);
+  background: #fff;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.dash-dt-select:focus { border-color: var(--primary); }
+
+/* Botón CSV */
+.dash-dt-btn-csv {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  border: 2px solid #a7f3d0;
+  border-radius: 0.5rem;
+  background: #fff;
+  color: #059669;
+  font-family: var(--font-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.dash-dt-btn-csv:hover { background: #059669; color: #fff; border-color: #059669; }
+
+/* Campo de búsqueda */
+.dash-dt-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.dash-dt-search-icon {
+  position: absolute;
+  left: 0.625rem;
+  color: #9ca3af;
+  pointer-events: none;
+}
+.dash-dt-search {
+  padding: 0.4rem 0.75rem 0.4rem 2rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.625rem;
+  font-family: var(--font-text);
+  font-size: 0.88rem;
+  color: var(--primary-dark);
+  background: #fff;
+  outline: none;
+  width: 200px;
+  transition: border-color 0.2s, width 0.3s;
+}
+.dash-dt-search:focus {
+  border-color: var(--primary);
+  width: 240px;
+}
+.dash-dt-search::placeholder { color: #9ca3af; }
+
+/* Info de registros */
+.dash-dt-info {
+  padding: 0.5rem 1.75rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.dash-dt-info strong { color: var(--primary-dark); }
+
+/* Columnas ordenables */
+.dash-dt-sortable {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+.dash-dt-sortable:hover { background: rgba(255,255,255,0.08); }
+
+.dash-sort-icon {
+  font-size: 0.75rem;
+  margin-left: 0.3rem;
+  opacity: 0.6;
+}
+
+/* Footer con paginación */
+.dash-dt-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.875rem 1.75rem;
+  border-top: 1px solid #f3f0e8;
+}
+
+.dash-dt-pag {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dash-dt-toolbar { flex-direction: column; align-items: stretch; }
+  .dash-dt-toolbar-left,
+  .dash-dt-toolbar-right { justify-content: space-between; }
+  .dash-dt-search { width: 100% !important; }
+  .dash-dt-footer { justify-content: center; }
+}
