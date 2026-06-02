@@ -58,20 +58,22 @@ body {
   padding: 0.4rem 0.8rem;
   transition: width 0.5s ease;
   z-index: 100;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
-
-/* Scrollbar delgado */
-.sidebar::-webkit-scrollbar { width: 4px; }
-.sidebar::-webkit-scrollbar-track { background: transparent; }
-.sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
-.sidebar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
 
 /* Expandido */
 .sidebar.active { width: var(--sidebar-w); }
 
 /* ── Logo ── */
+.sidebar .top {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
 .sidebar .top .logo {
   color: white;
   display: flex;
@@ -147,14 +149,27 @@ body {
 /* ── Nav list ── */
 .sidebar ul {
   margin-top: 0.5rem;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.2) transparent;
 }
+.sidebar ul::-webkit-scrollbar { width: 4px; }
+.sidebar ul::-webkit-scrollbar-track { background: transparent; }
+.sidebar ul::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+
 .sidebar ul li {
   position: relative;
   list-style: none;
   height: 50px;
   width: 90%;
-  margin: 0.6rem auto;
+  margin: 0.4rem auto;
   line-height: 50px;
+  flex-shrink: 0;
 }
 .sidebar ul li a {
   color: rgba(255,255,255,0.75);
@@ -196,11 +211,11 @@ body {
 
 /* ── Logout al fondo ── */
 .sidebar ul li.logout-li {
-  position: absolute;
-  bottom: 1rem;
+  margin-top: auto;
   width: 90%;
-  margin: 0 auto;
-  left: 5%;
+  margin-left: auto;
+  margin-right: auto;
+  position: static;
 }
 .sidebar ul li.logout-li a:hover {
   background: rgba(239,68,68,0.20);
@@ -514,9 +529,22 @@ body {
     width: 260px !important;
     left: -260px !important;
     transition: left 0.3s ease !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    z-index: 400 !important;
+  }
+  .sidebar .top {
+    flex: 1;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 0;
+  }
+  .sidebar ul {
+    flex: 1;
+    min-height: 0;
     overflow-y: auto !important;
     overflow-x: hidden !important;
-    z-index: 400 !important;
   }
   .sidebar.mobile-open { left: 0 !important; }
   .sidebar.mobile-open .top .logo { opacity: 1; }

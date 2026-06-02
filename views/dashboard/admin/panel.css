@@ -62,12 +62,21 @@ body {
   transition: width 0.5s ease;
   z-index: 100;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Expandido */
 .sidebar.active { width: var(--sidebar-w); }
 
 /* ── Logo ── */
+.sidebar .top {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;          /* necesario para que flex-child haga scroll */
+}
+
 .sidebar .top .logo {
   color: white;
   display: flex;
@@ -143,14 +152,31 @@ body {
 /* ── Nav list ── */
 .sidebar ul {
   margin-top: 0.5rem;
+  flex: 1;
+  min-height: 0;          /* necesario para que overflow-y funcione en flex */
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  /* Scrollbar discreta */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.2) transparent;
 }
+.sidebar ul::-webkit-scrollbar { width: 4px; }
+.sidebar ul::-webkit-scrollbar-track { background: transparent; }
+.sidebar ul::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.2);
+  border-radius: 4px;
+}
+
 .sidebar ul li {
   position: relative;
   list-style: none;
   height: 50px;
   width: 90%;
-  margin: 0.6rem auto;
+  margin: 0.4rem auto;
   line-height: 50px;
+  flex-shrink: 0;
 }
 .sidebar ul li a {
   color: rgba(255,255,255,0.75);
@@ -192,29 +218,22 @@ body {
 
 /* ── Logout al fondo ── */
 .sidebar ul li.logout-li {
-  position: absolute;
-  bottom: 1rem;
+  margin-top: auto;
   width: 90%;
-  margin: 0 auto;
-  left: 5%;
+  margin-left: auto;
+  margin-right: auto;
+  position: static;     /* quitar absolute que causaba solapamientos */
 }
 .sidebar ul li.logout-li a:hover {
   background: rgba(239,68,68,0.20);
   color: #fca5a5;
 }
 
-/* En móvil el logout va en flujo normal, no absoluto */
+/* En móvil el logout va en flujo normal — ya es position: static por defecto */
 @media (max-width: 768px) {
   .sidebar ul li.logout-li {
-    position: static;
     width: 90%;
-    margin: 0.6rem auto;
-    left: auto;
-    bottom: auto;
-  }
-  /* Dar espacio al final de la lista para que no quede pegado */
-  .sidebar ul {
-    padding-bottom: 1.5rem;
+    margin: 0.4rem auto;
   }
 }
 
@@ -251,8 +270,14 @@ body {
   flex-direction: column;
   align-items: center;
   transition: margin-left 0.5s ease;
+  width: calc(100% - var(--sidebar-min-w));
+  max-width: calc(100% - var(--sidebar-min-w));
 }
-.main.sidebar-open { margin-left: var(--sidebar-w); }
+.main.sidebar-open {
+  margin-left: var(--sidebar-w);
+  width: calc(100% - var(--sidebar-w));
+  max-width: calc(100% - var(--sidebar-w));
+}
 
 /* ══════════════════════════════════════════════════
    PANEL
@@ -608,10 +633,9 @@ body {
     transition: transform 0.35s ease;
     box-shadow: none;
     z-index: 101;
-    overflow-y: auto;
+    overflow-y: hidden;   /* el scroll lo maneja la ul interna */
     overflow-x: hidden;
     height: 100vh;
-    /* Asegurar que el contenido interno fluya normalmente */
     display: flex;
     flex-direction: column;
   }
@@ -620,10 +644,12 @@ body {
     display: flex;
     flex-direction: column;
     padding-bottom: 1rem;
+    min-height: 0;
   }
   .sidebar ul {
     flex: 1;
-    overflow-y: visible;
+    min-height: 0;
+    overflow-y: auto;
     padding-bottom: 1rem;
   }
   .sidebar.active {
