@@ -47,14 +47,6 @@ document.addEventListener("DOMContentLoaded", () => {
         </a>
         <span class="tooltip">Mis Calificaciones</span>
       </li>
-      <!-- Disponibilidad en eventos publicados -->
-      <li>
-        <a href="disponibilidad.html" id="nav-disponibilidad">
-          <i class="bx bx-calendar-check"></i>
-          <span class="nav-item">Mis Eventos</span>
-        </a>
-        <span class="tooltip">Mis Eventos</span>
-      </li>
       <!-- Actividades asignadas al voluntario -->
       <li>
         <a href="mis-actividades.html" id="nav-mis-actividades">
@@ -79,6 +71,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.body.insertAdjacentHTML('afterbegin', sidebarHTML);
 
+  // ── Botón flotante móvil ──────────────────────────────────────────────────
+  const mobileBtn = document.createElement('button');
+  mobileBtn.className   = 'mobile-menu-btn';
+  mobileBtn.id          = 'mobile-menu-btn';
+  mobileBtn.setAttribute('aria-label', 'Abrir menú');
+  mobileBtn.innerHTML   = '<i class="bx bx-menu"></i>';
+  document.body.appendChild(mobileBtn);
+
   // ── Overlay para móvil ────────────────────────────────────────────────────
   const overlay = document.createElement('div');
   overlay.className = 'sidebar-overlay';
@@ -86,26 +86,31 @@ document.addEventListener("DOMContentLoaded", () => {
   document.body.appendChild(overlay);
 
   // ── Toggle sidebar ────────────────────────────────────────────────────────
-  document.getElementById('btn').addEventListener('click', () => {
+  function toggleSidebar() {
     const sidebar  = document.getElementById('sidebar');
     const main     = document.getElementById('main');
     const isMobile = window.innerWidth <= 768;
-    sidebar.classList.toggle('active');
+
     if (isMobile) {
-      overlay.classList.toggle('active', sidebar.classList.contains('active'));
+      const abierto = sidebar.classList.toggle('mobile-open');
+      overlay.classList.toggle('active', abierto);
     } else {
+      sidebar.classList.toggle('active');
       main.classList.toggle('sidebar-open');
     }
-  });
+  }
+
+  document.getElementById('btn').addEventListener('click', toggleSidebar);
+  mobileBtn.addEventListener('click', toggleSidebar);
+
   overlay.addEventListener('click', () => {
-    document.getElementById('sidebar').classList.remove('active');
+    document.getElementById('sidebar').classList.remove('mobile-open');
     overlay.classList.remove('active');
   });
 
   // ── Marcar ítem activo según la página actual ─────────────────────────────
   const path = window.location.pathname;
   if      (path.includes("calificaciones.html"))  document.getElementById("nav-calificaciones")?.parentElement.classList.add("active-item");
-  else if (path.includes("disponibilidad.html"))    document.getElementById("nav-disponibilidad")?.parentElement.classList.add("active-item");
   else if (path.includes("mis-actividades.html"))   document.getElementById("nav-mis-actividades")?.parentElement.classList.add("active-item");
 
   // ── Cargar datos del usuario desde localStorage ───────────────────────────
