@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ============================================================
  * CONTROLADOR: eventos.controller.js
  * ============================================================
@@ -10,64 +10,137 @@
  * Flujo:
  *   1. Al cargar la página, lee los recursos disponibles del inventario
  *      y los muestra como tarjetas seleccionables.
- *   2. El admin selecciona recursos y define la cantidad a usar.
+ *   2. El usuario selecciona recursos y define la cantidad a usar.
  *   3. Al publicar, el evento se guarda con los recursos seleccionados
- *      y también se sincroniza con bsp_eventos_vol (voluntarios/recursos).
+ *      y también se sincroniza con bsp_eventos_vol (voluntarios).
  *   4. Se muestra la lista de eventos publicados debajo del formulario.
+ *   5. En edición, los recursos del evento pueden modificarse.
  * ============================================================
  */
 
 document.addEventListener('DOMContentLoaded', () => {
 
   // ── Referencias DOM ──────────────────────────────────────────────────────
-  const form            = document.getElementById('form-evento');
-  const recursosGrid    = document.getElementById('recursos-grid');
-  const sinRecursos     = document.getElementById('sin-recursos-msg');
-  const listaEventos    = document.getElementById('lista-eventos-publicados');
+  const form             = document.getElementById('form-evento');
+  const recursosGrid     = document.getElementById('recursos-grid');
+  const sinRecursos      = document.getElementById('sin-recursos-msg');
+  const listaEventos     = document.getElementById('lista-eventos-publicados');
   const contadorRecursos = document.getElementById('contador-recursos');
 
-  // Mapa interno: recursoId → cantidad seleccionada por el admin
-  // Se actualiza cada vez que el admin cambia un input de cantidad
+  // Rol del usuario activo (los colaboradores no pueden eliminar)
+  const _rolActual = (JSON.parse(localStorage.getItem('usuarioLogueado') || '{}')).rol || '';
+  const _esColaborador = _rolActual === 'Colaborador';
+
+  // Mapa de recursos seleccionados en el formulario de creación
   const seleccionados = {};
+  // Mapa de recursos seleccionados en el modal de edición
+  const seleccionadosEdicion = {};
+
+  // Rango permitido para horas de eventos
+  const H_MIN = '06:00', H_MAX = '21:00';
+
+  // ── Helpers de validación DOM ────────────────────────────────────────────
+  function _err(id, msg) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.add('campo-invalido');
+    const box = el.closest('.form-group, .sed-field') || el.parentElement;
+    let s = box.querySelector('.campo-error');
+    if (!s) { s = document.createElement('span'); s.className = 'campo-error'; box.appendChild(s); }
+    s.textContent = msg;
+  }
+  function _ok(...ids) {
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('campo-invalido');
+      const box = el.closest('.form-group, .sed-field') || el.parentElement;
+      const s = box.querySelector('.campo-error');
+      if (s) s.remove();
+    });
+  }
+
+  // Mapa de íconos por categoría (compartido entre creación y edición)
+  const ICON_MAP = {
+    'Mobiliario':    'bx-chair',
+    'Audio y Video': 'bx-microphone',
+    'Iluminación':   'bx-bulb',
+    'Papelería':     'bx-file',
+    'Cocina':        'bx-bowl-hot',
+    'Otros':         'bx-package'
+  };
 
   // ════════════════════════════════════════════════════════════════
-  // 1. CARGAR RECURSOS DEL INVENTARIO
+  // HELPERS DE TIEMPO
   // ════════════════════════════════════════════════════════════════
 
-  /**
-   * Lee RecursosModel y renderiza las tarjetas de recursos disponibles.
-   * Solo muestra los que tienen disponible = true y cantidad > 0.
-   */
+  /** Convierte "10:00 AM" o "10:00" → "10:00" (formato 24h para <input type="time">) */
+  function convertTo24h(str) {
+    if (!str) return '';
+    str = str.trim();
+    // Ya está en formato HH:MM
+    if (/^\d{1,2}:\d{2}$/.test(str)) {
+      const [h, m] = str.split(':');
+      return `${h.padStart(2, '0')}:${m}`;
+    }
+    // Tiene AM/PM
+    const match = str.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+    if (match) {
+      let h = parseInt(match[1]);
+      const min = match[2], mer = match[3].toUpperCase();
+      if (mer === 'PM' && h !== 12) h += 12;
+      if (mer === 'AM' && h === 12) h = 0;
+      return `${String(h).padStart(2, '0')}:${min}`;
+    }
+    return str;
+  }
+
+  /** Separa un horario almacenado ("10:00 - 12:00" o "10:00 AM - 12:00 PM") en inicio y fin */
+  function parseHorario(horario) {
+    if (!horario) return { inicio: '', fin: '' };
+    const parts = horario.split(' - ');
+    if (parts.length >= 2) {
+      return {
+        inicio: convertTo24h(parts[0].trim()),
+        fin:    convertTo24h(parts[1].trim())
+      };
+    }
+    return { inicio: convertTo24h(parts[0].trim()), fin: '' };
+  }
+
+  /** Une los dos tiempos en la cadena de horario para guardar */
+  function combinarHorario(inicio, fin) {
+    if (!inicio && !fin) return '';
+    if (!fin)    return inicio;
+    if (!inicio) return fin;
+    return `${inicio} - ${fin}`;
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // 1. CARGAR RECURSOS DEL INVENTARIO (formulario de creación)
+  // ════════════════════════════════════════════════════════════════
+
   function cargarRecursos() {
-    // RecursosModel puede no estar cargado si el admin nunca visitó esa sección.
-    // En ese caso, el modelo se auto-inicializa con los datos por defecto.
-    const recursos = RecursosModel.getAll().filter(r => r.disponible && r.cantidad > 0);
+    if (!recursosGrid) return;
+
+    const todos = (typeof RecursosModel !== 'undefined')
+      ? RecursosModel.getAll().filter(r => r.disponible && r.cantidad > 0)
+      : [];
 
     recursosGrid.innerHTML = '';
 
-    if (recursos.length === 0) {
-      sinRecursos.style.display = 'block';
+    if (todos.length === 0) {
+      if (sinRecursos) sinRecursos.style.display = 'block';
       return;
     }
+    if (sinRecursos) sinRecursos.style.display = 'none';
 
-    sinRecursos.style.display = 'none';
-
-    recursos.forEach(r => {
-      // Ícono según categoría (mismo helper que recursos.controller.js)
-      const iconMap = {
-        'Mobiliario':    'bx-chair',
-        'Audio y Video': 'bx-microphone',
-        'Iluminación':   'bx-bulb',
-        'Papelería':     'bx-file',
-        'Cocina':        'bx-bowl-hot',
-        'Otros':         'bx-package'
-      };
-      const icono = iconMap[r.categoria] || 'bx-package';
-
-      const card = document.createElement('div');
-      card.className   = 'ev-recurso-card';
-      card.id          = `ev-rec-${r.id}`;
-      card.dataset.id  = r.id;
+    todos.forEach(r => {
+      const icono = ICON_MAP[r.categoria] || 'bx-package';
+      const card  = document.createElement('div');
+      card.className  = 'ev-recurso-card';
+      card.id         = `ev-rec-${r.id}`;
+      card.dataset.id = r.id;
 
       card.innerHTML = `
         <div class="ev-rec-check">
@@ -81,19 +154,12 @@ document.addEventListener('DOMContentLoaded', () => {
             <span class="badge badge-green ev-rec-stock">${r.cantidad} ${r.unidad}</span>
           </div>
           <p class="ev-rec-cat">${r.categoria}</p>
-          <!-- Input de cantidad, visible solo cuando el recurso está seleccionado -->
           <div class="ev-rec-qty" id="ev-qty-${r.id}" style="display:none;">
             <label for="qty-rec-${r.id}">Cantidad a usar:</label>
-            <input
-              type="number"
-              id="qty-rec-${r.id}"
-              class="ev-qty-input"
-              min="1"
-              max="${r.cantidad}"
-              value="1"
+            <input type="number" id="qty-rec-${r.id}" class="ev-qty-input"
+              min="1" max="${r.cantidad}" value="1"
               onchange="actualizarCantidad(${r.id}, this.value, ${r.cantidad})"
-              oninput="actualizarCantidad(${r.id}, this.value, ${r.cantidad})"
-            />
+              oninput="actualizarCantidad(${r.id}, this.value, ${r.cantidad})" />
             <span class="ev-qty-max">máx. ${r.cantidad}</span>
           </div>
         </div>`;
@@ -103,17 +169,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ════════════════════════════════════════════════════════════════
-  // 2. SELECCIÓN DE RECURSOS
+  // 2. SELECCIÓN DE RECURSOS (creación)
   // ════════════════════════════════════════════════════════════════
 
-  /**
-   * Activa o desactiva la selección de un recurso.
-   * Muestra/oculta el input de cantidad y actualiza el mapa seleccionados.
-   */
   window.toggleRecursoEvento = function(id) {
-    const card   = document.getElementById(`ev-rec-${id}`);
-    const chk    = document.getElementById(`chk-rec-${id}`);
-    const qtyDiv = document.getElementById(`ev-qty-${id}`);
+    const card     = document.getElementById(`ev-rec-${id}`);
+    const chk      = document.getElementById(`chk-rec-${id}`);
+    const qtyDiv   = document.getElementById(`ev-qty-${id}`);
     const qtyInput = document.getElementById(`qty-rec-${id}`);
 
     if (chk.checked) {
@@ -125,28 +187,20 @@ document.addEventListener('DOMContentLoaded', () => {
       qtyDiv.style.display = 'none';
       delete seleccionados[id];
     }
-
     actualizarContador();
   };
 
-  /**
-   * Actualiza la cantidad del recurso en el mapa seleccionados.
-   * Valida que no supere el stock disponible.
-   */
   window.actualizarCantidad = function(id, valor, max) {
     let cant = parseInt(valor) || 1;
     if (cant < 1)   cant = 1;
     if (cant > max) cant = max;
-
-    // Corregir el input si el valor estaba fuera de rango
     const input = document.getElementById(`qty-rec-${id}`);
     if (input) input.value = cant;
-
     seleccionados[id] = cant;
   };
 
-  /** Actualiza el badge contador de recursos seleccionados */
   function actualizarContador() {
+    if (!contadorRecursos) return;
     const total = Object.keys(seleccionados).length;
     contadorRecursos.textContent = total > 0
       ? `${total} recurso(s) seleccionado(s)`
@@ -155,44 +209,210 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ════════════════════════════════════════════════════════════════
-  // 3. PUBLICAR EVENTO
+  // 3. RECURSOS DEL MODAL DE EDICIÓN
   // ════════════════════════════════════════════════════════════════
 
-  /**
-   * Submit del formulario.
-   * Construye el array de recursos seleccionados con sus cantidades
-   * y llama a EventosModel.publicar().
-   */
+  /** Carga la grilla de recursos en el modal de edición, marcando los ya asignados */
+  function cargarRecursosEdicion(eventoRecursos) {
+    const grid    = document.getElementById('edit-recursos-grid');
+    const sinMsg  = document.getElementById('edit-sin-recursos-msg');
+    if (!grid) return;
+
+    // Limpiar selección previa
+    Object.keys(seleccionadosEdicion).forEach(k => delete seleccionadosEdicion[k]);
+
+    const todos = (typeof RecursosModel !== 'undefined')
+      ? RecursosModel.getAll().filter(r => r.disponible && r.cantidad > 0)
+      : [];
+
+    grid.innerHTML = '';
+
+    if (todos.length === 0) {
+      if (sinMsg) sinMsg.style.display = 'block';
+      actualizarContadorEdicion();
+      return;
+    }
+    if (sinMsg) sinMsg.style.display = 'none';
+
+    // Lookup de recursos ya asignados al evento
+    const asignados = {};
+    if (eventoRecursos) {
+      eventoRecursos.forEach(r => { asignados[r.recursoId] = r.cantidad; });
+    }
+
+    todos.forEach(r => {
+      const icono       = ICON_MAP[r.categoria] || 'bx-package';
+      const cantPre     = asignados[r.id];
+      const seleccionado = cantPre !== undefined;
+
+      if (seleccionado) seleccionadosEdicion[r.id] = cantPre;
+
+      const card = document.createElement('div');
+      card.className  = `ev-recurso-card${seleccionado ? ' ev-rec-selected' : ''}`;
+      card.id         = `edit-ev-rec-${r.id}`;
+      card.dataset.id = r.id;
+
+      card.innerHTML = `
+        <div class="ev-rec-check">
+          <input type="checkbox" id="edit-chk-rec-${r.id}"
+            ${seleccionado ? 'checked' : ''}
+            onchange="toggleRecursoEdicion(${r.id})" />
+        </div>
+        <div class="ev-rec-body">
+          <div class="ev-rec-header">
+            <i class="bx ${icono} ev-rec-icon"></i>
+            <label for="edit-chk-rec-${r.id}" class="ev-rec-nombre">${r.nombre}</label>
+            <span class="badge badge-green ev-rec-stock">${r.cantidad} ${r.unidad}</span>
+          </div>
+          <p class="ev-rec-cat">${r.categoria}</p>
+          <div class="ev-rec-qty" id="edit-ev-qty-${r.id}"
+            style="display:${seleccionado ? 'flex' : 'none'};">
+            <label for="edit-qty-rec-${r.id}">Cantidad a usar:</label>
+            <input type="number" id="edit-qty-rec-${r.id}" class="ev-qty-input"
+              min="1" max="${r.cantidad}" value="${seleccionado ? cantPre : 1}"
+              onchange="actualizarCantidadEdicion(${r.id}, this.value, ${r.cantidad})"
+              oninput="actualizarCantidadEdicion(${r.id}, this.value, ${r.cantidad})" />
+            <span class="ev-qty-max">máx. ${r.cantidad}</span>
+          </div>
+        </div>`;
+
+      grid.appendChild(card);
+    });
+
+    actualizarContadorEdicion();
+  }
+
+  window.toggleRecursoEdicion = function(id) {
+    const card     = document.getElementById(`edit-ev-rec-${id}`);
+    const chk      = document.getElementById(`edit-chk-rec-${id}`);
+    const qtyDiv   = document.getElementById(`edit-ev-qty-${id}`);
+    const qtyInput = document.getElementById(`edit-qty-rec-${id}`);
+
+    if (chk.checked) {
+      card.classList.add('ev-rec-selected');
+      qtyDiv.style.display = 'flex';
+      seleccionadosEdicion[id] = parseInt(qtyInput.value) || 1;
+    } else {
+      card.classList.remove('ev-rec-selected');
+      qtyDiv.style.display = 'none';
+      delete seleccionadosEdicion[id];
+    }
+    actualizarContadorEdicion();
+  };
+
+  window.actualizarCantidadEdicion = function(id, valor, max) {
+    let cant = parseInt(valor) || 1;
+    if (cant < 1)   cant = 1;
+    if (cant > max) cant = max;
+    const input = document.getElementById(`edit-qty-rec-${id}`);
+    if (input) input.value = cant;
+    seleccionadosEdicion[id] = cant;
+  };
+
+  function actualizarContadorEdicion() {
+    const counter = document.getElementById('edit-contador-recursos');
+    if (!counter) return;
+    const total = Object.keys(seleccionadosEdicion).length;
+    counter.textContent = total > 0
+      ? `${total} recurso(s) seleccionado(s)`
+      : 'Ningún recurso seleccionado (opcional)';
+    counter.style.color = total > 0 ? '#059669' : '#9ca3af';
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // 4. PUBLICAR EVENTO
+  // ════════════════════════════════════════════════════════════════
+
   window.submitEvent = function(e) {
     e.preventDefault();
 
-    // Construir array de recursos seleccionados para guardar con el evento
+    const titulo      = document.getElementById('ev-titulo')?.value.trim()      || '';
+    const fecha       = document.getElementById('ev-fecha')?.value              || '';
+    const horaInicio  = document.getElementById('ev-hora-inicio')?.value        || '';
+    const horaFin     = document.getElementById('ev-hora-fin')?.value           || '';
+    const ubicacion   = document.getElementById('ev-ubicacion')?.value.trim()   || '';
+    const voluntarios = parseInt(document.getElementById('ev-voluntarios')?.value) || 0;
+
+    // ── Validación DOM ────────────────────────────────────────────────────
+    const RX_INI_LETRA = /^[a-zA-ZÀ-ÿñÑ]/;
+    const hoy = new Date().toISOString().split('T')[0];
+    _ok('ev-titulo','ev-fecha','ev-hora-inicio','ev-hora-fin','ev-ubicacion','ev-voluntarios');
+    let valido = true;
+
+    if (!titulo || titulo.length < 3) {
+      _err('ev-titulo', 'El título debe tener al menos 3 caracteres.');
+      valido = false;
+    } else if (!RX_INI_LETRA.test(titulo)) {
+      _err('ev-titulo', 'El título debe comenzar con una letra, no con un número.');
+      valido = false;
+    } else if (titulo.length > 150) {
+      _err('ev-titulo', 'El título no puede superar 150 caracteres.');
+      valido = false;
+    }
+    if (!fecha) {
+      _err('ev-fecha', 'Selecciona una fecha para el evento.');
+      valido = false;
+    } else if (fecha < hoy) {
+      _err('ev-fecha', 'La fecha del evento no puede ser en el pasado.');
+      valido = false;
+    }
+    if (!horaInicio) {
+      _err('ev-hora-inicio', 'La hora de inicio es obligatoria.');
+      valido = false;
+    } else if (horaInicio < H_MIN || horaInicio > H_MAX) {
+      _err('ev-hora-inicio', 'Debe estar entre 6:00 AM y 9:00 PM.');
+      valido = false;
+    }
+    if (horaFin) {
+      if (horaFin < H_MIN || horaFin > H_MAX) {
+        _err('ev-hora-fin', 'Debe estar entre 6:00 AM y 9:00 PM.');
+        valido = false;
+      } else if (horaInicio && horaFin <= horaInicio) {
+        _err('ev-hora-fin', 'La hora de fin debe ser posterior a la de inicio.');
+        valido = false;
+      }
+    }
+    const asistentes = document.getElementById('ev-asistentes')?.value;
+    if (!ubicacion) {
+      _err('ev-ubicacion', 'La sede / ubicación es obligatoria.');
+      valido = false;
+    }
+    if (asistentes !== '' && asistentes !== null && parseInt(asistentes) < 0) {
+      _err('ev-asistentes', 'Las personas esperadas no pueden ser negativas.');
+      valido = false;
+    }
+    if (voluntarios < 1) {
+      _err('ev-voluntarios', 'Debe haber al menos 1 voluntario.');
+      valido = false;
+    }
+    if (!valido) return;
+    // ─────────────────────────────────────────────────────────────────────
+
     const recursosSeleccionados = Object.entries(seleccionados).map(([id, cantidad]) => {
-      const r = RecursosModel.getById(parseInt(id));
+      const r = (typeof RecursosModel !== 'undefined') ? RecursosModel.getById(parseInt(id)) : null;
       return {
-        recursoId:    parseInt(id),
+        recursoId:     parseInt(id),
         recursoNombre: r ? r.nombre : 'Recurso',
         cantidad,
-        unidad:       r ? r.unidad : 'unidades'
+        unidad:        r ? r.unidad : 'unidades'
       };
     });
 
     const data = {
-      titulo:                document.getElementById('ev-titulo').value,
-      fecha:                 document.getElementById('ev-fecha').value,
-      horario:               document.getElementById('ev-horario').value,
-      ubicacion:             document.getElementById('ev-ubicacion').value,
-      asistentes:            document.getElementById('ev-asistentes').value,
-      // Número de voluntarios que el admin necesita para este evento
-      voluntariosNecesarios: document.getElementById('ev-voluntarios').value,
-      descripcion:           document.getElementById('ev-descripcion').value,
+      titulo,
+      fecha,
+      horario:               combinarHorario(horaInicio, horaFin),
+      ubicacion,
+      asistentes:            document.getElementById('ev-asistentes')?.value  || '',
+      voluntariosNecesarios: voluntarios,
+      descripcion:           document.getElementById('ev-descripcion')?.value || '',
       recursos:              recursosSeleccionados
     };
 
     const resultado = EventosModel.publicar(data);
 
     if (!resultado.ok) {
-      showToast('Error', resultado.error);
+      showAlertError(resultado.error);
       return;
     }
 
@@ -203,28 +423,26 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('[id^="ev-qty-"]').forEach(d => d.style.display = 'none');
     document.querySelectorAll('[id^="chk-rec-"]').forEach(c => c.checked = false);
     actualizarContador();
-    actualizarPreview(); // Resetear previsualización
-
-    // Recargar lista de eventos publicados
+    actualizarPreview();
     renderEventosPublicados();
 
     const nRec = recursosSeleccionados.length;
-    showToast(
-      '¡Evento publicado!',
+    showAlertSuccess(
       `"${data.titulo}" fue publicado${nRec > 0 ? ` con ${nRec} recurso(s) asignado(s)` : ''}.`
     );
   };
 
   // ════════════════════════════════════════════════════════════════
-  // 4. HISTORIAL DE EVENTOS PUBLICADOS — DataTable v3 con filtros
+  // 5. HISTORIAL DE EVENTOS PUBLICADOS — DataTable v3 con filtros
   // ════════════════════════════════════════════════════════════════
 
   let dtEventos = null;
 
   function renderEventosPublicados() {
+    if (!listaEventos) return;
+
     const eventos = EventosModel.getAll();
 
-    // Extraer ubicaciones únicas para el filtro
     const ubicaciones = [...new Set(eventos.map(e => e.ubicacion).filter(Boolean))].sort();
 
     function renderCard(ev) {
@@ -268,10 +486,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 onclick="abrirEditar(${ev.id})" title="Editar evento">
                 <i class="bx bx-edit"></i>
               </button>
+              ${!_esColaborador ? `
               <button class="btn-ev-accion btn-ev-eliminar"
                 onclick="eliminarEvento(${ev.id})" title="Eliminar evento">
                 <i class="bx bx-trash"></i>
-              </button>
+              </button>` : ''}
             </div>
           </div>
           ${ev.descripcion ? `<p class="ev-pub-desc">${ev.descripcion}</p>` : ''}
@@ -313,10 +532,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ════════════════════════════════════════════════════════════════
-  // 5. VER DETALLE
+  // 6. VER DETALLE
   // ════════════════════════════════════════════════════════════════
 
-  /** Abre el modal con el detalle completo del evento */
   window.verEvento = function(id) {
     const ev = EventosModel.getById(id);
     if (!ev) return;
@@ -372,7 +590,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.style.overflow = 'hidden';
   };
 
-  /** Cierra el modal de ver detalle */
   window.cerrarModalVer = function(e) {
     if (e && e.target !== document.getElementById('modal-ver-evento')) return;
     document.getElementById('modal-ver-evento').style.display = 'none';
@@ -380,10 +597,9 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // ════════════════════════════════════════════════════════════════
-  // 6. EDITAR EVENTO
+  // 7. EDITAR EVENTO
   // ════════════════════════════════════════════════════════════════
 
-  /** Abre el modal de edición con los datos del evento precargados */
   window.abrirEditar = function(id) {
     const ev = EventosModel.getById(id);
     if (!ev) return;
@@ -391,48 +607,105 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('edit-id').value          = ev.id;
     document.getElementById('edit-titulo').value      = ev.titulo;
     document.getElementById('edit-fecha').value       = ev.fecha;
-    document.getElementById('edit-horario').value     = ev.horario;
     document.getElementById('edit-ubicacion').value   = ev.ubicacion;
     document.getElementById('edit-asistentes').value  = ev.asistentes !== '—' ? ev.asistentes : '';
     document.getElementById('edit-voluntarios').value = ev.voluntariosNecesarios || 1;
     document.getElementById('edit-descripcion').value = ev.descripcion || '';
 
+    // Parsear horario en dos inputs de tiempo
+    const { inicio, fin } = parseHorario(ev.horario);
+    document.getElementById('edit-hora-inicio').value = inicio;
+    document.getElementById('edit-hora-fin').value    = fin;
+
+    // Cargar recursos del evento en la grilla de edición
+    cargarRecursosEdicion(ev.recursos || []);
+
+    // Recargar datalist de sedes en el modal de edición
+    cargarSedes();
+
     document.getElementById('modal-editar-evento').style.display = 'flex';
     document.body.style.overflow = 'hidden';
   };
 
-  /** Guarda los cambios del formulario de edición */
   window.guardarEdicion = function(e) {
     e.preventDefault();
 
-    const id = parseInt(document.getElementById('edit-id').value);
-    const ev = EventosModel.getById(id);
+    const id       = parseInt(document.getElementById('edit-id').value);
+    const titulo   = document.getElementById('edit-titulo')?.value.trim()    || '';
+    const fecha    = document.getElementById('edit-fecha')?.value            || '';
+    const horaIni  = document.getElementById('edit-hora-inicio')?.value      || '';
+    const horaFin  = document.getElementById('edit-hora-fin')?.value         || '';
+    const ubicacion = document.getElementById('edit-ubicacion')?.value.trim() || '';
+    const voluntarios = parseInt(document.getElementById('edit-voluntarios')?.value) || 0;
+
+    // ── Validación DOM ────────────────────────────────────────────────────
+    const RX_INI_LETRA_EDIT = /^[a-zA-ZÀ-ÿñÑ]/;
+    _ok('edit-titulo','edit-fecha','edit-hora-inicio','edit-hora-fin','edit-ubicacion','edit-voluntarios');
+    let valido = true;
+
+    if (!titulo || titulo.length < 3) {
+      _err('edit-titulo', 'El título debe tener al menos 3 caracteres.');           valido = false;
+    } else if (!RX_INI_LETRA_EDIT.test(titulo)) {
+      _err('edit-titulo', 'El título debe comenzar con una letra.');                valido = false;
+    } else if (titulo.length > 150) {
+      _err('edit-titulo', 'El título no puede superar 150 caracteres.');            valido = false;
+    }
+    if (!fecha)    { _err('edit-fecha',  'Selecciona una fecha.');                 valido = false; }
+    if (!horaIni)  {
+      _err('edit-hora-inicio', 'La hora de inicio es obligatoria.');               valido = false;
+    } else if (horaIni < H_MIN || horaIni > H_MAX) {
+      _err('edit-hora-inicio', 'Debe estar entre 6:00 AM y 9:00 PM.');            valido = false;
+    }
+    if (horaFin) {
+      if (horaFin < H_MIN || horaFin > H_MAX) {
+        _err('edit-hora-fin', 'Debe estar entre 6:00 AM y 9:00 PM.');             valido = false;
+      } else if (horaIni && horaFin <= horaIni) {
+        _err('edit-hora-fin', 'Debe ser posterior a la hora de inicio.');          valido = false;
+      }
+    }
+    const editAsistentes = document.getElementById('edit-asistentes')?.value;
+    if (!ubicacion) { _err('edit-ubicacion', 'La sede / ubicación es obligatoria.'); valido = false; }
+    if (editAsistentes !== '' && editAsistentes !== null && parseInt(editAsistentes) < 0) {
+      _err('edit-asistentes', 'Las personas esperadas no pueden ser negativas.');    valido = false;
+    }
+    if (voluntarios < 1) { _err('edit-voluntarios','Mínimo 1 voluntario.');         valido = false; }
+    if (!valido) return;
+    // ─────────────────────────────────────────────────────────────────────
+
+    // Construir array de recursos desde el modal de edición
+    const recursosSeleccionados = Object.entries(seleccionadosEdicion).map(([rid, cantidad]) => {
+      const r = (typeof RecursosModel !== 'undefined') ? RecursosModel.getById(parseInt(rid)) : null;
+      return {
+        recursoId:     parseInt(rid),
+        recursoNombre: r ? r.nombre : 'Recurso',
+        cantidad,
+        unidad:        r ? r.unidad : 'unidades'
+      };
+    });
 
     const data = {
-      titulo:                document.getElementById('edit-titulo').value,
-      fecha:                 document.getElementById('edit-fecha').value,
-      horario:               document.getElementById('edit-horario').value,
-      ubicacion:             document.getElementById('edit-ubicacion').value,
-      asistentes:            document.getElementById('edit-asistentes').value,
-      voluntariosNecesarios: document.getElementById('edit-voluntarios').value,
-      descripcion:           document.getElementById('edit-descripcion').value,
-      // Mantener los recursos originales del evento
-      recursos:              ev ? ev.recursos : []
+      titulo,
+      fecha,
+      horario:               combinarHorario(horaIni, horaFin),
+      ubicacion,
+      asistentes:            document.getElementById('edit-asistentes')?.value   || '',
+      voluntariosNecesarios: voluntarios,
+      descripcion:           document.getElementById('edit-descripcion')?.value  || '',
+      recursos:              recursosSeleccionados
     };
 
     const resultado = EventosModel.actualizar(id, data);
 
     if (!resultado.ok) {
-      showToast('Error', resultado.error);
+      showAlertError(resultado.error);
       return;
     }
 
     cerrarModalEditar();
     renderEventosPublicados();
-    showToast('Evento actualizado', `"${data.titulo}" fue actualizado correctamente.`);
+    showAlertSuccess(`"${data.titulo}" fue actualizado correctamente.`);
   };
 
-  /** Cierra el modal de edición */
   window.cerrarModalEditar = function(e) {
     if (e && e.target !== document.getElementById('modal-editar-evento')) return;
     document.getElementById('modal-editar-evento').style.display = 'none';
@@ -440,64 +713,116 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // ════════════════════════════════════════════════════════════════
-  // 7. ELIMINAR EVENTO
+  // 8. ELIMINAR EVENTO
   // ════════════════════════════════════════════════════════════════
 
-  /** Elimina un evento del historial */
   window.eliminarEvento = function(id) {
+    if (_esColaborador) { showAlertError('Los colaboradores no tienen permiso para eliminar eventos.'); return; }
     const ev = EventosModel.getById(id);
     if (!ev) return;
-    if (!confirm(`¿Eliminar el evento "${ev.titulo}"?\nEsta acción no se puede deshacer.`)) return;
-    EventosModel.eliminar(id);
-    renderEventosPublicados();
-    showToast('Evento eliminado', `"${ev.titulo}" fue eliminado.`);
+    showAlertConfirm(
+      'Eliminar evento',
+      `¿Eliminar el evento "${ev.titulo}"? Esta acción no se puede deshacer.`,
+      function() {
+        EventosModel.eliminar(id);
+        renderEventosPublicados();
+        showAlertSuccess(`"${ev.titulo}" fue eliminado.`);
+      }
+    );
+  };
+
+  // ════════════════════════════════════════════════════════════════
+  // SEDE — Selector y autocompletado de ubicación
+  // ════════════════════════════════════════════════════════════════
+
+  /** Puebla los datalists de sede/ubicación con las sedes registradas */
+  function cargarSedes() {
+    const datalistIds = ['ev-sedes-lista', 'edit-sedes-lista'];
+    datalistIds.forEach(id => {
+      const dl = document.getElementById(id);
+      if (!dl) return;
+      dl.innerHTML = '';
+      if (typeof SedesModel === 'undefined') return;
+      SedesModel.getAll().forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = `${s.nombre} — ${s.direccion}, ${s.ciudad}`;
+        dl.appendChild(opt);
+      });
+    });
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // PLANTILLAS DE EVENTOS — Autocompletar título y horario
+  // ════════════════════════════════════════════════════════════════
+
+  /** Aplica una plantilla al formulario de creación */
+  window.aplicarPlantilla = function(btnEl, titulo, horaInicio, horaFin) {
+    // Quitar estado activo de todos los botones de plantilla
+    document.querySelectorAll('.ev-plantilla-btn').forEach(b => b.classList.remove('activa'));
+    btnEl.classList.add('activa');
+
+    const tituloInput = document.getElementById('ev-titulo');
+    const iniInput    = document.getElementById('ev-hora-inicio');
+    const finInput    = document.getElementById('ev-hora-fin');
+
+    if (tituloInput) tituloInput.value = titulo;
+    if (iniInput)    iniInput.value    = horaInicio || '';
+    if (finInput)    finInput.value    = horaFin    || '';
+
+    actualizarPreview();
   };
 
   // ── Inicialización ───────────────────────────────────────────────────────
+  // Establecer fecha mínima = hoy (no se pueden crear eventos en el pasado)
+  const _hoy = new Date().toISOString().split('T')[0];
+  const _fechaInput = document.getElementById('ev-fecha');
+  if (_fechaInput) _fechaInput.min = _hoy;
+
+  // Limitar longitud máxima en campos de texto
+  [['ev-titulo', 150], ['ev-ubicacion', 150], ['ev-asistentes', 50]].forEach(([id, max]) => {
+    const el = document.getElementById(id);
+    if (el) el.maxLength = max;
+  });
+
   cargarRecursos();
+  cargarSedes();
   actualizarContador();
   renderEventosPublicados();
 
   // ════════════════════════════════════════════════════════════════
-  // 8. PREVISUALIZACIÓN EN TIEMPO REAL
+  // 9. PREVISUALIZACIÓN EN TIEMPO REAL (solo admin)
   // ════════════════════════════════════════════════════════════════
 
-  /**
-   * Lee los campos del formulario y actualiza la tarjeta de previsualización
-   * en tiempo real. Se llama desde los eventos oninput/onchange de cada campo.
-   * La columna de previsualización se muestra solo cuando hay algún dato.
-   */
   window.actualizarPreview = function() {
-    const titulo      = document.getElementById('ev-titulo').value.trim();
-    const fecha       = document.getElementById('ev-fecha').value;
-    const horario     = document.getElementById('ev-horario').value.trim();
-    const ubicacion   = document.getElementById('ev-ubicacion').value.trim();
-    const asistentes  = document.getElementById('ev-asistentes').value.trim();
-    const voluntarios = document.getElementById('ev-voluntarios').value;
-    const descripcion = document.getElementById('ev-descripcion').value.trim();
+    const previewCol = document.getElementById('ev-preview-col');
+    if (!previewCol) return; // Página sin previsualización (colaborador)
 
-    const previewCol  = document.getElementById('ev-preview-col');
-    const empty       = document.getElementById('ev-preview-empty');
-    const content     = document.getElementById('ev-preview-content');
+    const titulo      = document.getElementById('ev-titulo')?.value.trim()     || '';
+    const fecha       = document.getElementById('ev-fecha')?.value             || '';
+    const horaInicio  = document.getElementById('ev-hora-inicio')?.value       || '';
+    const horaFin     = document.getElementById('ev-hora-fin')?.value          || '';
+    const ubicacion   = document.getElementById('ev-ubicacion')?.value.trim()  || '';
+    const asistentes  = document.getElementById('ev-asistentes')?.value.trim() || '';
+    const voluntarios = document.getElementById('ev-voluntarios')?.value       || '';
+    const descripcion = document.getElementById('ev-descripcion')?.value.trim()|| '';
 
+    const horario  = combinarHorario(horaInicio, horaFin);
+    const empty    = document.getElementById('ev-preview-empty');
+    const content  = document.getElementById('ev-preview-content');
     const hayDatos = titulo || fecha || horario || ubicacion;
 
-    // Mostrar u ocultar la columna completa de previsualización
     if (hayDatos) {
       previewCol.classList.add('ev-preview-col--visible');
     } else {
       previewCol.classList.remove('ev-preview-col--visible');
-      return; // No hay nada que renderizar
+      return;
     }
 
-    // Siempre mostrar contenido cuando hay datos
     empty.style.display   = 'none';
     content.style.display = 'block';
 
-    // Título
     document.getElementById('prev-ev-titulo').textContent = titulo || 'Sin título';
 
-    // Fecha formateada
     if (fecha) {
       const [y, m, d] = fecha.split('-');
       const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
@@ -507,7 +832,6 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('prev-row-fecha').style.display = 'none';
     }
 
-    // Horario
     if (horario) {
       document.getElementById('prev-ev-horario').textContent = horario;
       document.getElementById('prev-row-horario').style.display = 'flex';
@@ -515,7 +839,6 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('prev-row-horario').style.display = 'none';
     }
 
-    // Ubicación
     if (ubicacion) {
       document.getElementById('prev-ev-ubicacion').textContent = ubicacion;
       document.getElementById('prev-row-ubicacion').style.display = 'flex';
@@ -523,7 +846,6 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('prev-row-ubicacion').style.display = 'none';
     }
 
-    // Asistentes
     if (asistentes) {
       document.getElementById('prev-ev-asistentes').textContent = `${asistentes} asistentes esperados`;
       document.getElementById('prev-row-asistentes').style.display = 'flex';
@@ -531,7 +853,6 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('prev-row-asistentes').style.display = 'none';
     }
 
-    // Voluntarios
     if (voluntarios && parseInt(voluntarios) > 0) {
       document.getElementById('prev-ev-voluntarios').textContent = `${voluntarios} voluntario(s) necesario(s)`;
       document.getElementById('prev-row-voluntarios').style.display = 'flex';
@@ -539,7 +860,6 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('prev-row-voluntarios').style.display = 'none';
     }
 
-    // Descripción
     const descEl = document.getElementById('prev-ev-desc');
     if (descripcion) {
       descEl.textContent   = descripcion;
@@ -549,6 +869,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // Al cargar la página la previsualización está oculta (sin datos aún)
   actualizarPreview();
 });

@@ -30,6 +30,8 @@
     <title>Recuperar Contraseña</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css" />
     <!-- Reutilizamos el diseño del login -->
     <link rel="stylesheet" href="login.css">
     <!-- Archivo CSS específico para ajustes de recuperar contraseña -->
@@ -56,20 +58,16 @@
             
             <button type="submit" class="boton">Enviar enlace</button>
             
-            <!-- Mensaje de éxito oculto por defecto -->
-            <p id="success-msg" style="color: green; text-align: center; margin-top: 15px; font-size: 14px; display: none;">
-                ✅ Si el correo está registrado, recibirás las instrucciones en breve. Serás redirigido al login...
-            </p>
+            <!-- Mensaje de éxito manejado por alertify -->
         </form>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
+    <script src="../../../controllers/alertify.helper.js"></script>
     <script>
         document.getElementById('recuperarForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            // Mostramos el mensaje de éxito
-            document.getElementById('success-msg').style.display = 'block';
-            
-            // Simulamos la redirección de vuelta al login después de 4 segundos
+            showAlertSuccess('Si el correo está registrado, recibirás las instrucciones en breve. Serás redirigido al login...');
             setTimeout(() => {
                 window.location.href = 'login.html';
             }, 4000);

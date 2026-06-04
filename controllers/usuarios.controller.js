@@ -10,16 +10,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ── Referencias DOM ──────────────────────────────────────────────────────
-  const tablaBody      = document.getElementById('usuarios-tbody');
   const modal          = document.getElementById('modal-usuario');
   const modalTitle     = document.getElementById('modal-title');
   const formUsuario    = document.getElementById('form-usuario');
   const btnNuevo       = document.getElementById('btn-nuevo-usuario');
   const btnCerrarModal = document.getElementById('btn-cerrar-modal');
   const btnCancelar    = document.getElementById('btn-cancelar');
-  const inputBuscar    = document.getElementById('input-buscar');
-  const filtroRol      = document.getElementById('filtro-rol');
-  const filtroEstado   = document.getElementById('filtro-estado');
   const modalError     = document.getElementById('modal-error');
   const passHint       = document.getElementById('pass-hint');
   const contTotal      = document.getElementById('cont-total');
@@ -28,9 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalOverlay   = document.getElementById('modal-overlay');
 
   let editandoId = null;
-  let paginaActual = 1;
-  let registrosPorPagina = 10;
-  let datosFiltrados = [];
 
   // ── Helpers ──────────────────────────────────────────────────────────────
   function rolBadge(rol) {
@@ -51,115 +44,79 @@ document.addEventListener('DOMContentLoaded', () => {
     return map[rol] || '#6b7280';
   }
 
-  // ── Aplicar filtros y renderizar ─────────────────────────────────────────
+  // ── DataTable de usuarios ────────────────────────────────────────────────
+  let dtUsuarios = null;
+
   function renderTabla() {
-    const buscar  = (inputBuscar?.value || '').toLowerCase();
-    const rol     = filtroRol?.value || '';
-    const estado  = filtroEstado?.value || '';
-    const desde   = document.getElementById('filtro-desde')?.value || '';
-    const hasta   = document.getElementById('filtro-hasta')?.value || '';
+    const todos = UsuariosModel.getAll();
 
-    let todos = UsuariosModel.getAll();
-
-    // Actualizar contadores (siempre sobre el total sin filtros)
+    // Actualizar contadores
     if (contTotal)     contTotal.textContent     = todos.length;
     if (contActivos)   contActivos.textContent   = todos.filter(u => u.activo).length;
     if (contInactivos) contInactivos.textContent = todos.filter(u => !u.activo).length;
 
-    // Aplicar filtros
-    datosFiltrados = todos.filter(u => {
-      if (buscar && !(
-        u.nombre.toLowerCase().includes(buscar) ||
-        u.username.toLowerCase().includes(buscar) ||
-        u.email.toLowerCase().includes(buscar)
-      )) return false;
-      if (rol && u.rol !== rol) return false;
-      if (estado === 'activo'   && !u.activo) return false;
-      if (estado === 'inactivo' &&  u.activo) return false;
-      if (desde && u.creado < desde) return false;
-      if (hasta && u.creado > hasta) return false;
-      return true;
-    });
+    const data = todos.map(u => ({
+      ...u,
+      estadoTexto: u.activo ? 'Activo' : 'Inactivo'
+    }));
 
-    paginaActual = 1;
-    renderPagina();
-  }
-
-  // ── Renderizar página actual ─────────────────────────────────────────────
-  function renderPagina() {
-    if (!tablaBody) return;
-
-    const total  = datosFiltrados.length;
-    const todos  = UsuariosModel.getAll().length;
-    const pages  = Math.max(1, Math.ceil(total / registrosPorPagina));
-    paginaActual = Math.min(paginaActual, pages);
-    const start  = (paginaActual - 1) * registrosPorPagina;
-    const end    = Math.min(start + registrosPorPagina, total);
-    const page   = datosFiltrados.slice(start, end);
-
-    // Info de registros
-    const info = document.getElementById('usr-info');
-    if (info) {
-      if (total === 0) {
-        info.innerHTML = '<span style="color:#9ca3af;font-style:italic;">Sin resultados para los filtros aplicados</span>';
-      } else if (total < todos) {
-        info.innerHTML = `Mostrando <strong>${start+1}–${end}</strong> de <strong>${total}</strong> filtrados <span style="color:#9ca3af;">(${todos} total)</span>`;
-      } else {
-        info.innerHTML = `Mostrando <strong>${start+1}–${end}</strong> de <strong>${total}</strong> registros`;
-      }
-    }
-
-    // Filas
-    if (total === 0) {
-      tablaBody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:2rem;color:#9ca3af;">No se encontraron usuarios con esos criterios.</td></tr>`;
-    } else {
-      tablaBody.innerHTML = page.map(u => {
-        const badgeRol    = rolBadge(u.rol);
-        const badgeEstado = u.activo
-          ? '<span class="badge badge-green">Activo</span>'
-          : '<span class="badge badge-red">Inactivo</span>';
-        const btnToggle = u.id === 1
-          ? `<button class="btn-accion btn-toggle" disabled title="No se puede desactivar al admin principal"><i class="bx bx-lock"></i></button>`
-          : `<button class="btn-accion btn-toggle" onclick="toggleUsuario(${u.id})" title="${u.activo ? 'Desactivar' : 'Activar'} usuario"><i class="bx ${u.activo ? 'bx-toggle-right' : 'bx-toggle-left'}"></i></button>`;
-        const avatar      = u.nombre.charAt(0).toUpperCase();
-        const avatarColor = colorAvatar(u.rol);
-        return `<tr class="${u.activo ? '' : 'fila-inactiva'}">
-          <td><div class="user-cell">
+    function renderRow(u) {
+      const badgeRol    = rolBadge(u.rol);
+      const badgeEstado = u.activo
+        ? '<span class="badge badge-green">Activo</span>'
+        : '<span class="badge badge-red">Inactivo</span>';
+      const btnToggle = u.id === 1
+        ? `<button class="btn-accion btn-toggle" disabled title="No se puede desactivar al admin principal"><i class="bx bx-lock"></i></button>`
+        : `<button class="btn-accion btn-toggle" onclick="toggleUsuario(${u.id})" title="${u.activo ? 'Desactivar' : 'Activar'}"><i class="bx ${u.activo ? 'bx-toggle-right' : 'bx-toggle-left'}"></i></button>`;
+      const avatar      = u.nombre.charAt(0).toUpperCase();
+      const avatarColor = colorAvatar(u.rol);
+      return `
+        <div style="display:flex;align-items:center;gap:1rem;padding:0.875rem 1.25rem;
+          background:#fff;border:2px solid var(--border);border-radius:1rem;margin-bottom:0.5rem;
+          flex-wrap:wrap;${u.activo ? '' : 'opacity:0.65;background:#fafafa;'}">
+          <div class="user-cell" style="flex:2;min-width:180px;">
             <div class="user-avatar-sm" style="background:${avatarColor}">${avatar}</div>
-            <div><p class="user-nombre">${u.nombre}</p><p class="user-username">@${u.username}</p></div>
-          </div></td>
-          <td>${u.email}</td>
-          <td>${badgeRol}</td>
-          <td>${badgeEstado}</td>
-          <td>${u.creado}</td>
-          <td><div class="acciones-cell">
+            <div>
+              <p class="user-nombre">${u.nombre}</p>
+              <p class="user-username">@${u.username}</p>
+            </div>
+          </div>
+          <span style="flex:2;min-width:140px;font-size:0.875rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${u.email}</span>
+          <span style="flex-shrink:0;">${badgeRol}</span>
+          <span style="flex-shrink:0;">${badgeEstado}</span>
+          <span style="flex-shrink:0;font-size:0.82rem;color:var(--muted);">${u.creado}</span>
+          <div class="acciones-cell" style="flex-shrink:0;margin-left:auto;">
             <button class="btn-accion btn-editar" onclick="abrirEditar(${u.id})" title="Editar usuario"><i class="bx bx-edit"></i></button>
             ${btnToggle}
-          </div></td>
-        </tr>`;
-      }).join('');
+          </div>
+        </div>`;
     }
 
-    // Paginación
-    const pag = document.getElementById('usr-pag');
-    if (pag) {
-      if (pages <= 1) { pag.innerHTML = ''; return; }
-      let html = '';
-      html += `<button class="bsp-dt-pag-btn bsp-dt-pag-nav" ${paginaActual===1?'disabled':''} onclick="window._usrGoPage(1)">«</button>`;
-      html += `<button class="bsp-dt-pag-btn bsp-dt-pag-nav" ${paginaActual===1?'disabled':''} onclick="window._usrGoPage(${paginaActual-1})">‹</button>`;
-      for (let i = Math.max(1, paginaActual-2); i <= Math.min(pages, paginaActual+2); i++) {
-        html += `<button class="bsp-dt-pag-btn ${i===paginaActual?'bsp-dt-pag-active':''}" onclick="window._usrGoPage(${i})">${i}</button>`;
-      }
-      html += `<button class="bsp-dt-pag-btn bsp-dt-pag-nav" ${paginaActual===pages?'disabled':''} onclick="window._usrGoPage(${paginaActual+1})">›</button>`;
-      html += `<button class="bsp-dt-pag-btn bsp-dt-pag-nav" ${paginaActual===pages?'disabled':''} onclick="window._usrGoPage(${pages})">»</button>`;
-      pag.innerHTML = html;
+    if (!dtUsuarios) {
+      dtUsuarios = new BSPDataTable({
+        containerId:  'dt-usuarios',
+        data,
+        pageSize:     10,
+        searchFields: ['nombre', 'username', 'email'],
+        filters: [
+          { key: 'rol',         label: 'Rol',    type: 'select', options: ['Administrador', 'Colaborador', 'Voluntario'] },
+          { key: 'estadoTexto', label: 'Estado', type: 'select', options: ['Activo', 'Inactivo'] },
+          { key: 'creado', label: 'Desde', type: 'date-from' },
+          { key: 'creado', label: 'Hasta', type: 'date-to'   },
+        ],
+        renderRow,
+        exportable:   true,
+        exportName:   'usuarios',
+        exportFields: ['nombre', 'username', 'email', 'rol', 'estadoTexto', 'creado'],
+        exportLabels: ['Nombre', 'Usuario', 'Correo', 'Rol', 'Estado', 'Registrado'],
+        emptyHTML: `<div class="dt-empty"><i class="bx bx-user-x"></i><p>No se encontraron usuarios con esos criterios.</p></div>`
+      });
+      window.__bspDT['dt-usuarios'] = dtUsuarios;
+      dtUsuarios.init();
+    } else {
+      dtUsuarios.refresh(data);
     }
   }
-
-  window._usrGoPage = function(n) {
-    paginaActual = n;
-    renderPagina();
-  };
 
   // ── Modal CREAR ──────────────────────────────────────────────────────────
   function abrirCrear() {
@@ -198,17 +155,91 @@ document.addEventListener('DOMContentLoaded', () => {
     editandoId = null;
   }
 
+  // ── Helpers de validación DOM ────────────────────────────────────────────
+  const RX_NOMBRE   = /^[a-zA-ZÀ-ÿñÑ\s'\-\.]+$/;
+  const RX_USERNAME = /^[a-zA-Z0-9_]+$/;
+  const RX_EMAIL    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function _err(id, msg) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.add('campo-invalido');
+    const box = el.closest('.form-group') || el.parentElement;
+    let s = box.querySelector('.campo-error');
+    if (!s) { s = document.createElement('span'); s.className = 'campo-error'; box.appendChild(s); }
+    s.textContent = msg;
+  }
+  function _ok(...ids) {
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('campo-invalido');
+      const box = el.closest('.form-group') || el.parentElement;
+      const s = box.querySelector('.campo-error');
+      if (s) s.remove();
+    });
+  }
+
   // ── Submit formulario ────────────────────────────────────────────────────
   formUsuario.addEventListener('submit', (e) => {
     e.preventDefault();
     modalError.style.display = 'none';
-    const data = {
-      nombre:   document.getElementById('campo-nombre').value,
-      username: document.getElementById('campo-username').value,
-      email:    document.getElementById('campo-email').value,
-      rol:      document.getElementById('campo-rol').value,
-      password: document.getElementById('campo-password').value
-    };
+
+    const nombre   = document.getElementById('campo-nombre').value.trim();
+    const username = document.getElementById('campo-username').value.trim();
+    const email    = document.getElementById('campo-email').value.trim();
+    const rol      = document.getElementById('campo-rol').value;
+    const password = document.getElementById('campo-password').value;
+
+    // ── Validación DOM ────────────────────────────────────────────────────
+    _ok('campo-nombre','campo-username','campo-email','campo-rol','campo-password');
+    let valido = true;
+
+    if (!nombre || nombre.length < 3) {
+      _err('campo-nombre', 'El nombre debe tener al menos 3 caracteres.');
+      valido = false;
+    } else if (!RX_NOMBRE.test(nombre)) {
+      _err('campo-nombre', 'Solo se permiten letras y espacios. Sin números.');
+      valido = false;
+    } else if (nombre.length > 80) {
+      _err('campo-nombre', 'El nombre no puede superar 80 caracteres.');
+      valido = false;
+    }
+
+    if (!username || username.length < 3) {
+      _err('campo-username', 'El usuario debe tener al menos 3 caracteres.');
+      valido = false;
+    } else if (!RX_USERNAME.test(username)) {
+      _err('campo-username', 'Solo letras, números y guión bajo. Sin espacios.');
+      valido = false;
+    } else if (username.length > 30) {
+      _err('campo-username', 'El usuario no puede superar 30 caracteres.');
+      valido = false;
+    }
+
+    if (!email || !RX_EMAIL.test(email)) {
+      _err('campo-email', 'Ingresa un correo electrónico válido (ej: user@correo.com).');
+      valido = false;
+    }
+
+    if (!rol) {
+      _err('campo-rol', 'Selecciona un rol para el usuario.');
+      valido = false;
+    }
+
+    if (editandoId === null) {
+      if (!password || password.length < 6) {
+        _err('campo-password', 'La contraseña debe tener al menos 6 caracteres.');
+        valido = false;
+      } else if (!/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+        _err('campo-password', 'La contraseña debe combinar letras y números.');
+        valido = false;
+      }
+    }
+    if (!valido) return;
+    // ─────────────────────────────────────────────────────────────────────
+
+    const data = { nombre, username, email, rol, password };
     const resultado = editandoId === null
       ? UsuariosModel.create(data)
       : UsuariosModel.update(editandoId, data);
@@ -219,8 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     cerrarModal();
     renderTabla();
-    showToast(
-      editandoId === null ? 'Usuario creado' : 'Usuario actualizado',
+    showAlertSuccess(
       editandoId === null
         ? `El usuario "${data.nombre}" fue creado exitosamente.`
         : `Los datos de "${data.nombre}" fueron actualizados.`
@@ -231,12 +261,11 @@ document.addEventListener('DOMContentLoaded', () => {
   window.toggleUsuario = function(id) {
     const resultado = UsuariosModel.toggleActivo(id);
     if (!resultado.ok) {
-      showToast('No permitido', resultado.error);
+      showAlertError(resultado.error);
       return;
     }
     renderTabla();
-    showToast(
-      resultado.activo ? 'Usuario activado' : 'Usuario desactivado',
+    showAlertSuccess(
       resultado.activo ? 'El usuario ahora puede iniciar sesión.' : 'El usuario ha sido desactivado.'
     );
   };
@@ -247,29 +276,10 @@ document.addEventListener('DOMContentLoaded', () => {
   btnCancelar.addEventListener('click', cerrarModal);
   modalOverlay.addEventListener('click', cerrarModal);
 
-  inputBuscar.addEventListener('input', renderTabla);
-  filtroRol.addEventListener('change', renderTabla);
-  filtroEstado.addEventListener('change', renderTabla);
-  document.getElementById('filtro-desde')?.addEventListener('change', renderTabla);
-  document.getElementById('filtro-hasta')?.addEventListener('change', renderTabla);
-
-  // Selector de registros por página
-  document.getElementById('usr-page-size')?.addEventListener('change', (e) => {
-    registrosPorPagina = parseInt(e.target.value);
-    paginaActual = 1;
-    renderPagina();
-  });
-
-  // Limpiar todos los filtros
-  document.getElementById('btn-limpiar-filtros')?.addEventListener('click', () => {
-    inputBuscar.value = '';
-    filtroRol.value   = '';
-    filtroEstado.value = '';
-    const d = document.getElementById('filtro-desde');
-    const h = document.getElementById('filtro-hasta');
-    if (d) d.value = '';
-    if (h) h.value = '';
-    renderTabla();
+  // ── Restricciones HTML dinámicas ─────────────────────────────────────────
+  [['campo-nombre', 80], ['campo-username', 30]].forEach(([id, max]) => {
+    const el = document.getElementById(id);
+    if (el) el.maxLength = max;
   });
 
   // ── Render inicial ────────────────────────────────────────────────────────

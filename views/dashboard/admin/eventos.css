@@ -330,10 +330,83 @@
 }
 .ev-lista-vacia i { font-size: 2.5rem; color: #d1d5db; }
 
+/* ══════════════════════════════════════════════════
+   PLANTILLAS DE EVENTOS
+══════════════════════════════════════════════════ */
+.ev-plantillas-wrap {
+  background: #fff;
+  border: 2px solid var(--border);
+  border-radius: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.25rem;
+}
+.ev-plantillas-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.875rem;
+}
+.ev-plantillas-label i { font-size: 1rem; color: var(--primary); }
+.ev-plantillas-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.ev-plantilla-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.875rem;
+  border: 2px solid var(--border);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--primary-dark);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+  font-family: var(--font-text);
+}
+.ev-plantilla-btn:hover {
+  border-color: var(--primary);
+  background: #eff6ff;
+  color: var(--primary);
+}
+.ev-plantilla-btn.activa {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: #fff;
+}
+.ev-plantilla-btn i { font-size: 1rem; }
+
+/* ── Selector de horario (dos time inputs lado a lado) ── */
+.ev-horario-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.ev-horario-wrap .form-control {
+  flex: 1;
+  min-width: 0;
+}
+.ev-horario-sep {
+  color: #9ca3af;
+  font-weight: 700;
+  flex-shrink: 0;
+  font-size: 1rem;
+  user-select: none;
+}
+
 /* ── Responsive ── */
 @media (max-width: 640px) {
   .ev-recursos-grid { grid-template-columns: 1fr; }
   .ev-pub-header { flex-direction: column; }
+  .ev-horario-wrap { flex-wrap: wrap; }
 }
 
 /* ══════════════════════════════════════════════════

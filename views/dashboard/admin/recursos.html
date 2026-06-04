@@ -29,6 +29,10 @@
   <title>Gestión de Recursos – Bajo Su Presencia</title>
   <link rel="stylesheet" href="panel.css" />
   <link rel="stylesheet" href="recursos.css" />
+  <!-- Alertify Notifications CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
 </head>
 <body>
 
@@ -93,72 +97,15 @@
 
     </div>
 
-    <!-- ── Barra de herramientas ──────────────────────────────────────── -->
-    <div class="toolbar">
-      <div class="toolbar-left">
-
-        <!-- Búsqueda por nombre, categoría o descripción -->
-        <div class="search-wrap">
-          <i class="bx bx-search"></i>
-          <input
-            type="text"
-            id="input-buscar"
-            class="input-buscar"
-            placeholder="Buscar por nombre, categoría…"
-          />
-        </div>
-
-        <!-- Filtro por categoría -->
-        <select id="filtro-categoria" class="select-filtro">
-          <option value="">Todas las categorías</option>
-          <option value="Mobiliario">Mobiliario</option>
-          <option value="Audio y Video">Audio y Video</option>
-          <option value="Iluminación">Iluminación</option>
-          <option value="Papelería">Papelería</option>
-          <option value="Cocina">Cocina</option>
-          <option value="Otros">Otros</option>
-        </select>
-
-        <!-- Filtro por disponibilidad / stock -->
-        <select id="filtro-disp" class="select-filtro">
-          <option value="">Todos los estados</option>
-          <option value="disponible">Disponibles</option>
-          <option value="nodisponible">No disponibles</option>
-          <option value="sinstock">Sin stock</option>
-        </select>
-
-      </div>
-
-      <!-- Botón para abrir el modal de nuevo recurso -->
+    <!-- Botón nuevo recurso -->
+    <div style="display:flex;justify-content:flex-end;margin-bottom:1rem;">
       <button class="btn-nuevo" id="btn-nuevo-recurso">
         <i class="bx bx-plus"></i>
         Nuevo Recurso
       </button>
     </div>
-
-    <!-- ── Layout: tabla + panel lateral ─────────────────────────────── -->
-    <div class="recursos-layout" id="recursos-layout">
-
-      <!-- Tabla de recursos -->
-      <div class="table-wrap">
-        <table class="recursos-table">
-          <thead>
-            <tr>
-              <th>Recurso</th>
-              <th>Categoría</th>
-              <th>Stock</th>
-              <th>Estado</th>
-              <th>Registrado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody id="recursos-tbody">
-            <!-- Filas generadas por el controller -->
-          </tbody>
-        </table>
-      </div>
-
-    </div><!-- /recursos-layout -->
+    <!-- DataTable de recursos -->
+    <div id="dt-recursos"></div>
 
   </section>
 </main>
@@ -261,8 +208,13 @@
 <script src="../../../controllers/sidebar.controller.js"></script>
 <!-- Modelo de recursos -->
 <script src="../../../models/recursos.model.js"></script>
+<!-- Motor DataTable -->
+<script src="../../../controllers/datatable.helper.js"></script>
+<!-- Alertify Helper -->
+<script src="../../../controllers/alertify.helper.js"></script>
 <!-- Controlador de recursos -->
 <script src="../../../controllers/recursos.controller.js"></script>
 
+  <script src="../../../controllers/ayuda.controller.js"></script>
 </body>
 </html>

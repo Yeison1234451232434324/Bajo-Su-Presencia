@@ -1,4 +1,4 @@
-<!--
+﻿<!--
   ================================================================
   GESTIÓN DE SEDES — Solo Administrador
   ================================================================
@@ -21,6 +21,10 @@
   <title>Gestión de Sedes – Bajo Su Presencia</title>
   <link rel="stylesheet" href="panel.css" />
   <link rel="stylesheet" href="sedes.css" />
+  <!-- Alertify Notifications CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
 </head>
 <body>
 
@@ -47,12 +51,8 @@
       <p class="guia-seccion-texto">Gestiona las sedes y sucursales de la iglesia. Agrega nuevas sedes con su dirección, teléfono y encargado. Esta información está disponible para toda la organización.</p>
     </div>
 
-    <!-- ── Grid de sedes ───────────────────────────────────────────────── -->
-    <div class="sed-card">
-      <div class="sed-grid" id="sed-grid">
-        <!-- Generado por el controller -->
-      </div>
-    </div>
+    <!-- DataTable de sedes -->
+    <div id="dt-sedes"></div>
 
   </section>
 </main>
@@ -123,7 +123,12 @@
 <!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
 <script src="../../../controllers/sidebar.controller.js"></script>
 <script src="../../../models/sedes.model.js"></script>
+<!-- Motor DataTable -->
+<script src="../../../controllers/datatable.helper.js"></script>
+<!-- Alertify Helper -->
+<script src="../../../controllers/alertify.helper.js"></script>
 <script src="../../../controllers/sedes.controller.js"></script>
 
+  <script src="../../../controllers/ayuda.controller.js"></script>
 </body>
 </html>

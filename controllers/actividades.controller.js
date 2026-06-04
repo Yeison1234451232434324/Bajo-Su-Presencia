@@ -18,6 +18,9 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  // ── Rol del usuario activo ────────────────────────────────────────────────
+  const _esColaborador = ((JSON.parse(localStorage.getItem('usuarioLogueado') || '{}')).rol || '') === 'Colaborador';
+
   // ── Estado interno ───────────────────────────────────────────────────────
   let eventoActual = null;   // objeto del evento seleccionado
   let modoEdicion  = false;  // true cuando el modal está en modo editar
@@ -182,9 +185,10 @@ document.addEventListener('DOMContentLoaded', () => {
           <button class="act-btn-accion act-btn-editar" onclick="abrirEditar(${act.id})" title="Editar">
             <i class="bx bx-edit"></i>
           </button>
+          ${!_esColaborador ? `
           <button class="act-btn-accion act-btn-eliminar" onclick="eliminarActividad(${act.id})" title="Eliminar">
             <i class="bx bx-trash"></i>
-          </button>
+          </button>` : ''}
         </div>`;
 
       listaActividades.appendChild(item);
@@ -288,16 +292,61 @@ document.addEventListener('DOMContentLoaded', () => {
   // 8. GUARDAR ACTIVIDAD (crear o editar)
   // ════════════════════════════════════════════════════════════════
 
+  // ── Helpers de validación DOM ────────────────────────────────────────────
+  const RX_INICIO_LETRA = /^[a-zA-ZÀ-ÿñÑ]/;
+
+  function _err(id, msg) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.add('campo-invalido');
+    const box = el.closest('.form-group, .act-form-group') || el.parentElement;
+    let s = box.querySelector('.campo-error');
+    if (!s) { s = document.createElement('span'); s.className = 'campo-error'; box.appendChild(s); }
+    s.textContent = msg;
+  }
+  function _ok(...ids) {
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('campo-invalido');
+      const box = el.closest('.form-group, .act-form-group') || el.parentElement;
+      const s = box.querySelector('.campo-error');
+      if (s) s.remove();
+    });
+  }
+
   formAct.addEventListener('submit', e => {
     e.preventDefault();
 
-    const volId  = parseInt(selectVol.value);
-    const volOpt = selectVol.options[selectVol.selectedIndex];
+    const titulo    = document.getElementById('act-titulo-input').value.trim();
+    const volId     = parseInt(selectVol.value);
+    const volOpt    = selectVol.options[selectVol.selectedIndex];
     const volNombre = volOpt ? volOpt.textContent : '';
+
+    // ── Validación DOM ────────────────────────────────────────────────────
+    _ok('act-titulo-input','act-voluntario');
+    let valido = true;
+
+    if (!titulo || titulo.length < 3) {
+      _err('act-titulo-input', 'El título debe tener al menos 3 caracteres.');
+      valido = false;
+    } else if (!RX_INICIO_LETRA.test(titulo)) {
+      _err('act-titulo-input', 'El título debe comenzar con una letra, no con un número.');
+      valido = false;
+    } else if (titulo.length > 120) {
+      _err('act-titulo-input', 'El título no puede superar 120 caracteres.');
+      valido = false;
+    }
+    if (!volId || isNaN(volId)) {
+      _err('act-voluntario', 'Debes asignar la actividad a un voluntario.');
+      valido = false;
+    }
+    if (!valido) return;
+    // ─────────────────────────────────────────────────────────────────────
 
     const data = {
       eventoId:         eventoActual.id,
-      titulo:           document.getElementById('act-titulo-input').value,
+      titulo,
       descripcion:      document.getElementById('act-descripcion').value,
       prioridad:        document.getElementById('act-prioridad').value,
       voluntarioId:     volId,
@@ -312,14 +361,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (!resultado.ok) {
-      showToast('Error', resultado.error);
+      showAlertError(resultado.error);
       return;
     }
 
     _cerrarModal();
     renderActividades();
-    showToast(
-      modoEdicion ? 'Actividad actualizada' : 'Actividad creada',
+    showAlertSuccess(
       `"${data.titulo}" fue ${modoEdicion ? 'actualizada' : 'creada'} correctamente.`
     );
   });
@@ -329,12 +377,18 @@ document.addEventListener('DOMContentLoaded', () => {
   // ════════════════════════════════════════════════════════════════
 
   window.eliminarActividad = function(id) {
+    if (_esColaborador) { showAlertError('Los colaboradores no tienen permiso para eliminar actividades.'); return; }
     const act = ActividadesModel.getById(id);
     if (!act) return;
-    if (!confirm(`¿Eliminar la actividad "${act.titulo}"?\nEsta acción no se puede deshacer.`)) return;
-    ActividadesModel.eliminar(id);
-    renderActividades();
-    showToast('Actividad eliminada', `"${act.titulo}" fue eliminada.`);
+    showAlertConfirm(
+      'Eliminar actividad',
+      `¿Eliminar la actividad "${act.titulo}"? Esta acción no se puede deshacer.`,
+      function() {
+        ActividadesModel.eliminar(id);
+        renderActividades();
+        showAlertSuccess(`"${act.titulo}" fue eliminada.`);
+      }
+    );
   };
 
   // ════════════════════════════════════════════════════════════════

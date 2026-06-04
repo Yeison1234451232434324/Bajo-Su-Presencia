@@ -148,13 +148,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultado = ReportesModel.guardar(data);
 
     if (!resultado.ok) {
-      showToast('Error', resultado.error);
+      showAlertError(resultado.error);
       return;
     }
 
     btnGuardar.textContent = 'Actualizar Reporte';
     _renderReporteExistente(resultado.reporte);
-    showToast('Reporte guardado', `El reporte de "${eventoActual.titulo}" fue guardado correctamente.`);
+    showAlertSuccess(`El reporte de "${eventoActual.titulo}" fue guardado correctamente.`);
   });
 
   window.cancelarReporte = function() {

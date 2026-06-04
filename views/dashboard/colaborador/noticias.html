@@ -1,4 +1,4 @@
-<!--
+﻿<!--
   ================================================================
   NOTICIAS COLABORADOR — Formulario + Vista previa + Historial
   ================================================================
@@ -23,6 +23,10 @@
   <link rel="stylesheet" href="panel.css" />
   <!-- Estilos de noticias (reutilizamos el del admin) -->
   <link rel="stylesheet" href="../admin/noticias.css" />
+  <!-- Alertify Notifications CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
 </head>
 <body>
 
@@ -181,12 +185,17 @@
   <!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
   <!-- Sidebar del colaborador -->
   <script src="../../../controllers/sidebar.colaborador.controller.js"></script>
+  <!-- Modelo de usuarios (para auto-llenar el autor) -->
+  <script src="../../../models/usuarios.model.js"></script>
   <!-- Modelo de noticias -->
   <script src="../../../models/noticias.model.js"></script>
   <!-- Motor DataTable -->
   <script src="../../../controllers/datatable.helper.js"></script>
+  <!-- Alertify Helper -->
+  <script src="../../../controllers/alertify.helper.js"></script>
   <!-- Controlador de noticias -->
   <script src="../../../controllers/noticias.controller.js"></script>
 
+  <script src="../../../controllers/ayuda.controller.js"></script>
 </body>
 </html>

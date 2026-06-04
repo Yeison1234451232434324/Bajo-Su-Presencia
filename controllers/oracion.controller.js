@@ -17,6 +17,9 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  // ── Rol del usuario activo ────────────────────────────────────────────────
+  const _esColaborador = ((JSON.parse(localStorage.getItem('usuarioLogueado') || '{}')).rol || '') === 'Colaborador';
+
   // ── Referencias DOM del formulario ──────────────────────────────────────
   const form        = document.getElementById('form-oracion');
   const txtTexto    = document.getElementById('prayerText');
@@ -33,6 +36,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ID de la oración que se está editando (null = modo crear)
   let editandoId = null;
+
+  // ── Helpers de validación DOM ────────────────────────────────────────────
+  function _err(id, msg) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.add('campo-invalido');
+    const box = el.closest('.form-group, .or-form-group') || el.parentElement;
+    let s = box.querySelector('.campo-error');
+    if (!s) { s = document.createElement('span'); s.className = 'campo-error'; box.appendChild(s); }
+    s.textContent = msg;
+  }
+  function _ok(...ids) {
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('campo-invalido');
+      const box = el.closest('.form-group, .or-form-group') || el.parentElement;
+      const s = box.querySelector('.campo-error');
+      if (s) s.remove();
+    });
+  }
 
   // ════════════════════════════════════════════════════════════════
   // 1. VISTA PREVIA EN TIEMPO REAL
@@ -69,6 +93,29 @@ document.addEventListener('DOMContentLoaded', () => {
   form.addEventListener('submit', (e) => {
     e.preventDefault();
 
+    // ── Validación DOM ────────────────────────────────────────────────────
+    const texto = txtTexto.value.trim();
+    const imagen = txtImagen.value.trim();
+    _ok('prayerText','prayerImage');
+    let valido = true;
+
+    if (!texto || texto.length < 10) {
+      _err('prayerText', 'La oración debe tener al menos 10 caracteres.');
+      valido = false;
+    } else if (texto.length > 2000) {
+      _err('prayerText', 'La oración no puede superar 2000 caracteres.');
+      valido = false;
+    } else if (/^\d+$/.test(texto)) {
+      _err('prayerText', 'La oración no puede ser solo números.');
+      valido = false;
+    }
+    if (imagen && !/^https?:\/\/.+/.test(imagen)) {
+      _err('prayerImage', 'La URL de imagen debe comenzar con http:// o https://');
+      valido = false;
+    }
+    if (!valido) return;
+    // ─────────────────────────────────────────────────────────────────────
+
     const data = {
       texto:     txtTexto.value,
       versiculo: txtVersiculo.value,
@@ -86,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (!resultado.ok) {
-      showToast('Error', resultado.error);
+      showAlertError(resultado.error);
       return;
     }
 
@@ -94,8 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
     limpiarFormulario();
     renderHistorial();
 
-    showToast(
-      editandoId === null ? '¡Oración publicada!' : '¡Oración actualizada!',
+    showAlertSuccess(
       editandoId === null
         ? 'La oración fue guardada en el historial.'
         : 'Los cambios fueron guardados correctamente.'
@@ -152,21 +198,26 @@ document.addEventListener('DOMContentLoaded', () => {
   // ════════════════════════════════════════════════════════════════
 
   window.eliminarOracion = function (id) {
+    if (_esColaborador) { showAlertError('Los colaboradores no tienen permiso para eliminar oraciones.'); return; }
     const oracion = OracionModel.getById(id);
     if (!oracion) return;
 
     // Confirmación antes de eliminar
-    if (!confirm(`¿Eliminar la oración del ${oracion.fecha}?\n\n"${oracion.texto.substring(0, 80)}..."`)) return;
+    showAlertConfirm(
+      'Eliminar oración',
+      `¿Eliminar la oración del ${oracion.fecha}?\n\n"${oracion.texto.substring(0, 80)}..."`,
+      function() {
+        // Si se estaba editando esta misma oración, limpiar el formulario
+        if (editandoId === id) {
+          limpiarFormulario();
+          editandoId = null;
+        }
 
-    // Si se estaba editando esta misma oración, limpiar el formulario
-    if (editandoId === id) {
-      limpiarFormulario();
-      editandoId = null;
-    }
-
-    OracionModel.eliminar(id);
-    renderHistorial();
-    showToast('Oración eliminada', 'La oración fue eliminada del historial.');
+        OracionModel.eliminar(id);
+        renderHistorial();
+        showAlertSuccess('La oración fue eliminada del historial.');
+      }
+    );
   };
 
   // ════════════════════════════════════════════════════════════════
@@ -239,10 +290,11 @@ document.addEventListener('DOMContentLoaded', () => {
                   onclick="editarOracion(${oracion.id})" title="Editar oración">
                   <i class="bx bx-edit"></i>
                 </button>
+                ${!_esColaborador ? `
                 <button class="btn-accion-or btn-eliminar-or"
                   onclick="eliminarOracion(${oracion.id})" title="Eliminar oración">
                   <i class="bx bx-trash"></i>
-                </button>
+                </button>` : ''}
               </div>
             </div>
             <p class="or-card-texto">"${textoCorto}"</p>

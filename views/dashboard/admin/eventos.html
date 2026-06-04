@@ -30,6 +30,10 @@
   <link rel="stylesheet" href="panel.css" />
   <!-- Estilos específicos del módulo de eventos -->
   <link rel="stylesheet" href="eventos.css" />
+  <!-- Alertify Notifications CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
 </head>
 <body>
 
@@ -54,6 +58,41 @@
 
       <!-- ── Columna izquierda: formulario ── -->
       <div class="ev-form-col">
+
+        <!-- Plantillas de eventos -->
+        <div class="ev-plantillas-wrap">
+          <p class="ev-plantillas-label">
+            <i class="bx bx-layer"></i>
+            Plantillas rápidas — selecciona o escribe tu propio título
+          </p>
+          <div class="ev-plantillas-grid">
+            <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Culto Principal','10:00','12:00')">
+              <i class="bx bx-church"></i> Culto Principal
+            </button>
+            <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Estudio Bíblico','19:00','21:00')">
+              <i class="bx bx-book-open"></i> Estudio Bíblico
+            </button>
+            <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Reunión de Jóvenes','18:00','20:00')">
+              <i class="bx bx-group"></i> Reunión de Jóvenes
+            </button>
+            <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Oración Matutina','08:00','10:00')">
+              <i class="bx bx-sun"></i> Oración Matutina
+            </button>
+            <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Vigilia de Oración','21:00','23:00')">
+              <i class="bx bx-moon"></i> Vigilia de Oración
+            </button>
+            <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Conferencia','09:00','17:00')">
+              <i class="bx bx-microphone"></i> Conferencia
+            </button>
+            <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Retiro Espiritual','08:00','18:00')">
+              <i class="bx bx-trip"></i> Retiro Espiritual
+            </button>
+            <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Celebración Especial','18:00','20:00')">
+              <i class="bx bx-star"></i> Celebración Especial
+            </button>
+          </div>
+        </div>
+
         <div class="form-card">
           <form id="form-evento" onsubmit="submitEvent(event)" novalidate>
 
@@ -61,7 +100,7 @@
             <div class="form-group">
               <label for="ev-titulo">Título del Evento</label>
               <input id="ev-titulo" type="text" class="form-control"
-                placeholder="Ej: Culto Dominical" required
+                placeholder="Ej: Culto Dominical (o escribe uno personalizado)" required
                 oninput="actualizarPreview()" />
             </div>
 
@@ -73,25 +112,34 @@
                   onchange="actualizarPreview()" />
               </div>
               <div class="form-group">
-                <label for="ev-horario">Horario</label>
-                <input id="ev-horario" type="text" class="form-control"
-                  placeholder="Ej: 10:00 AM - 12:00 PM" required
-                  oninput="actualizarPreview()" />
+                <label>Horario</label>
+                <div class="ev-horario-wrap">
+                  <input id="ev-hora-inicio" type="time" class="form-control"
+                    min="06:00" max="21:00" required oninput="actualizarPreview()" />
+                  <span class="ev-horario-sep">→</span>
+                  <input id="ev-hora-fin" type="time" class="form-control"
+                    min="06:00" max="21:00" oninput="actualizarPreview()" />
+                </div>
               </div>
             </div>
 
-            <!-- Ubicación + Asistentes -->
+            <!-- Sede / Ubicación + Asistentes -->
             <div class="form-row">
               <div class="form-group">
-                <label for="ev-ubicacion">Ubicación</label>
+                <label for="ev-ubicacion">
+                  <i class="bx bx-buildings" style="color:var(--primary);"></i>
+                  Sede / Ubicación
+                </label>
                 <input id="ev-ubicacion" type="text" class="form-control"
-                  placeholder="Ej: Santuario Principal" required
-                  oninput="actualizarPreview()" />
+                  list="ev-sedes-lista"
+                  placeholder="Selecciona una sede o escribe la ubicación"
+                  required oninput="actualizarPreview()" />
+                <datalist id="ev-sedes-lista"></datalist>
               </div>
               <div class="form-group">
-                <label for="ev-asistentes">Asistentes Esperados</label>
-                <input id="ev-asistentes" type="text" class="form-control"
-                  placeholder="Ej: 200+"
+                <label for="ev-asistentes">Personas Esperadas</label>
+                <input id="ev-asistentes" type="number" class="form-control"
+                  min="0" placeholder="Ej: 200"
                   oninput="actualizarPreview()" />
               </div>
             </div>
@@ -265,20 +313,30 @@
             <input id="edit-fecha" type="date" class="form-control" required />
           </div>
           <div class="form-group">
-            <label for="edit-horario">Horario</label>
-            <input id="edit-horario" type="text" class="form-control"
-              placeholder="Ej: 10:00 AM - 12:00 PM" required />
+            <label>Horario</label>
+            <div class="ev-horario-wrap">
+              <input id="edit-hora-inicio" type="time" class="form-control"
+                min="06:00" max="21:00" required />
+              <span class="ev-horario-sep">→</span>
+              <input id="edit-hora-fin" type="time" class="form-control"
+                min="06:00" max="21:00" />
+            </div>
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <label for="edit-ubicacion">Ubicación</label>
-            <input id="edit-ubicacion" type="text" class="form-control" required />
+            <label for="edit-ubicacion">
+              <i class="bx bx-buildings" style="color:var(--primary);"></i>
+              Sede / Ubicación
+            </label>
+            <input id="edit-ubicacion" type="text" class="form-control"
+              list="edit-sedes-lista" required />
+            <datalist id="edit-sedes-lista"></datalist>
           </div>
           <div class="form-group">
-            <label for="edit-asistentes">Asistentes Esperados</label>
-            <input id="edit-asistentes" type="text" class="form-control" />
+            <label for="edit-asistentes">Personas Esperadas</label>
+            <input id="edit-asistentes" type="number" class="form-control" min="0" />
           </div>
         </div>
 
@@ -291,6 +349,21 @@
             <label for="edit-descripcion">Descripción</label>
             <textarea id="edit-descripcion" class="form-control" rows="3"></textarea>
           </div>
+        </div>
+
+        <!-- Recursos del evento (editables) -->
+        <div class="form-group" style="margin-top:1rem;">
+          <div class="ev-recursos-header">
+            <label>Recursos del Inventario</label>
+            <span id="edit-contador-recursos" class="ev-contador">
+              Ningún recurso seleccionado (opcional)
+            </span>
+          </div>
+          <div id="edit-sin-recursos-msg" class="ev-sin-recursos-msg" style="display:none;">
+            <i class="bx bx-error-circle"></i>
+            No hay recursos disponibles en el inventario.
+          </div>
+          <div id="edit-recursos-grid" class="ev-recursos-grid"></div>
         </div>
 
         <div class="ev-modal-footer">
@@ -313,10 +386,15 @@
 <script src="../../../models/recursos.model.js"></script>
 <!-- Modelo de eventos (guardar y leer eventos publicados) -->
 <script src="../../../models/eventos.model.js"></script>
+<!-- Modelo de sedes (para el selector de sede) -->
+<script src="../../../models/sedes.model.js"></script>
 <!-- Motor DataTable -->
 <script src="../../../controllers/datatable.helper.js"></script>
+<!-- Alertify Helper (configuración global de alertas) -->
+<script src="../../../controllers/alertify.helper.js"></script>
 <!-- Controlador de eventos -->
 <script src="../../../controllers/eventos.controller.js"></script>
 
+  <script src="../../../controllers/ayuda.controller.js"></script>
 </body>
 </html>

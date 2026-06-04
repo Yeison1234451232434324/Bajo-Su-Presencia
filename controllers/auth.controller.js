@@ -4,9 +4,6 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     const user     = document.getElementById('username').value.trim();
     const emailVal = document.getElementById('email').value.trim();
     const pass     = document.getElementById('password').value.trim();
-    const errorMsg = document.getElementById('error-msg');
-
-    errorMsg.style.display = 'none';
 
     // ── Base de datos simulada ──────────────────────────────────────────────
     const usuariosConfigurados = [
@@ -25,8 +22,8 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
             url:      '../../dashboard/voluntario/calificaciones.html'
         },
         {
-            username: 'usuario',
-            email:    'usuario@correo.com',
+            username: 'colaborador',
+            email:    'colaborador@correo.com',
             password: '123',
             rol:      'Colaborador',
             url:      '../../dashboard/colaborador/eventos.html'
@@ -46,6 +43,6 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
         }));
         window.location.href = usuarioValido.url;
     } else {
-        errorMsg.style.display = 'block';
+        showAlertError('Usuario o contraseña incorrectos. Verifica tus datos e intenta de nuevo.');
     }
 });

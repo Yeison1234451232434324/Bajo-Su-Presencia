@@ -1,4 +1,4 @@
-<!--
+﻿<!--
   ================================================================
   ORACIÓN DEL DÍA COLABORADOR — Formulario + Historial
   ================================================================
@@ -23,6 +23,10 @@
   <link rel="stylesheet" href="panel.css" />
   <!-- Estilos del historial y modal de oración (copiado del admin) -->
   <link rel="stylesheet" href="../admin/oracion.css" />
+  <!-- Alertify Notifications CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
 </head>
 <body>
 
@@ -156,8 +160,11 @@
   <script src="../../../models/oracion.model.js"></script>
   <!-- Motor DataTable -->
   <script src="../../../controllers/datatable.helper.js"></script>
+  <!-- Alertify Helper -->
+  <script src="../../../controllers/alertify.helper.js"></script>
   <!-- Controlador: formulario, historial, editar, eliminar y modal -->
   <script src="../../../controllers/oracion.controller.js"></script>
 
+  <script src="../../../controllers/ayuda.controller.js"></script>
 </body>
 </html>

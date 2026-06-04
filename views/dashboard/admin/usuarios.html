@@ -30,6 +30,10 @@
   <title>Gestión de Usuarios – Bajo Su Presencia</title>
   <link rel="stylesheet" href="panel.css" />
   <link rel="stylesheet" href="usuarios.css" />
+  <!-- Alertify Notifications CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
 </head>
 <body>
 
@@ -80,58 +84,15 @@
         </div>
       </div>
 
-      <!-- Barra de herramientas -->
-      <div class="toolbar">
-        <div class="toolbar-left">
-          <!-- Búsqueda -->
-          <div class="search-wrap">
-            <i class="bx bx-search"></i>
-            <input
-              type="text"
-              id="input-buscar"
-              class="input-buscar"
-              placeholder="Buscar por nombre, usuario o correo…"
-            />
-          </div>
-          <!-- Filtro rol -->
-          <select id="filtro-rol" class="select-filtro">
-            <option value="">Todos los roles</option>
-            <option value="Administrador">Administrador</option>
-            <option value="Colaborador">Colaborador</option>
-            <option value="Voluntario">Voluntario</option>
-          </select>
-          <!-- Filtro estado -->
-          <select id="filtro-estado" class="select-filtro">
-            <option value="">Todos los estados</option>
-            <option value="activo">Activos</option>
-            <option value="inactivo">Inactivos</option>
-          </select>
-        </div>
-        <!-- Botón nuevo -->
+      <!-- Botón nuevo usuario -->
+      <div style="display:flex;justify-content:flex-end;margin-bottom:1rem;">
         <button class="btn-nuevo" id="btn-nuevo-usuario">
           <i class="bx bx-user-plus"></i>
           Nuevo Usuario
         </button>
       </div>
-
-      <!-- Tabla -->
-      <div class="table-wrap">
-        <table class="usuarios-table">
-          <thead>
-            <tr>
-              <th>Usuario</th>
-              <th>Correo</th>
-              <th>Rol</th>
-              <th>Estado</th>
-              <th>Creado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody id="usuarios-tbody">
-            <!-- Filas generadas por el controller -->
-          </tbody>
-        </table>
-      </div>
+      <!-- DataTable de usuarios -->
+      <div id="dt-usuarios"></div>
 
     </section>
   </main>
@@ -163,6 +124,7 @@
           placeholder="Ej: María González"
           required
           minlength="3"
+          oninput="this.value=this.value.replace(/[0-9]/g,'')"
         />
       </div>
 
@@ -231,8 +193,13 @@
   <script src="../../../controllers/sidebar.controller.js"></script>
   <!-- Model -->
   <script src="../../../models/usuarios.model.js"></script>
+  <!-- Motor DataTable -->
+  <script src="../../../controllers/datatable.helper.js"></script>
+  <!-- Alertify Helper -->
+  <script src="../../../controllers/alertify.helper.js"></script>
   <!-- Controller -->
   <script src="../../../controllers/usuarios.controller.js"></script>
 
+  <script src="../../../controllers/ayuda.controller.js"></script>
 </body>
 </html>

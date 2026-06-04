@@ -40,6 +40,45 @@ document.addEventListener('DOMContentLoaded', () => {
   // ID de la noticia que se está editando (null = modo crear)
   let editandoId = null;
 
+  // ── Rol del usuario activo ────────────────────────────────────────────────
+  const _sesion = JSON.parse(localStorage.getItem('usuarioLogueado') || '{}');
+  const _esColaborador = (_sesion.rol || '') === 'Colaborador';
+
+  // ── Nombre del usuario logueado (para pre-llenar el campo Autor) ──────────
+  let autorActual = '';
+  if (_sesion.nombre) {
+    // Buscar nombre completo en UsuariosModel (si está cargado)
+    if (typeof UsuariosModel !== 'undefined') {
+      const _usr = UsuariosModel.getAll().find(u => u.username === _sesion.nombre);
+      autorActual = (_usr && _usr.nombre) ? _usr.nombre : _sesion.nombre;
+    } else {
+      autorActual = _sesion.nombre;
+    }
+  }
+  // Auto-llenar el campo Autor al cargar la página
+  if (inpAutor && autorActual) inpAutor.value = autorActual;
+
+  // ── Helpers de validación DOM ────────────────────────────────────────────
+  function _err(id, msg) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.add('campo-invalido');
+    const box = el.closest('.form-group') || el.parentElement;
+    let s = box.querySelector('.campo-error');
+    if (!s) { s = document.createElement('span'); s.className = 'campo-error'; box.appendChild(s); }
+    s.textContent = msg;
+  }
+  function _ok(...ids) {
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('campo-invalido');
+      const box = el.closest('.form-group') || el.parentElement;
+      const s = box.querySelector('.campo-error');
+      if (s) s.remove();
+    });
+  }
+
   // ════════════════════════════════════════════════════════════════
   // 1. VISTA PREVIA EN TIEMPO REAL
   // ════════════════════════════════════════════════════════════════
@@ -105,6 +144,45 @@ document.addEventListener('DOMContentLoaded', () => {
   form.addEventListener('submit', (e) => {
     e.preventDefault();
 
+    // ── Validación DOM ────────────────────────────────────────────────────
+    const RX_NOMBRE     = /^[a-zA-ZÀ-ÿñÑ\s'\-\.]+$/;
+    const RX_INI_LETRA  = /^[a-zA-ZÀ-ÿñÑ]/;
+    const titulo  = inpTitulo.value.trim();
+    const resumen = inpResumen.value.trim();
+    const autor   = inpAutor.value.trim();
+
+    _ok('news-titulo','news-resumen','news-autor','news-fecha','news-imagen');
+    let valido = true;
+
+    if (!titulo || titulo.length < 3) {
+      _err('news-titulo', 'El título debe tener al menos 3 caracteres.');              valido = false;
+    } else if (!RX_INI_LETRA.test(titulo)) {
+      _err('news-titulo', 'El título debe comenzar con una letra, no con un número.'); valido = false;
+    } else if (titulo.length > 150) {
+      _err('news-titulo', 'El título no puede superar 150 caracteres.');               valido = false;
+    }
+    if (!resumen || resumen.length < 10) {
+      _err('news-resumen', 'El resumen debe tener al menos 10 caracteres.');           valido = false;
+    } else if (resumen.length > 400) {
+      _err('news-resumen', 'El resumen no puede superar 400 caracteres.');             valido = false;
+    }
+    if (!autor || autor.length < 2) {
+      _err('news-autor', 'El autor es obligatorio (mínimo 2 caracteres).');            valido = false;
+    } else if (!RX_NOMBRE.test(autor)) {
+      _err('news-autor', 'El nombre del autor solo puede contener letras y espacios.'); valido = false;
+    }
+    const _hoyNews = new Date().toISOString().split('T')[0];
+    if (!inpFecha.value) {
+      _err('news-fecha', 'La fecha de publicación es obligatoria.');                   valido = false;
+    } else if (inpFecha.value < _hoyNews) {
+      _err('news-fecha', 'No se puede publicar con una fecha anterior a hoy.');        valido = false;
+    }
+    if (inpImagen.value && !/^https?:\/\/.+/.test(inpImagen.value.trim())) {
+      _err('news-imagen', 'La URL de imagen debe comenzar con http:// o https://');   valido = false;
+    }
+    if (!valido) return;
+    // ─────────────────────────────────────────────────────────────────────
+
     const data = {
       titulo:    inpTitulo.value,
       resumen:   inpResumen.value,
@@ -123,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (!resultado.ok) {
-      showToastError('Error', resultado.error);
+      showAlertError(resultado.error);
       return;
     }
 
@@ -131,8 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
     limpiarFormulario();
     renderHistorial();
 
-    showToast(
-      `¡Noticia ${accion}!`,
+    showAlertSuccess(
       `"${resultado.noticia.titulo}" fue ${accion} correctamente.`
     );
 
@@ -189,20 +266,25 @@ document.addEventListener('DOMContentLoaded', () => {
   // ════════════════════════════════════════════════════════════════
 
   window.eliminarNoticia = function (id) {
+    if (_esColaborador) { showAlertError('Los colaboradores no tienen permiso para eliminar noticias.'); return; }
     const noticia = NoticiasModel.getById(id);
     if (!noticia) return;
 
-    if (!confirm(`¿Eliminar la noticia "${noticia.titulo}"?\nEsta acción no se puede deshacer.`)) return;
+    showAlertConfirm(
+      'Eliminar noticia',
+      `¿Eliminar la noticia "${noticia.titulo}"? Esta acción no se puede deshacer.`,
+      function() {
+        // Si se estaba editando esta noticia, limpiar el formulario
+        if (editandoId === id) {
+          limpiarFormulario();
+          editandoId = null;
+        }
 
-    // Si se estaba editando esta noticia, limpiar el formulario
-    if (editandoId === id) {
-      limpiarFormulario();
-      editandoId = null;
-    }
-
-    NoticiasModel.eliminar(id);
-    renderHistorial();
-    showToast('Noticia eliminada', `"${noticia.titulo}" fue eliminada del historial.`);
+        NoticiasModel.eliminar(id);
+        renderHistorial();
+        showAlertSuccess(`"${noticia.titulo}" fue eliminada del historial.`);
+      }
+    );
   };
 
   // ════════════════════════════════════════════════════════════════
@@ -281,10 +363,11 @@ document.addEventListener('DOMContentLoaded', () => {
                   onclick="editarNoticia(${noticia.id})" title="Editar noticia">
                   <i class="bx bx-edit"></i>
                 </button>
+                ${!_esColaborador ? `
                 <button class="btn-accion-nt btn-eliminar-nt"
                   onclick="eliminarNoticia(${noticia.id})" title="Eliminar noticia">
                   <i class="bx bx-trash"></i>
-                </button>
+                </button>` : ''}
               </div>
             </div>
             <p class="nt-card-resumen">${resumenCorto}</p>
@@ -328,6 +411,8 @@ document.addEventListener('DOMContentLoaded', () => {
   /** Limpia el formulario y restaura el botón al modo crear */
   function limpiarFormulario() {
     form.reset();
+    // Restaurar el autor del usuario logueado tras resetear el formulario
+    if (inpAutor && autorActual) inpAutor.value = autorActual;
     previewBox.style.display  = 'none';
     btnCancelar.style.display = 'none';
     btnSubmit.innerHTML = `
@@ -340,21 +425,8 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
   }
 
-  /** Toast de error (rojo) */
-  function showToastError(title, desc) {
-    let container = document.getElementById('toastContainer');
-    if (!container) {
-      container = document.createElement('div');
-      container.id        = 'toastContainer';
-      container.className = 'toast-container';
-      document.body.appendChild(container);
-    }
-    const toast = document.createElement('div');
-    toast.className = 'toast toast-error';
-    toast.innerHTML = `<div class="toast-title">❌ ${title}</div><div class="toast-desc">${desc}</div>`;
-    container.appendChild(toast);
-    setTimeout(() => toast.remove(), 4000);
-  }
+  // Bloquear fechas anteriores a hoy en el selector
+  if (inpFecha) inpFecha.min = new Date().toISOString().split('T')[0];
 
   // ── Render inicial del historial ─────────────────────────────────────────
   renderHistorial();

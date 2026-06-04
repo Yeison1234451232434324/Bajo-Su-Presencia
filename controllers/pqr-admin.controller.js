@@ -30,11 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ── Referencias DOM ──────────────────────────────────────────────────────
-  const tablaBody        = document.getElementById('pqr-tbody');
-  const inputBuscar      = document.getElementById('pqr-input-buscar');
-  const filtroTipo       = document.getElementById('pqr-filtro-tipo');
-  const filtroEstado     = document.getElementById('pqr-filtro-estado');
-  const filtroPrioridad  = document.getElementById('pqr-filtro-prioridad');
 
   // Modal
   const modal            = document.getElementById('pqr-modal');
@@ -64,94 +59,85 @@ document.addEventListener('DOMContentLoaded', () => {
   // 2. TABLA DE PQR
   // ════════════════════════════════════════════════════════════════
 
-  /** Renderiza la tabla aplicando búsqueda y filtros activos */
+  // ── DataTable de PQR ─────────────────────────────────────────────────────
+  let dtPQR = null;
+
   function renderTabla() {
-    const buscar    = inputBuscar.value.toLowerCase().trim();
-    const tipo      = filtroTipo.value;
-    const estado    = filtroEstado.value;
-    const prioridad = filtroPrioridad.value;
-
-    let lista = PQRModel.getAll();
-
-    // Ordenar: primero los más recientes
-    lista.sort((a, b) => new Date(b.creadoEn) - new Date(a.creadoEn));
-
-    // Filtro de texto: busca en nombre, email, asunto y descripción
-    if (buscar) {
-      lista = lista.filter(p =>
-        p.nombre.toLowerCase().includes(buscar)      ||
-        p.email.toLowerCase().includes(buscar)       ||
-        p.asunto.toLowerCase().includes(buscar)      ||
-        p.descripcion.toLowerCase().includes(buscar)
-      );
-    }
-
-    // Filtros de selección
-    if (tipo)      lista = lista.filter(p => p.tipo === tipo);
-    if (estado)    lista = lista.filter(p => p.estado === estado);
-    if (prioridad) lista = lista.filter(p => p.prioridad === prioridad);
-
     actualizarContadores();
-    tablaBody.innerHTML = '';
 
-    if (lista.length === 0) {
-      tablaBody.innerHTML = `
-        <tr>
-          <td colspan="7" style="text-align:center;padding:2.5rem;color:#9ca3af;">
-            <i class="bx bx-message-detail" style="font-size:2rem;display:block;margin-bottom:0.5rem;"></i>
-            No se encontraron PQR con esos criterios.
-          </td>
-        </tr>`;
-      return;
-    }
+    const data = PQRModel.getAll()
+      .sort((a, b) => new Date(b.creadoEn) - new Date(a.creadoEn))
+      .map(p => ({
+        ...p,
+        creadoFecha: p.creadoEn ? p.creadoEn.split('T')[0] : ''
+      }));
 
-    lista.forEach(p => {
+    function renderRow(p) {
       const badgeTipo      = tipoBadge(p.tipo);
       const badgeEstado    = estadoBadge(p.estado);
       const badgePrioridad = prioridadBadge(p.prioridad);
       const fecha          = formatFecha(p.creadoEn);
 
-      tablaBody.innerHTML += `
-        <tr>
-          <td>${badgeTipo}</td>
-          <td>
-            <div class="pqr-nombre-cell">
-              <span class="pqr-nombre">${escapeHtml(p.nombre)}</span>
-              <span class="pqr-email">${escapeHtml(p.email)}</span>
-            </div>
-          </td>
-          <td>
-            <span class="pqr-asunto-text" title="${escapeHtml(p.asunto)}">
+      return `
+        <div style="padding:1rem 1.25rem;background:#fff;border:2px solid var(--border);
+          border-radius:1rem;margin-bottom:0.5rem;">
+          <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+            ${badgeTipo}
+            ${badgePrioridad}
+            ${badgeEstado}
+            <span style="flex:1;min-width:120px;font-weight:700;font-size:0.95rem;
+              overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escapeHtml(p.asunto)}">
               ${escapeHtml(p.asunto)}
             </span>
-          </td>
-          <td>${badgePrioridad}</td>
-          <td>${badgeEstado}</td>
-          <td style="white-space:nowrap;font-size:0.9rem;color:var(--muted);">${fecha}</td>
-          <td>
-            <div class="pqr-acciones-cell">
-              <!-- Ver / Responder -->
-              <button class="pqr-btn-accion btn-ver-pqr"
-                onclick="abrirModal(${p.id})"
-                title="Ver detalle y responder">
+            <span style="flex-shrink:0;font-size:0.82rem;color:var(--muted);">${fecha}</span>
+            <div class="pqr-acciones-cell" style="flex-shrink:0;">
+              <button class="pqr-btn-accion btn-ver-pqr" onclick="abrirModal(${p.id})" title="Ver detalle y responder">
                 <i class="bx bx-show"></i>
               </button>
-              <!-- Cambiar estado (ciclo) -->
-              <button class="pqr-btn-accion btn-estado-pqr"
-                onclick="ciclarEstado(${p.id})"
+              <button class="pqr-btn-accion btn-estado-pqr" onclick="ciclarEstado(${p.id})"
                 title="Cambiar estado: ${siguienteEstado(p.estado)}">
                 <i class="bx bx-transfer-alt"></i>
               </button>
-              <!-- Eliminar -->
-              <button class="pqr-btn-accion btn-eliminar-pqr"
-                onclick="eliminarPQR(${p.id})"
-                title="Eliminar PQR">
+              <button class="pqr-btn-accion btn-eliminar-pqr" onclick="eliminarPQR(${p.id})" title="Eliminar PQR">
                 <i class="bx bx-trash"></i>
               </button>
             </div>
-          </td>
-        </tr>`;
-    });
+          </div>
+          <div style="margin-top:0.5rem;font-size:0.875rem;color:var(--muted);">
+            <i class="bx bx-user" style="font-size:0.9rem;"></i>
+            ${escapeHtml(p.nombre)}
+            &nbsp;·&nbsp;
+            <i class="bx bx-envelope" style="font-size:0.9rem;"></i>
+            ${escapeHtml(p.email)}
+          </div>
+        </div>`;
+    }
+
+    if (!dtPQR) {
+      dtPQR = new BSPDataTable({
+        containerId:  'dt-pqr',
+        data,
+        pageSize:     10,
+        searchFields: ['nombre', 'email', 'asunto', 'descripcion'],
+        filters: [
+          { key: 'tipo',       label: 'Tipo',      type: 'select', options: ['Petición', 'Queja', 'Reclamo'] },
+          { key: 'estado',     label: 'Estado',    type: 'select', options: ['Pendiente', 'En proceso', 'Resuelto', 'Cerrado'] },
+          { key: 'prioridad',  label: 'Prioridad', type: 'select', options: ['Alta', 'Media', 'Baja'] },
+          { key: 'creadoFecha', label: 'Desde', type: 'date-from' },
+          { key: 'creadoFecha', label: 'Hasta', type: 'date-to'   },
+        ],
+        renderRow,
+        exportable:   true,
+        exportName:   'pqr',
+        exportFields: ['tipo', 'nombre', 'email', 'asunto', 'prioridad', 'estado', 'creadoFecha'],
+        exportLabels: ['Tipo', 'Nombre', 'Email', 'Asunto', 'Prioridad', 'Estado', 'Fecha'],
+        emptyHTML: `<div class="dt-empty"><i class="bx bx-message-detail"></i><p>No se encontraron PQR con esos criterios.</p></div>`
+      });
+      window.__bspDT['dt-pqr'] = dtPQR;
+      dtPQR.init();
+    } else {
+      dtPQR.refresh(data);
+    }
   }
 
   // ── Helpers de badges ────────────────────────────────────────────────────
@@ -311,7 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     cerrarModal();
     renderTabla();
-    showToast('Respuesta guardada', 'La respuesta fue registrada exitosamente.');
+    showAlertSuccess('La respuesta fue registrada exitosamente.');
   });
 
   // ════════════════════════════════════════════════════════════════
@@ -327,12 +313,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultado = PQRModel.cambiarEstado(id, nuevo);
 
     if (!resultado.ok) {
-      showToastError('Error', resultado.error);
+      showAlertError(resultado.error);
       return;
     }
 
     renderTabla();
-    showToast('Estado actualizado', `El PQR pasó a estado "${nuevo}".`);
+    showAlertSuccess(`El PQR pasó a estado "${nuevo}".`);
   };
 
   // ════════════════════════════════════════════════════════════════
@@ -343,42 +329,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const p = PQRModel.getById(id);
     if (!p) return;
 
-    if (!confirm(`¿Eliminar el PQR de "${p.nombre}" sobre "${p.asunto}"?\nEsta acción no se puede deshacer.`)) return;
+    showAlertConfirm(
+      'Eliminar PQR',
+      `¿Eliminar el PQR de "${p.nombre}" sobre "${p.asunto}"? Esta acción no se puede deshacer.`,
+      function() {
+        const resultado = PQRModel.eliminar(id);
+        if (!resultado.ok) {
+          showAlertError(resultado.error);
+          return;
+        }
 
-    const resultado = PQRModel.eliminar(id);
-    if (!resultado.ok) {
-      showToastError('Error', resultado.error);
-      return;
-    }
-
-    renderTabla();
-    showToast('PQR eliminado', `El PQR de "${p.nombre}" fue eliminado.`);
+        renderTabla();
+        showAlertSuccess(`El PQR de "${p.nombre}" fue eliminado.`);
+      }
+    );
   };
-
-  // ════════════════════════════════════════════════════════════════
-  // FILTROS Y BÚSQUEDA
-  // ════════════════════════════════════════════════════════════════
-
-  inputBuscar.addEventListener('input', renderTabla);
-  filtroTipo.addEventListener('change', renderTabla);
-  filtroEstado.addEventListener('change', renderTabla);
-  filtroPrioridad.addEventListener('change', renderTabla);
-
-  // ── Toast de error ───────────────────────────────────────────────────────
-  function showToastError(title, desc) {
-    let container = document.getElementById('toastContainer');
-    if (!container) {
-      container = document.createElement('div');
-      container.id        = 'toastContainer';
-      container.className = 'toast-container';
-      document.body.appendChild(container);
-    }
-    const toast = document.createElement('div');
-    toast.className = 'toast toast-error';
-    toast.innerHTML = `<div class="toast-title">❌ ${title}</div><div class="toast-desc">${desc}</div>`;
-    container.appendChild(toast);
-    setTimeout(() => toast.remove(), 4000);
-  }
 
   // ── Render inicial ───────────────────────────────────────────────────────
   renderTabla();

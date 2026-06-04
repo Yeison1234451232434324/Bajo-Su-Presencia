@@ -312,6 +312,26 @@
   margin: 0;
 }
 
+/* ── Validación de campos ── */
+.campo-invalido {
+  border-color: #e11d48 !important;
+  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.15) !important;
+  background-color: #fff5f7 !important;
+}
+.campo-error {
+  display: block;
+  color: #e11d48;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-top: 5px;
+  padding-left: 2px;
+  animation: errorAppear 0.2s ease;
+}
+@keyframes errorAppear {
+  from { opacity: 0; transform: translateY(-3px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* ── Animaciones ── */
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(20px); }

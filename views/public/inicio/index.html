@@ -152,12 +152,18 @@
       <div class="prayer-card">
         <div class="prayer-corner prayer-corner--tl"></div>
         <div class="prayer-corner prayer-corner--br"></div>
-        <p class="prayer-text">
+        <img
+          id="prayer-imagen-dia"
+          src=""
+          alt="Imagen inspiradora de la oración"
+          style="display:none;width:100%;max-height:280px;object-fit:cover;border-radius:0.75rem;margin-bottom:1.25rem;"
+        />
+        <p class="prayer-text" id="prayer-texto-dia">
           "Señor, guía nuestros pasos en tu camino de luz y amor.
           Que tu paz que sobrepasa todo entendimiento guarde nuestros corazones
           y nuestras mentes en Cristo Jesús."
         </p>
-        <p class="prayer-verse-ref">Filipenses 4:7</p>
+        <p class="prayer-verse-ref" id="prayer-versiculo-dia">Filipenses 4:7</p>
       </div>
     </div>
   </section>
@@ -832,6 +838,37 @@
       </div>`;
     abrirModal();
   }
+
+  /* ─── Oración del Día — carga desde localStorage ────────────────────── */
+  function cargarOracionDelDia() {
+    const raw = localStorage.getItem('bsp_oraciones');
+    if (!raw) return;
+    let oraciones;
+    try { oraciones = JSON.parse(raw); } catch { return; }
+    if (!Array.isArray(oraciones) || oraciones.length === 0) return;
+
+    // La más reciente es la que tiene el id (timestamp) mayor
+    const oracion = oraciones.reduce((a, b) => (b.id > a.id ? b : a));
+
+    const textoEl     = document.getElementById('prayer-texto-dia');
+    const versiculoEl = document.getElementById('prayer-versiculo-dia');
+    const imagenEl    = document.getElementById('prayer-imagen-dia');
+
+    if (textoEl && oracion.texto) {
+      textoEl.textContent = `"${oracion.texto}"`;
+    }
+    if (versiculoEl && oracion.versiculo) {
+      versiculoEl.textContent = oracion.versiculo;
+    }
+    if (imagenEl && oracion.imagen && oracion.imagen.trim()) {
+      imagenEl.src = oracion.imagen.trim();
+      imagenEl.style.display = 'block';
+      imagenEl.onerror = () => { imagenEl.style.display = 'none'; };
+    } else if (imagenEl) {
+      imagenEl.style.display = 'none';
+    }
+  }
+  cargarOracionDelDia();
 
   /* ─── Inicializar ────────────────────────────────────────────────────── */
   const noticias = leerNoticias();

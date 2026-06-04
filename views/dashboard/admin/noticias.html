@@ -35,6 +35,10 @@
   <link rel="stylesheet" href="panel.css" />
   <!-- Estilos específicos: vista previa, historial y modal -->
   <link rel="stylesheet" href="noticias.css" />
+  <!-- Alertify Notifications CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
 </head>
 <body>
 
@@ -108,6 +112,7 @@
               class="form-control"
               placeholder="Ej: Pastor Miguel Ángel"
               required
+              oninput="this.value=this.value.replace(/[0-9]/g,'')"
             />
           </div>
         </div>
@@ -239,11 +244,15 @@
 <!-- Sidebar del admin (inyecta el nav y carga el usuario logueado) -->
 <script src="../../../controllers/sidebar.controller.js"></script>
 <!-- Modelo de noticias (CRUD en localStorage) -->
+<script src="../../../models/usuarios.model.js"></script>
 <script src="../../../models/noticias.model.js"></script>
 <!-- Motor DataTable -->
 <script src="../../../controllers/datatable.helper.js"></script>
+<!-- Alertify Helper (configuración global de alertas) -->
+<script src="../../../controllers/alertify.helper.js"></script>
 <!-- Controlador: formulario, vista previa, historial, editar, eliminar y modal -->
 <script src="../../../controllers/noticias.controller.js"></script>
 
+  <script src="../../../controllers/ayuda.controller.js"></script>
 </body>
 </html>

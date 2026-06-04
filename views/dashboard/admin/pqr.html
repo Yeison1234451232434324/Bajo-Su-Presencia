@@ -1,4 +1,4 @@
-<!--
+﻿<!--
   ================================================================
   GESTIÓN DE PQR — Solo Administrador
   ================================================================
@@ -27,6 +27,10 @@
   <title>Gestión de PQR – Bajo Su Presencia</title>
   <link rel="stylesheet" href="panel.css" />
   <link rel="stylesheet" href="pqr-admin.css" />
+  <!-- Alertify Notifications CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
 </head>
 <body>
 
@@ -98,68 +102,8 @@
 
     </div>
 
-    <!-- ── Barra de herramientas ──────────────────────────────────────── -->
-    <div class="pqr-toolbar">
-      <div class="pqr-toolbar-left">
-
-        <!-- Búsqueda por texto -->
-        <div class="pqr-search-wrap">
-          <i class="bx bx-search"></i>
-          <input
-            type="text"
-            id="pqr-input-buscar"
-            class="pqr-input-buscar"
-            placeholder="Buscar por nombre, asunto…"
-          />
-        </div>
-
-        <!-- Filtro por tipo -->
-        <select id="pqr-filtro-tipo" class="pqr-select-filtro">
-          <option value="">Todos los tipos</option>
-          <option value="Petición">Petición</option>
-          <option value="Queja">Queja</option>
-          <option value="Reclamo">Reclamo</option>
-        </select>
-
-        <!-- Filtro por estado -->
-        <select id="pqr-filtro-estado" class="pqr-select-filtro">
-          <option value="">Todos los estados</option>
-          <option value="Pendiente">Pendiente</option>
-          <option value="En proceso">En proceso</option>
-          <option value="Resuelto">Resuelto</option>
-          <option value="Cerrado">Cerrado</option>
-        </select>
-
-        <!-- Filtro por prioridad -->
-        <select id="pqr-filtro-prioridad" class="pqr-select-filtro">
-          <option value="">Todas las prioridades</option>
-          <option value="Alta">Alta</option>
-          <option value="Media">Media</option>
-          <option value="Baja">Baja</option>
-        </select>
-
-      </div>
-    </div>
-
-    <!-- ── Tabla de PQR ───────────────────────────────────────────────── -->
-    <div class="pqr-table-wrap">
-      <table class="pqr-table">
-        <thead>
-          <tr>
-            <th>Tipo</th>
-            <th>Nombre / Email</th>
-            <th>Asunto</th>
-            <th>Prioridad</th>
-            <th>Estado</th>
-            <th>Fecha</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody id="pqr-tbody">
-          <!-- Filas generadas por el controller -->
-        </tbody>
-      </table>
-    </div>
+    <!-- DataTable de PQR -->
+    <div id="dt-pqr"></div>
 
   </section>
 </main>
@@ -300,7 +244,12 @@
 <!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
 <script src="../../../controllers/sidebar.controller.js"></script>
 <script src="../../../models/pqr.model.js"></script>
+<!-- Motor DataTable -->
+<script src="../../../controllers/datatable.helper.js"></script>
+<!-- Alertify Helper -->
+<script src="../../../controllers/alertify.helper.js"></script>
 <script src="../../../controllers/pqr-admin.controller.js"></script>
 
+  <script src="../../../controllers/ayuda.controller.js"></script>
 </body>
 </html>

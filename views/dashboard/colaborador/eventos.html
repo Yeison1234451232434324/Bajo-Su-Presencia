@@ -1,17 +1,20 @@
-<!--
+﻿<!--
   ================================================================
-  PUBLICAR EVENTO COLABORADOR — Formulario de eventos
+  PUBLICAR EVENTO COLABORADOR — Formulario y lista de eventos
   ================================================================
   ¿Qué hace esta página?
-  Permite al colaborador crear eventos para la comunidad.
-  A diferencia del admin, los recursos están hardcodeados
-  (no se conecta al inventario dinámico).
+  Permite al colaborador crear eventos y asignarles recursos
+  del inventario. También muestra el historial de eventos publicados.
 
   Archivos que usa:
-    - panel.css                        → estilos base del panel
-    - eventos.css                      → estilos específicos
+    - panel.css                         → estilos base del panel
+    - eventos.css                       → estilos específicos
     - sidebar.colaborador.controller.js → sidebar del colaborador
-    - eventos.controller.js            → lógica del formulario
+    - recursos.model.js                 → leer el inventario disponible
+    - eventos.model.js                  → guardar y leer eventos publicados
+    - datatable.helper.js               → motor de la tabla de eventos
+    - alertify.helper.js                → alertas
+    - eventos.controller.js             → lógica del formulario y la lista
   ================================================================
 -->
 <!DOCTYPE html>
@@ -22,131 +25,286 @@
   <title>Publicar Evento – Bajo Su Presencia</title>
   <link rel="stylesheet" href="panel.css" />
   <link rel="stylesheet" href="eventos.css" />
+  <!-- Alertify Notifications CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
 </head>
 <body>
 
-  <!-- Área principal (el sidebar se inyecta por JS) -->
-  <main class="main" id="main">
-    <section class="panel active" style="display:block;">
-      <!-- Encabezado -->
-      <div class="panel-header">
-        <h2>Publicar Evento</h2>
-        <p>Crea un nuevo evento para la comunidad</p>
-      </div>
+<!-- Área principal (el sidebar se inyecta por JS) -->
+<main class="main" id="main">
+  <section class="panel active" style="display:block;">
 
-      <!-- Guía de sección -->
-      <div class="guia-seccion">
-        <p class="guia-seccion-label"><i class="bx bx-info-circle"></i> Guía de sección</p>
-        <p class="guia-seccion-texto">Como colaborador puedes publicar eventos para la comunidad. Completa el formulario con los datos del evento y selecciona los recursos necesarios para su realización.</p>
+    <!-- Encabezado -->
+    <div class="panel-header">
+      <h2>Publicar Evento</h2>
+      <p>Crea un nuevo evento y asigna los recursos del inventario</p>
+    </div>
+
+    <!-- Guía de sección -->
+    <div class="guia-seccion">
+      <p class="guia-seccion-label"><i class="bx bx-info-circle"></i> Guía de sección</p>
+      <p class="guia-seccion-texto">Como colaborador puedes publicar eventos para la comunidad. Completa el formulario con los datos del evento, selecciona los recursos necesarios del inventario y gestiona el historial de eventos.</p>
+    </div>
+
+    <!-- Plantillas de eventos -->
+    <div class="ev-plantillas-wrap" style="max-width:56rem;margin:0 auto 1.25rem;">
+      <p class="ev-plantillas-label">
+        <i class="bx bx-layer"></i>
+        Plantillas rápidas — selecciona o escribe tu propio título
+      </p>
+      <div class="ev-plantillas-grid">
+        <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Culto Principal','10:00','12:00')">
+          <i class="bx bx-church"></i> Culto Principal
+        </button>
+        <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Estudio Bíblico','19:00','21:00')">
+          <i class="bx bx-book-open"></i> Estudio Bíblico
+        </button>
+        <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Reunión de Jóvenes','18:00','20:00')">
+          <i class="bx bx-group"></i> Reunión de Jóvenes
+        </button>
+        <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Oración Matutina','08:00','10:00')">
+          <i class="bx bx-sun"></i> Oración Matutina
+        </button>
+        <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Vigilia de Oración','21:00','23:00')">
+          <i class="bx bx-moon"></i> Vigilia de Oración
+        </button>
+        <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Conferencia','09:00','17:00')">
+          <i class="bx bx-microphone"></i> Conferencia
+        </button>
+        <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Retiro Espiritual','08:00','18:00')">
+          <i class="bx bx-trip"></i> Retiro Espiritual
+        </button>
+        <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Celebración Especial','18:00','20:00')">
+          <i class="bx bx-star"></i> Celebración Especial
+        </button>
       </div>
-      <div class="form-card">
-        <form onsubmit="submitEvent(event)">
+    </div>
+
+    <!-- ══ FORMULARIO ════════════════════════════════════════════════════ -->
+    <div class="form-card" style="max-width:56rem;margin:0 auto;">
+      <form id="form-evento" onsubmit="submitEvent(event)" novalidate>
+
+        <!-- Título -->
+        <div class="form-group">
+          <label for="ev-titulo">Título del Evento</label>
+          <input id="ev-titulo" type="text" class="form-control"
+            placeholder="Ej: Culto Dominical (o escribe uno personalizado)" required />
+        </div>
+
+        <!-- Fecha + Horario -->
+        <div class="form-row">
           <div class="form-group">
-            <label>Título del Evento</label>
-            <input type="text" class="form-control" placeholder="Ej: Culto Dominical" required />
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Fecha</label>
-              <input type="date" class="form-control" required />
-            </div>
-            <div class="form-group">
-              <label>Horario</label>
-              <input type="text" class="form-control" placeholder="Ej: 10:00 AM - 12:00 PM" required />
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Ubicación</label>
-              <input type="text" class="form-control" placeholder="Ej: Santuario Principal" required />
-            </div>
-            <div class="form-group">
-              <label>Asistentes Esperados</label>
-              <input type="text" class="form-control" placeholder="Ej: 200+" required />
-            </div>
+            <label for="ev-fecha">Fecha</label>
+            <input id="ev-fecha" type="date" class="form-control" required />
           </div>
           <div class="form-group">
-            <label>Descripción</label>
-            <textarea class="form-control" rows="4" placeholder="Descripción del evento (opcional)"></textarea>
-          </div>
-          <div class="form-group">
-            <label>Recursos Necesarios</label>
-            <div class="resources-grid">
-              <div class="resource-item" id="res-1">
-                <div class="resource-header">
-                  <div class="resource-name"><input type="checkbox" onchange="toggleResource('1')" /> Sillas</div>
-                  <span class="badge badge-green">Disponible</span>
-                </div>
-                <div class="resource-qty">
-                  <span>Disponibles: 150</span>
-                  <div id="qty-1" style="display:none;align-items:center;gap:0.4rem;">
-                    <span style="font-size:0.8rem;">Cant:</span>
-                    <input type="number" class="qty-input" min="1" max="150" value="1" />
-                  </div>
-                </div>
-              </div>
-              <div class="resource-item" id="res-2">
-                <div class="resource-header">
-                  <div class="resource-name"><input type="checkbox" onchange="toggleResource('2')" /> Mesas</div>
-                  <span class="badge badge-green">Disponible</span>
-                </div>
-                <div class="resource-qty">
-                  <span>Disponibles: 30</span>
-                  <div id="qty-2" style="display:none;align-items:center;gap:0.4rem;">
-                    <span style="font-size:0.8rem;">Cant:</span>
-                    <input type="number" class="qty-input" min="1" max="30" value="1" />
-                  </div>
-                </div>
-              </div>
-              <div class="resource-item" id="res-3">
-                <div class="resource-header">
-                  <div class="resource-name"><input type="checkbox" onchange="toggleResource('3')" /> Micrófonos</div>
-                  <span class="badge badge-green">Disponible</span>
-                </div>
-                <div class="resource-qty">
-                  <span>Disponibles: 8</span>
-                  <div id="qty-3" style="display:none;align-items:center;gap:0.4rem;">
-                    <span style="font-size:0.8rem;">Cant:</span>
-                    <input type="number" class="qty-input" min="1" max="8" value="1" />
-                  </div>
-                </div>
-              </div>
-              <div class="resource-item" id="res-4">
-                <div class="resource-header">
-                  <div class="resource-name"><input type="checkbox" onchange="toggleResource('4')" /> Proyector</div>
-                  <span class="badge badge-green">Disponible</span>
-                </div>
-                <div class="resource-qty">
-                  <span>Disponibles: 2</span>
-                  <div id="qty-4" style="display:none;align-items:center;gap:0.4rem;">
-                    <span style="font-size:0.8rem;">Cant:</span>
-                    <input type="number" class="qty-input" min="1" max="2" value="1" />
-                  </div>
-                </div>
-              </div>
-              <div class="resource-item unavailable">
-                <div class="resource-header">
-                  <div class="resource-name"><input type="checkbox" disabled /> Pantallas LED</div>
-                  <span class="badge" style="background:#fee2e2;color:#dc2626;">No disponible</span>
-                </div>
-                <div class="resource-qty"><span>Disponibles: 0</span></div>
-              </div>
+            <label>Horario</label>
+            <div class="ev-horario-wrap">
+              <input id="ev-hora-inicio" type="time" class="form-control"
+                min="06:00" max="21:00" required />
+              <span class="ev-horario-sep">→</span>
+              <input id="ev-hora-fin" type="time" class="form-control"
+                min="06:00" max="21:00" />
             </div>
           </div>
-          <button type="submit" class="btn-submit">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:1.15rem;height:1.15rem;">
-              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-            Publicar Evento
+        </div>
+
+        <!-- Sede / Ubicación + Asistentes -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="ev-ubicacion">
+              <i class="bx bx-buildings" style="color:var(--primary);"></i>
+              Sede / Ubicación
+            </label>
+            <input id="ev-ubicacion" type="text" class="form-control"
+              list="ev-sedes-lista"
+              placeholder="Selecciona una sede o escribe la ubicación" required />
+            <datalist id="ev-sedes-lista"></datalist>
+          </div>
+          <div class="form-group">
+            <label for="ev-asistentes">Personas Esperadas</label>
+            <input id="ev-asistentes" type="number" class="form-control"
+              min="0" placeholder="Ej: 200" />
+          </div>
+        </div>
+
+        <!-- Voluntarios + Descripción -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="ev-voluntarios">Voluntarios Necesarios</label>
+            <input id="ev-voluntarios" type="number" class="form-control"
+              min="1" value="1" required />
+          </div>
+          <div class="form-group">
+            <label for="ev-descripcion">Descripción</label>
+            <textarea id="ev-descripcion" class="form-control" rows="3"
+              placeholder="Descripción del evento (opcional)"></textarea>
+          </div>
+        </div>
+
+        <!-- ── RECURSOS DEL INVENTARIO ──────────────────────────────── -->
+        <div class="form-group">
+          <div class="ev-recursos-header">
+            <label>Recursos del Inventario</label>
+            <span id="contador-recursos" class="ev-contador">
+              Ningún recurso seleccionado (opcional)
+            </span>
+          </div>
+          <div id="sin-recursos-msg" class="ev-sin-recursos-msg" style="display:none;">
+            <i class="bx bx-error-circle"></i>
+            No hay recursos disponibles en el inventario.
+          </div>
+          <div id="recursos-grid" class="ev-recursos-grid"></div>
+        </div>
+
+        <!-- Botón publicar -->
+        <button type="submit" class="btn-submit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            style="width:1.15rem;height:1.15rem;">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Publicar Evento
+        </button>
+
+      </form>
+    </div>
+
+    <!-- ══ EVENTOS PUBLICADOS ═══════════════════════════════════════════ -->
+    <div class="ev-publicados-section">
+      <h3 class="ev-publicados-titulo">
+        <i class="bx bx-calendar-check"></i>
+        Historial de Eventos
+      </h3>
+      <div id="lista-eventos-publicados"></div>
+    </div>
+
+  </section>
+</main>
+
+<!-- ══ MODAL VER DETALLE ════════════════════════════════════════════════ -->
+<div id="modal-ver-evento" class="ev-modal-overlay" style="display:none;" onclick="cerrarModalVer(event)">
+  <div class="ev-modal-box">
+    <div class="ev-modal-header">
+      <h3 id="modal-ver-titulo" class="ev-modal-title"></h3>
+      <button class="ev-modal-close" onclick="cerrarModalVer()">
+        <i class="bx bx-x"></i>
+      </button>
+    </div>
+    <div class="ev-modal-body" id="modal-ver-body"></div>
+  </div>
+</div>
+
+<!-- ══ MODAL EDITAR EVENTO ══════════════════════════════════════════════ -->
+<div id="modal-editar-evento" class="ev-modal-overlay" style="display:none;" onclick="cerrarModalEditar(event)">
+  <div class="ev-modal-box ev-modal-box--wide">
+    <div class="ev-modal-header">
+      <h3 class="ev-modal-title">
+        <i class="bx bx-edit"></i> Editar Evento
+      </h3>
+      <button class="ev-modal-close" onclick="cerrarModalEditar()">
+        <i class="bx bx-x"></i>
+      </button>
+    </div>
+    <div class="ev-modal-body">
+      <form id="form-editar-evento" onsubmit="guardarEdicion(event)" novalidate>
+        <input type="hidden" id="edit-id" />
+
+        <div class="form-group">
+          <label for="edit-titulo">Título del Evento</label>
+          <input id="edit-titulo" type="text" class="form-control" required />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-fecha">Fecha</label>
+            <input id="edit-fecha" type="date" class="form-control" required />
+          </div>
+          <div class="form-group">
+            <label>Horario</label>
+            <div class="ev-horario-wrap">
+              <input id="edit-hora-inicio" type="time" class="form-control"
+                min="06:00" max="21:00" required />
+              <span class="ev-horario-sep">→</span>
+              <input id="edit-hora-fin" type="time" class="form-control"
+                min="06:00" max="21:00" />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-ubicacion">
+              <i class="bx bx-buildings" style="color:var(--primary);"></i>
+              Sede / Ubicación
+            </label>
+            <input id="edit-ubicacion" type="text" class="form-control"
+              list="edit-sedes-lista" required />
+            <datalist id="edit-sedes-lista"></datalist>
+          </div>
+          <div class="form-group">
+            <label for="edit-asistentes">Personas Esperadas</label>
+            <input id="edit-asistentes" type="number" class="form-control" min="0" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-voluntarios">Voluntarios Necesarios</label>
+            <input id="edit-voluntarios" type="number" class="form-control" min="1" value="1" />
+          </div>
+          <div class="form-group">
+            <label for="edit-descripcion">Descripción</label>
+            <textarea id="edit-descripcion" class="form-control" rows="3"></textarea>
+          </div>
+        </div>
+
+        <!-- Recursos del evento (editables) -->
+        <div class="form-group" style="margin-top:1rem;">
+          <div class="ev-recursos-header">
+            <label>Recursos del Inventario</label>
+            <span id="edit-contador-recursos" class="ev-contador">
+              Ningún recurso seleccionado (opcional)
+            </span>
+          </div>
+          <div id="edit-sin-recursos-msg" class="ev-sin-recursos-msg" style="display:none;">
+            <i class="bx bx-error-circle"></i>
+            No hay recursos disponibles en el inventario.
+          </div>
+          <div id="edit-recursos-grid" class="ev-recursos-grid"></div>
+        </div>
+
+        <div class="ev-modal-footer">
+          <button type="button" class="btn-ev-cancelar" onclick="cerrarModalEditar()">
+            Cancelar
           </button>
-        </form>
-      </div>
-    </section>
-  </main>
+          <button type="submit" class="btn-submit" style="margin:0;">
+            <i class="bx bx-save"></i> Guardar Cambios
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
-  <!-- Sidebar del colaborador -->
-  <script src="../../../controllers/sidebar.colaborador.controller.js"></script>
-  <!-- Lógica del formulario de eventos -->
-  <script src="../../../controllers/eventos.controller.js"></script>
+<!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
+<!-- Sidebar del colaborador -->
+<script src="../../../controllers/sidebar.colaborador.controller.js"></script>
+<!-- Modelo de recursos (necesario para leer el inventario) -->
+<script src="../../../models/recursos.model.js"></script>
+<!-- Modelo de eventos (guardar y leer eventos publicados) -->
+<script src="../../../models/eventos.model.js"></script>
+<!-- Modelo de sedes (para el selector de sede) -->
+<script src="../../../models/sedes.model.js"></script>
+<!-- Motor DataTable -->
+<script src="../../../controllers/datatable.helper.js"></script>
+<!-- Alertify Helper -->
+<script src="../../../controllers/alertify.helper.js"></script>
+<!-- Controlador de eventos -->
+<script src="../../../controllers/eventos.controller.js"></script>
+
+  <script src="../../../controllers/ayuda.controller.js"></script>
 </body>
 </html>

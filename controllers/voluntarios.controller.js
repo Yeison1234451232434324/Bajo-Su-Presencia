@@ -32,7 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── Referencias DOM principales ──────────────────────────────────────────
   const selectEvento     = document.getElementById('select-evento');
   const eventoInfo       = document.getElementById('evento-info');
-  const tablaBody        = document.getElementById('voluntarios-tbody');
   const sinEvento        = document.getElementById('sin-evento');
   const tablaWrap        = document.getElementById('tabla-wrap');
 
@@ -100,51 +99,57 @@ document.addEventListener('DOMContentLoaded', () => {
   // 2. TABLA DE VOLUNTARIOS
   // ════════════════════════════════════════════════════════════════
 
+  // ── DataTable de voluntarios ─────────────────────────────────────────────
+  let dtVoluntarios = null;
+
   /** Renderiza la tabla de voluntarios del evento seleccionado */
   function renderTablaVoluntarios() {
     const evento = VoluntariosModel.getEventoById(eventoActualId);
     if (!evento) return;
 
-    // Mostrar info del evento en el encabezado de la tabla
+    // Mostrar info del evento en el encabezado
     eventoInfo.style.display = 'flex';
     document.getElementById('info-nombre').textContent = evento.nombre;
     document.getElementById('info-fecha').textContent  = evento.fecha;
     document.getElementById('info-lugar').textContent  = evento.lugar;
-    document.getElementById('info-total').textContent  =
-      `${evento.voluntarios.length} voluntario(s)`;
+    document.getElementById('info-total').textContent  = `${evento.voluntarios.length} voluntario(s)`;
 
     sinEvento.style.display = 'none';
     tablaWrap.style.display = 'block';
 
-    tablaBody.innerHTML = '';
-
-    evento.voluntarios.forEach(vol => {
-      // Verificar si ya tiene calificación en este evento
-      const calif = VoluntariosModel.getCalifByEventoVoluntario(eventoActualId, vol.id);
+    const data = evento.voluntarios.map(vol => {
+      const calif        = VoluntariosModel.getCalifByEventoVoluntario(eventoActualId, vol.id);
       const yaCalificado = !!calif;
+      return {
+        ...vol,
+        yaCalificado,
+        califEstrellas: yaCalificado ? calif.estrellas : 0,
+        califComentario: yaCalificado ? (calif.comentario || '') : '',
+        estadoCalif: yaCalificado ? 'Calificado' : 'Sin calificar'
+      };
+    });
 
-      // Mostrar estrellas si ya fue calificado
+    function renderRow(vol) {
+      const calif        = VoluntariosModel.getCalifByEventoVoluntario(eventoActualId, vol.id);
+      const yaCalificado = !!calif;
+      const avatar       = vol.nombre.charAt(0).toUpperCase();
+
       const estrellasMostrar = yaCalificado
         ? renderEstrellasFijas(calif.estrellas)
         : '<span class="sin-calif">Sin calificar</span>';
 
-      // Botón calificar (cambia ícono si ya fue calificado)
       const btnCalif = `
         <button class="btn-accion btn-calificar ${yaCalificado ? 'btn-editar-calif' : ''}"
           onclick="abrirModalCalif(${vol.id})"
           title="${yaCalificado ? 'Editar calificación' : 'Calificar voluntario'}">
           <i class="bx ${yaCalificado ? 'bx-edit' : 'bx-star'}"></i>
         </button>`;
-
-      // Botón ver historial
       const btnHist = `
         <button class="btn-accion btn-historial"
           onclick="verHistorial(${vol.id}, '${vol.nombre}')"
           title="Ver historial completo">
           <i class="bx bx-history"></i>
         </button>`;
-
-      // Botón ver resumen estadístico
       const btnResumen = `
         <button class="btn-accion btn-resumen"
           onclick="verResumen(${vol.id}, '${vol.nombre}')"
@@ -152,37 +157,52 @@ document.addEventListener('DOMContentLoaded', () => {
           <i class="bx bx-bar-chart-alt-2"></i>
         </button>`;
 
-      // Avatar con inicial del nombre
-      const avatar = vol.nombre.charAt(0).toUpperCase();
-
-      tablaBody.innerHTML += `
-        <tr>
-          <td>
-            <div class="user-cell">
-              <div class="user-avatar-sm" style="background:linear-gradient(135deg,#1E3A8A,#2D4FAF)">
-                ${avatar}
-              </div>
-              <div>
-                <p class="user-nombre">${vol.nombre}</p>
-                <p class="user-username">${vol.rol}</p>
-              </div>
+      return `
+        <div style="display:flex;align-items:center;gap:1rem;padding:0.875rem 1.25rem;
+          background:#fff;border:2px solid var(--border);border-radius:1rem;margin-bottom:0.5rem;
+          flex-wrap:wrap;">
+          <div class="user-cell" style="flex:2;min-width:160px;">
+            <div class="user-avatar-sm" style="background:linear-gradient(135deg,#1E3A8A,#2D4FAF)">
+              ${avatar}
             </div>
-          </td>
-          <td>${estrellasMostrar}</td>
-          <td class="comentario-cell">
+            <div>
+              <p class="user-nombre">${vol.nombre}</p>
+              <p class="user-username">${vol.rol}</p>
+            </div>
+          </div>
+          <div style="flex:1;min-width:100px;">${estrellasMostrar}</div>
+          <div class="comentario-cell" style="flex:1.5;min-width:120px;">
             ${yaCalificado && calif.comentario
               ? `<span class="comentario-preview" title="${calif.comentario}">${calif.comentario}</span>`
               : '<span class="sin-calif">—</span>'}
-          </td>
-          <td>
-            <div class="acciones-cell">
-              ${btnCalif}
-              ${btnHist}
-              ${btnResumen}
-            </div>
-          </td>
-        </tr>`;
-    });
+          </div>
+          <div class="acciones-cell" style="flex-shrink:0;margin-left:auto;">
+            ${btnCalif}${btnHist}${btnResumen}
+          </div>
+        </div>`;
+    }
+
+    if (!dtVoluntarios) {
+      dtVoluntarios = new BSPDataTable({
+        containerId:  'dt-voluntarios',
+        data,
+        pageSize:     8,
+        searchFields: ['nombre', 'rol'],
+        filters: [
+          { key: 'estadoCalif', label: 'Calificación', type: 'select', options: ['Calificado', 'Sin calificar'] }
+        ],
+        renderRow,
+        exportable:   true,
+        exportName:   'voluntarios',
+        exportFields: ['nombre', 'rol', 'estadoCalif', 'califEstrellas', 'califComentario'],
+        exportLabels: ['Nombre', 'Rol', 'Calificado', 'Estrellas', 'Comentario'],
+        emptyHTML: `<div class="dt-empty"><i class="bx bx-user-x"></i><p>No hay voluntarios en este evento.</p></div>`
+      });
+      window.__bspDT['dt-voluntarios'] = dtVoluntarios;
+      dtVoluntarios.init();
+    } else {
+      dtVoluntarios.refresh(data);
+    }
   }
 
   /** Genera HTML de estrellas fijas (solo lectura) */

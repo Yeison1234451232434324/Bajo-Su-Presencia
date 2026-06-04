@@ -33,6 +33,10 @@
   <title>Calificación de Voluntarios – Bajo Su Presencia</title>
   <link rel="stylesheet" href="panel.css" />
   <link rel="stylesheet" href="voluntarios.css" />
+  <!-- Alertify Notifications CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
 </head>
 <body>
 
@@ -93,21 +97,9 @@
         <p>Selecciona un evento para ver y calificar a sus voluntarios.</p>
       </div>
 
-      <!-- Tabla de voluntarios (oculta hasta seleccionar evento) -->
-      <div class="table-wrap" id="tabla-wrap">
-        <table class="voluntarios-table">
-          <thead>
-            <tr>
-              <th>Voluntario</th>
-              <th>Calificación</th>
-              <th>Comentario</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody id="voluntarios-tbody">
-            <!-- Filas generadas por el controller -->
-          </tbody>
-        </table>
+      <!-- DataTable de voluntarios (oculta hasta seleccionar evento) -->
+      <div class="table-wrap" id="tabla-wrap" style="display:none;">
+        <div id="dt-voluntarios"></div>
       </div>
 
       <!-- ── Panel lateral: Historial de calificaciones ── -->
@@ -238,8 +230,13 @@
 <script src="../../../controllers/sidebar.controller.js"></script>
 <!-- Modelo de voluntarios -->
 <script src="../../../models/voluntarios.model.js"></script>
+<!-- Motor DataTable -->
+<script src="../../../controllers/datatable.helper.js"></script>
+<!-- Alertify Helper -->
+<script src="../../../controllers/alertify.helper.js"></script>
 <!-- Controlador de voluntarios -->
 <script src="../../../controllers/voluntarios.controller.js"></script>
 
+  <script src="../../../controllers/ayuda.controller.js"></script>
 </body>
 </html>

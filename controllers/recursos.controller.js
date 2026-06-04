@@ -29,10 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ── Referencias DOM ──────────────────────────────────────────────────────
-  const tablaBody       = document.getElementById('recursos-tbody');
-  const inputBuscar     = document.getElementById('input-buscar');
-  const filtroCategoria = document.getElementById('filtro-categoria');
-  const filtroDisp      = document.getElementById('filtro-disp');
   const btnNuevo        = document.getElementById('btn-nuevo-recurso');
 
   // Modal crear/editar
@@ -64,98 +60,87 @@ document.addEventListener('DOMContentLoaded', () => {
   // 2. TABLA DE RECURSOS
   // ════════════════════════════════════════════════════════════════
 
-  /** Renderiza la tabla aplicando búsqueda y filtros activos */
+  // ── DataTable de recursos ────────────────────────────────────────────────
+  let dtRecursos = null;
+
   function renderTabla() {
-    const buscar     = inputBuscar.value.toLowerCase().trim();
-    const categoria  = filtroCategoria.value;
-    const dispFiltro = filtroDisp.value;
-
-    let recursos = RecursosModel.getAll();
-
-    // Filtro de texto: busca en nombre, categoría y descripción
-    if (buscar) {
-      recursos = recursos.filter(r =>
-        r.nombre.toLowerCase().includes(buscar)    ||
-        r.categoria.toLowerCase().includes(buscar) ||
-        r.descripcion.toLowerCase().includes(buscar)
-      );
-    }
-
-    // Filtro por categoría
-    if (categoria) recursos = recursos.filter(r => r.categoria === categoria);
-
-    // Filtro por disponibilidad / stock
-    if (dispFiltro === 'disponible')   recursos = recursos.filter(r => r.disponible);
-    if (dispFiltro === 'nodisponible') recursos = recursos.filter(r => !r.disponible);
-    if (dispFiltro === 'sinstock')     recursos = recursos.filter(r => r.cantidad === 0);
-
     actualizarEstadisticas();
-    tablaBody.innerHTML = '';
 
-    if (recursos.length === 0) {
-      tablaBody.innerHTML = `
-        <tr>
-          <td colspan="6" style="text-align:center;padding:2.5rem;color:#9ca3af;">
-            <i class="bx bx-package" style="font-size:2rem;display:block;margin-bottom:0.5rem;"></i>
-            No se encontraron recursos con esos criterios.
-          </td>
-        </tr>`;
-      return;
-    }
+    const data = RecursosModel.getAll().map(r => ({
+      ...r,
+      estadoDisp: r.disponible ? 'Disponible' : 'No disponible',
+      stockEstado: r.cantidad === 0 ? 'Sin stock' : r.disponible ? 'Disponible' : 'No disponible'
+    }));
 
-    recursos.forEach(r => {
+    function renderRow(r) {
       const badgeCat  = categoriaBadge(r.categoria);
-
       const badgeDisp = r.disponible
         ? '<span class="badge badge-green">Disponible</span>'
         : '<span class="badge badge-red">No disponible</span>';
-
-      // Badge de stock: rojo si 0, amarillo si ≤5, verde si hay suficiente
       const badgeStock = r.cantidad === 0
         ? `<span class="badge badge-red">${r.cantidad} ${r.unidad}</span>`
         : r.cantidad <= 5
           ? `<span class="badge badge-amber">${r.cantidad} ${r.unidad}</span>`
           : `<span class="badge badge-green">${r.cantidad} ${r.unidad}</span>`;
 
-      tablaBody.innerHTML += `
-        <tr class="${!r.disponible ? 'fila-inactiva' : ''}">
-          <td>
-            <div class="recurso-cell">
-              <div class="recurso-icon ${iconoCategoria(r.categoria)}">
-                <i class="bx ${iconoBx(r.categoria)}"></i>
-              </div>
-              <div>
-                <p class="recurso-nombre">${r.nombre}</p>
-                <p class="recurso-desc">${r.descripcion || '—'}</p>
-              </div>
+      return `
+        <div style="display:flex;align-items:center;gap:1rem;padding:0.875rem 1.25rem;
+          background:#fff;border:2px solid var(--border);border-radius:1rem;margin-bottom:0.5rem;
+          flex-wrap:wrap;${!r.disponible ? 'opacity:0.65;background:#fafafa;' : ''}">
+          <div class="recurso-cell" style="flex:2;min-width:180px;">
+            <div class="recurso-icon ${iconoCategoria(r.categoria)}">
+              <i class="bx ${iconoBx(r.categoria)}"></i>
             </div>
-          </td>
-          <td>${badgeCat}</td>
-          <td>${badgeStock}</td>
-          <td>${badgeDisp}</td>
-          <td>${r.creado}</td>
-          <td>
-            <div class="acciones-cell">
-              <!-- Editar recurso -->
-              <button class="btn-accion btn-editar-rec"
-                onclick="abrirEditar(${r.id})" title="Editar recurso">
-                <i class="bx bx-edit"></i>
-              </button>
-              <!-- Activar / Desactivar disponibilidad -->
-              <button class="btn-accion ${r.disponible ? 'btn-toggle-on' : 'btn-toggle-off'}"
-                onclick="toggleRecurso(${r.id})"
-                title="${r.disponible ? 'Desactivar' : 'Activar'} recurso">
-                <i class="bx ${r.disponible ? 'bx-toggle-right' : 'bx-toggle-left'}"></i>
-              </button>
-              <!-- Eliminar recurso -->
-              <button class="btn-accion btn-eliminar-rec"
-                onclick="eliminarRecurso(${r.id})" title="Eliminar recurso">
-                <i class="bx bx-trash"></i>
-              </button>
+            <div>
+              <p class="recurso-nombre">${r.nombre}</p>
+              <p class="recurso-desc">${r.descripcion || '—'}</p>
             </div>
-          </td>
-        </tr>`;
-    });
+          </div>
+          <span style="flex-shrink:0;">${badgeCat}</span>
+          <span style="flex-shrink:0;">${badgeStock}</span>
+          <span style="flex-shrink:0;">${badgeDisp}</span>
+          <span style="flex-shrink:0;font-size:0.82rem;color:var(--muted);">${r.creado}</span>
+          <div class="acciones-cell" style="flex-shrink:0;margin-left:auto;">
+            <button class="btn-accion btn-editar-rec" onclick="abrirEditar(${r.id})" title="Editar recurso">
+              <i class="bx bx-edit"></i>
+            </button>
+            <button class="btn-accion ${r.disponible ? 'btn-toggle-on' : 'btn-toggle-off'}"
+              onclick="toggleRecurso(${r.id})" title="${r.disponible ? 'Desactivar' : 'Activar'} recurso">
+              <i class="bx ${r.disponible ? 'bx-toggle-right' : 'bx-toggle-left'}"></i>
+            </button>
+            <button class="btn-accion btn-eliminar-rec" onclick="eliminarRecurso(${r.id})" title="Eliminar recurso">
+              <i class="bx bx-trash"></i>
+            </button>
+          </div>
+        </div>`;
+    }
+
+    if (!dtRecursos) {
+      dtRecursos = new BSPDataTable({
+        containerId:  'dt-recursos',
+        data,
+        pageSize:     10,
+        searchFields: ['nombre', 'categoria', 'descripcion'],
+        filters: [
+          { key: 'categoria',  label: 'Categoría',     type: 'select',
+            options: ['Mobiliario', 'Audio y Video', 'Iluminación', 'Papelería', 'Cocina', 'Otros'] },
+          { key: 'estadoDisp', label: 'Disponibilidad', type: 'select',
+            options: ['Disponible', 'No disponible'] },
+          { key: 'stockEstado', label: 'Stock',         type: 'select',
+            options: ['Disponible', 'No disponible', 'Sin stock'] },
+        ],
+        renderRow,
+        exportable:   true,
+        exportName:   'recursos',
+        exportFields: ['nombre', 'categoria', 'cantidad', 'unidad', 'estadoDisp', 'creado'],
+        exportLabels: ['Recurso', 'Categoría', 'Cantidad', 'Unidad', 'Estado', 'Registrado'],
+        emptyHTML: `<div class="dt-empty"><i class="bx bx-package"></i><p>No se encontraron recursos con esos criterios.</p></div>`
+      });
+      window.__bspDT['dt-recursos'] = dtRecursos;
+      dtRecursos.init();
+    } else {
+      dtRecursos.refresh(data);
+    }
   }
 
   // ── Helpers de estilo por categoría ─────────────────────────────────────
@@ -237,16 +222,78 @@ document.addEventListener('DOMContentLoaded', () => {
     editandoId = null;
   }
 
+  // ── Helpers de validación DOM ────────────────────────────────────────────
+  function _err(id, msg) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.add('campo-invalido');
+    const box = el.closest('.form-group') || el.parentElement;
+    let s = box.querySelector('.campo-error');
+    if (!s) { s = document.createElement('span'); s.className = 'campo-error'; box.appendChild(s); }
+    s.textContent = msg;
+  }
+  function _ok(...ids) {
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('campo-invalido');
+      const box = el.closest('.form-group') || el.parentElement;
+      const s = box.querySelector('.campo-error');
+      if (s) s.remove();
+    });
+  }
+
   /** Submit del formulario de crear/editar */
   formRecurso.addEventListener('submit', (e) => {
     e.preventDefault();
     modalError.style.display = 'none';
 
+    const nombre   = document.getElementById('campo-nombre-rec').value.trim();
+    const categoria = document.getElementById('campo-categoria').value;
+    const cantidad  = parseInt(document.getElementById('campo-cantidad').value);
+    const unidad    = document.getElementById('campo-unidad').value.trim();
+
+    // ── Validación DOM ────────────────────────────────────────────────────
+    const RX_INI_LETRA = /^[a-zA-ZÀ-ÿñÑ]/;
+    _ok('campo-nombre-rec','campo-categoria','campo-cantidad','campo-unidad');
+    let valido = true;
+
+    if (!nombre || nombre.length < 3) {
+      _err('campo-nombre-rec', 'El nombre debe tener al menos 3 caracteres.');
+      valido = false;
+    } else if (!RX_INI_LETRA.test(nombre)) {
+      _err('campo-nombre-rec', 'El nombre debe comenzar con una letra, no con un número.');
+      valido = false;
+    } else if (nombre.length > 100) {
+      _err('campo-nombre-rec', 'El nombre no puede superar 100 caracteres.');
+      valido = false;
+    }
+    if (!categoria) {
+      _err('campo-categoria', 'Selecciona una categoría.');
+      valido = false;
+    }
+    if (isNaN(cantidad) || cantidad < 0) {
+      _err('campo-cantidad', 'La cantidad no puede ser negativa (mínimo 0).');
+      valido = false;
+    } else if (cantidad > 99999) {
+      _err('campo-cantidad', 'La cantidad máxima permitida es 99,999.');
+      valido = false;
+    }
+    if (!unidad || unidad.length < 1) {
+      _err('campo-unidad', 'La unidad de medida es obligatoria.');
+      valido = false;
+    } else if (unidad.length > 30) {
+      _err('campo-unidad', 'La unidad no puede superar 30 caracteres.');
+      valido = false;
+    }
+    if (!valido) return;
+    // ─────────────────────────────────────────────────────────────────────
+
     const data = {
-      nombre:      document.getElementById('campo-nombre-rec').value,
-      categoria:   document.getElementById('campo-categoria').value,
+      nombre,
+      categoria,
       cantidad:    document.getElementById('campo-cantidad').value,
-      unidad:      document.getElementById('campo-unidad').value,
+      unidad,
       descripcion: document.getElementById('campo-descripcion-rec').value
     };
 
@@ -262,8 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     cerrarModal();
     renderTabla();
-    showToast(
-      editandoId === null ? 'Recurso creado' : 'Recurso actualizado',
+    showAlertSuccess(
       `"${data.nombre}" fue ${editandoId === null ? 'agregado al' : 'actualizado en el'} inventario.`
     );
   });
@@ -280,12 +326,11 @@ document.addEventListener('DOMContentLoaded', () => {
   window.toggleRecurso = function(id) {
     const resultado = RecursosModel.toggleDisponible(id);
     if (!resultado.ok) {
-      showToastError('No permitido', resultado.error);
+      showAlertError(resultado.error);
       return;
     }
     renderTabla();
-    showToast(
-      resultado.disponible ? 'Recurso activado' : 'Recurso desactivado',
+    showAlertSuccess(
       resultado.disponible
         ? 'El recurso ya está disponible para asignar a eventos.'
         : 'El recurso fue marcado como no disponible.'
@@ -300,40 +345,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const r = RecursosModel.getById(id);
     if (!r) return;
 
-    if (!confirm(`¿Eliminar "${r.nombre}" del inventario?`)) return;
-
-    const resultado = RecursosModel.remove(id);
-    if (!resultado.ok) {
-      showToastError('Error', resultado.error);
-      return;
-    }
-    renderTabla();
-    showToast('Recurso eliminado', `"${r.nombre}" fue eliminado del inventario.`);
+    showAlertConfirm(
+      'Eliminar recurso',
+      `¿Eliminar "${r.nombre}" del inventario?`,
+      function() {
+        const resultado = RecursosModel.remove(id);
+        if (!resultado.ok) {
+          showAlertError(resultado.error);
+          return;
+        }
+        renderTabla();
+        showAlertSuccess(`"${r.nombre}" fue eliminado del inventario.`);
+      }
+    );
   };
-
-  // ════════════════════════════════════════════════════════════════
-  // FILTROS Y BÚSQUEDA
-  // ════════════════════════════════════════════════════════════════
-
-  inputBuscar.addEventListener('input', renderTabla);
-  filtroCategoria.addEventListener('change', renderTabla);
-  filtroDisp.addEventListener('change', renderTabla);
-
-  // ── Toast de error ───────────────────────────────────────────────────────
-  function showToastError(title, desc) {
-    let container = document.getElementById('toastContainer');
-    if (!container) {
-      container = document.createElement('div');
-      container.id        = 'toastContainer';
-      container.className = 'toast-container';
-      document.body.appendChild(container);
-    }
-    const toast = document.createElement('div');
-    toast.className = 'toast toast-error';
-    toast.innerHTML = `<div class="toast-title">❌ ${title}</div><div class="toast-desc">${desc}</div>`;
-    container.appendChild(toast);
-    setTimeout(() => toast.remove(), 4000);
-  }
 
   // ── Render inicial ───────────────────────────────────────────────────────
   renderTabla();
