@@ -48,6 +48,48 @@ document.addEventListener('DOMContentLoaded', () => {
     BSPVal.blockNumericChars(document.getElementById(id))
   );
 
+  // ── Restricción dinámica hora de fin ────────────────────────────────────
+  // Cada vez que el usuario cambia la hora de inicio, el input de hora de fin
+  // actualiza su atributo [min] para que el navegador bloquee opciones inválidas
+  // ANTES del submit — prevención proactiva, no solo en validación del form.
+
+  function _sincronizarHoraFin(idInicio, idFin) {
+    const inpInicio = document.getElementById(idInicio);
+    const inpFin    = document.getElementById(idFin);
+    if (!inpInicio || !inpFin) return;
+
+    inpInicio.addEventListener('change', () => {
+      const valorInicio = inpInicio.value;
+
+      if (valorInicio) {
+        // El mínimo de la hora fin pasa a ser la hora de inicio + 1 minuto
+        const [h, m] = valorInicio.split(':').map(Number);
+        const totalMin = h * 60 + m + 1;
+        const hNew = String(Math.floor(totalMin / 60)).padStart(2, '0');
+        const mNew = String(totalMin % 60).padStart(2, '0');
+        const nuevoMin = `${hNew}:${mNew}`;
+
+        // Respetar también el límite máximo global
+        inpFin.min = nuevoMin <= H_MAX ? nuevoMin : H_MAX;
+      } else {
+        inpFin.min = H_MIN;
+      }
+
+      // Si la hora de fin ya seleccionada quedó menor o igual a la de inicio,
+      // limpiarla y mostrar el error inline de forma inmediata
+      if (inpFin.value && valorInicio && inpFin.value <= valorInicio) {
+        inpFin.value = '';
+        _err(idFin, 'La hora de fin debe ser posterior a la hora de inicio.');
+      } else {
+        _ok(idFin);
+      }
+    });
+  }
+
+  // Aplicar para el formulario de creación y para el modal de edición
+  _sincronizarHoraFin('ev-hora-inicio',   'ev-hora-fin');
+  _sincronizarHoraFin('edit-hora-inicio', 'edit-hora-fin');
+
   // Mapa de íconos por categoría (compartido entre creación y edición)
   const ICON_MAP = {
     'Mobiliario':    'bx-chair',
