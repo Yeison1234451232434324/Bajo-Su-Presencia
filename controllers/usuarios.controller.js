@@ -155,94 +155,74 @@ document.addEventListener('DOMContentLoaded', () => {
     editandoId = null;
   }
 
-  // ── Helpers de validación DOM ────────────────────────────────────────────
-  const RX_NOMBRE   = /^[a-zA-ZÀ-ÿñÑ\s'\-\.]+$/;
+  // ── Helpers de validación DOM (delegados a BSPVal) ──────────────────────
   const RX_USERNAME = /^[a-zA-Z0-9_]+$/;
-  const RX_EMAIL    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const ROLES_VALIDOS = ['Administrador', 'Colaborador', 'Voluntario'];
 
-  function _err(id, msg) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.classList.add('campo-invalido');
-    const box = el.closest('.form-group') || el.parentElement;
-    let s = box.querySelector('.campo-error');
-    if (!s) { s = document.createElement('span'); s.className = 'campo-error'; box.appendChild(s); }
-    s.textContent = msg;
-  }
-  function _ok(...ids) {
-    ids.forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.classList.remove('campo-invalido');
-      const box = el.closest('.form-group') || el.parentElement;
-      const s = box.querySelector('.campo-error');
-      if (s) s.remove();
-    });
-  }
+  const _err = (id, msg) => BSPVal._err(id, msg);
+  const _ok  = (...ids) => BSPVal._ok(...ids);
 
   // ── Submit formulario ────────────────────────────────────────────────────
   formUsuario.addEventListener('submit', (e) => {
     e.preventDefault();
     modalError.style.display = 'none';
 
-    const nombre   = document.getElementById('campo-nombre').value.trim();
-    const username = document.getElementById('campo-username').value.trim();
-    const email    = document.getElementById('campo-email').value.trim();
+    /* Leer valores — todos trimados antes de validar y antes de guardar */
+    const nombre   = BSPVal.cleanText(document.getElementById('campo-nombre').value);
+    const username = document.getElementById('campo-username').value.trim().toLowerCase();
+    const emailVal = document.getElementById('campo-email').value.trim().toLowerCase();
     const rol      = document.getElementById('campo-rol').value;
-    const password = document.getElementById('campo-password').value;
+    const password = document.getElementById('campo-password').value; // sin trim: los espacios son intencionales como error
 
-    // ── Validación DOM ────────────────────────────────────────────────────
+    // ── Limpiar estado previo ─────────────────────────────────────────────
     _ok('campo-nombre','campo-username','campo-email','campo-rol','campo-password');
     let valido = true;
 
-    if (!nombre || nombre.length < 3) {
-      _err('campo-nombre', 'El nombre debe tener al menos 3 caracteres.');
-      valido = false;
-    } else if (!RX_NOMBRE.test(nombre)) {
-      _err('campo-nombre', 'Solo se permiten letras y espacios. Sin números.');
-      valido = false;
-    } else if (nombre.length > 80) {
-      _err('campo-nombre', 'El nombre no puede superar 80 caracteres.');
-      valido = false;
+    /* Nombre completo: mínimo 3, máximo 80, solo letras */
+    let err;
+    err = BSPVal.txt(nombre, { min: 3, max: 80, label: 'El nombre' });
+    if (err) { _err('campo-nombre', err); valido = false; }
+    else {
+      err = BSPVal.soloLetras(nombre, { label: 'El nombre' });
+      if (err) { _err('campo-nombre', err); valido = false; }
     }
 
+    /* Username: mínimo 3, máximo 30, solo alfanumérico + _ */
     if (!username || username.length < 3) {
-      _err('campo-username', 'El usuario debe tener al menos 3 caracteres.');
-      valido = false;
+      _err('campo-username', 'El usuario debe tener al menos 3 caracteres.'); valido = false;
     } else if (!RX_USERNAME.test(username)) {
-      _err('campo-username', 'Solo letras, números y guión bajo. Sin espacios.');
-      valido = false;
+      _err('campo-username', 'Solo letras, números y guión bajo (_). Sin espacios.'); valido = false;
     } else if (username.length > 30) {
-      _err('campo-username', 'El usuario no puede superar 30 caracteres.');
-      valido = false;
+      _err('campo-username', 'El usuario no puede superar 30 caracteres.'); valido = false;
     }
 
-    if (!email || !RX_EMAIL.test(email)) {
-      _err('campo-email', 'Ingresa un correo electrónico válido (ej: user@correo.com).');
-      valido = false;
-    }
+    /* Email: regex estricta, máximo 254 chars */
+    err = BSPVal.email(emailVal);
+    if (err) { _err('campo-email', err); valido = false; }
 
-    if (!rol) {
-      _err('campo-rol', 'Selecciona un rol para el usuario.');
-      valido = false;
-    }
+    /* Rol: validado contra lista blanca — previene manipulación del DOM */
+    err = BSPVal.select(rol, ROLES_VALIDOS, { label: 'El rol' });
+    if (err) { _err('campo-rol', err); valido = false; }
 
+    /* Contraseña (solo obligatoria al crear): mínimo 6, mezcla letras+números, sin espacios */
     if (editandoId === null) {
-      if (!password || password.length < 6) {
-        _err('campo-password', 'La contraseña debe tener al menos 6 caracteres.');
-        valido = false;
-      } else if (!/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
-        _err('campo-password', 'La contraseña debe combinar letras y números.');
-        valido = false;
-      }
+      err = BSPVal.password(password, { min: 6 });
+      if (err) { _err('campo-password', err); valido = false; }
     }
+
     if (!valido) return;
     // ─────────────────────────────────────────────────────────────────────
 
-    const data = { nombre, username, email, rol, password };
-    const resultado = editandoId === null
-      ? UsuariosModel.create(data)
-      : UsuariosModel.update(editandoId, data);
+    /* Enviar datos limpios al modelo — never raw .value */
+    const data = { nombre, username, email: emailVal, rol, password };
+
+    /* Llamada al modelo envuelta en try-catch: captura errores de localStorage */
+    const resultado = BSPVal.safeCall(
+      () => editandoId === null
+        ? UsuariosModel.create(data)
+        : UsuariosModel.update(editandoId, data),
+      (msg) => { modalError.textContent = msg; modalError.style.display = 'block'; }
+    );
     if (!resultado.ok) {
       modalError.textContent   = resultado.error;
       modalError.style.display = 'block';

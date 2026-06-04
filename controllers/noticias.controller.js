@@ -58,26 +58,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Auto-llenar el campo Autor al cargar la página
   if (inpAutor && autorActual) inpAutor.value = autorActual;
 
-  // ── Helpers de validación DOM ────────────────────────────────────────────
-  function _err(id, msg) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.classList.add('campo-invalido');
-    const box = el.closest('.form-group') || el.parentElement;
-    let s = box.querySelector('.campo-error');
-    if (!s) { s = document.createElement('span'); s.className = 'campo-error'; box.appendChild(s); }
-    s.textContent = msg;
-  }
-  function _ok(...ids) {
-    ids.forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.classList.remove('campo-invalido');
-      const box = el.closest('.form-group') || el.parentElement;
-      const s = box.querySelector('.campo-error');
-      if (s) s.remove();
-    });
-  }
+  // ── Helpers de validación DOM (delegados a BSPVal) ──────────────────────
+  const _err = (id, msg) => BSPVal._err(id, msg);
+  const _ok  = (...ids)  => BSPVal._ok(...ids);
 
   // ════════════════════════════════════════════════════════════════
   // 1. VISTA PREVIA EN TIEMPO REAL
@@ -144,62 +127,59 @@ document.addEventListener('DOMContentLoaded', () => {
   form.addEventListener('submit', (e) => {
     e.preventDefault();
 
-    // ── Validación DOM ────────────────────────────────────────────────────
-    const RX_NOMBRE     = /^[a-zA-ZÀ-ÿñÑ\s'\-\.]+$/;
-    const RX_INI_LETRA  = /^[a-zA-ZÀ-ÿñÑ]/;
-    const titulo  = inpTitulo.value.trim();
-    const resumen = inpResumen.value.trim();
-    const autor   = inpAutor.value.trim();
+    /* Leer y limpiar todos los valores antes de validar */
+    const titulo    = BSPVal.cleanText(inpTitulo.value);
+    const resumen   = BSPVal.cleanText(inpResumen.value);
+    const contenido = inpContenido.value.trim();
+    const autor     = BSPVal.cleanText(inpAutor.value);
+    const fechaVal  = inpFecha.value;
+    const imagenUrl = inpImagen.value.trim();
 
-    _ok('news-titulo','news-resumen','news-autor','news-fecha','news-imagen');
+    // ── Limpiar estado previo ─────────────────────────────────────────────
+    _ok('news-titulo','news-resumen','news-contenido','news-autor','news-fecha','news-imagen');
     let valido = true;
+    let err;
 
-    if (!titulo || titulo.length < 3) {
-      _err('news-titulo', 'El título debe tener al menos 3 caracteres.');              valido = false;
-    } else if (!RX_INI_LETRA.test(titulo)) {
-      _err('news-titulo', 'El título debe comenzar con una letra, no con un número.'); valido = false;
-    } else if (titulo.length > 150) {
-      _err('news-titulo', 'El título no puede superar 150 caracteres.');               valido = false;
+    /* Título: mínimo 3, máximo 150, debe iniciar con letra */
+    err = BSPVal.txt(titulo, { min: 3, max: 150, label: 'El título', iniciaLetra: true });
+    if (err) { _err('news-titulo', err); valido = false; }
+
+    /* Resumen: mínimo 10, máximo 400 */
+    err = BSPVal.txt(resumen, { min: 10, max: 400, label: 'El resumen' });
+    if (err) { _err('news-resumen', err); valido = false; }
+
+    /* Contenido: opcional pero si se escribe mínimo 20, máximo 10000 */
+    if (contenido && contenido.length > 0) {
+      err = BSPVal.txt(contenido, { min: 20, max: 10000, label: 'El contenido' });
+      if (err) { _err('news-contenido', err); valido = false; }
     }
-    if (!resumen || resumen.length < 10) {
-      _err('news-resumen', 'El resumen debe tener al menos 10 caracteres.');           valido = false;
-    } else if (resumen.length > 400) {
-      _err('news-resumen', 'El resumen no puede superar 400 caracteres.');             valido = false;
-    }
-    if (!autor || autor.length < 2) {
-      _err('news-autor', 'El autor es obligatorio (mínimo 2 caracteres).');            valido = false;
-    } else if (!RX_NOMBRE.test(autor)) {
-      _err('news-autor', 'El nombre del autor solo puede contener letras y espacios.'); valido = false;
-    }
+
+    /* Autor: solo letras, mínimo 2, máximo 100 */
+    err = BSPVal.txt(autor, { min: 2, max: 100, label: 'El autor' });
+    if (!err) err = BSPVal.soloLetras(autor, { label: 'El autor' });
+    if (err) { _err('news-autor', err); valido = false; }
+
+    /* Fecha: no puede ser anterior a hoy (noticia con fecha pasada no tiene sentido) */
     const _hoyNews = new Date().toISOString().split('T')[0];
-    if (!inpFecha.value) {
-      _err('news-fecha', 'La fecha de publicación es obligatoria.');                   valido = false;
-    } else if (inpFecha.value < _hoyNews) {
-      _err('news-fecha', 'No se puede publicar con una fecha anterior a hoy.');        valido = false;
-    }
-    if (inpImagen.value && !/^https?:\/\/.+/.test(inpImagen.value.trim())) {
-      _err('news-imagen', 'La URL de imagen debe comenzar con http:// o https://');   valido = false;
-    }
+    err = BSPVal.fecha(fechaVal, { minDate: _hoyNews, label: 'La fecha de publicación' });
+    if (err) { _err('news-fecha', err); valido = false; }
+
+    /* Imagen: URL válida si se proporciona (campo opcional) */
+    err = BSPVal.url(imagenUrl, { required: false, label: 'La URL de imagen' });
+    if (err) { _err('news-imagen', err); valido = false; }
+
     if (!valido) return;
     // ─────────────────────────────────────────────────────────────────────
 
-    const data = {
-      titulo:    inpTitulo.value,
-      resumen:   inpResumen.value,
-      contenido: inpContenido.value,
-      autor:     inpAutor.value,
-      fechaISO:  inpFecha.value,
-      imagen:    inpImagen.value
-    };
+    /* Datos limpios — nunca usar .value directamente aquí */
+    const data = { titulo, resumen, contenido, autor, fechaISO: fechaVal, imagen: imagenUrl };
 
-    let resultado;
-
-    if (editandoId === null) {
-      resultado = NoticiasModel.crear(data);
-    } else {
-      resultado = NoticiasModel.actualizar(editandoId, data);
-    }
-
+    /* Llamada al modelo con try-catch */
+    const resultado = BSPVal.safeCall(
+      () => editandoId === null
+        ? NoticiasModel.crear(data)
+        : NoticiasModel.actualizar(editandoId, data)
+    );
     if (!resultado.ok) {
       showAlertError(resultado.error);
       return;

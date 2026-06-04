@@ -292,74 +292,66 @@ document.addEventListener('DOMContentLoaded', () => {
   // 8. GUARDAR ACTIVIDAD (crear o editar)
   // ════════════════════════════════════════════════════════════════
 
-  // ── Helpers de validación DOM ────────────────────────────────────────────
-  const RX_INICIO_LETRA = /^[a-zA-ZÀ-ÿñÑ]/;
+  // ── Helpers de validación DOM (delegados a BSPVal) ──────────────────────
+  const _err = (id, msg) => BSPVal._err(id, msg);
+  const _ok  = (...ids)  => BSPVal._ok(...ids);
 
-  function _err(id, msg) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.classList.add('campo-invalido');
-    const box = el.closest('.form-group, .act-form-group') || el.parentElement;
-    let s = box.querySelector('.campo-error');
-    if (!s) { s = document.createElement('span'); s.className = 'campo-error'; box.appendChild(s); }
-    s.textContent = msg;
-  }
-  function _ok(...ids) {
-    ids.forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.classList.remove('campo-invalido');
-      const box = el.closest('.form-group, .act-form-group') || el.parentElement;
-      const s = box.querySelector('.campo-error');
-      if (s) s.remove();
-    });
-  }
+  const PRIORIDADES_VALIDAS = ['alta', 'media', 'baja'];
 
   formAct.addEventListener('submit', e => {
     e.preventDefault();
 
-    const titulo    = document.getElementById('act-titulo-input').value.trim();
-    const volId     = parseInt(selectVol.value);
-    const volOpt    = selectVol.options[selectVol.selectedIndex];
-    const volNombre = volOpt ? volOpt.textContent : '';
+    /* Leer y limpiar todos los valores */
+    const titulo      = BSPVal.cleanText(document.getElementById('act-titulo-input').value);
+    const descripcion = BSPVal.cleanText(document.getElementById('act-descripcion').value);
+    const prioridad   = document.getElementById('act-prioridad').value;
+    const volId       = parseInt(selectVol.value, 10);
+    const volOpt      = selectVol.options[selectVol.selectedIndex];
+    const volNombre   = volOpt ? BSPVal.cleanText(volOpt.textContent) : '';
 
-    // ── Validación DOM ────────────────────────────────────────────────────
-    _ok('act-titulo-input','act-voluntario');
+    // ── Limpiar estado previo ─────────────────────────────────────────────
+    _ok('act-titulo-input','act-descripcion','act-prioridad','act-voluntario');
     let valido = true;
+    let err;
 
-    if (!titulo || titulo.length < 3) {
-      _err('act-titulo-input', 'El título debe tener al menos 3 caracteres.');
-      valido = false;
-    } else if (!RX_INICIO_LETRA.test(titulo)) {
-      _err('act-titulo-input', 'El título debe comenzar con una letra, no con un número.');
-      valido = false;
-    } else if (titulo.length > 120) {
-      _err('act-titulo-input', 'El título no puede superar 120 caracteres.');
-      valido = false;
+    /* Título: mínimo 3, máximo 120, debe iniciar con letra */
+    err = BSPVal.txt(titulo, { min: 3, max: 120, label: 'El título', iniciaLetra: true });
+    if (err) { _err('act-titulo-input', err); valido = false; }
+
+    /* Descripción: opcional, pero si se escribe mínimo 5, máximo 500 */
+    if (descripcion.length > 0) {
+      err = BSPVal.txt(descripcion, { min: 5, max: 500, label: 'La descripción' });
+      if (err) { _err('act-descripcion', err); valido = false; }
     }
+
+    /* Prioridad: validada contra lista blanca */
+    err = BSPVal.select(prioridad, PRIORIDADES_VALIDAS, { label: 'La prioridad' });
+    if (err) { _err('act-prioridad', err); valido = false; }
+
+    /* Voluntario: debe haber seleccionado una opción válida */
     if (!volId || isNaN(volId)) {
-      _err('act-voluntario', 'Debes asignar la actividad a un voluntario.');
-      valido = false;
+      _err('act-voluntario', 'Debes asignar la actividad a un voluntario.'); valido = false;
     }
+
     if (!valido) return;
     // ─────────────────────────────────────────────────────────────────────
 
+    /* Datos limpios al modelo */
     const data = {
       eventoId:         eventoActual.id,
       titulo,
-      descripcion:      document.getElementById('act-descripcion').value,
-      prioridad:        document.getElementById('act-prioridad').value,
+      descripcion,
+      prioridad,
       voluntarioId:     volId,
       voluntarioNombre: volNombre
     };
 
-    let resultado;
-    if (modoEdicion) {
-      resultado = ActividadesModel.actualizar(actEditId, data);
-    } else {
-      resultado = ActividadesModel.crear(data);
-    }
-
+    /* Llamada al modelo con try-catch */
+    const resultado = BSPVal.safeCall(
+      () => modoEdicion
+        ? ActividadesModel.actualizar(actEditId, data)
+        : ActividadesModel.crear(data)
+    );
     if (!resultado.ok) {
       showAlertError(resultado.error);
       return;

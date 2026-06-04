@@ -21,81 +21,65 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnNueva   = document.getElementById('pqr-btn-nueva');
   const btnSubmit  = document.getElementById('pqr-btn-submit');
 
-  // ── Helpers de validación DOM ────────────────────────────────────────────
-  function _err(id, msg) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.classList.add('campo-invalido');
-    const box = el.closest('.pqr-form-group, .form-group') || el.parentElement;
-    let s = box.querySelector('.campo-error');
-    if (!s) { s = document.createElement('span'); s.className = 'campo-error'; box.appendChild(s); }
-    s.textContent = msg;
-  }
-  function _ok(...ids) {
-    ids.forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.classList.remove('campo-invalido');
-      const box = el.closest('.pqr-form-group, .form-group') || el.parentElement;
-      const s = box.querySelector('.campo-error');
-      if (s) s.remove();
-    });
-  }
+  // ── Helpers de validación DOM (delegados a BSPVal) ──────────────────────
+  const _err = (id, msg) => BSPVal._err(id, msg);
+  const _ok  = (...ids)  => BSPVal._ok(...ids);
+
+  const TIPOS_PQR_VALIDOS = ['Petición', 'Queja', 'Reclamo', 'Sugerencia'];
 
   // ── Submit del formulario ────────────────────────────────────────────────
   form.addEventListener('submit', (e) => {
     e.preventDefault();
 
+    /* Leer y limpiar TODOS los valores antes de validar y antes de guardar */
+    const tipo        = document.getElementById('pqr-tipo').value;
+    const nombre      = BSPVal.cleanText(document.getElementById('pqr-nombre').value);
+    const emailVal    = document.getElementById('pqr-email').value.trim().toLowerCase();
+    const telefono    = document.getElementById('pqr-telefono').value.trim();
+    const asunto      = BSPVal.cleanText(document.getElementById('pqr-asunto').value);
+    const descripcion = BSPVal.cleanText(document.getElementById('pqr-descripcion').value);
 
-    // Recoger datos del formulario
-    const data = {
-      tipo:        document.getElementById('pqr-tipo').value,
-      nombre:      document.getElementById('pqr-nombre').value,
-      email:       document.getElementById('pqr-email').value,
-      telefono:    document.getElementById('pqr-telefono').value,
-      asunto:      document.getElementById('pqr-asunto').value,
-      descripcion: document.getElementById('pqr-descripcion').value
-    };
-
-    // ── Validación DOM ────────────────────────────────────────────────────
-    const RX_NOMBRE   = /^[a-zA-ZÀ-ÿñÑ\s'\-\.]+$/;
-    const RX_EMAIL    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const RX_TELEFONO = /^[\d\s\+\-\(\)]{7,20}$/;
+    // ── Limpiar estado previo ─────────────────────────────────────────────
     _ok('pqr-tipo','pqr-nombre','pqr-email','pqr-telefono','pqr-asunto','pqr-descripcion');
     let valido = true;
+    let err;
 
-    if (!data.tipo) {
-      _err('pqr-tipo', 'Selecciona el tipo de solicitud.');                            valido = false;
-    }
-    if (!data.nombre || data.nombre.trim().length < 2) {
-      _err('pqr-nombre', 'Tu nombre debe tener al menos 2 caracteres.');               valido = false;
-    } else if (!RX_NOMBRE.test(data.nombre.trim())) {
-      _err('pqr-nombre', 'El nombre solo puede contener letras y espacios. Sin números.'); valido = false;
-    } else if (data.nombre.trim().length > 100) {
-      _err('pqr-nombre', 'El nombre no puede superar 100 caracteres.');                valido = false;
-    }
-    if (!data.email || !RX_EMAIL.test(data.email)) {
-      _err('pqr-email', 'Ingresa un correo electrónico válido (ej: usuario@correo.com).'); valido = false;
-    }
-    if (data.telefono && !RX_TELEFONO.test(data.telefono)) {
-      _err('pqr-telefono', 'Teléfono inválido. Usa solo dígitos, +, -, () y espacios (mín. 7 dígitos).'); valido = false;
-    }
-    if (!data.asunto || data.asunto.trim().length < 5) {
-      _err('pqr-asunto', 'El asunto debe tener al menos 5 caracteres.');               valido = false;
-    } else if (data.asunto.trim().length > 200) {
-      _err('pqr-asunto', 'El asunto no puede superar 200 caracteres.');                valido = false;
-    }
-    if (!data.descripcion || data.descripcion.trim().length < 10) {
-      _err('pqr-descripcion', 'La descripción debe tener al menos 10 caracteres.');   valido = false;
-    } else if (data.descripcion.trim().length > 2000) {
-      _err('pqr-descripcion', 'La descripción no puede superar 2000 caracteres.');    valido = false;
-    }
+    /* Tipo: validado contra lista blanca — previene manipulación del DOM */
+    err = BSPVal.select(tipo, TIPOS_PQR_VALIDOS, { label: 'El tipo de solicitud' });
+    if (err) { _err('pqr-tipo', err); valido = false; }
+
+    /* Nombre: solo letras, mínimo 2, máximo 100 */
+    err = BSPVal.txt(nombre, { min: 2, max: 100, label: 'Tu nombre' });
+    if (!err) err = BSPVal.soloLetras(nombre, { label: 'Tu nombre' });
+    if (err) { _err('pqr-nombre', err); valido = false; }
+
+    /* Email: regex estricta */
+    err = BSPVal.email(emailVal);
+    if (err) { _err('pqr-email', err); valido = false; }
+
+    /* Teléfono: opcional */
+    err = BSPVal.tel(telefono, { required: false });
+    if (err) { _err('pqr-telefono', err); valido = false; }
+
+    /* Asunto: mínimo 5, máximo 200 */
+    err = BSPVal.txt(asunto, { min: 5, max: 200, label: 'El asunto' });
+    if (err) { _err('pqr-asunto', err); valido = false; }
+
+    /* Descripción: mínimo 10, máximo 2000 */
+    err = BSPVal.txt(descripcion, { min: 10, max: 2000, label: 'La descripción' });
+    if (err) { _err('pqr-descripcion', err); valido = false; }
+
     if (!valido) return;
     // ─────────────────────────────────────────────────────────────────────
 
-    // Llamar al modelo
-    const resultado = PQRModel.crear(data);
+    /* Datos limpios — NUNCA usar .value directamente desde aquí */
+    const data = { tipo, nombre, email: emailVal, telefono, asunto, descripcion };
 
+    /* Llamada al modelo con try-catch */
+    const resultado = BSPVal.safeCall(
+      () => PQRModel.crear(data),
+      (msg) => mostrarError(msg)
+    );
     if (!resultado.ok) {
       mostrarError(resultado.error);
       return;

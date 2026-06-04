@@ -39,26 +39,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Rango permitido para horas de eventos
   const H_MIN = '06:00', H_MAX = '21:00';
 
-  // ── Helpers de validación DOM ────────────────────────────────────────────
-  function _err(id, msg) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.classList.add('campo-invalido');
-    const box = el.closest('.form-group, .sed-field') || el.parentElement;
-    let s = box.querySelector('.campo-error');
-    if (!s) { s = document.createElement('span'); s.className = 'campo-error'; box.appendChild(s); }
-    s.textContent = msg;
-  }
-  function _ok(...ids) {
-    ids.forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.classList.remove('campo-invalido');
-      const box = el.closest('.form-group, .sed-field') || el.parentElement;
-      const s = box.querySelector('.campo-error');
-      if (s) s.remove();
-    });
-  }
+  // ── Helpers de validación DOM (delegados a BSPVal) ──────────────────────
+  const _err = (id, msg) => BSPVal._err(id, msg);
+  const _ok  = (...ids)  => BSPVal._ok(...ids);
+
+  // Bloquear caracteres peligrosos en todos los inputs numéricos del formulario
+  ['ev-voluntarios', 'ev-asistentes'].forEach(id =>
+    BSPVal.blockNumericChars(document.getElementById(id))
+  );
 
   // Mapa de íconos por categoría (compartido entre creación y edición)
   const ICON_MAP = {
@@ -326,91 +314,94 @@ document.addEventListener('DOMContentLoaded', () => {
   window.submitEvent = function(e) {
     e.preventDefault();
 
-    const titulo      = document.getElementById('ev-titulo')?.value.trim()      || '';
-    const fecha       = document.getElementById('ev-fecha')?.value              || '';
-    const horaInicio  = document.getElementById('ev-hora-inicio')?.value        || '';
-    const horaFin     = document.getElementById('ev-hora-fin')?.value           || '';
-    const ubicacion   = document.getElementById('ev-ubicacion')?.value.trim()   || '';
-    const voluntarios = parseInt(document.getElementById('ev-voluntarios')?.value) || 0;
+    /* Leer y limpiar todos los valores */
+    const titulo        = BSPVal.cleanText(document.getElementById('ev-titulo')?.value || '');
+    const fechaVal      = document.getElementById('ev-fecha')?.value              || '';
+    const horaInicio    = document.getElementById('ev-hora-inicio')?.value        || '';
+    const horaFin       = document.getElementById('ev-hora-fin')?.value           || '';
+    const ubicacion     = BSPVal.cleanText(document.getElementById('ev-ubicacion')?.value || '');
+    const descripcion   = BSPVal.cleanText(document.getElementById('ev-descripcion')?.value || '');
+    const voluntariosRaw= document.getElementById('ev-voluntarios')?.value        || '';
+    const asistentesRaw = document.getElementById('ev-asistentes')?.value         || '';
 
-    // ── Validación DOM ────────────────────────────────────────────────────
-    const RX_INI_LETRA = /^[a-zA-ZÀ-ÿñÑ]/;
-    const hoy = new Date().toISOString().split('T')[0];
-    _ok('ev-titulo','ev-fecha','ev-hora-inicio','ev-hora-fin','ev-ubicacion','ev-voluntarios');
+    // ── Limpiar estado previo ─────────────────────────────────────────────
+    _ok('ev-titulo','ev-fecha','ev-hora-inicio','ev-hora-fin','ev-ubicacion','ev-voluntarios','ev-asistentes','ev-descripcion');
     let valido = true;
+    let err;
 
-    if (!titulo || titulo.length < 3) {
-      _err('ev-titulo', 'El título debe tener al menos 3 caracteres.');
-      valido = false;
-    } else if (!RX_INI_LETRA.test(titulo)) {
-      _err('ev-titulo', 'El título debe comenzar con una letra, no con un número.');
-      valido = false;
-    } else if (titulo.length > 150) {
-      _err('ev-titulo', 'El título no puede superar 150 caracteres.');
-      valido = false;
-    }
-    if (!fecha) {
-      _err('ev-fecha', 'Selecciona una fecha para el evento.');
-      valido = false;
-    } else if (fecha < hoy) {
-      _err('ev-fecha', 'La fecha del evento no puede ser en el pasado.');
-      valido = false;
-    }
+    const hoy = new Date().toISOString().split('T')[0];
+
+    /* Título: mínimo 3, máximo 150, debe iniciar con letra */
+    err = BSPVal.txt(titulo, { min: 3, max: 150, label: 'El título', iniciaLetra: true });
+    if (err) { _err('ev-titulo', err); valido = false; }
+
+    /* Fecha: no puede ser en el pasado (los eventos son a futuro) */
+    err = BSPVal.fecha(fechaVal, { minDate: hoy, label: 'La fecha del evento' });
+    if (err) { _err('ev-fecha', err); valido = false; }
+
+    /* Hora de inicio: obligatoria, dentro del rango permitido */
     if (!horaInicio) {
-      _err('ev-hora-inicio', 'La hora de inicio es obligatoria.');
-      valido = false;
+      _err('ev-hora-inicio', 'La hora de inicio es obligatoria.'); valido = false;
     } else if (horaInicio < H_MIN || horaInicio > H_MAX) {
-      _err('ev-hora-inicio', 'Debe estar entre 6:00 AM y 9:00 PM.');
-      valido = false;
+      _err('ev-hora-inicio', 'La hora debe estar entre 6:00 AM (06:00) y 9:00 PM (21:00).'); valido = false;
     }
+
+    /* Hora de fin: opcional, pero si se pone debe ser > hora inicio y dentro del rango */
     if (horaFin) {
       if (horaFin < H_MIN || horaFin > H_MAX) {
-        _err('ev-hora-fin', 'Debe estar entre 6:00 AM y 9:00 PM.');
-        valido = false;
+        _err('ev-hora-fin', 'La hora debe estar entre 6:00 AM (06:00) y 9:00 PM (21:00).'); valido = false;
       } else if (horaInicio && horaFin <= horaInicio) {
-        _err('ev-hora-fin', 'La hora de fin debe ser posterior a la de inicio.');
-        valido = false;
+        _err('ev-hora-fin', 'La hora de fin debe ser posterior a la hora de inicio.'); valido = false;
       }
     }
-    const asistentes = document.getElementById('ev-asistentes')?.value;
-    if (!ubicacion) {
-      _err('ev-ubicacion', 'La sede / ubicación es obligatoria.');
-      valido = false;
+
+    /* Ubicación / sede: obligatoria, mínimo 2 chars */
+    err = BSPVal.txt(ubicacion, { min: 2, max: 200, label: 'La sede / ubicación' });
+    if (err) { _err('ev-ubicacion', err); valido = false; }
+
+    /* Voluntarios necesarios: entero >= 1 — bloquea 'e', '+', '-' */
+    err = BSPVal.num(voluntariosRaw, { min: 1, max: 9999, entero: true, label: 'El número de voluntarios' });
+    if (err) { _err('ev-voluntarios', err); valido = false; }
+
+    /* Asistentes esperados: opcional, entero >= 0 si se provee */
+    if (asistentesRaw.trim() !== '') {
+      err = BSPVal.num(asistentesRaw, { min: 0, max: 999999, entero: true, label: 'Las personas esperadas' });
+      if (err) { _err('ev-asistentes', err); valido = false; }
     }
-    if (asistentes !== '' && asistentes !== null && parseInt(asistentes) < 0) {
-      _err('ev-asistentes', 'Las personas esperadas no pueden ser negativas.');
-      valido = false;
+
+    /* Descripción: opcional, máximo 1000 chars */
+    if (descripcion.length > 0) {
+      err = BSPVal.txt(descripcion, { min: 5, max: 1000, label: 'La descripción' });
+      if (err) { _err('ev-descripcion', err); valido = false; }
     }
-    if (voluntarios < 1) {
-      _err('ev-voluntarios', 'Debe haber al menos 1 voluntario.');
-      valido = false;
-    }
+
     if (!valido) return;
     // ─────────────────────────────────────────────────────────────────────
 
     const recursosSeleccionados = Object.entries(seleccionados).map(([id, cantidad]) => {
-      const r = (typeof RecursosModel !== 'undefined') ? RecursosModel.getById(parseInt(id)) : null;
+      const r = (typeof RecursosModel !== 'undefined') ? RecursosModel.getById(parseInt(id, 10)) : null;
       return {
-        recursoId:     parseInt(id),
+        recursoId:     parseInt(id, 10),
         recursoNombre: r ? r.nombre : 'Recurso',
-        cantidad,
+        cantidad:      parseInt(cantidad, 10),
         unidad:        r ? r.unidad : 'unidades'
       };
     });
 
+    /* Datos limpios al modelo */
     const data = {
       titulo,
-      fecha,
+      fecha:                 fechaVal,
       horario:               combinarHorario(horaInicio, horaFin),
       ubicacion,
-      asistentes:            document.getElementById('ev-asistentes')?.value  || '',
-      voluntariosNecesarios: voluntarios,
-      descripcion:           document.getElementById('ev-descripcion')?.value || '',
+      asistentes:            asistentesRaw.trim() !== '' ? parseInt(asistentesRaw, 10) : '',
+      voluntariosNecesarios: parseInt(voluntariosRaw, 10),
+      descripcion,
       recursos:              recursosSeleccionados
     };
 
-    const resultado = EventosModel.publicar(data);
-
+    /* Llamada al modelo con try-catch */
+    const resultado = BSPVal.safeCall(() => EventosModel.publicar(data));
     if (!resultado.ok) {
       showAlertError(resultado.error);
       return;

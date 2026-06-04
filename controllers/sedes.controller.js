@@ -77,81 +77,75 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   modalOverlay.addEventListener('click', cerrarModalSede);
 
-  // ── Helpers de validación DOM ────────────────────────────────────────────
-  function _err(id, msg) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.classList.add('campo-invalido');
-    const box = el.closest('.sed-field, .form-group') || el.parentElement;
-    let s = box.querySelector('.campo-error');
-    if (!s) { s = document.createElement('span'); s.className = 'campo-error'; box.appendChild(s); }
-    s.textContent = msg;
-  }
-  function _ok(...ids) {
-    ids.forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.classList.remove('campo-invalido');
-      const box = el.closest('.sed-field, .form-group') || el.parentElement;
-      const s = box.querySelector('.campo-error');
-      if (s) s.remove();
-    });
-  }
+  // ── Helpers de validación DOM (delegados a BSPVal) ──────────────────────
+  const _err = (id, msg) => BSPVal._err(id, msg);
+  const _ok  = (...ids)  => BSPVal._ok(...ids);
+
+  // Bloquear caracteres peligrosos en el campo numérico de miembros
+  BSPVal.blockNumericChars(document.getElementById('sed-miembros'));
 
   // ── Guardar sede ─────────────────────────────────────────────────────────
   form.addEventListener('submit', e => {
     e.preventDefault();
 
-    const nombre    = document.getElementById('sed-nombre').value.trim();
-    const ciudad    = document.getElementById('sed-ciudad').value.trim();
-    const direccion = document.getElementById('sed-direccion').value.trim();
-    const miembros  = parseInt(document.getElementById('sed-miembros').value) || 0;
+    /* Leer y limpiar todos los valores */
+    const nombre      = BSPVal.cleanText(document.getElementById('sed-nombre').value);
+    const ciudad      = BSPVal.cleanText(document.getElementById('sed-ciudad').value);
+    const direccion   = BSPVal.cleanText(document.getElementById('sed-direccion').value);
+    const telefono    = document.getElementById('sed-telefono').value.trim();
+    const pastor      = BSPVal.cleanText(document.getElementById('sed-pastor').value);
+    const miembrosRaw = document.getElementById('sed-miembros').value;
 
-    // ── Validación DOM ────────────────────────────────────────────────────
-    const RX_NOMBRE   = /^[a-zA-ZÀ-ÿñÑ\s'\-\.]+$/;
-    const RX_INI_LETRA = /^[a-zA-ZÀ-ÿñÑ]/;
-    const RX_TELEFONO = /^[\d\s\+\-\(\)]{7,20}$/;
-    const telefono = document.getElementById('sed-telefono').value.trim();
-    _ok('sed-nombre','sed-ciudad','sed-direccion','sed-telefono','sed-miembros');
+    // ── Limpiar estado previo ─────────────────────────────────────────────
+    _ok('sed-nombre','sed-ciudad','sed-direccion','sed-telefono','sed-pastor','sed-miembros');
     let valido = true;
+    let err;
 
-    if (!nombre || nombre.length < 2) {
-      _err('sed-nombre', 'El nombre de la sede debe tener al menos 2 caracteres.');   valido = false;
-    } else if (!RX_INI_LETRA.test(nombre)) {
-      _err('sed-nombre', 'El nombre debe comenzar con una letra.');                    valido = false;
-    } else if (nombre.length > 100) {
-      _err('sed-nombre', 'El nombre no puede superar 100 caracteres.');                valido = false;
+    /* Nombre de la sede: mínimo 2, máximo 100, debe iniciar con letra */
+    err = BSPVal.txt(nombre, { min: 2, max: 100, label: 'El nombre de la sede', iniciaLetra: true });
+    if (err) { _err('sed-nombre', err); valido = false; }
+
+    /* Ciudad: mínimo 2, máximo 100, solo letras y espacios */
+    err = BSPVal.txt(ciudad, { min: 2, max: 100, label: 'La ciudad' });
+    if (!err) err = BSPVal.soloLetras(ciudad, { label: 'La ciudad' });
+    if (err) { _err('sed-ciudad', err); valido = false; }
+
+    /* Dirección: mínimo 5, máximo 200 (puede tener números de calle) */
+    err = BSPVal.txt(direccion, { min: 5, max: 200, label: 'La dirección' });
+    if (err) { _err('sed-direccion', err); valido = false; }
+
+    /* Teléfono: opcional — solo si se ingresó */
+    err = BSPVal.tel(telefono, { required: false });
+    if (err) { _err('sed-telefono', err); valido = false; }
+
+    /* Pastor/a: opcional, solo letras, máximo 100 */
+    if (pastor.length > 0) {
+      err = BSPVal.txt(pastor, { min: 2, max: 100, label: 'El nombre del pastor/a' });
+      if (!err) err = BSPVal.soloLetras(pastor, { label: 'El nombre del pastor/a' });
+      if (err) { _err('sed-pastor', err); valido = false; }
     }
-    if (!ciudad || ciudad.length < 2) {
-      _err('sed-ciudad', 'La ciudad es obligatoria (mínimo 2 caracteres).');           valido = false;
-    } else if (!RX_NOMBRE.test(ciudad)) {
-      _err('sed-ciudad', 'La ciudad solo puede contener letras y espacios.');          valido = false;
+
+    /* Miembros: entero >= 0, máximo 999999 — bloquea 'e', '+', '-' */
+    if (miembrosRaw.trim() !== '') {
+      err = BSPVal.num(miembrosRaw, { min: 0, max: 999999, entero: true, label: 'El número de miembros' });
+      if (err) { _err('sed-miembros', err); valido = false; }
     }
-    if (!direccion || direccion.length < 5) {
-      _err('sed-direccion', 'La dirección debe tener al menos 5 caracteres.');         valido = false;
-    } else if (direccion.length > 200) {
-      _err('sed-direccion', 'La dirección no puede superar 200 caracteres.');          valido = false;
-    }
-    if (telefono && !RX_TELEFONO.test(telefono)) {
-      _err('sed-telefono', 'Teléfono inválido. Usa solo dígitos, +, -, () y espacios.'); valido = false;
-    }
-    if (miembros < 0) {
-      _err('sed-miembros', 'El número de miembros no puede ser negativo.');            valido = false;
-    } else if (miembros > 999999) {
-      _err('sed-miembros', 'El número de miembros parece excesivo (máx. 999,999).');   valido = false;
-    }
+
     if (!valido) return;
     // ─────────────────────────────────────────────────────────────────────
 
+    /* Datos limpios — miembros como entero */
     const data = {
       nombre,
       ciudad,
       direccion,
-      telefono:  document.getElementById('sed-telefono').value,
-      pastor:    document.getElementById('sed-pastor').value,
-      miembros:  document.getElementById('sed-miembros').value
+      telefono,
+      pastor,
+      miembros: miembrosRaw.trim() !== '' ? parseInt(miembrosRaw, 10) : 0
     };
-    const res = SedesModel.agregar(data);
+
+    /* Llamada al modelo con try-catch */
+    const res = BSPVal.safeCall(() => SedesModel.agregar(data));
     if (!res.ok) { showAlertError(res.error); return; }
     cerrarModalSede();
     render();

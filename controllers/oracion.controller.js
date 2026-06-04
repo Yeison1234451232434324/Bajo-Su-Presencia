@@ -37,26 +37,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // ID de la oración que se está editando (null = modo crear)
   let editandoId = null;
 
-  // ── Helpers de validación DOM ────────────────────────────────────────────
-  function _err(id, msg) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.classList.add('campo-invalido');
-    const box = el.closest('.form-group, .or-form-group') || el.parentElement;
-    let s = box.querySelector('.campo-error');
-    if (!s) { s = document.createElement('span'); s.className = 'campo-error'; box.appendChild(s); }
-    s.textContent = msg;
-  }
-  function _ok(...ids) {
-    ids.forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.classList.remove('campo-invalido');
-      const box = el.closest('.form-group, .or-form-group') || el.parentElement;
-      const s = box.querySelector('.campo-error');
-      if (s) s.remove();
-    });
-  }
+  // ── Helpers de validación DOM (delegados a BSPVal) ──────────────────────
+  const _err = (id, msg) => BSPVal._err(id, msg);
+  const _ok  = (...ids)  => BSPVal._ok(...ids);
 
   // ════════════════════════════════════════════════════════════════
   // 1. VISTA PREVIA EN TIEMPO REAL
@@ -93,45 +76,45 @@ document.addEventListener('DOMContentLoaded', () => {
   form.addEventListener('submit', (e) => {
     e.preventDefault();
 
-    // ── Validación DOM ────────────────────────────────────────────────────
-    const texto = txtTexto.value.trim();
-    const imagen = txtImagen.value.trim();
-    _ok('prayerText','prayerImage');
-    let valido = true;
+    /* Leer y limpiar todos los valores */
+    const texto    = BSPVal.cleanText(txtTexto.value);
+    const versiculo= BSPVal.cleanText(txtVersiculo.value);
+    const imagenUrl= txtImagen.value.trim();
 
-    if (!texto || texto.length < 10) {
-      _err('prayerText', 'La oración debe tener al menos 10 caracteres.');
-      valido = false;
-    } else if (texto.length > 2000) {
-      _err('prayerText', 'La oración no puede superar 2000 caracteres.');
-      valido = false;
-    } else if (/^\d+$/.test(texto)) {
-      _err('prayerText', 'La oración no puede ser solo números.');
-      valido = false;
+    // ── Limpiar estado previo ─────────────────────────────────────────────
+    _ok('prayerText','prayerVerse','prayerImage');
+    let valido = true;
+    let err;
+
+    /* Texto de oración: mínimo 10, máximo 2000, no puede ser solo números */
+    err = BSPVal.txt(texto, { min: 10, max: 2000, label: 'La oración' });
+    if (err) { _err('prayerText', err); valido = false; }
+    else if (/^\d[\d\s]*$/.test(texto)) {
+      _err('prayerText', 'La oración no puede ser solo números.'); valido = false;
     }
-    if (imagen && !/^https?:\/\/.+/.test(imagen)) {
-      _err('prayerImage', 'La URL de imagen debe comenzar con http:// o https://');
-      valido = false;
+
+    /* Versículo: opcional, pero si se escribe máximo 200 chars */
+    if (versiculo.length > 0) {
+      err = BSPVal.txt(versiculo, { min: 2, max: 200, label: 'El versículo de referencia' });
+      if (err) { _err('prayerVerse', err); valido = false; }
     }
+
+    /* Imagen: URL válida si se proporciona (campo opcional) */
+    err = BSPVal.url(imagenUrl, { required: false, label: 'La URL de imagen' });
+    if (err) { _err('prayerImage', err); valido = false; }
+
     if (!valido) return;
     // ─────────────────────────────────────────────────────────────────────
 
-    const data = {
-      texto:     txtTexto.value,
-      versiculo: txtVersiculo.value,
-      imagen:    txtImagen.value
-    };
+    /* Datos limpios al modelo */
+    const data = { texto, versiculo, imagen: imagenUrl };
 
-    let resultado;
-
-    if (editandoId === null) {
-      // Modo CREAR: guardar nueva oración
-      resultado = OracionModel.crear(data);
-    } else {
-      // Modo EDITAR: actualizar oración existente
-      resultado = OracionModel.actualizar(editandoId, data);
-    }
-
+    /* Llamada al modelo con try-catch */
+    const resultado = BSPVal.safeCall(
+      () => editandoId === null
+        ? OracionModel.crear(data)
+        : OracionModel.actualizar(editandoId, data)
+    );
     if (!resultado.ok) {
       showAlertError(resultado.error);
       return;

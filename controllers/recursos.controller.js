@@ -222,85 +222,73 @@ document.addEventListener('DOMContentLoaded', () => {
     editandoId = null;
   }
 
-  // ── Helpers de validación DOM ────────────────────────────────────────────
-  function _err(id, msg) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.classList.add('campo-invalido');
-    const box = el.closest('.form-group') || el.parentElement;
-    let s = box.querySelector('.campo-error');
-    if (!s) { s = document.createElement('span'); s.className = 'campo-error'; box.appendChild(s); }
-    s.textContent = msg;
-  }
-  function _ok(...ids) {
-    ids.forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.classList.remove('campo-invalido');
-      const box = el.closest('.form-group') || el.parentElement;
-      const s = box.querySelector('.campo-error');
-      if (s) s.remove();
-    });
-  }
+  // ── Helpers de validación DOM (delegados a BSPVal) ──────────────────────
+  const _err = (id, msg) => BSPVal._err(id, msg);
+  const _ok  = (...ids)  => BSPVal._ok(...ids);
+
+  const CATEGORIAS_VALIDAS = ['Mobiliario', 'Audio y Video', 'Iluminación', 'Papelería', 'Cocina', 'Otros'];
+
+  // Bloquear caracteres peligrosos en el input numérico de cantidad
+  BSPVal.blockNumericChars(document.getElementById('campo-cantidad'));
 
   /** Submit del formulario de crear/editar */
   formRecurso.addEventListener('submit', (e) => {
     e.preventDefault();
     modalError.style.display = 'none';
 
-    const nombre   = document.getElementById('campo-nombre-rec').value.trim();
-    const categoria = document.getElementById('campo-categoria').value;
-    const cantidad  = parseInt(document.getElementById('campo-cantidad').value);
-    const unidad    = document.getElementById('campo-unidad').value.trim();
+    /* Leer y limpiar todos los valores */
+    const nombre      = BSPVal.cleanText(document.getElementById('campo-nombre-rec').value);
+    const categoria   = document.getElementById('campo-categoria').value;
+    const cantidadRaw = document.getElementById('campo-cantidad').value;
+    const unidad      = BSPVal.cleanText(document.getElementById('campo-unidad').value);
+    const descripcion = BSPVal.cleanText(document.getElementById('campo-descripcion-rec').value);
 
-    // ── Validación DOM ────────────────────────────────────────────────────
-    const RX_INI_LETRA = /^[a-zA-ZÀ-ÿñÑ]/;
-    _ok('campo-nombre-rec','campo-categoria','campo-cantidad','campo-unidad');
+    // ── Limpiar estado previo ─────────────────────────────────────────────
+    _ok('campo-nombre-rec','campo-categoria','campo-cantidad','campo-unidad','campo-descripcion-rec');
     let valido = true;
+    let err;
 
-    if (!nombre || nombre.length < 3) {
-      _err('campo-nombre-rec', 'El nombre debe tener al menos 3 caracteres.');
-      valido = false;
-    } else if (!RX_INI_LETRA.test(nombre)) {
-      _err('campo-nombre-rec', 'El nombre debe comenzar con una letra, no con un número.');
-      valido = false;
-    } else if (nombre.length > 100) {
-      _err('campo-nombre-rec', 'El nombre no puede superar 100 caracteres.');
-      valido = false;
+    /* Nombre: mínimo 3, máximo 100, debe iniciar con letra */
+    err = BSPVal.txt(nombre, { min: 3, max: 100, label: 'El nombre del recurso', iniciaLetra: true });
+    if (err) { _err('campo-nombre-rec', err); valido = false; }
+
+    /* Categoría: validada contra lista blanca */
+    err = BSPVal.select(categoria, CATEGORIAS_VALIDAS, { label: 'La categoría' });
+    if (err) { _err('campo-categoria', err); valido = false; }
+
+    /* Cantidad: entero >= 0, máximo 99999 — bloquea 'e', '+', '-' */
+    err = BSPVal.num(cantidadRaw, { min: 0, max: 99999, entero: true, label: 'La cantidad' });
+    if (err) { _err('campo-cantidad', err); valido = false; }
+
+    /* Unidad de medida: mínimo 1, máximo 30 */
+    err = BSPVal.txt(unidad, { min: 1, max: 30, label: 'La unidad de medida' });
+    if (err) { _err('campo-unidad', err); valido = false; }
+
+    /* Descripción: opcional, pero si se escribe máximo 500 chars */
+    if (descripcion.length > 0) {
+      err = BSPVal.txt(descripcion, { min: 3, max: 500, label: 'La descripción' });
+      if (err) { _err('campo-descripcion-rec', err); valido = false; }
     }
-    if (!categoria) {
-      _err('campo-categoria', 'Selecciona una categoría.');
-      valido = false;
-    }
-    if (isNaN(cantidad) || cantidad < 0) {
-      _err('campo-cantidad', 'La cantidad no puede ser negativa (mínimo 0).');
-      valido = false;
-    } else if (cantidad > 99999) {
-      _err('campo-cantidad', 'La cantidad máxima permitida es 99,999.');
-      valido = false;
-    }
-    if (!unidad || unidad.length < 1) {
-      _err('campo-unidad', 'La unidad de medida es obligatoria.');
-      valido = false;
-    } else if (unidad.length > 30) {
-      _err('campo-unidad', 'La unidad no puede superar 30 caracteres.');
-      valido = false;
-    }
+
     if (!valido) return;
     // ─────────────────────────────────────────────────────────────────────
 
+    /* Datos limpios — cantidad como entero parseado, no como string */
     const data = {
       nombre,
       categoria,
-      cantidad:    document.getElementById('campo-cantidad').value,
+      cantidad:    parseInt(cantidadRaw, 10), // número, no string
       unidad,
-      descripcion: document.getElementById('campo-descripcion-rec').value
+      descripcion
     };
 
-    const resultado = editandoId === null
-      ? RecursosModel.create(data)
-      : RecursosModel.update(editandoId, data);
-
+    /* Llamada al modelo con try-catch */
+    const resultado = BSPVal.safeCall(
+      () => editandoId === null
+        ? RecursosModel.create(data)
+        : RecursosModel.update(editandoId, data),
+      (msg) => { modalError.textContent = msg; modalError.style.display = 'block'; }
+    );
     if (!resultado.ok) {
       modalError.textContent   = resultado.error;
       modalError.style.display = 'block';

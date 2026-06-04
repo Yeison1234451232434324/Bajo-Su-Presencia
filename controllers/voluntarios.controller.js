@@ -316,20 +316,38 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     modalError.style.display = 'none';
 
-    // Validar que se haya seleccionado al menos 1 estrella
-    if (califEstrellas === 0) {
-      modalError.textContent   = 'Debes seleccionar al menos 1 estrella.';
+    /* Leer y limpiar valores */
+    const comentario = BSPVal.cleanText(inputComentario.value);
+
+    /* Validar estrellas: entero entre 1 y 5 */
+    if (!califEstrellas || califEstrellas < 1 || califEstrellas > 5 || !Number.isInteger(califEstrellas)) {
+      modalError.textContent   = 'Debes seleccionar una calificación de 1 a 5 estrellas.';
       modalError.style.display = 'block';
       return;
     }
 
-    const resultado = VoluntariosModel.guardarCalificacion({
-      eventoId:      eventoActualId,
-      voluntarioId:  califVolId,
-      estrellas:     califEstrellas,
-      comentario:    inputComentario.value
-    });
+    /* Comentario: opcional, pero si se escribe mínimo 3 chars */
+    if (comentario.length > 0 && comentario.length < 3) {
+      modalError.textContent   = 'El comentario debe tener al menos 3 caracteres o dejarse vacío.';
+      modalError.style.display = 'block';
+      return;
+    }
+    if (comentario.length > 300) {
+      modalError.textContent   = 'El comentario no puede superar 300 caracteres.';
+      modalError.style.display = 'block';
+      return;
+    }
 
+    /* Llamada al modelo con try-catch */
+    const resultado = BSPVal.safeCall(
+      () => VoluntariosModel.guardarCalificacion({
+        eventoId:     eventoActualId,
+        voluntarioId: califVolId,
+        estrellas:    califEstrellas,      // número entero 1-5
+        comentario                         // string limpio sin .value crudo
+      }),
+      (msg) => { modalError.textContent = msg; modalError.style.display = 'block'; }
+    );
     if (!resultado.ok) {
       modalError.textContent   = resultado.error;
       modalError.style.display = 'block';
