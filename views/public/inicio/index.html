@@ -418,6 +418,13 @@
 })();
 </script>
 
+<!-- Supabase: SDK + cliente + modelos (para leer contenido público) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../../../controllers/supabase.client.js"></script>
+<script src="../../../models/noticias.model.js"></script>
+<script src="../../../models/oracion.model.js"></script>
+<script src="../../../models/eventos.model.js"></script>
+
 <!-- ══ SCRIPT: Carruseles + Modal ══════════════════════════════════════════ -->
 <script>
 (function () {
@@ -444,31 +451,27 @@
     return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
   }
 
-  /* ─── Leer datos de localStorage ─────────────────────────────────────── */
-  function leerNoticias() {
+  /* ─── Leer datos REALES desde Supabase (sin datos demo) ──────────────── */
+  async function leerNoticias() {
     try {
-      const raw = localStorage.getItem('bsp_noticias');
-      if (!raw) return fallbackNoticias();
-      const todas = JSON.parse(raw);
-      const recientes = todas.filter(n => {
+      const todas = await NoticiasModel.getAll();   // Supabase
+      // Noticias recientes o futuras (últimos 7 días en adelante)
+      return todas.filter(n => {
         const f = parseISO(n.fechaISO || n.fecha);
-        return f && f >= hace7 && f <= en7;
+        return f && f >= hace7;
       });
-      return recientes.length ? recientes : fallbackNoticias();
-    } catch (_) { return fallbackNoticias(); }
+    } catch (_) { return []; }
   }
 
-  function leerEventos() {
+  async function leerEventos() {
     try {
-      const raw = localStorage.getItem('bsp_eventos_publicados');
-      if (!raw) return fallbackEventos();
-      const todos = JSON.parse(raw);
-      const proximos = todos.filter(e => {
+      const todos = await EventosModel.getAll();   // Supabase
+      // Todos los eventos próximos (de hoy en adelante)
+      return todos.filter(e => {
         const f = parseISO(e.fecha);
-        return f && f >= hoy && f <= en7;
+        return f && f >= hoy;
       });
-      return proximos.length ? proximos : fallbackEventos();
-    } catch (_) { return fallbackEventos(); }
+    } catch (_) { return []; }
   }
 
   /* ─── Datos de respaldo si localStorage está vacío ───────────────────── */
@@ -839,26 +842,31 @@
     abrirModal();
   }
 
-  /* ─── Oración del Día — carga desde localStorage ────────────────────── */
-  function cargarOracionDelDia() {
-    const raw = localStorage.getItem('bsp_oraciones');
-    if (!raw) return;
-    let oraciones;
-    try { oraciones = JSON.parse(raw); } catch { return; }
-    if (!Array.isArray(oraciones) || oraciones.length === 0) return;
-
-    // La más reciente es la que tiene el id (timestamp) mayor
-    const oracion = oraciones.reduce((a, b) => (b.id > a.id ? b : a));
-
+  /* ─── Oración del Día — carga desde Supabase ────────────────────────── */
+  async function cargarOracionDelDia() {
     const textoEl     = document.getElementById('prayer-texto-dia');
     const versiculoEl = document.getElementById('prayer-versiculo-dia');
     const imagenEl    = document.getElementById('prayer-imagen-dia');
 
+    let oracion = null;
+    try {
+      const oraciones = await OracionModel.getAll();   // ordenadas: más reciente primero
+      oracion = oraciones[0] || null;
+    } catch (_) { oracion = null; }
+
+    // Sin oración en la BD → limpiar el texto fijo del HTML
+    if (!oracion) {
+      if (textoEl)     textoEl.textContent     = 'Aún no se ha publicado una oración.';
+      if (versiculoEl) versiculoEl.textContent = '';
+      if (imagenEl)    imagenEl.style.display  = 'none';
+      return;
+    }
+
     if (textoEl && oracion.texto) {
       textoEl.textContent = `"${oracion.texto}"`;
     }
-    if (versiculoEl && oracion.versiculo) {
-      versiculoEl.textContent = oracion.versiculo;
+    if (versiculoEl) {
+      versiculoEl.textContent = oracion.versiculo || '';
     }
     if (imagenEl && oracion.imagen && oracion.imagen.trim()) {
       imagenEl.src = oracion.imagen.trim();
@@ -868,23 +876,24 @@
       imagenEl.style.display = 'none';
     }
   }
-  cargarOracionDelDia();
+  /* ─── Inicializar (noticias y oración desde Supabase) ─────────────────── */
+  (async () => {
+    await cargarOracionDelDia();
+    const noticias = await leerNoticias();
+    const eventos  = await leerEventos();   // Supabase
 
-  /* ─── Inicializar ────────────────────────────────────────────────────── */
-  const noticias = leerNoticias();
-  const eventos  = leerEventos();
+    if (noticias.length) {
+      initCarrusel('news-track', 'news-prev', 'news-next', 'news-dots', noticias, crearTarjetaNoticia);
+    } else {
+      document.getElementById('news-empty').style.display = 'flex';
+    }
 
-  if (noticias.length) {
-    initCarrusel('news-track', 'news-prev', 'news-next', 'news-dots', noticias, crearTarjetaNoticia);
-  } else {
-    document.getElementById('news-empty').style.display = 'flex';
-  }
-
-  if (eventos.length) {
-    initCarrusel('ev-track', 'ev-prev', 'ev-next', 'ev-dots', eventos, crearTarjetaEvento);
-  } else {
-    document.getElementById('ev-empty').style.display = 'flex';
-  }
+    if (eventos.length) {
+      initCarrusel('ev-track', 'ev-prev', 'ev-next', 'ev-dots', eventos, crearTarjetaEvento);
+    } else {
+      document.getElementById('ev-empty').style.display = 'flex';
+    }
+  })();
 
 })();
 </script>

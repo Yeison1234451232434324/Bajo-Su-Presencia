@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const TIPOS_PQR_VALIDOS = ['Petición', 'Queja', 'Reclamo', 'Sugerencia'];
 
   // ── Submit del formulario ────────────────────────────────────────────────
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     /* Leer y limpiar TODOS los valores antes de validar y antes de guardar */
@@ -75,11 +75,14 @@ document.addEventListener('DOMContentLoaded', () => {
     /* Datos limpios — NUNCA usar .value directamente desde aquí */
     const data = { tipo, nombre, email: emailVal, telefono, asunto, descripcion };
 
-    /* Llamada al modelo con try-catch */
-    const resultado = BSPVal.safeCall(
-      () => PQRModel.crear(data),
-      (msg) => mostrarError(msg)
-    );
+    /* Llamada async al modelo (Supabase) */
+    let resultado;
+    try {
+      resultado = await PQRModel.crear(data);
+    } catch (ex) {
+      mostrarError('Error de conexión. Revisa tu internet e intenta de nuevo.');
+      return;
+    }
     if (!resultado.ok) {
       mostrarError(resultado.error);
       return;

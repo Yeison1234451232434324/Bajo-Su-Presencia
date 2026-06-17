@@ -176,6 +176,66 @@
         </div>
       </div>
 
+      <!-- Teléfono + Ubicación -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="campo-telefono">Teléfono</label>
+          <input
+            type="text"
+            id="campo-telefono"
+            class="form-control"
+            placeholder="Ej: 300 123 4567"
+          />
+        </div>
+        <div class="form-group">
+          <label for="campo-ubicacion">Ubicación</label>
+          <input
+            type="text"
+            id="campo-ubicacion"
+            class="form-control"
+            placeholder="Ej: Bogotá, Colombia"
+          />
+        </div>
+      </div>
+
+      <!-- Ocupación + Especialidad -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="campo-ocupacion">¿A qué se dedica?</label>
+          <input
+            type="text"
+            id="campo-ocupacion"
+            class="form-control"
+            placeholder="Ej: Ingeniero de sonido"
+          />
+        </div>
+        <div class="form-group">
+          <label for="campo-especialidad">Especialidad</label>
+          <input
+            type="text"
+            id="campo-especialidad"
+            class="form-control"
+            list="especialidades-sugeridas"
+            placeholder="Ej: Sonido y Audio (escribe la que aplique)"
+          />
+          <datalist id="especialidades-sugeridas">
+            <!-- Sugerencias inyectadas por el controller (texto libre permitido) -->
+          </datalist>
+          <p class="pass-hint" style="display:block;">Si tiene una especialidad podrá ser asignado a eventos que la requieran.</p>
+        </div>
+      </div>
+
+      <!-- Biografía / Información adicional -->
+      <div class="form-group">
+        <label for="campo-bio">Información adicional</label>
+        <textarea
+          id="campo-bio"
+          class="form-control"
+          rows="2"
+          placeholder="Breve descripción de la persona (opcional)"
+        ></textarea>
+      </div>
+
       <!-- Footer del modal -->
       <div class="modal-footer">
         <button type="button" class="btn-cancelar" id="btn-cancelar">Cancelar</button>
@@ -188,10 +248,42 @@
     </form>
   </div>
 
+  <!-- ══ MODAL VER PERFIL ═════════════════════════════════════════════════ -->
+  <div class="modal" id="modal-perfil" role="dialog" aria-modal="true" aria-labelledby="perfil-nombre">
+    <div class="modal-header">
+      <h3 id="perfil-nombre">Perfil</h3>
+      <button class="btn-cerrar-modal" id="btn-cerrar-perfil" aria-label="Cerrar perfil">
+        <i class="bx bx-x"></i>
+      </button>
+    </div>
+
+    <div class="perfil-top">
+      <div class="perfil-avatar" id="perfil-avatar">A</div>
+      <div>
+        <p class="perfil-username" id="perfil-username">@usuario</p>
+        <div id="perfil-badges"></div>
+      </div>
+    </div>
+
+    <div class="perfil-info" id="perfil-info">
+      <!-- Filas inyectadas por el controller -->
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn-cancelar" id="btn-perfil-cerrar">Cerrar</button>
+      <button type="button" class="btn-guardar" id="btn-perfil-editar">
+        <i class="bx bx-edit" style="margin-right:0.35rem;"></i> Editar
+      </button>
+    </div>
+  </div>
+
   <!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
   <!-- Sidebar del admin (inyecta el nav con el nuevo ítem) -->
     <script src="../../../controllers/validators.helper.js"></script>
   <script src="../../../controllers/sidebar.controller.js"></script>
+  <!-- Supabase: SDK + cliente compartido (ANTES del modelo, que usa window.sb) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../../../controllers/supabase.client.js"></script>
   <!-- Model -->
   <script src="../../../models/usuarios.model.js"></script>
   <!-- Motor DataTable -->

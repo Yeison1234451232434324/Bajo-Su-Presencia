@@ -1,0 +1,114 @@
+<!--
+  ================================================================
+  ASISTENCIAS A EVENTOS — Panel del Administrador
+  ================================================================
+  ¿Qué hace esta página?
+  Muestra, DETALLADO POR EVENTO, la información que registra la
+  APP MÓVIL (conectada a la misma base de datos):
+    1. Asistencia: quiénes se inscribieron y quiénes confirmaron
+       su asistencia escaneando el código QR (con fecha/hora).
+    2. Calificaciones: SOLO aparecen las de quienes ya calificaron
+       el evento (nombre, estrellas y comentario). Si una persona
+       no ha calificado, únicamente se ve su asistencia.
+
+  Vista de SOLO LECTURA: refleja lo capturado en la app.
+
+  Archivos que usa:
+    - panel.css                 → estilos base del panel
+    - asistencias.css           → estilos específicos del módulo
+    - sidebar.controller.js     → sidebar del admin
+    - asistencias.model.js      → datos de inscripción / asistencia / calificación
+    - asistencias.controller.js → lógica de la vista
+  ================================================================
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Asistencias – Bajo Su Presencia</title>
+  <link rel="stylesheet" href="panel.css" />
+  <link rel="stylesheet" href="asistencias.css" />
+  <!-- Alertify Notifications CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
+</head>
+<body>
+
+<main class="main" id="main">
+  <section class="panel active" style="display:block;">
+
+    <!-- Encabezado -->
+    <div class="panel-header">
+      <h2>Asistencias a Eventos</h2>
+      <p>Detalle por evento: inscripciones, asistencia confirmada por QR y calificaciones registradas desde la app móvil</p>
+    </div>
+
+    <!-- Guía de sección -->
+    <div class="guia-seccion">
+      <p class="guia-seccion-label"><i class="bx bx-info-circle"></i> Guía de sección</p>
+      <p class="guia-seccion-texto">Selecciona un evento para ver su detalle. En <strong>Asistencia</strong> verás a todos los inscritos y quiénes confirmaron asistencia escaneando el código QR. En <strong>Calificaciones</strong> solo aparecen las personas que ya calificaron el evento, con su nombre, estrellas y comentario; si alguien aún no califica, únicamente se mostrará su asistencia.</p>
+    </div>
+
+    <!-- ── Selector de evento ────────────────────────────────────────────── -->
+    <div class="asist-selector">
+      <label for="sel-evento"><i class="bx bx-calendar-event"></i> Evento</label>
+      <select id="sel-evento" class="asist-select"></select>
+    </div>
+
+    <!-- ── Tarjetas de resumen (del evento seleccionado) ─────────────────── -->
+    <div class="counters-grid asist-counters">
+      <div class="counter-card">
+        <div class="counter-icon" style="background:#dbeafe;"><i class="bx bx-user-plus" style="color:#1E3A8A;"></i></div>
+        <div class="counter-info">
+          <p class="counter-label">Inscritos</p>
+          <p class="counter-value" id="cont-inscritos">0</p>
+        </div>
+      </div>
+      <div class="counter-card">
+        <div class="counter-icon" style="background:#d1fae5;"><i class="bx bx-qr-scan" style="color:#059669;"></i></div>
+        <div class="counter-info">
+          <p class="counter-label">Asistieron (QR)</p>
+          <p class="counter-value" id="cont-asistieron">0</p>
+        </div>
+      </div>
+      <div class="counter-card">
+        <div class="counter-icon" style="background:#ede9fe;"><i class="bx bx-pie-chart-alt-2" style="color:#7c3aed;"></i></div>
+        <div class="counter-info">
+          <p class="counter-label">% Asistencia</p>
+          <p class="counter-value" id="cont-porcentaje">0%</p>
+        </div>
+      </div>
+      <div class="counter-card">
+        <div class="counter-icon" style="background:#fef3c7;"><i class="bx bxs-star" style="color:#d97706;"></i></div>
+        <div class="counter-info">
+          <p class="counter-label">Calificación Promedio</p>
+          <p class="counter-value" id="cont-promedio">—</p>
+          <div id="cont-promedio-stars" class="asist-stars-sm"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Detalle del evento (generado por el controller) ───────────────── -->
+    <div id="asist-detalle"></div>
+
+  </section>
+</main>
+
+<!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
+<script src="../../../controllers/validators.helper.js"></script>
+<script src="../../../controllers/sidebar.controller.js"></script>
+<!-- Supabase: SDK + cliente (ANTES del modelo) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../../../controllers/supabase.client.js"></script>
+<!-- Modelo de asistencias (datos de la app móvil) -->
+<script src="../../../models/asistencias.model.js"></script>
+<!-- Motor DataTable (paginación, filtros de fecha y exportación) -->
+<script src="../../../controllers/datatable.helper.js"></script>
+<!-- Alertify Helper -->
+<script src="../../../controllers/alertify.helper.js"></script>
+<!-- Controlador -->
+<script src="../../../controllers/asistencias.controller.js"></script>
+</body>
+</html>

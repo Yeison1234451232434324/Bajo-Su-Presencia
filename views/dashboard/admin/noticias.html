@@ -244,7 +244,10 @@
 <!-- Sidebar del admin (inyecta el nav y carga el usuario logueado) -->
   <script src="../../../controllers/validators.helper.js"></script>
   <script src="../../../controllers/sidebar.controller.js"></script>
-<!-- Modelo de noticias (CRUD en localStorage) -->
+<!-- Supabase: SDK + cliente (ANTES de los modelos) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../../../controllers/supabase.client.js"></script>
+<!-- Modelos -->
 <script src="../../../models/usuarios.model.js"></script>
 <script src="../../../models/noticias.model.js"></script>
 <!-- Motor DataTable -->

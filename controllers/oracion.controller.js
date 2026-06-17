@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // 2. PUBLICAR / ACTUALIZAR ORACIÓN
   // ════════════════════════════════════════════════════════════════
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     /* Leer y limpiar todos los valores */
@@ -109,12 +109,16 @@ document.addEventListener('DOMContentLoaded', () => {
     /* Datos limpios al modelo */
     const data = { texto, versiculo, imagen: imagenUrl };
 
-    /* Llamada al modelo con try-catch */
-    const resultado = BSPVal.safeCall(
-      () => editandoId === null
-        ? OracionModel.crear(data)
-        : OracionModel.actualizar(editandoId, data)
-    );
+    /* Llamada async al modelo (Supabase) */
+    let resultado;
+    try {
+      resultado = editandoId === null
+        ? await OracionModel.crear(data)
+        : await OracionModel.actualizar(editandoId, data);
+    } catch (ex) {
+      showAlertError('Error de conexión. Revisa tu internet e intenta de nuevo.');
+      return;
+    }
     if (!resultado.ok) {
       showAlertError(resultado.error);
       return;
@@ -122,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Limpiar formulario y volver a modo crear
     limpiarFormulario();
-    renderHistorial();
+    await renderHistorial();
 
     showAlertSuccess(
       editandoId === null
@@ -141,8 +145,8 @@ document.addEventListener('DOMContentLoaded', () => {
    * Pre-llena el formulario con los datos de la oración a editar
    * y hace scroll hacia arriba para que el usuario la vea.
    */
-  window.editarOracion = function (id) {
-    const oracion = OracionModel.getById(id);
+  window.editarOracion = async function (id) {
+    const oracion = await OracionModel.getById(id);
     if (!oracion) return;
 
     editandoId = id;
@@ -180,24 +184,25 @@ document.addEventListener('DOMContentLoaded', () => {
   // 4. ELIMINAR ORACIÓN
   // ════════════════════════════════════════════════════════════════
 
-  window.eliminarOracion = function (id) {
+  window.eliminarOracion = async function (id) {
     if (_esColaborador) { showAlertError('Los colaboradores no tienen permiso para eliminar oraciones.'); return; }
-    const oracion = OracionModel.getById(id);
+    const oracion = await OracionModel.getById(id);
     if (!oracion) return;
 
     // Confirmación antes de eliminar
     showAlertConfirm(
       'Eliminar oración',
       `¿Eliminar la oración del ${oracion.fecha}?\n\n"${oracion.texto.substring(0, 80)}..."`,
-      function() {
+      async function() {
         // Si se estaba editando esta misma oración, limpiar el formulario
         if (editandoId === id) {
           limpiarFormulario();
           editandoId = null;
         }
 
-        OracionModel.eliminar(id);
-        renderHistorial();
+        const res = await OracionModel.eliminar(id);
+        if (!res.ok) { showAlertError(res.error); return; }
+        await renderHistorial();
         showAlertSuccess('La oración fue eliminada del historial.');
       }
     );
@@ -208,8 +213,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // ════════════════════════════════════════════════════════════════
 
   /** Abre el modal con el texto completo de la oración */
-  window.verOracion = function (id) {
-    const oracion = OracionModel.getById(id);
+  window.verOracion = async function (id) {
+    const oracion = await OracionModel.getById(id);
     if (!oracion) return;
 
     document.getElementById('modal-oracion-fecha').textContent    = oracion.fecha;
@@ -243,8 +248,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let dtOraciones = null;
 
-  function renderHistorial() {
-    const oraciones = OracionModel.getAll();
+  async function renderHistorial() {
+    const oraciones = await OracionModel.getAll();
 
     function renderCard(oracion) {
       const textoCorto = oracion.texto.length > 160
@@ -266,16 +271,16 @@ document.addEventListener('DOMContentLoaded', () => {
               </span>
               <div class="or-card-acciones">
                 <button class="btn-accion-or btn-ver-or"
-                  onclick="verOracion(${oracion.id})" title="Ver oración completa">
+                  onclick="verOracion('${oracion.id}')" title="Ver oración completa">
                   <i class="bx bx-show"></i>
                 </button>
                 <button class="btn-accion-or btn-editar-or"
-                  onclick="editarOracion(${oracion.id})" title="Editar oración">
+                  onclick="editarOracion('${oracion.id}')" title="Editar oración">
                   <i class="bx bx-edit"></i>
                 </button>
                 ${!_esColaborador ? `
                 <button class="btn-accion-or btn-eliminar-or"
-                  onclick="eliminarOracion(${oracion.id})" title="Eliminar oración">
+                  onclick="eliminarOracion('${oracion.id}')" title="Eliminar oración">
                   <i class="bx bx-trash"></i>
                 </button>` : ''}
               </div>

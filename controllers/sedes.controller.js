@@ -16,8 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── DataTable de sedes ───────────────────────────────────────────────────
   let dtSedes = null;
 
-  function render() {
-    const sedes = SedesModel.getAll();
+  async function render() {
+    const sedes = await SedesModel.getAll();
     const data  = sedes.map(s => ({
       ...s,
       miembrosTexto: s.miembros ? `${s.miembros} miembros` : ''
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="sed-item-header">
             <div class="sed-item-icon"><i class="bx bx-buildings"></i></div>
             <span class="sed-item-nombre">${s.nombre}</span>
-            <button class="sed-btn-eliminar" onclick="eliminarSede(${s.id})" title="Eliminar sede">
+            <button class="sed-btn-eliminar" onclick="eliminarSede('${s.id}')" title="Eliminar sede">
               <i class="bx bx-trash"></i>
             </button>
           </div>
@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
   BSPVal.blockNumericChars(document.getElementById('sed-miembros'));
 
   // ── Guardar sede ─────────────────────────────────────────────────────────
-  form.addEventListener('submit', e => {
+  form.addEventListener('submit', async e => {
     e.preventDefault();
 
     /* Leer y limpiar todos los valores */
@@ -144,24 +144,31 @@ document.addEventListener('DOMContentLoaded', () => {
       miembros: miembrosRaw.trim() !== '' ? parseInt(miembrosRaw, 10) : 0
     };
 
-    /* Llamada al modelo con try-catch */
-    const res = BSPVal.safeCall(() => SedesModel.agregar(data));
+    /* Llamada async al modelo con try-catch */
+    let res;
+    try {
+      res = await SedesModel.agregar(data);
+    } catch (ex) {
+      showAlertError('Error de conexión. Revisa tu internet e intenta de nuevo.');
+      return;
+    }
     if (!res.ok) { showAlertError(res.error); return; }
     cerrarModalSede();
-    render();
+    await render();
     showAlertSuccess(`"${data.nombre}" fue registrada correctamente.`);
   });
 
   // ── Eliminar sede ────────────────────────────────────────────────────────
-  window.eliminarSede = function(id) {
-    const s = SedesModel.getById(id);
+  window.eliminarSede = async function(id) {
+    const s = await SedesModel.getById(id);
     if (!s) return;
     showAlertConfirm(
       'Eliminar sede',
       `¿Eliminar la sede "${s.nombre}"? Esta acción no se puede deshacer.`,
-      function() {
-        SedesModel.eliminar(id);
-        render();
+      async function() {
+        const res = await SedesModel.eliminar(id);
+        if (!res.ok) { showAlertError(res.error); return; }
+        await render();
         showAlertSuccess(`"${s.nombre}" fue eliminada.`);
       }
     );

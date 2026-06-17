@@ -1,32 +1,21 @@
 /**
  * ============================================================
- * CONTROLADOR: actividades.controller.js
+ * CONTROLADOR: actividades.controller.js  (Supabase)
  * ============================================================
- * Maneja toda la lógica de Gestión de Actividades.
- * Depende de:
- *   - ActividadesModel (actividades.model.js)
- *   - EventosModel     (eventos.model.js)
- *   - VoluntariosModel (voluntarios.model.js)
- *
- * Flujo:
- *   1. Vista inicial: grid de eventos con resumen de actividades
- *   2. Al seleccionar evento: lista de actividades del evento
- *   3. Botón "Nueva Actividad": abre modal con formulario
- *   4. Editar / Eliminar / Completar actividad
+ * Gestión de actividades por evento. Async.
+ * Depende de: ActividadesModel, EventosModel, UsuariosModel.
  * ============================================================
  */
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // ── Rol del usuario activo ────────────────────────────────────────────────
   const _esColaborador = ((JSON.parse(localStorage.getItem('usuarioLogueado') || '{}')).rol || '') === 'Colaborador';
 
-  // ── Estado interno ───────────────────────────────────────────────────────
-  let eventoActual = null;   // objeto del evento seleccionado
-  let modoEdicion  = false;  // true cuando el modal está en modo editar
-  let actEditId    = null;   // id de la actividad que se está editando
+  let eventoActual = null;
+  let modoEdicion  = false;
+  let actEditId    = null;
+  let _volsCache   = [];   // voluntarios/colaboradores para el select
 
-  // ── Referencias DOM ──────────────────────────────────────────────────────
   const vistaEventos     = document.getElementById('vista-eventos');
   const vistaActividades = document.getElementById('vista-actividades');
   const gridEventos      = document.getElementById('grid-eventos');
@@ -42,39 +31,19 @@ document.addEventListener('DOMContentLoaded', () => {
   // ════════════════════════════════════════════════════════════════
   // 1. VISTA DE EVENTOS
   // ════════════════════════════════════════════════════════════════
-
-  function renderEventos() {
-    // Combinar eventos de EventosModel y VoluntariosModel
+  async function renderEventos() {
     let eventos = [];
-    try { eventos = EventosModel.getAll(); } catch(_) {}
-    if (!eventos.length) {
-      try {
-        eventos = VoluntariosModel.getEventos().map(e => ({
-          id:       e.id,
-          titulo:   e.nombre,
-          fecha:    e.fecha,
-          horario:  '',
-          ubicacion: e.lugar,
-          voluntariosNecesarios: e.voluntariosNecesarios || 0,
-          voluntarios: e.voluntarios || []
-        }));
-      } catch(_) {}
-    }
+    try { eventos = await EventosModel.getAll(); } catch (_) {}
 
     gridEventos.innerHTML = '';
-
     if (!eventos.length) {
-      gridEventos.innerHTML = `
-        <div class="act-empty">
-          <i class="bx bx-calendar-x"></i>
-          <p>No hay eventos publicados aún.</p>
-        </div>`;
+      gridEventos.innerHTML = `<div class="act-empty"><i class="bx bx-calendar-x"></i><p>No hay eventos publicados aún.</p></div>`;
       return;
     }
 
-    eventos.forEach(ev => {
-      const resumen = ActividadesModel.getResumenEvento(ev.id);
-      const volDisp = _contarVoluntarios(ev);
+    for (const ev of eventos) {
+      const resumen = await ActividadesModel.getResumenEvento(ev.id);
+      const volDisp = ev.voluntariosNecesarios || 0;
       const fechaFmt = _formatFecha(ev.fecha);
 
       const card = document.createElement('div');
@@ -85,47 +54,26 @@ document.addEventListener('DOMContentLoaded', () => {
           <h3 class="act-ev-titulo">${ev.titulo}</h3>
           <p class="act-ev-meta"><i class="bx bx-calendar"></i> ${fechaFmt}</p>
           ${ev.horario ? `<p class="act-ev-meta"><i class="bx bx-time"></i> ${ev.horario}</p>` : ''}
-          <p class="act-ev-meta"><i class="bx bx-notepad"></i>
-            ${resumen.total} actividad(es) - ${resumen.completadas} completada(s)
-          </p>
-          <p class="act-ev-meta act-ev-vol">
-            <i class="bx bx-group"></i> ${volDisp} voluntario(s) disponible(s)
-          </p>
+          <p class="act-ev-meta"><i class="bx bx-notepad"></i> ${resumen.total} actividad(es) - ${resumen.completadas} completada(s)</p>
+          <p class="act-ev-meta act-ev-vol"><i class="bx bx-group"></i> ${volDisp} voluntario(s) necesario(s)</p>
         </div>`;
       card.addEventListener('click', () => seleccionarEvento(ev));
       gridEventos.appendChild(card);
-    });
-  }
-
-  function _contarVoluntarios(ev) {
-    // Intentar obtener voluntarios del VoluntariosModel
-    try {
-      const evVol = VoluntariosModel.getEventoById(ev.id);
-      if (evVol && evVol.voluntarios) {
-        return evVol.voluntarios.filter(v => v.disponible !== false).length;
-      }
-    } catch(_) {}
-    return ev.voluntariosNecesarios || 0;
+    }
   }
 
   // ════════════════════════════════════════════════════════════════
-  // 2. SELECCIONAR EVENTO → VISTA DE ACTIVIDADES
+  // 2. SELECCIONAR EVENTO
   // ════════════════════════════════════════════════════════════════
-
-  function seleccionarEvento(ev) {
+  async function seleccionarEvento(ev) {
     eventoActual = ev;
-
-    // Actualizar banner del evento
     bannerEvento.querySelector('.act-banner-titulo').textContent = ev.titulo;
     bannerEvento.querySelector('.act-banner-fecha').textContent  = _formatFecha(ev.fecha);
     bannerEvento.querySelector('.act-banner-hora').textContent   = ev.horario || '';
     bannerEvento.querySelector('.act-banner-lugar').textContent  = ev.ubicacion || ev.lugar || '';
-
-    // Cambiar vistas
     vistaEventos.style.display     = 'none';
     vistaActividades.style.display = 'block';
-
-    renderActividades();
+    await renderActividades();
   }
 
   window.volverAEventos = function() {
@@ -138,40 +86,28 @@ document.addEventListener('DOMContentLoaded', () => {
   // ════════════════════════════════════════════════════════════════
   // 3. LISTA DE ACTIVIDADES DEL EVENTO
   // ════════════════════════════════════════════════════════════════
-
-  function renderActividades() {
+  async function renderActividades() {
     if (!eventoActual) return;
-
-    const acts = ActividadesModel.getByEvento(eventoActual.id);
+    const acts = await ActividadesModel.getByEvento(eventoActual.id);
     const completadas = acts.filter(a => a.completada).length;
 
     contadorActs.textContent = `${completadas} de ${acts.length} completadas`;
     listaActividades.innerHTML = '';
 
     if (!acts.length) {
-      listaActividades.innerHTML = `
-        <div class="act-empty">
-          <i class="bx bx-task"></i>
-          <p>No hay actividades para este evento. Crea la primera.</p>
-        </div>`;
+      listaActividades.innerHTML = `<div class="act-empty"><i class="bx bx-task"></i><p>No hay actividades para este evento. Crea la primera.</p></div>`;
       return;
     }
 
     acts.forEach(act => {
-      const prioClass = { alta: 'act-prio--alta', media: 'act-prio--media', baja: 'act-prio--baja' }[act.prioridad] || '';
-      const prioLabel = { alta: 'Alta', media: 'Media', baja: 'Baja' }[act.prioridad] || act.prioridad;
-
+      const prioClass = { alta:'act-prio--alta', media:'act-prio--media', baja:'act-prio--baja' }[act.prioridad] || '';
+      const prioLabel = { alta:'Alta', media:'Media', baja:'Baja' }[act.prioridad] || act.prioridad;
       const item = document.createElement('div');
       item.className = `act-item${act.completada ? ' act-item--completada' : ''}`;
       item.id = `act-item-${act.id}`;
-
       item.innerHTML = `
-        <button class="act-check-btn act-check-btn--readonly" disabled
-          title="Solo el voluntario asignado puede cambiar el estado"
-          style="cursor:default;opacity:0.7;">
-          ${act.completada
-            ? '<i class="bx bx-check-circle act-check-icon act-check-icon--done"></i>'
-            : '<i class="bx bx-circle act-check-icon"></i>'}
+        <button class="act-check-btn act-check-btn--readonly" disabled title="Solo el voluntario asignado puede cambiar el estado" style="cursor:default;opacity:0.7;">
+          ${act.completada ? '<i class="bx bx-check-circle act-check-icon act-check-icon--done"></i>' : '<i class="bx bx-circle act-check-icon"></i>'}
         </button>
         <div class="act-item-body">
           <div class="act-item-header">
@@ -179,247 +115,136 @@ document.addEventListener('DOMContentLoaded', () => {
             <span class="act-prio-badge ${prioClass}">${prioLabel}</span>
           </div>
           ${act.descripcion ? `<p class="act-item-desc">${act.descripcion}</p>` : ''}
-          <p class="act-item-asignado"><i class="bx bx-user"></i> Asignado a: ${act.voluntarioNombre}</p>
+          <p class="act-item-asignado"><i class="bx bx-user"></i> Asignado a: ${act.voluntarioNombre || '—'}</p>
         </div>
         <div class="act-item-acciones">
-          <button class="act-btn-accion act-btn-editar" onclick="abrirEditar(${act.id})" title="Editar">
-            <i class="bx bx-edit"></i>
-          </button>
-          ${!_esColaborador ? `
-          <button class="act-btn-accion act-btn-eliminar" onclick="eliminarActividad(${act.id})" title="Eliminar">
-            <i class="bx bx-trash"></i>
-          </button>` : ''}
+          <button class="act-btn-accion act-btn-editar" onclick="abrirEditar('${act.id}')" title="Editar"><i class="bx bx-edit"></i></button>
+          ${!_esColaborador ? `<button class="act-btn-accion act-btn-eliminar" onclick="eliminarActividad('${act.id}')" title="Eliminar"><i class="bx bx-trash"></i></button>` : ''}
         </div>`;
-
       listaActividades.appendChild(item);
     });
   }
 
   // ════════════════════════════════════════════════════════════════
-  // 4. COMPLETAR / DESCOMPLETAR — Solo voluntarios
+  // 4. MODAL NUEVA / EDITAR
   // ════════════════════════════════════════════════════════════════
-  // El estado de completado solo lo puede cambiar el voluntario
-  // asignado desde su propio panel (mis-actividades.html).
-  // Admin y colaborador solo pueden ver el estado actual.
-
-  // ════════════════════════════════════════════════════════════════
-  // 5. MODAL — NUEVA ACTIVIDAD
-  // ════════════════════════════════════════════════════════════════
-
-  window.abrirNuevaActividad = function() {
-    modoEdicion = false;
-    actEditId   = null;
+  window.abrirNuevaActividad = async function() {
+    modoEdicion = false; actEditId = null;
     modalTitulo.textContent = 'Nueva Actividad';
     formAct.reset();
     document.getElementById('act-prioridad').value = 'media';
-    _cargarVoluntarios();
+    await _cargarVoluntarios();
     _mostrarModal();
   };
 
-  // ════════════════════════════════════════════════════════════════
-  // 6. MODAL — EDITAR ACTIVIDAD
-  // ════════════════════════════════════════════════════════════════
-
-  window.abrirEditar = function(id) {
-    const act = ActividadesModel.getById(id);
+  window.abrirEditar = async function(id) {
+    const act = await ActividadesModel.getById(id);
     if (!act) return;
-
-    modoEdicion = true;
-    actEditId   = id;
+    modoEdicion = true; actEditId = id;
     modalTitulo.textContent = 'Editar Actividad';
-
-    _cargarVoluntarios();
-
+    await _cargarVoluntarios();
     document.getElementById('act-titulo-input').value = act.titulo;
     document.getElementById('act-descripcion').value  = act.descripcion || '';
     document.getElementById('act-prioridad').value    = act.prioridad;
-
-    // Seleccionar el voluntario correcto en el select
-    setTimeout(() => {
-      selectVol.value = act.voluntarioId;
-    }, 50);
-
+    selectVol.value = act.voluntarioId || '';
     _mostrarModal();
   };
 
   // ════════════════════════════════════════════════════════════════
-  // 7. CARGAR VOLUNTARIOS EN EL SELECT
+  // 5. CARGAR VOLUNTARIOS EN EL SELECT (desde usuarios)
   // ════════════════════════════════════════════════════════════════
-
-  function _cargarVoluntarios() {
+  async function _cargarVoluntarios() {
     selectVol.innerHTML = '<option value="">Selecciona un voluntario</option>';
-
-    let voluntarios = [];
-
-    // Intentar obtener voluntarios del evento actual desde VoluntariosModel
     try {
-      const evVol = VoluntariosModel.getEventoById(eventoActual.id);
-      if (evVol && evVol.voluntarios && evVol.voluntarios.length) {
-        voluntarios = evVol.voluntarios;
-      }
-    } catch(_) {}
-
-    // Si no hay voluntarios en el evento, usar lista general de usuarios
-    if (!voluntarios.length) {
-      try {
-        const usuarios = JSON.parse(localStorage.getItem('bsp_usuarios') || '[]');
-        voluntarios = usuarios
-          .filter(u => u.rol === 'Voluntario' || u.rol === 'Colaborador')
-          .map(u => ({ id: u.id, nombre: u.nombre }));
-      } catch(_) {}
-    }
-
-    // Fallback: voluntarios de ejemplo
-    if (!voluntarios.length) {
-      voluntarios = [
-        { id: 2, nombre: 'Juan Colaborador' },
-        { id: 3, nombre: 'Pedro Voluntario' },
-        { id: 4, nombre: 'María González' },
-        { id: 5, nombre: 'Carlos López' },
-        { id: 6, nombre: 'Ana Martínez' }
-      ];
-    }
-
-    voluntarios.forEach(v => {
+      const usuarios = await UsuariosModel.getAll();
+      _volsCache = usuarios.filter(u => u.activo && (u.rol === 'Voluntario' || u.rol === 'Colaborador'));
+    } catch (_) { _volsCache = []; }
+    _volsCache.forEach(v => {
       const opt = document.createElement('option');
-      opt.value       = v.id;
-      opt.textContent = v.nombre;
+      opt.value = v.id; opt.textContent = v.nombre;
       selectVol.appendChild(opt);
     });
   }
 
   // ════════════════════════════════════════════════════════════════
-  // 8. GUARDAR ACTIVIDAD (crear o editar)
+  // 6. GUARDAR ACTIVIDAD
   // ════════════════════════════════════════════════════════════════
-
-  // ── Helpers de validación DOM (delegados a BSPVal) ──────────────────────
   const _err = (id, msg) => BSPVal._err(id, msg);
   const _ok  = (...ids)  => BSPVal._ok(...ids);
-
   const PRIORIDADES_VALIDAS = ['alta', 'media', 'baja'];
 
-  formAct.addEventListener('submit', e => {
+  formAct.addEventListener('submit', async e => {
     e.preventDefault();
-
-    /* Leer y limpiar todos los valores */
     const titulo      = BSPVal.cleanText(document.getElementById('act-titulo-input').value);
     const descripcion = BSPVal.cleanText(document.getElementById('act-descripcion').value);
     const prioridad   = document.getElementById('act-prioridad').value;
-    const volId       = parseInt(selectVol.value, 10);
+    const volId       = selectVol.value;   // UUID (string)
     const volOpt      = selectVol.options[selectVol.selectedIndex];
     const volNombre   = volOpt ? BSPVal.cleanText(volOpt.textContent) : '';
 
-    // ── Limpiar estado previo ─────────────────────────────────────────────
     _ok('act-titulo-input','act-descripcion','act-prioridad','act-voluntario');
-    let valido = true;
-    let err;
+    let valido = true, err;
 
-    /* Título: mínimo 3, máximo 120, debe iniciar con letra */
     err = BSPVal.txt(titulo, { min: 3, max: 120, label: 'El título', iniciaLetra: true });
     if (err) { _err('act-titulo-input', err); valido = false; }
-
-    /* Descripción: opcional, pero si se escribe mínimo 5, máximo 500 */
     if (descripcion.length > 0) {
       err = BSPVal.txt(descripcion, { min: 5, max: 500, label: 'La descripción' });
       if (err) { _err('act-descripcion', err); valido = false; }
     }
-
-    /* Prioridad: validada contra lista blanca */
     err = BSPVal.select(prioridad, PRIORIDADES_VALIDAS, { label: 'La prioridad' });
     if (err) { _err('act-prioridad', err); valido = false; }
-
-    /* Voluntario: debe haber seleccionado una opción válida */
-    if (!volId || isNaN(volId)) {
-      _err('act-voluntario', 'Debes asignar la actividad a un voluntario.'); valido = false;
-    }
-
+    if (!volId) { _err('act-voluntario', 'Debes asignar la actividad a un voluntario.'); valido = false; }
     if (!valido) return;
-    // ─────────────────────────────────────────────────────────────────────
 
-    /* Datos limpios al modelo */
-    const data = {
-      eventoId:         eventoActual.id,
-      titulo,
-      descripcion,
-      prioridad,
-      voluntarioId:     volId,
-      voluntarioNombre: volNombre
-    };
+    const data = { eventoId: eventoActual.id, titulo, descripcion, prioridad, voluntarioId: volId, voluntarioNombre: volNombre };
 
-    /* Llamada al modelo con try-catch */
-    const resultado = BSPVal.safeCall(
-      () => modoEdicion
-        ? ActividadesModel.actualizar(actEditId, data)
-        : ActividadesModel.crear(data)
-    );
-    if (!resultado.ok) {
-      showAlertError(resultado.error);
-      return;
-    }
+    let resultado;
+    try {
+      resultado = modoEdicion ? await ActividadesModel.actualizar(actEditId, data) : await ActividadesModel.crear(data);
+    } catch (ex) { showAlertError('Error de conexión. Intenta de nuevo.'); return; }
+    if (!resultado.ok) { showAlertError(resultado.error); return; }
 
     _cerrarModal();
-    renderActividades();
-    showAlertSuccess(
-      `"${data.titulo}" fue ${modoEdicion ? 'actualizada' : 'creada'} correctamente.`
-    );
+    await renderActividades();
+    showAlertSuccess(`"${data.titulo}" fue ${modoEdicion ? 'actualizada' : 'creada'} correctamente.`);
   });
 
   // ════════════════════════════════════════════════════════════════
-  // 9. ELIMINAR ACTIVIDAD
+  // 7. ELIMINAR
   // ════════════════════════════════════════════════════════════════
-
-  window.eliminarActividad = function(id) {
+  window.eliminarActividad = async function(id) {
     if (_esColaborador) { showAlertError('Los colaboradores no tienen permiso para eliminar actividades.'); return; }
-    const act = ActividadesModel.getById(id);
+    const act = await ActividadesModel.getById(id);
     if (!act) return;
     showAlertConfirm(
       'Eliminar actividad',
       `¿Eliminar la actividad "${act.titulo}"? Esta acción no se puede deshacer.`,
-      function() {
-        ActividadesModel.eliminar(id);
-        renderActividades();
+      async function() {
+        const res = await ActividadesModel.eliminar(id);
+        if (!res.ok) { showAlertError(res.error); return; }
+        await renderActividades();
         showAlertSuccess(`"${act.titulo}" fue eliminada.`);
       }
     );
   };
 
   // ════════════════════════════════════════════════════════════════
-  // 10. HELPERS MODAL
+  // 8. HELPERS MODAL + FECHA
   // ════════════════════════════════════════════════════════════════
-
-  function _mostrarModal() {
-    modal.style.display        = 'flex';
-    modalOverlay.style.display = 'block';
-    document.body.style.overflow = 'hidden';
-  }
-
-  function _cerrarModal() {
-    modal.style.display        = 'none';
-    modalOverlay.style.display = 'none';
-    document.body.style.overflow = '';
-    formAct.reset();
-  }
-
+  function _mostrarModal() { modal.style.display = 'flex'; modalOverlay.style.display = 'block'; document.body.style.overflow = 'hidden'; }
+  function _cerrarModal()  { modal.style.display = 'none'; modalOverlay.style.display = 'none'; document.body.style.overflow = ''; formAct.reset(); }
   window.cerrarModalActividad = function() { _cerrarModal(); };
-
   modalOverlay.addEventListener('click', _cerrarModal);
-
-  // ════════════════════════════════════════════════════════════════
-  // 11. HELPER FECHA
-  // ════════════════════════════════════════════════════════════════
 
   function _formatFecha(fechaStr) {
     if (!fechaStr) return '—';
     try {
       const [y, m, d] = fechaStr.split('-');
       const dias  = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-      const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
-                     'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+      const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
       const fecha = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
       return `${dias[fecha.getDay()]} ${parseInt(d)} ${meses[parseInt(m) - 1]}`;
-    } catch(_) {
-      return fechaStr;
-    }
+    } catch (_) { return fechaStr; }
   }
 
   // ── Inicialización ───────────────────────────────────────────────────────

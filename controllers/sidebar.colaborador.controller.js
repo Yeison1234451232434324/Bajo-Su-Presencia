@@ -64,6 +64,13 @@ document.addEventListener("DOMContentLoaded", () => {
         </a>
         <span class="tooltip">Subir Reporte</span>
       </li>
+      <li>
+        <a href="perfil.html" id="nav-perfil">
+          <i class="bx bx-id-card"></i>
+          <span class="nav-item">Mi Perfil</span>
+        </a>
+        <span class="tooltip">Mi Perfil</span>
+      </li>
       <li class="logout-li">
         <a href="../../public/login/login.html" id="nav-logout">
           <i class="bx bx-log-out"></i>
@@ -109,6 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
   else if (path.includes("noticias.html"))   document.getElementById("nav-noticias")?.parentElement.classList.add("active-item");
   else if (path.includes("actividades.html")) document.getElementById("nav-actividades")?.parentElement.classList.add("active-item");
   else if (path.includes("reporte.html"))     document.getElementById("nav-reporte")?.parentElement.classList.add("active-item");
+  else if (path.includes("perfil.html"))      document.getElementById("nav-perfil")?.parentElement.classList.add("active-item");
 
   // ── Cargar usuario desde localStorage ────────────────────────────────────
   const userData = localStorage.getItem('usuarioLogueado');

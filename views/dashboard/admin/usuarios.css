@@ -211,6 +211,10 @@
 .user-nombre   { font-weight: 600; font-size: 0.97rem; }
 .user-username { font-size: 0.82rem; color: var(--muted); }
 
+/* Avatar con foto (fila) */
+.user-avatar-foto { overflow: hidden; background: #e5e7eb; }
+.user-avatar-foto img { width: 100%; height: 100%; object-fit: cover; }
+
 /* ── Badges ── */
 .badge-red    { background: #fee2e2; color: #dc2626; }
 .badge-purple { background: #ede9fe; color: #7c3aed; }
@@ -235,6 +239,9 @@
 }
 .btn-accion:disabled { cursor: not-allowed; opacity: 0.4; }
 .btn-accion:not(:disabled):active { transform: scale(0.92); }
+
+.btn-ver      { background: #ede9fe; color: #7c3aed; }
+.btn-ver:hover      { background: #ddd6fe; }
 
 .btn-editar   { background: #dbeafe; color: #1d4ed8; }
 .btn-editar:hover   { background: #bfdbfe; }
@@ -367,6 +374,75 @@
   transition: transform 0.15s, box-shadow 0.15s;
 }
 .btn-guardar:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(30,58,138,0.35); }
+
+/* ══════════════════════════════════════════════════
+   MODAL DE PERFIL
+══════════════════════════════════════════════════ */
+.perfil-top {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.perfil-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.75rem;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, var(--primary), var(--amber));
+  overflow: hidden;
+}
+.perfil-avatar .perfil-avatar-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.perfil-username {
+  font-size: 0.95rem;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+}
+#perfil-badges { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+.perfil-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.perfil-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.7rem 0.25rem;
+  border-bottom: 1px solid #f3f0e8;
+}
+.perfil-row:last-child { border-bottom: none; }
+.perfil-row i {
+  color: var(--primary);
+  font-size: 1.15rem;
+  margin-top: 0.1rem;
+  flex-shrink: 0;
+}
+.perfil-row-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.perfil-row-valor {
+  font-size: 0.97rem;
+  color: #1a1a2e;
+  word-break: break-word;
+}
+
+/* Badge de especialidad (reutilizado en tabla y eventos) */
+.badge-especialidad {
+  background: #e0f2fe;
+  color: #0369a1;
+}
 
 /* ── Toast de error ── */
 .toast-error {

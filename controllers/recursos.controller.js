@@ -47,13 +47,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // 1. ESTADÍSTICAS
   // ════════════════════════════════════════════════════════════════
 
-  /** Actualiza las tarjetas de contadores en la parte superior */
-  function actualizarEstadisticas() {
-    const stats = RecursosModel.getEstadisticas();
-    document.getElementById('stat-total').textContent         = stats.total;
-    document.getElementById('stat-disponibles').textContent   = stats.disponibles;
-    document.getElementById('stat-nodisponibles').textContent = stats.noDisponibles;
-    document.getElementById('stat-sinstock').textContent      = stats.sinStock;
+  /** Actualiza las tarjetas de contadores a partir de la lista ya cargada */
+  function actualizarEstadisticas(lista) {
+    document.getElementById('stat-total').textContent         = lista.length;
+    document.getElementById('stat-disponibles').textContent   = lista.filter(r => r.disponible).length;
+    document.getElementById('stat-nodisponibles').textContent = lista.filter(r => !r.disponible).length;
+    document.getElementById('stat-sinstock').textContent      = lista.filter(r => r.cantidad === 0).length;
   }
 
   // ════════════════════════════════════════════════════════════════
@@ -63,10 +62,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── DataTable de recursos ────────────────────────────────────────────────
   let dtRecursos = null;
 
-  function renderTabla() {
-    actualizarEstadisticas();
+  async function renderTabla() {
+    const lista = await RecursosModel.getAll();
+    actualizarEstadisticas(lista);
 
-    const data = RecursosModel.getAll().map(r => ({
+    const data = lista.map(r => ({
       ...r,
       estadoDisp: r.disponible ? 'Disponible' : 'No disponible',
       stockEstado: r.cantidad === 0 ? 'Sin stock' : r.disponible ? 'Disponible' : 'No disponible'
@@ -101,14 +101,14 @@ document.addEventListener('DOMContentLoaded', () => {
           <span style="flex-shrink:0;">${badgeDisp}</span>
           <span style="flex-shrink:0;font-size:0.82rem;color:var(--muted);">${r.creado}</span>
           <div class="acciones-cell" style="flex-shrink:0;margin-left:auto;">
-            <button class="btn-accion btn-editar-rec" onclick="abrirEditar(${r.id})" title="Editar recurso">
+            <button class="btn-accion btn-editar-rec" onclick="abrirEditar('${r.id}')" title="Editar recurso">
               <i class="bx bx-edit"></i>
             </button>
             <button class="btn-accion ${r.disponible ? 'btn-toggle-on' : 'btn-toggle-off'}"
-              onclick="toggleRecurso(${r.id})" title="${r.disponible ? 'Desactivar' : 'Activar'} recurso">
+              onclick="toggleRecurso('${r.id}')" title="${r.disponible ? 'Desactivar' : 'Activar'} recurso">
               <i class="bx ${r.disponible ? 'bx-toggle-right' : 'bx-toggle-left'}"></i>
             </button>
-            <button class="btn-accion btn-eliminar-rec" onclick="eliminarRecurso(${r.id})" title="Eliminar recurso">
+            <button class="btn-accion btn-eliminar-rec" onclick="eliminarRecurso('${r.id}')" title="Eliminar recurso">
               <i class="bx bx-trash"></i>
             </button>
           </div>
@@ -196,8 +196,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /** Abre el modal en modo EDITAR con los datos del recurso pre-llenados */
-  window.abrirEditar = function(id) {
-    const r = RecursosModel.getById(id);
+  window.abrirEditar = async function(id) {
+    const r = await RecursosModel.getById(id);
     if (!r) return;
 
     editandoId             = id;
@@ -232,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
   BSPVal.blockNumericChars(document.getElementById('campo-cantidad'));
 
   /** Submit del formulario de crear/editar */
-  formRecurso.addEventListener('submit', (e) => {
+  formRecurso.addEventListener('submit', async (e) => {
     e.preventDefault();
     modalError.style.display = 'none';
 
@@ -282,13 +282,17 @@ document.addEventListener('DOMContentLoaded', () => {
       descripcion
     };
 
-    /* Llamada al modelo con try-catch */
-    const resultado = BSPVal.safeCall(
-      () => editandoId === null
-        ? RecursosModel.create(data)
-        : RecursosModel.update(editandoId, data),
-      (msg) => { modalError.textContent = msg; modalError.style.display = 'block'; }
-    );
+    /* Llamada async al modelo (Supabase) */
+    let resultado;
+    try {
+      resultado = editandoId === null
+        ? await RecursosModel.create(data)
+        : await RecursosModel.update(editandoId, data);
+    } catch (ex) {
+      modalError.textContent = 'Error de conexión. Revisa tu internet e intenta de nuevo.';
+      modalError.style.display = 'block';
+      return;
+    }
     if (!resultado.ok) {
       modalError.textContent   = resultado.error;
       modalError.style.display = 'block';
@@ -296,7 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     cerrarModal();
-    renderTabla();
+    await renderTabla();
     showAlertSuccess(
       `"${data.nombre}" fue ${editandoId === null ? 'agregado al' : 'actualizado en el'} inventario.`
     );
@@ -311,13 +315,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // 4. TOGGLE DISPONIBILIDAD
   // ════════════════════════════════════════════════════════════════
 
-  window.toggleRecurso = function(id) {
-    const resultado = RecursosModel.toggleDisponible(id);
+  window.toggleRecurso = async function(id) {
+    const resultado = await RecursosModel.toggleDisponible(id);
     if (!resultado.ok) {
       showAlertError(resultado.error);
       return;
     }
-    renderTabla();
+    await renderTabla();
     showAlertSuccess(
       resultado.disponible
         ? 'El recurso ya está disponible para asignar a eventos.'
@@ -329,20 +333,20 @@ document.addEventListener('DOMContentLoaded', () => {
   // 5. ELIMINAR RECURSO
   // ════════════════════════════════════════════════════════════════
 
-  window.eliminarRecurso = function(id) {
-    const r = RecursosModel.getById(id);
+  window.eliminarRecurso = async function(id) {
+    const r = await RecursosModel.getById(id);
     if (!r) return;
 
     showAlertConfirm(
       'Eliminar recurso',
       `¿Eliminar "${r.nombre}" del inventario?`,
-      function() {
-        const resultado = RecursosModel.remove(id);
+      async function() {
+        const resultado = await RecursosModel.remove(id);
         if (!resultado.ok) {
           showAlertError(resultado.error);
           return;
         }
-        renderTabla();
+        await renderTabla();
         showAlertSuccess(`"${r.nombre}" fue eliminado del inventario.`);
       }
     );

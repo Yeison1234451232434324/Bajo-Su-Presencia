@@ -46,13 +46,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // 1. CONTADORES
   // ════════════════════════════════════════════════════════════════
 
-  /** Actualiza las tarjetas de contadores */
-  function actualizarContadores() {
-    const stats = PQRModel.getEstadisticas();
-    document.getElementById('stat-pqr-total').textContent      = stats.total;
-    document.getElementById('stat-pqr-pendientes').textContent = stats.pendientes;
-    document.getElementById('stat-pqr-enproceso').textContent  = stats.enProceso;
-    document.getElementById('stat-pqr-resueltos').textContent  = stats.resueltos;
+  /** Actualiza las tarjetas de contadores a partir de la lista ya cargada */
+  function actualizarContadores(lista) {
+    document.getElementById('stat-pqr-total').textContent      = lista.length;
+    document.getElementById('stat-pqr-pendientes').textContent = lista.filter(p => p.estado === 'Pendiente').length;
+    document.getElementById('stat-pqr-enproceso').textContent  = lista.filter(p => p.estado === 'En proceso').length;
+    document.getElementById('stat-pqr-resueltos').textContent  = lista.filter(p => p.estado === 'Resuelto').length;
   }
 
   // ════════════════════════════════════════════════════════════════
@@ -62,10 +61,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── DataTable de PQR ─────────────────────────────────────────────────────
   let dtPQR = null;
 
-  function renderTabla() {
-    actualizarContadores();
+  async function renderTabla() {
+    const lista = await PQRModel.getAll();
+    actualizarContadores(lista);
 
-    const data = PQRModel.getAll()
+    const data = lista
       .sort((a, b) => new Date(b.creadoEn) - new Date(a.creadoEn))
       .map(p => ({
         ...p,
@@ -91,14 +91,14 @@ document.addEventListener('DOMContentLoaded', () => {
             </span>
             <span style="flex-shrink:0;font-size:0.82rem;color:var(--muted);">${fecha}</span>
             <div class="pqr-acciones-cell" style="flex-shrink:0;">
-              <button class="pqr-btn-accion btn-ver-pqr" onclick="abrirModal(${p.id})" title="Ver detalle y responder">
+              <button class="pqr-btn-accion btn-ver-pqr" onclick="abrirModal('${p.id}')" title="Ver detalle y responder">
                 <i class="bx bx-show"></i>
               </button>
-              <button class="pqr-btn-accion btn-estado-pqr" onclick="ciclarEstado(${p.id})"
+              <button class="pqr-btn-accion btn-estado-pqr" onclick="ciclarEstado('${p.id}')"
                 title="Cambiar estado: ${siguienteEstado(p.estado)}">
                 <i class="bx bx-transfer-alt"></i>
               </button>
-              <button class="pqr-btn-accion btn-eliminar-pqr" onclick="eliminarPQR(${p.id})" title="Eliminar PQR">
+              <button class="pqr-btn-accion btn-eliminar-pqr" onclick="eliminarPQR('${p.id}')" title="Eliminar PQR">
                 <i class="bx bx-trash"></i>
               </button>
             </div>
@@ -204,8 +204,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // ════════════════════════════════════════════════════════════════
 
   /** Abre el modal con el detalle completo del PQR */
-  window.abrirModal = function(id) {
-    const p = PQRModel.getById(id);
+  window.abrirModal = async function(id) {
+    const p = await PQRModel.getById(id);
     if (!p) return;
 
     pqrActualId = id;
@@ -265,7 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // 4. GUARDAR RESPUESTA
   // ════════════════════════════════════════════════════════════════
 
-  btnGuardar.addEventListener('click', () => {
+  btnGuardar.addEventListener('click', async () => {
     if (!pqrActualId) return;
 
     const respuesta   = document.getElementById('modal-campo-respuesta').value;
@@ -282,7 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const resultado = PQRModel.responder(
+    const resultado = await PQRModel.responder(
       pqrActualId,
       respuesta,
       nuevoEstado,
@@ -296,7 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     cerrarModal();
-    renderTabla();
+    await renderTabla();
     showAlertSuccess('La respuesta fue registrada exitosamente.');
   });
 
@@ -305,19 +305,19 @@ document.addEventListener('DOMContentLoaded', () => {
   // ════════════════════════════════════════════════════════════════
 
   /** Avanza el estado del PQR al siguiente en el ciclo */
-  window.ciclarEstado = function(id) {
-    const p = PQRModel.getById(id);
+  window.ciclarEstado = async function(id) {
+    const p = await PQRModel.getById(id);
     if (!p) return;
 
     const nuevo     = siguienteEstado(p.estado);
-    const resultado = PQRModel.cambiarEstado(id, nuevo);
+    const resultado = await PQRModel.cambiarEstado(id, nuevo);
 
     if (!resultado.ok) {
       showAlertError(resultado.error);
       return;
     }
 
-    renderTabla();
+    await renderTabla();
     showAlertSuccess(`El PQR pasó a estado "${nuevo}".`);
   };
 
@@ -325,21 +325,21 @@ document.addEventListener('DOMContentLoaded', () => {
   // 6. ELIMINAR PQR
   // ════════════════════════════════════════════════════════════════
 
-  window.eliminarPQR = function(id) {
-    const p = PQRModel.getById(id);
+  window.eliminarPQR = async function(id) {
+    const p = await PQRModel.getById(id);
     if (!p) return;
 
     showAlertConfirm(
       'Eliminar PQR',
       `¿Eliminar el PQR de "${p.nombre}" sobre "${p.asunto}"? Esta acción no se puede deshacer.`,
-      function() {
-        const resultado = PQRModel.eliminar(id);
+      async function() {
+        const resultado = await PQRModel.eliminar(id);
         if (!resultado.ok) {
           showAlertError(resultado.error);
           return;
         }
 
-        renderTabla();
+        await renderTabla();
         showAlertSuccess(`El PQR de "${p.nombre}" fue eliminado.`);
       }
     );

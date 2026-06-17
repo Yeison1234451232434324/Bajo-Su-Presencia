@@ -160,6 +160,19 @@
               </div>
             </div>
 
+            <!-- Estado del evento -->
+            <div class="form-group">
+              <label for="ev-estado">
+                <i class="bx bx-flag" style="color:var(--primary);"></i>
+                Estado del evento
+              </label>
+              <select id="ev-estado" class="form-control">
+                <option value="Publicado">Publicado</option>
+                <option value="En ejecución">En ejecución</option>
+                <option value="Finalizado">Finalizado</option>
+              </select>
+            </div>
+
             <!-- ── SECCIÓN DE RECURSOS DEL INVENTARIO ──────────────────── -->
             <div class="form-group">
               <div class="ev-recursos-header">
@@ -179,6 +192,29 @@
 
               <!-- Grilla de tarjetas de recursos (generada por el controller) -->
               <div id="recursos-grid" class="ev-recursos-grid"></div>
+            </div>
+
+            <!-- ── SECCIÓN DE ESPECIALISTAS REQUERIDOS ─────────────────── -->
+            <div class="form-group">
+              <div class="ev-recursos-header">
+                <label>
+                  <i class="bx bx-user-voice" style="color:var(--primary);"></i>
+                  Especialistas requeridos
+                </label>
+                <span id="contador-especialistas" class="ev-contador">
+                  Ningún especialista seleccionado (opcional)
+                </span>
+              </div>
+
+              <!-- Mensaje cuando no hay usuarios con especialidad -->
+              <div id="sin-especialistas-msg" class="ev-sin-recursos-msg" style="display:none;">
+                <i class="bx bx-error-circle"></i>
+                No hay usuarios con una especialidad registrada.
+                <a href="usuarios.html">Ir a Gestión de Usuarios</a>
+              </div>
+
+              <!-- Grilla de especialistas (generada por el controller) -->
+              <div id="especialistas-grid" class="ev-recursos-grid"></div>
             </div>
 
             <!-- Botón publicar -->
@@ -351,6 +387,19 @@
           </div>
         </div>
 
+        <!-- Estado del evento -->
+        <div class="form-group">
+          <label for="edit-estado">
+            <i class="bx bx-flag" style="color:var(--primary);"></i>
+            Estado del evento
+          </label>
+          <select id="edit-estado" class="form-control">
+            <option value="Publicado">Publicado</option>
+            <option value="En ejecución">En ejecución</option>
+            <option value="Finalizado">Finalizado</option>
+          </select>
+        </div>
+
         <!-- Recursos del evento (editables) -->
         <div class="form-group" style="margin-top:1rem;">
           <div class="ev-recursos-header">
@@ -364,6 +413,24 @@
             No hay recursos disponibles en el inventario.
           </div>
           <div id="edit-recursos-grid" class="ev-recursos-grid"></div>
+        </div>
+
+        <!-- Especialistas del evento (editables) -->
+        <div class="form-group" style="margin-top:1rem;">
+          <div class="ev-recursos-header">
+            <label>
+              <i class="bx bx-user-voice" style="color:var(--primary);"></i>
+              Especialistas requeridos
+            </label>
+            <span id="edit-contador-especialistas" class="ev-contador">
+              Ningún especialista seleccionado (opcional)
+            </span>
+          </div>
+          <div id="edit-sin-especialistas-msg" class="ev-sin-recursos-msg" style="display:none;">
+            <i class="bx bx-error-circle"></i>
+            No hay usuarios con una especialidad registrada.
+          </div>
+          <div id="edit-especialistas-grid" class="ev-recursos-grid"></div>
         </div>
 
         <div class="ev-modal-footer">
@@ -383,12 +450,17 @@
 <!-- Sidebar del admin -->
   <script src="../../../controllers/validators.helper.js"></script>
   <script src="../../../controllers/sidebar.controller.js"></script>
+<!-- Supabase: SDK + cliente (ANTES de los modelos) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../../../controllers/supabase.client.js"></script>
 <!-- Modelo de recursos (necesario para leer el inventario) -->
 <script src="../../../models/recursos.model.js"></script>
 <!-- Modelo de eventos (guardar y leer eventos publicados) -->
 <script src="../../../models/eventos.model.js"></script>
 <!-- Modelo de sedes (para el selector de sede) -->
 <script src="../../../models/sedes.model.js"></script>
+<!-- Modelo de usuarios (para escoger especialistas requeridos) -->
+<script src="../../../models/usuarios.model.js"></script>
 <!-- Motor DataTable -->
 <script src="../../../controllers/datatable.helper.js"></script>
 <!-- Alertify Helper (configuración global de alertas) -->

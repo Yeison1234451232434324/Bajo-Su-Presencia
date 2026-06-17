@@ -1,88 +1,82 @@
 /**
  * ============================================================
- * MODELO: sedes.model.js
+ * MODELO: sedes.model.js  (Supabase)
  * ============================================================
- * Gestiona el almacenamiento de sedes usando localStorage.
+ * CRUD de sedes contra la tabla public.sedes.
+ * Todos los métodos son ASÍNCRONOS (devuelven Promesas) → el
+ * controller debe usar await.
  *
- * Cada sede guarda:
- *   - id, nombre, ciudad, direccion, telefono, pastor, miembros
+ * Mapeo app ↔ BD:
+ *   pastor (app)  ↔  pastor_encargado (BD)
+ *   el resto coincide: nombre, ciudad, direccion, telefono, miembros
  *
- * Clave: bsp_sedes
+ * Requiere window.sb (controllers/supabase.client.js) cargado antes.
  * ============================================================
  */
 
 const SedesModel = (() => {
 
-  const KEY = 'bsp_sedes';
+  const TABLA = 'sedes';
 
-  const DEFAULT = [
-    {
-      id:        1,
-      nombre:    'Sede Central - Chapinero',
-      ciudad:    'Bogotá',
-      direccion: 'Calle 45 #12-34',
-      telefono:  '+57 (601) 234-5678',
-      pastor:    'Pastor Juan García',
-      miembros:  330
-    },
-    {
-      id:        2,
-      nombre:    'Sede Norte - Suba',
-      ciudad:    'Bogotá',
-      direccion: 'Calle 127 #45-23',
-      telefono:  '+57 (601) 234-5679',
-      pastor:    'Pastor Pedro Martínez',
-      miembros:  220
-    },
-    {
-      id:        3,
-      nombre:    'Sede Sur - Kennedy',
-      ciudad:    'Bogotá',
-      direccion: 'Avenida 68 #23-45',
-      telefono:  '+57 (601) 234-5680',
-      pastor:    'Pastora María López',
-      miembros:  180
+  // Convierte una fila de la BD al objeto que usa la vista
+  function _fromRow(r) {
+    return {
+      id:        r.id,
+      nombre:    r.nombre    || '',
+      ciudad:    r.ciudad    || '',
+      direccion: r.direccion || '',
+      telefono:  r.telefono  || '',
+      pastor:    r.pastor_encargado || '',
+      miembros:  r.miembros  || 0
+    };
+  }
+
+  // Traduce errores de Supabase a mensajes para el usuario
+  function _msg(error) {
+    if (error?.code === '42501' || /row-level security/i.test(error?.message || '')) {
+      return 'No tienes permisos para realizar esta acción.';
     }
-  ];
-
-  function _init() {
-    if (!localStorage.getItem(KEY)) {
-      localStorage.setItem(KEY, JSON.stringify(DEFAULT));
-    }
+    return error?.message || 'Ocurrió un error al procesar la solicitud.';
   }
 
-  function getAll() {
-    _init();
-    return JSON.parse(localStorage.getItem(KEY));
+  /** Devuelve todas las sedes (ordenadas por nombre) */
+  async function getAll() {
+    const { data, error } = await sb.from(TABLA).select('*').order('nombre', { ascending: true });
+    if (error) { console.error('SedesModel.getAll:', error); return []; }
+    return (data || []).map(_fromRow);
   }
 
-  function getById(id) {
-    return getAll().find(s => s.id === id) || null;
+  /** Devuelve una sede por id (uuid) o null */
+  async function getById(id) {
+    const { data, error } = await sb.from(TABLA).select('*').eq('id', id).single();
+    if (error || !data) return null;
+    return _fromRow(data);
   }
 
-  function agregar(data) {
+  /** Crea una sede */
+  async function agregar(data) {
     if (!data.nombre?.trim())    return { ok: false, error: 'El nombre es obligatorio.' };
     if (!data.ciudad?.trim())    return { ok: false, error: 'La ciudad es obligatoria.' };
     if (!data.direccion?.trim()) return { ok: false, error: 'La dirección es obligatoria.' };
 
-    const sedes = getAll();
-    const nueva = {
-      id:        Date.now(),
-      nombre:    data.nombre.trim(),
-      ciudad:    data.ciudad.trim(),
-      direccion: data.direccion.trim(),
-      telefono:  data.telefono?.trim() || '',
-      pastor:    data.pastor?.trim()   || '',
-      miembros:  parseInt(data.miembros) || 0
+    const fila = {
+      nombre:           data.nombre.trim(),
+      ciudad:           data.ciudad.trim(),
+      direccion:        data.direccion.trim(),
+      telefono:         data.telefono?.trim() || null,
+      pastor_encargado: data.pastor?.trim()   || null,
+      miembros:         parseInt(data.miembros) || 0
     };
-    sedes.push(nueva);
-    localStorage.setItem(KEY, JSON.stringify(sedes));
-    return { ok: true, sede: nueva };
+
+    const { data: ins, error } = await sb.from(TABLA).insert(fila).select().single();
+    if (error) return { ok: false, error: _msg(error) };
+    return { ok: true, sede: _fromRow(ins) };
   }
 
-  function eliminar(id) {
-    const sedes = getAll().filter(s => s.id !== id);
-    localStorage.setItem(KEY, JSON.stringify(sedes));
+  /** Elimina una sede por id (uuid) */
+  async function eliminar(id) {
+    const { error } = await sb.from(TABLA).delete().eq('id', id);
+    if (error) return { ok: false, error: _msg(error) };
     return { ok: true };
   }
 

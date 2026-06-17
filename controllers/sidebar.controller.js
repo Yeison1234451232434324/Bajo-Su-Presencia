@@ -71,6 +71,13 @@ document.addEventListener("DOMContentLoaded", () => {
         </a>
         <span class="tooltip">Calificar Voluntarios</span>
       </li>
+      <li id="li-asistencias" style="display:none;">
+        <a href="asistencias.html" id="nav-asistencias">
+          <i class="bx bx-qr-scan"></i>
+          <span class="nav-item">Asistencias</span>
+        </a>
+        <span class="tooltip">Asistencias</span>
+      </li>
       <li id="li-recursos" style="display:none;">
         <a href="recursos.html" id="nav-recursos">
           <i class="bx bx-package"></i>
@@ -174,6 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
   else if (path.includes("oracion.html"))    document.getElementById("nav-oracion")?.parentElement.classList.add("active-item");
   else if (path.includes("noticias.html"))   document.getElementById("nav-noticias")?.parentElement.classList.add("active-item");
   else if (path.includes("usuarios.html"))   document.getElementById("nav-usuarios")?.parentElement.classList.add("active-item");
+  else if (path.includes("asistencias.html")) document.getElementById("nav-asistencias")?.parentElement.classList.add("active-item");
   else if (path.includes("voluntarios.html")) document.getElementById("nav-voluntarios")?.parentElement.classList.add("active-item");
   else if (path.includes("recursos.html"))    document.getElementById("nav-recursos")?.parentElement.classList.add("active-item");
   else if (path.includes("actividades.html")) document.getElementById("nav-actividades")?.parentElement.classList.add("active-item");
@@ -197,6 +205,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const liVoluntarios = document.getElementById('li-voluntarios');
       if (liVoluntarios) liVoluntarios.style.display = '';
+
+      const liAsistencias = document.getElementById('li-asistencias');
+      if (liAsistencias) liAsistencias.style.display = '';
 
       const liRecursos = document.getElementById('li-recursos');
       if (liRecursos) liRecursos.style.display = '';

@@ -1,26 +1,19 @@
-﻿/**
+/**
  * ============================================================
- * CONTROLADOR: voluntario.disponibilidad.controller.js
+ * CONTROLADOR: voluntario.disponibilidad.controller.js  (Supabase)
  * ============================================================
- * Permite al voluntario logueado:
- *   - Ver todos los eventos publicados
- *   - Marcar su disponibilidad (disponible / no disponible) en cada uno
- *   - Ver en qué eventos ya está registrado como voluntario
- *
- * Depende de:
- *   - VoluntariosModel (voluntarios.model.js) → eventos y disponibilidad
- *   - EventosModel     (eventos.model.js)     → eventos publicados
+ * El voluntario logueado ve todos los eventos, puede unirse y
+ * marcar su disponibilidad. Usa voluntarios_eventos.
+ * Depende de: VoluntariosModel, window.miUsuarioId.
  * ============================================================
  */
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // ── Verificar que sea voluntario ─────────────────────────────────────────
   const sesion = JSON.parse(localStorage.getItem('usuarioLogueado') || '{}');
   if (sesion.rol !== 'Voluntario') {
     document.body.innerHTML = `
-      <div style="display:flex;align-items:center;justify-content:center;height:100vh;
-                  font-family:serif;flex-direction:column;gap:1rem;">
+      <div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:serif;flex-direction:column;gap:1rem;">
         <h2 style="color:#1E3A8A;font-size:2rem;">Acceso Denegado</h2>
         <p style="color:#6b7280;">Esta sección es solo para voluntarios.</p>
         <a href="../../public/login/login.html" style="color:#1E3A8A;font-weight:600;">Volver al inicio</a>
@@ -28,106 +21,27 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  const nombreSesion = sesion.nombre;
+  document.getElementById('vol-nombre-disp').textContent = sesion.nombre || 'Voluntario';
 
-  // ── Actualizar nombre en el encabezado ────────────────────────────────────
-  document.getElementById('vol-nombre-disp').textContent = nombreSesion;
-
-  // ── Obtener ID del voluntario en el modelo ────────────────────────────────
-  function obtenerVoluntarioId() {
-    const califs = VoluntariosModel.getCalificaciones();
-    const calif  = califs.find(c =>
-      c.voluntarioNombre.toLowerCase() === nombreSesion.toLowerCase()
-    );
-    if (calif) return calif.voluntarioId;
-
-    const eventos = VoluntariosModel.getEventos();
-    for (const ev of eventos) {
-      const vol = ev.voluntarios.find(v =>
-        v.nombre.toLowerCase() === nombreSesion.toLowerCase()
-      );
-      if (vol) return vol.id;
-    }
-    // Si no existe en ningún lado, asignar un ID temporal basado en el nombre
-    return null;
-  }
-
-  let voluntarioId = obtenerVoluntarioId();
-
-  // ════════════════════════════════════════════════════════════════
-  // OBTENER EVENTOS DISPONIBLES
-  // ════════════════════════════════════════════════════════════════
-
-  /**
-   * Combina los eventos de bsp_eventos_vol (voluntarios) con los de
-   * bsp_eventos_publicados (publicar evento) para mostrar todos.
-   * Elimina duplicados por ID.
-   * También copia voluntariosNecesarios desde bsp_eventos_publicados.
-   */
-  function obtenerTodosLosEventos() {
-    const eventosVol = VoluntariosModel.getEventos(); // { id, nombre, fecha, lugar, voluntarios }
-
-    // Leer eventos publicados para obtener voluntariosNecesarios
-    let eventosPublicados = [];
-    try {
-      const raw = localStorage.getItem('bsp_eventos_publicados');
-      if (raw) {
-        eventosPublicados = JSON.parse(raw).map(e => ({
-          id:                    e.id,
-          nombre:                e.titulo,
-          fecha:                 e.fecha,
-          lugar:                 e.ubicacion || '—',
-          voluntariosNecesarios: e.voluntariosNecesarios || 0,
-          voluntarios:           []
-        }));
-      }
-    } catch (_) {}
-
-    // Mapa de voluntariosNecesarios por ID para enriquecer eventosVol
-    const necesariosMap = {};
-    eventosPublicados.forEach(e => { necesariosMap[e.id] = e.voluntariosNecesarios; });
-
-    // Enriquecer eventosVol con voluntariosNecesarios si existe
-    const eventosVolEnriquecidos = eventosVol.map(e => ({
-      ...e,
-      voluntariosNecesarios: necesariosMap[e.id] ?? e.voluntariosNecesarios ?? 0
-    }));
-
-    // Agregar los publicados que no están en eventosVol
-    const idsVol = new Set(eventosVolEnriquecidos.map(e => e.id));
-    const extras = eventosPublicados.filter(e => !idsVol.has(e.id));
-
-    return [...eventosVolEnriquecidos, ...extras];
-  }
-
-  // ════════════════════════════════════════════════════════════════
-  // RENDERIZAR TARJETAS DE EVENTOS — DataTable v3 con filtros
-  // ════════════════════════════════════════════════════════════════
-
+  let _miId  = null;
   let dtDisp = null;
 
-  function renderEventos() {
-    const eventos = obtenerTodosLosEventos();
+  async function renderEventos() {
+    const eventos = await VoluntariosModel.getEventos();
 
-    // Pre-calcular contadores
-    let totalEventos = eventos.length, eventosConmigo = 0, disponibleCount = 0;
+    let total = eventos.length, conmigo = 0, disponible = 0;
     eventos.forEach(ev => {
-      const vol = ev.voluntarios.find(v =>
-        v.nombre.toLowerCase() === nombreSesion.toLowerCase() || v.id === voluntarioId
-      );
-      if (vol) { eventosConmigo++; if (vol.disponible) disponibleCount++; }
+      const mio = ev.voluntarios.find(v => String(v.id) === String(_miId));
+      if (mio) { conmigo++; if (mio.disponible) disponible++; }
     });
-    actualizarContadores(totalEventos, eventosConmigo, disponibleCount);
+    actualizarContadores(total, conmigo, disponible);
 
-    // Lugares únicos para filtro
     const lugares = [...new Set(eventos.map(e => e.lugar).filter(Boolean))].sort();
 
     function renderCard(ev) {
-      const volEnEvento    = ev.voluntarios.find(v =>
-        v.nombre.toLowerCase() === nombreSesion.toLowerCase() || v.id === voluntarioId
-      );
-      const estaRegistrado = !!volEnEvento;
-      const estaDisponible = volEnEvento?.disponible ?? false;
+      const mio = ev.voluntarios.find(v => String(v.id) === String(_miId));
+      const estaRegistrado = !!mio;
+      const estaDisponible = mio?.disponible ?? false;
 
       let estadoClass = '', estadoBadge = '', btnTexto = '', btnClass = '', btnIcono = '';
       if (!estaRegistrado) {
@@ -143,16 +57,14 @@ document.addEventListener('DOMContentLoaded', () => {
         btnTexto = 'Marcar disponible'; btnClass = 'btn-disponible'; btnIcono = 'bx-check-circle';
       }
 
-      const fechaObj  = new Date(ev.fecha + 'T00:00:00');
-      const fechaStr  = fechaObj.toLocaleDateString('es-ES', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
-      const rolEnEvento = volEnEvento?.rol || '—';
+      const fechaObj = ev.fecha ? new Date(ev.fecha + 'T00:00:00') : null;
+      const fechaStr = fechaObj ? fechaObj.toLocaleDateString('es-ES', { weekday:'long', year:'numeric', month:'long', day:'numeric' }) : '—';
+      const rolEnEvento = mio?.rol || '—';
       const inscritos   = ev.voluntarios.length;
       const necesarios  = ev.voluntariosNecesarios || 0;
       const faltan      = Math.max(necesarios - inscritos, 0);
       const badgeCupo   = necesarios > 0
-        ? faltan === 0
-          ? `<span class="badge badge-red">Cupo completo</span>`
-          : `<span class="badge badge-amber">Necesitan ${necesarios} · Faltan ${faltan}</span>`
+        ? (faltan === 0 ? `<span class="badge badge-red">Cupo completo</span>` : `<span class="badge badge-amber">Necesitan ${necesarios} · Faltan ${faltan}</span>`)
         : `<span class="badge badge-muted">Sin cupo definido</span>`;
 
       return `
@@ -162,153 +74,77 @@ document.addEventListener('DOMContentLoaded', () => {
               <h4 class="disp-evento-nombre">${ev.nombre}</h4>
               <p class="disp-evento-meta"><i class="bx bx-calendar"></i> ${fechaStr}</p>
               <p class="disp-evento-meta"><i class="bx bx-map-pin"></i> ${ev.lugar || '—'}</p>
-              <p class="disp-evento-meta">
-                <i class="bx bx-group"></i>
-                ${necesarios > 0
-                  ? `Se necesitan <strong>${necesarios}</strong> · Faltan <strong>${faltan}</strong>`
-                  : 'Sin cupo de voluntarios definido'}
-              </p>
+              <p class="disp-evento-meta"><i class="bx bx-group"></i>
+                ${necesarios > 0 ? `Se necesitan <strong>${necesarios}</strong> · Faltan <strong>${faltan}</strong>` : 'Sin cupo de voluntarios definido'}</p>
               ${estaRegistrado ? `<p class="disp-evento-meta"><i class="bx bx-briefcase"></i> Rol: <strong>${rolEnEvento}</strong></p>` : ''}
             </div>
             <div class="disp-card-estado" style="display:flex;flex-direction:column;gap:0.4rem;align-items:flex-end;">
-              ${estadoBadge}
-              ${badgeCupo}
+              ${estadoBadge}${badgeCupo}
             </div>
           </div>
-          <button class="btn-disp-accion ${btnClass}"
-            onclick="accionEvento(${ev.id}, '${estaRegistrado ? 'toggle' : 'unirse'}')">
+          <button class="btn-disp-accion ${btnClass}" onclick="accionEvento('${ev.id}', '${estaRegistrado ? 'toggle' : 'unirse'}')">
             <i class="bx ${btnIcono}"></i> ${btnTexto}
           </button>
         </div>`;
     }
 
-    // Enriquecer datos con campo _estado para el filtro
-    const eventosConEstado = eventos.map(ev => {
-      const vol = ev.voluntarios.find(v =>
-        v.nombre.toLowerCase() === nombreSesion.toLowerCase() || v.id === voluntarioId
-      );
-      return {
-        ...ev,
-        _estado: !vol ? 'No inscrito' : vol.disponible ? 'Disponible' : 'No disponible'
-      };
+    const conEstado = eventos.map(ev => {
+      const mio = ev.voluntarios.find(v => String(v.id) === String(_miId));
+      return { ...ev, _estado: !mio ? 'No inscrito' : mio.disponible ? 'Disponible' : 'No disponible' };
     });
 
     if (!dtDisp) {
       dtDisp = new BSPDataTable({
-        containerId:  'eventos-grid',
-        data:         eventosConEstado,
-        pageSize:     6,
-        searchFields: ['nombre', 'fecha', 'lugar'],
+        containerId: 'eventos-grid', data: conEstado, pageSize: 6,
+        searchFields: ['nombre','fecha','lugar'],
         filters: [
-          { key: 'lugar',   label: 'Lugar',        type: 'select', options: lugares },
-          { key: '_estado', label: 'Mi estado',     type: 'select', options: ['No inscrito','Disponible','No disponible'] },
-          { key: 'fecha',   label: 'Desde',         type: 'date-from' },
-          { key: 'fecha',   label: 'Hasta',         type: 'date-to' },
+          { key:'lugar',   label:'Lugar',      type:'select', options: lugares },
+          { key:'_estado', label:'Mi estado',  type:'select', options:['No inscrito','Disponible','No disponible'] },
+          { key:'fecha',   label:'Desde',      type:'date-from' },
+          { key:'fecha',   label:'Hasta',      type:'date-to' },
         ],
-        renderRow:    renderCard,
-        exportable:   true,
-        exportName:   'mis_eventos',
-        exportFields: ['nombre', 'fecha', 'lugar', '_estado'],
-        exportLabels: ['Evento', 'Fecha', 'Lugar', 'Mi Estado'],
-        emptyHTML:    `<div class="dt-empty"><i class="bx bx-calendar-x"></i><p>No hay eventos publicados por el momento.</p></div>`
+        renderRow: renderCard, exportable: true, exportName: 'mis_eventos',
+        exportFields: ['nombre','fecha','lugar','_estado'],
+        exportLabels: ['Evento','Fecha','Lugar','Mi Estado'],
+        emptyHTML: `<div class="dt-empty"><i class="bx bx-calendar-x"></i><p>No hay eventos publicados por el momento.</p></div>`
       });
       window.__bspDT['eventos-grid'] = dtDisp;
       dtDisp.init();
     } else {
-      dtDisp.refresh(eventosConEstado);
+      dtDisp.refresh(conEstado);
     }
   }
 
-  /** Actualiza las tarjetas de contadores superiores */
   function actualizarContadores(total, conmigo, disponible) {
-    document.getElementById('cnt-total').textContent     = total;
-    document.getElementById('cnt-conmigo').textContent   = conmigo;
+    document.getElementById('cnt-total').textContent      = total;
+    document.getElementById('cnt-conmigo').textContent    = conmigo;
     document.getElementById('cnt-disponible').textContent = disponible;
   }
 
-  // ════════════════════════════════════════════════════════════════
-  // ACCIONES DEL VOLUNTARIO
-  // ════════════════════════════════════════════════════════════════
-
-  /**
-   * Maneja las acciones del voluntario sobre un evento:
-   *   - 'unirse'  → agrega al voluntario al evento con disponible = true
-   *   - 'toggle'  → cambia su disponibilidad en el evento
-   */
-  window.accionEvento = function(eventoId, accion) {
-    const eventos = VoluntariosModel.getEventos();
-    const evIdx   = eventos.findIndex(e => e.id === eventoId);
+  window.accionEvento = async function(eventoId, accion) {
+    if (!_miId) { showToast('Error', 'No se pudo identificar tu usuario.'); return; }
 
     if (accion === 'unirse') {
-      // Agregar al voluntario al evento si no existe
-      if (evIdx === -1) {
-        // El evento viene de bsp_eventos_publicados, hay que crearlo en bsp_eventos_vol
-        const raw = localStorage.getItem('bsp_eventos_publicados');
-        const pubs = raw ? JSON.parse(raw) : [];
-        const pub  = pubs.find(e => e.id === eventoId);
-        if (!pub) return;
-
-        // Crear entrada en bsp_eventos_vol
-        const nuevaEntrada = {
-          id:          pub.id,
-          nombre:      pub.titulo,
-          fecha:       pub.fecha,
-          lugar:       pub.ubicacion || '—',
-          voluntarios: [{
-            id:         voluntarioId || Date.now(),
-            nombre:     nombreSesion,
-            rol:        'Voluntario General',
-            disponible: true
-          }]
-        };
-        eventos.push(nuevaEntrada);
-        // Actualizar ID si no lo teníamos
-        if (!voluntarioId) voluntarioId = nuevaEntrada.voluntarios[0].id;
-      } else {
-        // El evento ya existe en bsp_eventos_vol, agregar al voluntario
-        const yaEsta = eventos[evIdx].voluntarios.find(v =>
-          v.nombre.toLowerCase() === nombreSesion.toLowerCase()
-        );
-        if (!yaEsta) {
-          const nuevoId = voluntarioId || Date.now();
-          eventos[evIdx].voluntarios.push({
-            id:         nuevoId,
-            nombre:     nombreSesion,
-            rol:        'Voluntario General',
-            disponible: true
-          });
-          if (!voluntarioId) voluntarioId = nuevoId;
-        }
-      }
-
-      localStorage.setItem('bsp_eventos_vol', JSON.stringify(eventos));
-      renderEventos();
+      const r = await VoluntariosModel.unirseEvento(eventoId, _miId, 'Voluntario General');
+      if (!r.ok) { showToast('Error', r.error || 'No se pudo unir.'); return; }
+      await renderEventos();
       showToast('¡Te uniste al evento!', 'Ahora estás registrado como voluntario disponible.');
-
-    } else if (accion === 'toggle') {
-      // Cambiar disponibilidad
-      if (evIdx === -1) return;
-
-      const volIdx = eventos[evIdx].voluntarios.findIndex(v =>
-        v.nombre.toLowerCase() === nombreSesion.toLowerCase() ||
-        v.id === voluntarioId
-      );
-      if (volIdx === -1) return;
-
-      const nuevaDisp = !eventos[evIdx].voluntarios[volIdx].disponible;
-      eventos[evIdx].voluntarios[volIdx].disponible = nuevaDisp;
-      localStorage.setItem('bsp_eventos_vol', JSON.stringify(eventos));
-
-      renderEventos();
+    } else {
+      const insc = await VoluntariosModel.estaInscrito(eventoId, _miId);
+      if (!insc) return;
+      const nueva = !insc.disponible;
+      const r = await VoluntariosModel.setDisponibilidad(eventoId, _miId, nueva);
+      if (!r.ok) { showToast('Error', r.error || 'No se pudo actualizar.'); return; }
+      await renderEventos();
       showToast(
-        nuevaDisp ? 'Marcado como disponible' : 'Marcado como no disponible',
-        nuevaDisp
-          ? 'El administrador podrá verte como disponible para este evento.'
-          : 'Has indicado que no estarás disponible para este evento.'
+        nueva ? 'Marcado como disponible' : 'Marcado como no disponible',
+        nueva ? 'El administrador podrá verte como disponible para este evento.' : 'Has indicado que no estarás disponible para este evento.'
       );
     }
   };
 
-  // ── Render inicial ────────────────────────────────────────────────────────
-  renderEventos();
+  (async () => {
+    try { _miId = await window.miUsuarioId(); } catch (_) { _miId = null; }
+    await renderEventos();
+  })();
 });

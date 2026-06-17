@@ -51,19 +51,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  window.generarReporte = function() {
+  window.generarReporte = async function() {
     const desde = fechaDesde.value;
     const hasta = fechaHasta.value;
     let html = '', nombreReporte = '';
 
     if (tipoSeleccionado === 'eventos') {
-      html = _generarReporteEventos(desde, hasta);
+      html = await _generarReporteEventos(desde, hasta);
       nombreReporte = 'Reporte de Eventos';
     } else if (tipoSeleccionado === 'voluntarios') {
-      html = _generarReporteVoluntarios(desde, hasta);
+      html = await _generarReporteVoluntarios(desde, hasta);
       nombreReporte = 'Reporte de Voluntarios';
     } else if (tipoSeleccionado === 'ofrendas') {
-      html = _generarReporteOfrendas(desde, hasta);
+      html = await _generarReporteOfrendas(desde, hasta);
       nombreReporte = 'Reporte de Ofrendas y Diezmo';
     }
 
@@ -279,12 +279,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   // ── 1. Reporte de Eventos ──────────────────────────────────────────────
-  function _generarReporteEventos(desde, hasta) {
+  async function _generarReporteEventos(desde, hasta) {
     let eventos = [];
-    try { eventos = EventosModel.getAll(); } catch(_) {}
+    try { eventos = await EventosModel.getAll(); } catch(_) {}
     eventos = _filtrar(eventos, desde, hasta, 'fecha');
 
-    const conRep = eventos.filter(ev => ReportesModel.getByEvento(ev.id)).length;
+    // Pre-cargar reportes en un mapa por evento (evita llamadas async en filter/map)
+    let _reps = [];
+    try { _reps = await ReportesModel.getAll(); } catch(_) {}
+    const repMap = {};
+    _reps.forEach(r => { repMap[r.eventoId] = r; });
+
+    const conRep = eventos.filter(ev => repMap[ev.id]).length;
     const periodo = desde && hasta ? `${desde} al ${hasta}` : 'Todos los registros';
 
     // Gráfica: eventos por mes
@@ -301,7 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Tabla
     const filas = eventos.map(ev => {
-      const rep = ReportesModel.getByEvento(ev.id);
+      const rep = repMap[ev.id];
       return [ev.titulo, ev.fecha||'—', ev.ubicacion||'—', ev.asistentes||'—',
               rep ? '✅ Sí' : '⏳ No', rep ? _fmt(rep.ofrenda) : '—'];
     });
@@ -323,9 +329,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ── 2. Reporte de Voluntarios ──────────────────────────────────────────
-  function _generarReporteVoluntarios(desde, hasta) {
+  async function _generarReporteVoluntarios(desde, hasta) {
     let eventos = [];
-    try { eventos = VoluntariosModel.getEventos(); } catch(_) {}
+    try { eventos = await VoluntariosModel.getEventos(); } catch(_) {}
     eventos = _filtrar(eventos, desde, hasta, 'fecha');
 
     const mapaVol = {};
@@ -337,7 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     let califs = [];
-    try { califs = VoluntariosModel.getCalificaciones(); } catch(_) {}
+    try { califs = await VoluntariosModel.getCalificaciones(); } catch(_) {}
     califs = _filtrar(califs, desde, hasta, 'fecha');
     califs.forEach(c => { if (mapaVol[c.voluntarioId]) mapaVol[c.voluntarioId].califs.push(c.estrellas); });
 
@@ -377,9 +383,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ── 3. Reporte de Ofrendas ─────────────────────────────────────────────
-  function _generarReporteOfrendas(desde, hasta) {
+  async function _generarReporteOfrendas(desde, hasta) {
     let reportes = [];
-    try { reportes = ReportesModel.getAll(); } catch(_) {}
+    try { reportes = await ReportesModel.getAll(); } catch(_) {}
     reportes = _filtrar(reportes, desde, hasta, 'creadoEn');
 
     const total   = reportes.reduce((s,r) => s + (r.ofrenda||0), 0);

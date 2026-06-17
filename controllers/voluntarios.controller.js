@@ -68,8 +68,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // ════════════════════════════════════════════════════════════════
 
   /** Llena el <select> con los eventos disponibles */
-  function cargarSelectEventos() {
-    const eventos = VoluntariosModel.getEventos();
+  async function cargarSelectEventos() {
+    const eventos = await VoluntariosModel.getEventos();
     selectEvento.innerHTML = '<option value="">— Selecciona un evento —</option>';
     eventos.forEach(ev => {
       const opt = document.createElement('option');
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /** Al cambiar el evento seleccionado, actualiza la tabla */
   selectEvento.addEventListener('change', () => {
-    const id = parseInt(selectEvento.value);
+    const id = selectEvento.value;
     if (!id) {
       eventoActualId = null;
       sinEvento.style.display  = 'flex';
@@ -103,9 +103,14 @@ document.addEventListener('DOMContentLoaded', () => {
   let dtVoluntarios = null;
 
   /** Renderiza la tabla de voluntarios del evento seleccionado */
-  function renderTablaVoluntarios() {
-    const evento = VoluntariosModel.getEventoById(eventoActualId);
+  async function renderTablaVoluntarios() {
+    const evento = await VoluntariosModel.getEventoById(eventoActualId);
     if (!evento) return;
+
+    // Pre-cargar calificaciones del evento (para que renderRow sea síncrono)
+    const califsEvento = (await VoluntariosModel.getCalificaciones()).filter(c => c.eventoId === eventoActualId);
+    const califMap = {};
+    califsEvento.forEach(c => { califMap[c.voluntarioId] = c; });
 
     // Mostrar info del evento en el encabezado
     eventoInfo.style.display = 'flex';
@@ -118,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
     tablaWrap.style.display = 'block';
 
     const data = evento.voluntarios.map(vol => {
-      const calif        = VoluntariosModel.getCalifByEventoVoluntario(eventoActualId, vol.id);
+      const calif        = califMap[vol.id] || null;
       const yaCalificado = !!calif;
       return {
         ...vol,
@@ -130,29 +135,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function renderRow(vol) {
-      const calif        = VoluntariosModel.getCalifByEventoVoluntario(eventoActualId, vol.id);
-      const yaCalificado = !!calif;
+      const yaCalificado = vol.yaCalificado;
       const avatar       = vol.nombre.charAt(0).toUpperCase();
 
       const estrellasMostrar = yaCalificado
-        ? renderEstrellasFijas(calif.estrellas)
+        ? renderEstrellasFijas(vol.califEstrellas)
         : '<span class="sin-calif">Sin calificar</span>';
 
       const btnCalif = `
         <button class="btn-accion btn-calificar ${yaCalificado ? 'btn-editar-calif' : ''}"
-          onclick="abrirModalCalif(${vol.id})"
+          onclick="abrirModalCalif('${vol.id}')"
           title="${yaCalificado ? 'Editar calificación' : 'Calificar voluntario'}">
           <i class="bx ${yaCalificado ? 'bx-edit' : 'bx-star'}"></i>
         </button>`;
       const btnHist = `
         <button class="btn-accion btn-historial"
-          onclick="verHistorial(${vol.id}, '${vol.nombre}')"
+          onclick="verHistorial('${vol.id}', '${vol.nombre}')"
           title="Ver historial completo">
           <i class="bx bx-history"></i>
         </button>`;
       const btnResumen = `
         <button class="btn-accion btn-resumen"
-          onclick="verResumen(${vol.id}, '${vol.nombre}')"
+          onclick="verResumen('${vol.id}', '${vol.nombre}')"
           title="Ver resumen estadístico">
           <i class="bx bx-bar-chart-alt-2"></i>
         </button>`;
@@ -172,8 +176,8 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
           <div style="flex:1;min-width:100px;">${estrellasMostrar}</div>
           <div class="comentario-cell" style="flex:1.5;min-width:120px;">
-            ${yaCalificado && calif.comentario
-              ? `<span class="comentario-preview" title="${calif.comentario}">${calif.comentario}</span>`
+            ${yaCalificado && vol.califComentario
+              ? `<span class="comentario-preview" title="${vol.califComentario}">${vol.califComentario}</span>`
               : '<span class="sin-calif">—</span>'}
           </div>
           <div class="acciones-cell" style="flex-shrink:0;margin-left:auto;">
@@ -220,11 +224,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // ════════════════════════════════════════════════════════════════
 
   /** Abre el modal para calificar a un voluntario */
-  window.abrirModalCalif = function(voluntarioId) {
+  window.abrirModalCalif = async function(voluntarioId) {
     if (!eventoActualId) return;
 
-    const evento = VoluntariosModel.getEventoById(eventoActualId);
-    const vol    = evento?.voluntarios.find(v => v.id === voluntarioId);
+    const evento = await VoluntariosModel.getEventoById(eventoActualId);
+    const vol    = evento?.voluntarios.find(v => String(v.id) === String(voluntarioId));
     if (!vol) return;
 
     califVolId = voluntarioId;
@@ -238,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
     charCount.textContent         = '0 / 300';
 
     // Si ya existe calificación, pre-llenar el formulario
-    const existente = VoluntariosModel.getCalifByEventoVoluntario(eventoActualId, voluntarioId);
+    const existente = await VoluntariosModel.getCalifByEventoVoluntario(eventoActualId, voluntarioId);
     if (existente) {
       califEstrellas        = existente.estrellas;
       inputComentario.value = existente.comentario;
@@ -312,7 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /** Submit del formulario de calificación */
-  formCalif.addEventListener('submit', (e) => {
+  formCalif.addEventListener('submit', async (e) => {
     e.preventDefault();
     modalError.style.display = 'none';
 
@@ -338,16 +342,20 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    /* Llamada al modelo con try-catch */
-    const resultado = BSPVal.safeCall(
-      () => VoluntariosModel.guardarCalificacion({
+    /* Llamada async al modelo */
+    let resultado;
+    try {
+      resultado = await VoluntariosModel.guardarCalificacion({
         eventoId:     eventoActualId,
         voluntarioId: califVolId,
-        estrellas:    califEstrellas,      // número entero 1-5
-        comentario                         // string limpio sin .value crudo
-      }),
-      (msg) => { modalError.textContent = msg; modalError.style.display = 'block'; }
-    );
+        estrellas:    califEstrellas,
+        comentario
+      });
+    } catch (ex) {
+      modalError.textContent = 'Error de conexión. Intenta de nuevo.';
+      modalError.style.display = 'block';
+      return;
+    }
     if (!resultado.ok) {
       modalError.textContent   = resultado.error;
       modalError.style.display = 'block';
@@ -355,7 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     cerrarModal();
-    renderTablaVoluntarios(); // actualizar tabla para mostrar las nuevas estrellas
+    await renderTablaVoluntarios();
     showToast('Calificación guardada', `La calificación fue registrada exitosamente.`);
   });
 
@@ -376,8 +384,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // ════════════════════════════════════════════════════════════════
 
   /** Muestra el panel lateral con el historial de calificaciones del voluntario */
-  window.verHistorial = function(voluntarioId, nombre) {
-    const historial = VoluntariosModel.getHistorialVoluntario(voluntarioId);
+  window.verHistorial = async function(voluntarioId, nombre) {
+    const historial = await VoluntariosModel.getHistorialVoluntario(voluntarioId);
 
     historialNombre.textContent = nombre;
     historialLista.innerHTML    = '';
@@ -419,8 +427,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // ════════════════════════════════════════════════════════════════
 
   /** Muestra el panel con el resumen estadístico personal del voluntario */
-  window.verResumen = function(voluntarioId, nombre) {
-    const resumen = VoluntariosModel.getResumenVoluntario(voluntarioId);
+  window.verResumen = async function(voluntarioId, nombre) {
+    const resumen = await VoluntariosModel.getResumenVoluntario(voluntarioId);
 
     resumenNombre.textContent = nombre;
 

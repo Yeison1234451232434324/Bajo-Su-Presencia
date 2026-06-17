@@ -1,150 +1,185 @@
 /**
- * Usuarios Model
- * Gestiona el almacenamiento y recuperación de usuarios usando localStorage.
- * Solo el administrador puede operar sobre este modelo.
+ * ============================================================
+ * MODELO: usuarios.model.js  (Supabase)
+ * ============================================================
+ * CRUD de usuarios contra public.usuarios + Supabase Auth.
+ * Métodos ASÍNCRONOS (devuelven Promesas).
+ *
+ * Crear un usuario implica crear su cuenta en Auth (signUp con un cliente
+ * secundario para NO cerrar la sesión del admin) y luego ajustar su rol y
+ * datos de perfil. El trigger handle_new_user crea la fila base en usuarios.
+ *
+ * Mapeo app ↔ BD:
+ *   email (app) ↔ correo_electronico (BD)
+ *   rol   (app) ↔ roles.nombre (vía rol_id)
+ *   foto  (app) ↔ foto_url (BD)
+ *   telefono/ubicacion/ocupacion (app) ↔ teléfono/ubicación/ocupación (BD, con tilde)
+ *
+ * Requiere window.sb y window.sbAuthTmp (controllers/supabase.client.js).
+ * ============================================================
  */
 
 const UsuariosModel = (() => {
 
-  const STORAGE_KEY = 'bsp_usuarios';
+  const TABLA = 'usuarios';
 
-  // ── Usuarios por defecto (se cargan si localStorage está vacío) ──────────
-  const DEFAULT_USERS = [
-    {
-      id:       1,
-      nombre:   'Admin Principal',
-      username: 'admin',
-      email:    'admin@correo.com',
-      password: '123',
-      rol:      'Administrador',
-      activo:   true,
-      creado:   '2025-01-01'
-    },
-    {
-      id:       2,
-      nombre:   'Juan Colaborador',
-      username: 'usuario',
-      email:    'usuario@correo.com',
-      password: '123',
-      rol:      'Colaborador',
-      activo:   true,
-      creado:   '2025-03-15'
-    },
-    {
-      id:       3,
-      nombre:   'Pedro Voluntario',
-      username: 'voluntario',
-      email:    'voluntario@correo.com',
-      password: '123',
-      rol:      'Voluntario',
-      activo:   true,
-      creado:   '2025-04-10'
-    }
+  // Catálogo de especialidades (lista blanca para el formulario)
+  const ESPECIALIDADES = [
+    'Música / Alabanza', 'Sonido y Audio', 'Multimedia / Proyección', 'Logística',
+    'Cocina', 'Ministerio Infantil', 'Predicación / Enseñanza', 'Decoración',
+    'Ujieres / Protocolo', 'Primeros Auxilios', 'Transporte', 'Fotografía / Video'
   ];
 
-  // ── Inicializar storage ──────────────────────────────────────────────────
-  function _init() {
-    if (!localStorage.getItem(STORAGE_KEY)) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_USERS));
-    }
+  // ── Mapear fila BD → objeto de la vista ──────────────────────────────────
+  function _fromRow(r) {
+    return {
+      id:           r.id,
+      auth_id:      r.auth_id || null,
+      nombre:       r.nombre || '',
+      username:     r.username || '',
+      email:        r.correo_electronico || '',
+      rol:          r.roles?.nombre || 'Usuario',
+      telefono:     r['teléfono']  || '',
+      ubicacion:    r['ubicación'] || '',
+      ocupacion:    r['ocupación'] || '',
+      especialidad: r.especialidad || '',
+      bio:          r.bio || '',
+      foto:         r.foto_url || '',
+      activo:       r.activo !== false,
+      creado:       (r.creado_en || r.created_at || r.creado || '').toString().slice(0, 10)
+    };
   }
 
-  // ── Obtener todos los usuarios ───────────────────────────────────────────
-  function getAll() {
-    _init();
-    return JSON.parse(localStorage.getItem(STORAGE_KEY));
+  function _msg(error) {
+    if (error?.code === '42501' || /row-level security/i.test(error?.message || '')) {
+      return 'No tienes permisos para realizar esta acción.';
+    }
+    return error?.message || 'Ocurrió un error al procesar la solicitud.';
   }
 
-  // ── Obtener usuario por ID ───────────────────────────────────────────────
-  function getById(id) {
-    return getAll().find(u => u.id === id) || null;
+  function _msgAuth(error) {
+    const m = (error?.message || '').toLowerCase();
+    if (m.includes('already registered') || m.includes('already been registered')) {
+      return 'El correo electrónico ya está registrado.';
+    }
+    if (m.includes('password')) return 'La contraseña no cumple los requisitos.';
+    return error?.message || 'No se pudo crear la cuenta.';
   }
 
-  // ── Crear usuario ────────────────────────────────────────────────────────
-  function create(data) {
-    const users = getAll();
+  // Busca el id del rol por nombre
+  async function _rolId(nombreRol) {
+    const { data } = await sb.from('roles').select('id').eq('nombre', nombreRol).single();
+    return data?.id || null;
+  }
 
-    // Validar unicidad de username y email
-    if (users.some(u => u.username === data.username)) {
-      return { ok: false, error: 'El nombre de usuario ya existe.' };
-    }
-    if (users.some(u => u.email === data.email)) {
-      return { ok: false, error: 'El correo electrónico ya está registrado.' };
-    }
+  // ── Lectura ────────────────────────────────────────────────────────────────
+  async function getAll() {
+    const { data, error } = await sb
+      .from(TABLA)
+      .select('*, roles(nombre)')
+      .order('nombre', { ascending: true });
+    if (error) { console.error('UsuariosModel.getAll:', error); return []; }
+    return (data || []).map(_fromRow);
+  }
 
-    const newUser = {
-      id:       Date.now(),
-      nombre:   data.nombre.trim(),
-      username: data.username.trim(),
-      email:    data.email.trim(),
+  async function getById(id) {
+    const { data, error } = await sb.from(TABLA).select('*, roles(nombre)').eq('id', id).single();
+    if (error || !data) return null;
+    return _fromRow(data);
+  }
+
+  async function getByUsername(username) {
+    if (!username) return null;
+    const { data } = await sb.from(TABLA).select('*, roles(nombre)').ilike('username', username).limit(1);
+    return data && data[0] ? _fromRow(data[0]) : null;
+  }
+
+  // ── Crear (Auth signUp + perfil) ─────────────────────────────────────────
+  async function create(data) {
+    if (!data.email?.trim())    return { ok: false, error: 'El correo es obligatorio.' };
+    if (!data.password)         return { ok: false, error: 'La contraseña es obligatoria.' };
+
+    // 1) Crear la cuenta en Auth con un cliente secundario (no cierra la sesión del admin)
+    const tmp = window.sbAuthTmp();
+    const { data: signUp, error: signUpError } = await tmp.auth.signUp({
+      email:    data.email.trim().toLowerCase(),
       password: data.password,
-      rol:      data.rol,
-      activo:   true,
-      creado:   new Date().toISOString().split('T')[0]
+      options:  { data: { nombre: data.nombre } }
+    });
+    if (signUpError)        return { ok: false, error: _msgAuth(signUpError) };
+    const authId = signUp.user?.id;
+    if (!authId)            return { ok: false, error: 'No se pudo crear la cuenta de acceso.' };
+
+    // 2) El trigger ya creó la fila base; la actualizamos con rol + datos de perfil
+    const rolId = await _rolId(data.rol);
+    const { data: upd, error: updError } = await sb
+      .from(TABLA)
+      .update({
+        nombre:        data.nombre,
+        username:      data.username || null,
+        rol_id:        rolId,
+        'teléfono':    data.telefono || null,
+        'ubicación':   data.ubicacion || null,
+        'ocupación':   data.ocupacion || null,
+        especialidad:  data.especialidad || null,
+        bio:           data.bio || null,
+        activo:        true
+      })
+      .eq('auth_id', authId)
+      .select('*, roles(nombre)')
+      .single();
+
+    if (updError) return { ok: false, error: _msg(updError) };
+    return { ok: true, user: upd ? _fromRow(upd) : null };
+  }
+
+  // ── Actualizar perfil (no cambia correo ni contraseña de Auth) ───────────
+  async function update(id, data) {
+    const rolId = await _rolId(data.rol);
+    const campos = {
+      nombre:       data.nombre,
+      username:     data.username || null,
+      rol_id:       rolId,
+      'teléfono':   data.telefono || null,
+      'ubicación':  data.ubicacion || null,
+      'ocupación':  data.ocupacion || null,
+      especialidad: data.especialidad || null,
+      bio:          data.bio || null,
+      // foto solo si el formulario la envía (perfil); el admin no la toca
+      ...(data.foto !== undefined ? { foto_url: data.foto || null } : {})
     };
-
-    users.push(newUser);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
-    return { ok: true, user: newUser };
+    const { data: upd, error } = await sb
+      .from(TABLA).update(campos).eq('id', id).select('*, roles(nombre)').single();
+    if (error) return { ok: false, error: _msg(error) };
+    return { ok: true, user: upd ? _fromRow(upd) : null };
   }
 
-  // ── Actualizar usuario ───────────────────────────────────────────────────
-  function update(id, data) {
-    const users = getAll();
-    const idx   = users.findIndex(u => u.id === id);
-    if (idx === -1) return { ok: false, error: 'Usuario no encontrado.' };
-
-    // Validar unicidad excluyendo el propio usuario
-    if (users.some(u => u.username === data.username && u.id !== id)) {
-      return { ok: false, error: 'El nombre de usuario ya existe.' };
-    }
-    if (users.some(u => u.email === data.email && u.id !== id)) {
-      return { ok: false, error: 'El correo electrónico ya está registrado.' };
-    }
-
-    users[idx] = {
-      ...users[idx],
-      nombre:   data.nombre.trim(),
-      username: data.username.trim(),
-      email:    data.email.trim(),
-      rol:      data.rol,
-      // Solo actualizar contraseña si se proporcionó una nueva
-      ...(data.password ? { password: data.password } : {})
-    };
-
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
-    return { ok: true, user: users[idx] };
+  // ── Activar / Desactivar ─────────────────────────────────────────────────
+  async function toggleActivo(id) {
+    const actual = await getById(id);
+    if (!actual) return { ok: false, error: 'Usuario no encontrado.' };
+    const nuevo = !actual.activo;
+    const { error } = await sb.from(TABLA).update({ activo: nuevo }).eq('id', id);
+    if (error) return { ok: false, error: _msg(error) };
+    return { ok: true, activo: nuevo };
   }
 
-  // ── Activar / Desactivar usuario ─────────────────────────────────────────
-  function toggleActivo(id) {
-    const users = getAll();
-    const idx   = users.findIndex(u => u.id === id);
-    if (idx === -1) return { ok: false, error: 'Usuario no encontrado.' };
-
-    // No permitir desactivar al admin principal (id 1)
-    if (users[idx].rol === 'Administrador' && users[idx].id === 1) {
-      return { ok: false, error: 'No se puede desactivar al administrador principal.' };
-    }
-
-    users[idx].activo = !users[idx].activo;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
-    return { ok: true, activo: users[idx].activo };
-  }
-
-  // ── Eliminar usuario ─────────────────────────────────────────────────────
-  function remove(id) {
-    const users = getAll();
-    const target = users.find(u => u.id === id);
-    if (!target) return { ok: false, error: 'Usuario no encontrado.' };
-    if (target.rol === 'Administrador' && target.id === 1) {
-      return { ok: false, error: 'No se puede eliminar al administrador principal.' };
-    }
-    const filtered = users.filter(u => u.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+  // ── Eliminar perfil ──────────────────────────────────────────────────────
+  // Nota: borra la fila de usuarios. La cuenta de Auth permanece (eliminarla
+  // requiere service role / Edge Function); para purga total bórrala también
+  // desde Authentication en el dashboard.
+  async function remove(id) {
+    const { error } = await sb.from(TABLA).delete().eq('id', id);
+    if (error) return { ok: false, error: _msg(error) };
     return { ok: true };
   }
 
-  return { getAll, getById, create, update, toggleActivo, remove };
+  // ── Especialistas (usuarios activos con especialidad) ────────────────────
+  async function getEspecialistas() {
+    const todos = await getAll();
+    return todos.filter(u => u.activo && u.especialidad && u.especialidad.trim() !== '');
+  }
+
+  return { getAll, getById, getByUsername, create, update, toggleActivo, remove, getEspecialistas, ESPECIALIDADES };
 
 })();

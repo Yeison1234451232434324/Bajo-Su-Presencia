@@ -45,16 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const _esColaborador = (_sesion.rol || '') === 'Colaborador';
 
   // ── Nombre del usuario logueado (para pre-llenar el campo Autor) ──────────
-  let autorActual = '';
-  if (_sesion.nombre) {
-    // Buscar nombre completo en UsuariosModel (si está cargado)
-    if (typeof UsuariosModel !== 'undefined') {
-      const _usr = UsuariosModel.getAll().find(u => u.username === _sesion.nombre);
-      autorActual = (_usr && _usr.nombre) ? _usr.nombre : _sesion.nombre;
-    } else {
-      autorActual = _sesion.nombre;
-    }
-  }
+  // La sesión ya guarda el nombre completo (auth.controller lo toma del perfil).
+  let autorActual = _sesion.nombre || '';
   // Auto-llenar el campo Autor al cargar la página
   if (inpAutor && autorActual) inpAutor.value = autorActual;
 
@@ -124,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // 2. PUBLICAR / ACTUALIZAR NOTICIA
   // ════════════════════════════════════════════════════════════════
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     /* Leer y limpiar todos los valores antes de validar */
@@ -174,12 +166,16 @@ document.addEventListener('DOMContentLoaded', () => {
     /* Datos limpios — nunca usar .value directamente aquí */
     const data = { titulo, resumen, contenido, autor, fechaISO: fechaVal, imagen: imagenUrl };
 
-    /* Llamada al modelo con try-catch */
-    const resultado = BSPVal.safeCall(
-      () => editandoId === null
-        ? NoticiasModel.crear(data)
-        : NoticiasModel.actualizar(editandoId, data)
-    );
+    /* Llamada async al modelo (Supabase) */
+    let resultado;
+    try {
+      resultado = editandoId === null
+        ? await NoticiasModel.crear(data)
+        : await NoticiasModel.actualizar(editandoId, data);
+    } catch (ex) {
+      showAlertError('Error de conexión. Revisa tu internet e intenta de nuevo.');
+      return;
+    }
     if (!resultado.ok) {
       showAlertError(resultado.error);
       return;
@@ -187,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const accion = editandoId === null ? 'publicada' : 'actualizada';
     limpiarFormulario();
-    renderHistorial();
+    await renderHistorial();
 
     showAlertSuccess(
       `"${resultado.noticia.titulo}" fue ${accion} correctamente.`
@@ -204,8 +200,8 @@ document.addEventListener('DOMContentLoaded', () => {
    * Pre-llena el formulario con los datos de la noticia a editar
    * y hace scroll al formulario.
    */
-  window.editarNoticia = function (id) {
-    const noticia = NoticiasModel.getById(id);
+  window.editarNoticia = async function (id) {
+    const noticia = await NoticiasModel.getById(id);
     if (!noticia) return;
 
     editandoId = id;
@@ -245,23 +241,24 @@ document.addEventListener('DOMContentLoaded', () => {
   // 4. ELIMINAR NOTICIA
   // ════════════════════════════════════════════════════════════════
 
-  window.eliminarNoticia = function (id) {
+  window.eliminarNoticia = async function (id) {
     if (_esColaborador) { showAlertError('Los colaboradores no tienen permiso para eliminar noticias.'); return; }
-    const noticia = NoticiasModel.getById(id);
+    const noticia = await NoticiasModel.getById(id);
     if (!noticia) return;
 
     showAlertConfirm(
       'Eliminar noticia',
       `¿Eliminar la noticia "${noticia.titulo}"? Esta acción no se puede deshacer.`,
-      function() {
+      async function() {
         // Si se estaba editando esta noticia, limpiar el formulario
         if (editandoId === id) {
           limpiarFormulario();
           editandoId = null;
         }
 
-        NoticiasModel.eliminar(id);
-        renderHistorial();
+        const res = await NoticiasModel.eliminar(id);
+        if (!res.ok) { showAlertError(res.error); return; }
+        await renderHistorial();
         showAlertSuccess(`"${noticia.titulo}" fue eliminada del historial.`);
       }
     );
@@ -272,8 +269,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // ════════════════════════════════════════════════════════════════
 
   /** Abre el modal con el contenido completo de la noticia */
-  window.verNoticia = function (id) {
-    const noticia = NoticiasModel.getById(id);
+  window.verNoticia = async function (id) {
+    const noticia = await NoticiasModel.getById(id);
     if (!noticia) return;
 
     // Imagen del modal
@@ -311,8 +308,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let dtNoticias = null;
 
-  function renderHistorial() {
-    const noticias = NoticiasModel.getAll();
+  async function renderHistorial() {
+    const noticias = await NoticiasModel.getAll();
 
     // Extraer autores únicos para el filtro
     const autores = [...new Set(noticias.map(n => n.autor).filter(Boolean))].sort();
@@ -336,16 +333,16 @@ document.addEventListener('DOMContentLoaded', () => {
               <h4 class="nt-card-titulo">${noticia.titulo}</h4>
               <div class="nt-card-acciones">
                 <button class="btn-accion-nt btn-ver-nt"
-                  onclick="verNoticia(${noticia.id})" title="Leer noticia completa">
+                  onclick="verNoticia('${noticia.id}')" title="Leer noticia completa">
                   <i class="bx bx-show"></i>
                 </button>
                 <button class="btn-accion-nt btn-editar-nt"
-                  onclick="editarNoticia(${noticia.id})" title="Editar noticia">
+                  onclick="editarNoticia('${noticia.id}')" title="Editar noticia">
                   <i class="bx bx-edit"></i>
                 </button>
                 ${!_esColaborador ? `
                 <button class="btn-accion-nt btn-eliminar-nt"
-                  onclick="eliminarNoticia(${noticia.id})" title="Eliminar noticia">
+                  onclick="eliminarNoticia('${noticia.id}')" title="Eliminar noticia">
                   <i class="bx bx-trash"></i>
                 </button>` : ''}
               </div>

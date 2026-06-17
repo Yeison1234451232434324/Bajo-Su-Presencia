@@ -1,188 +1,128 @@
 /**
  * ============================================================
- * MODELO: actividades.model.js
+ * MODELO: actividades.model.js  (Supabase)
  * ============================================================
- * Gestiona el almacenamiento de actividades por evento usando
- * localStorage como base de datos simulada.
+ * CRUD de actividades por evento contra public.actividades. ASÍNCRONO.
  *
- * Cada actividad guarda:
- *   - id, eventoId, titulo, descripcion, prioridad (alta/media/baja)
- *   - voluntarioId, voluntarioNombre, completada, creadaEn
+ * Mapeo app ↔ BD:
+ *   titulo (app)   ↔ nombre (BD)
+ *   eventoId       ↔ evento_id
+ *   voluntarioId   ↔ voluntario_id
+ *   voluntarioNombre → se resuelve desde usuarios (query aparte)
  *
- * Clave de almacenamiento: bsp_actividades
+ * Requiere window.sb (controllers/supabase.client.js).
  * ============================================================
  */
 
 const ActividadesModel = (() => {
 
-  const KEY = 'bsp_actividades';
+  const TABLA = 'actividades';
 
-  // ── Datos de ejemplo ─────────────────────────────────────────────────────
-  const DEFAULT = [
-    {
-      id:               1,
-      eventoId:         1,
-      titulo:           'Recibir invitados',
-      descripcion:      'Dar la bienvenida a los asistentes en la entrada',
-      prioridad:        'alta',
-      voluntarioId:     4,
-      voluntarioNombre: 'María González',
-      completada:       false,
-      creadaEn:         '2026-05-10'
-    },
-    {
-      id:               2,
-      eventoId:         1,
-      titulo:           'Operar proyector',
-      descripcion:      'Manejar presentaciones durante el servicio',
-      prioridad:        'alta',
-      voluntarioId:     2,
-      voluntarioNombre: 'Juan Colaborador',
-      completada:       true,
-      creadaEn:         '2026-05-10'
-    },
-    {
-      id:               3,
-      eventoId:         1,
-      titulo:           'Preparar café',
-      descripcion:      'Tener listo el café para después del servicio',
-      prioridad:        'media',
-      voluntarioId:     6,
-      voluntarioNombre: 'Ana Martínez',
-      completada:       false,
-      creadaEn:         '2026-05-10'
-    },
-    {
-      id:               4,
-      eventoId:         2,
-      titulo:           'Coordinar sonido',
-      descripcion:      'Manejar el equipo de audio durante el encuentro',
-      prioridad:        'alta',
-      voluntarioId:     3,
-      voluntarioNombre: 'Pedro Voluntario',
-      completada:       false,
-      creadaEn:         '2026-05-12'
-    }
-  ];
-
-  // ── Inicializar si no existe ─────────────────────────────────────────────
-  function _init() {
-    if (!localStorage.getItem(KEY)) {
-      localStorage.setItem(KEY, JSON.stringify(DEFAULT));
-    }
-  }
-
-  /** Devuelve todas las actividades */
-  function getAll() {
-    _init();
-    return JSON.parse(localStorage.getItem(KEY));
-  }
-
-  /** Devuelve las actividades de un evento específico */
-  function getByEvento(eventoId) {
-    return getAll().filter(a => a.eventoId === eventoId);
-  }
-
-  /** Devuelve una actividad por ID */
-  function getById(id) {
-    return getAll().find(a => a.id === id) || null;
-  }
-
-  /**
-   * Crea una nueva actividad.
-   * @param {object} data - { eventoId, titulo, descripcion, prioridad, voluntarioId, voluntarioNombre }
-   * @returns {{ ok: boolean, actividad?: object, error?: string }}
-   */
-  function crear(data) {
-    if (!data.titulo?.trim())        return { ok: false, error: 'El título es obligatorio.' };
-    if (!data.eventoId)              return { ok: false, error: 'El evento es obligatorio.' };
-    if (!data.voluntarioId)          return { ok: false, error: 'Debes asignar un voluntario.' };
-    if (!['alta','media','baja'].includes(data.prioridad))
-                                     return { ok: false, error: 'Prioridad inválida.' };
-
-    const actividades = getAll();
-    const nueva = {
-      id:               Date.now(),
-      eventoId:         data.eventoId,
-      titulo:           data.titulo.trim(),
-      descripcion:      data.descripcion?.trim() || '',
-      prioridad:        data.prioridad,
-      voluntarioId:     data.voluntarioId,
-      voluntarioNombre: data.voluntarioNombre,
-      completada:       false,
-      creadaEn:         new Date().toISOString().split('T')[0]
-    };
-
-    actividades.push(nueva);
-    localStorage.setItem(KEY, JSON.stringify(actividades));
-    return { ok: true, actividad: nueva };
-  }
-
-  /**
-   * Actualiza una actividad existente.
-   * @param {number} id
-   * @param {object} data - mismos campos que crear()
-   */
-  function actualizar(id, data) {
-    if (!data.titulo?.trim())        return { ok: false, error: 'El título es obligatorio.' };
-    if (!data.voluntarioId)          return { ok: false, error: 'Debes asignar un voluntario.' };
-    if (!['alta','media','baja'].includes(data.prioridad))
-                                     return { ok: false, error: 'Prioridad inválida.' };
-
-    const actividades = getAll();
-    const idx = actividades.findIndex(a => a.id === id);
-    if (idx === -1) return { ok: false, error: 'Actividad no encontrada.' };
-
-    actividades[idx] = {
-      ...actividades[idx],
-      titulo:           data.titulo.trim(),
-      descripcion:      data.descripcion?.trim() || '',
-      prioridad:        data.prioridad,
-      voluntarioId:     data.voluntarioId,
-      voluntarioNombre: data.voluntarioNombre
-    };
-
-    localStorage.setItem(KEY, JSON.stringify(actividades));
-    return { ok: true, actividad: actividades[idx] };
-  }
-
-  /**
-   * Marca o desmarca una actividad como completada.
-   * @param {number} id
-   * @param {boolean} completada
-   */
-  function toggleCompletada(id, completada) {
-    const actividades = getAll();
-    const idx = actividades.findIndex(a => a.id === id);
-    if (idx === -1) return { ok: false, error: 'Actividad no encontrada.' };
-
-    actividades[idx].completada = completada;
-    localStorage.setItem(KEY, JSON.stringify(actividades));
-    return { ok: true };
-  }
-
-  /** Elimina una actividad */
-  function eliminar(id) {
-    const actividades = getAll().filter(a => a.id !== id);
-    localStorage.setItem(KEY, JSON.stringify(actividades));
-    return { ok: true };
-  }
-
-  /**
-   * Devuelve un resumen de actividades para un evento:
-   * { total, completadas, pendientes }
-   */
-  function getResumenEvento(eventoId) {
-    const acts = getByEvento(eventoId);
-    const completadas = acts.filter(a => a.completada).length;
+  function _fromRow(r, nombres) {
     return {
-      total:       acts.length,
-      completadas,
-      pendientes:  acts.length - completadas
+      id:               r.id,
+      eventoId:         r.evento_id,
+      titulo:           r.nombre || '',
+      descripcion:      r.descripcion || '',
+      prioridad:        r.prioridad || 'media',
+      voluntarioId:     r.voluntario_id,
+      voluntarioNombre: (nombres && nombres[r.voluntario_id]) || '',
+      completada:       r.completada === true,
+      creadaEn:         ''
     };
   }
 
-  // ── API pública ──────────────────────────────────────────────────────────
+  function _msg(error) {
+    if (error?.code === '42501' || /row-level security/i.test(error?.message || '')) {
+      return 'No tienes permisos para realizar esta acción.';
+    }
+    return error?.message || 'Ocurrió un error al procesar la solicitud.';
+  }
+
+  // Resuelve nombres de usuarios por id (para mostrar el voluntario asignado)
+  async function _nombres(ids) {
+    const uniq = [...new Set((ids || []).filter(Boolean))];
+    if (!uniq.length) return {};
+    const { data } = await sb.from('usuarios').select('id, nombre').in('id', uniq);
+    const map = {};
+    (data || []).forEach(u => { map[u.id] = u.nombre; });
+    return map;
+  }
+
+  async function getAll() {
+    const { data, error } = await sb.from(TABLA).select('*');
+    if (error) { console.error('ActividadesModel.getAll:', error); return []; }
+    const nombres = await _nombres((data || []).map(a => a.voluntario_id));
+    return (data || []).map(a => _fromRow(a, nombres));
+  }
+
+  async function getByEvento(eventoId) {
+    const { data, error } = await sb.from(TABLA).select('*').eq('evento_id', eventoId);
+    if (error) { console.error('ActividadesModel.getByEvento:', error); return []; }
+    const nombres = await _nombres((data || []).map(a => a.voluntario_id));
+    return (data || []).map(a => _fromRow(a, nombres));
+  }
+
+  async function getById(id) {
+    const { data, error } = await sb.from(TABLA).select('*').eq('id', id).single();
+    if (error || !data) return null;
+    const nombres = await _nombres([data.voluntario_id]);
+    return _fromRow(data, nombres);
+  }
+
+  async function crear(data) {
+    if (!data.titulo?.trim()) return { ok: false, error: 'El título es obligatorio.' };
+    if (!data.eventoId)       return { ok: false, error: 'El evento es obligatorio.' };
+    if (!data.voluntarioId)   return { ok: false, error: 'Debes asignar un voluntario.' };
+
+    const fila = {
+      evento_id:     data.eventoId,
+      nombre:        data.titulo.trim(),
+      descripcion:   data.descripcion?.trim() || null,
+      prioridad:     ['alta','media','baja'].includes(data.prioridad) ? data.prioridad : 'media',
+      voluntario_id: data.voluntarioId,
+      completada:    false
+    };
+    const { data: ins, error } = await sb.from(TABLA).insert(fila).select('*').single();
+    if (error) return { ok: false, error: _msg(error) };
+    const nombres = await _nombres([ins.voluntario_id]);
+    return { ok: true, actividad: _fromRow(ins, nombres) };
+  }
+
+  async function actualizar(id, data) {
+    if (!data.titulo?.trim()) return { ok: false, error: 'El título es obligatorio.' };
+    if (!data.voluntarioId)   return { ok: false, error: 'Debes asignar un voluntario.' };
+
+    const fila = {
+      nombre:        data.titulo.trim(),
+      descripcion:   data.descripcion?.trim() || null,
+      prioridad:     ['alta','media','baja'].includes(data.prioridad) ? data.prioridad : 'media',
+      voluntario_id: data.voluntarioId
+    };
+    const { data: upd, error } = await sb.from(TABLA).update(fila).eq('id', id).select('*').single();
+    if (error) return { ok: false, error: _msg(error) };
+    const nombres = await _nombres([upd.voluntario_id]);
+    return { ok: true, actividad: _fromRow(upd, nombres) };
+  }
+
+  async function toggleCompletada(id, completada) {
+    const { error } = await sb.from(TABLA).update({ completada: !!completada }).eq('id', id);
+    if (error) return { ok: false, error: _msg(error) };
+    return { ok: true };
+  }
+
+  async function eliminar(id) {
+    const { error } = await sb.from(TABLA).delete().eq('id', id);
+    if (error) return { ok: false, error: _msg(error) };
+    return { ok: true };
+  }
+
+  async function getResumenEvento(eventoId) {
+    const acts = await getByEvento(eventoId);
+    const completadas = acts.filter(a => a.completada).length;
+    return { total: acts.length, completadas, pendientes: acts.length - completadas };
+  }
+
   return { getAll, getByEvento, getById, crear, actualizar, toggleCompletada, eliminar, getResumenEvento };
 
 })();

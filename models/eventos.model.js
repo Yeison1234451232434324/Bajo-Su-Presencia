@@ -1,216 +1,165 @@
 /**
  * ============================================================
- * MODELO: eventos.model.js
+ * MODELO: eventos.model.js  (Supabase)
  * ============================================================
- * Gestiona el almacenamiento de eventos publicados usando
- * localStorage como base de datos simulada.
+ * CRUD de eventos contra public.eventos + tablas puente:
+ *   - evento_recursos      (recursos asignados al evento)
+ *   - voluntarios_eventos  (especialistas requeridos; rol_en_evento = especialidad)
+ * Métodos ASÍNCRONOS.
  *
- * Cada evento guarda:
- *   - id, titulo, fecha, horario, ubicacion, asistentes, descripcion
- *   - recursos: array de { recursoId, recursoNombre, cantidad, unidad }
- *     (los recursos se toman del inventario en RecursosModel)
+ * Mapeo app ↔ BD:
+ *   horario "HH:MM - HH:MM" (app) ↔ hora + hora_fin (BD, type time)
+ *   asistentes (app) ↔ cupos_disponibles (BD)
+ *   voluntariosNecesarios ↔ voluntarios_necesarios
+ *   publicado ↔ publicado_en
  *
- * Clave de almacenamiento: bsp_eventos_publicados
+ * Requiere window.sb (controllers/supabase.client.js).
  * ============================================================
  */
 
 const EventosModel = (() => {
 
-  const KEY = 'bsp_eventos_publicados';
+  const TABLA = 'eventos';
+  const REC   = 'evento_recursos';
+  const VOL   = 'voluntarios_eventos';
+  const ESTADOS = ['Publicado', 'En ejecución', 'Finalizado'];
 
-  // ── Datos de ejemplo para que la lista no arranque vacía ─────────────────
-  const DEFAULT = [
-    {
-      id:          1,
-      titulo:      'Culto Dominical',
-      fecha:       '2026-05-18',
-      horario:     '10:00 AM - 12:00 PM',
-      ubicacion:   'Sede Principal',
-      asistentes:  '300',
-      voluntariosNecesarios: 8,
-      descripcion: 'Culto dominical de adoración y predicación.',
-      // Recursos asignados al momento de publicar el evento
-      recursos: [
-        { recursoId: 1, recursoNombre: 'Sillas plegables',      cantidad: 100, unidad: 'unidades' },
-        { recursoId: 3, recursoNombre: 'Micrófonos inalámbricos', cantidad: 4,  unidad: 'unidades' }
-      ],
-      publicado: '2026-05-10'
-    },
-    {
-      id:          2,
-      titulo:      'Encuentro Juvenil',
-      fecha:       '2026-05-23',
-      horario:     '6:00 PM - 9:00 PM',
-      ubicacion:   'Auditorio',
-      asistentes:  '150',
-      voluntariosNecesarios: 5,
-      descripcion: 'Noche de alabanza y comunión para jóvenes.',
-      recursos: [
-        { recursoId: 1, recursoNombre: 'Sillas plegables',  cantidad: 80, unidad: 'unidades' },
-        { recursoId: 4, recursoNombre: 'Proyector Full HD', cantidad: 1,  unidad: 'unidades' },
-        { recursoId: 8, recursoNombre: 'Reflectores LED',   cantidad: 4,  unidad: 'unidades' }
-      ],
-      publicado: '2026-05-12'
-    }
-  ];
+  const SEL = '*, evento_recursos(recurso_id, cantidad, recursos(nombre, unidad)), ' +
+              'voluntarios_eventos(usuario_id, rol_en_evento, usuarios(nombre))';
 
-  // ── Inicializar si no existe ─────────────────────────────────────────────
-  function _init() {
-    if (!localStorage.getItem(KEY)) {
-      localStorage.setItem(KEY, JSON.stringify(DEFAULT));
-    }
+  function _combinar(hora, horaFin) {
+    if (!hora) return '';
+    const ini = String(hora).slice(0, 5);
+    const fin = horaFin ? String(horaFin).slice(0, 5) : '';
+    return fin ? `${ini} - ${fin}` : ini;
   }
 
-  /** Devuelve todos los eventos publicados */
-  function getAll() {
-    _init();
-    return JSON.parse(localStorage.getItem(KEY));
+  function _split(horario) {
+    if (!horario) return { hora: null, horaFin: null };
+    const p = horario.split(' - ');
+    return { hora: (p[0] || '').trim() || null, horaFin: (p[1] || '').trim() || null };
   }
 
-  /** Devuelve un evento por ID */
-  function getById(id) {
-    return getAll().find(e => e.id === id) || null;
-  }
-
-  /**
-   * Publica (guarda) un nuevo evento con sus recursos asignados.
-   * @param {object} data - campos del formulario + array recursos
-   * @returns {{ ok: boolean, evento?: object, error?: string }}
-   */
-  function publicar(data) {
-    if (!data.titulo?.trim())    return { ok: false, error: 'El título es obligatorio.' };
-    if (!data.fecha)             return { ok: false, error: 'La fecha es obligatoria.' };
-    if (!data.horario?.trim())   return { ok: false, error: 'El horario es obligatorio.' };
-    if (!data.ubicacion?.trim()) return { ok: false, error: 'La ubicación es obligatoria.' };
-
-    const eventos = getAll();
-
-    const nuevo = {
-      id:                    Date.now(),
-      titulo:                data.titulo.trim(),
-      fecha:                 data.fecha,
-      horario:               data.horario.trim(),
-      ubicacion:             data.ubicacion.trim(),
-      asistentes:            data.asistentes?.trim() || '—',
-      // Número de voluntarios que el admin indica que necesita para el evento
-      voluntariosNecesarios: parseInt(data.voluntariosNecesarios) || 0,
-      descripcion:           data.descripcion?.trim() || '',
-      recursos:              data.recursos || [],
-      publicado:             new Date().toISOString().split('T')[0]
+  function _fromRow(r) {
+    return {
+      id:                    r.id,
+      titulo:                r.titulo || '',
+      fecha:                 r.fecha || '',
+      horario:               _combinar(r.hora, r.hora_fin),
+      ubicacion:             r.ubicacion || '',
+      asistentes:            (r.cupos_disponibles ?? '') === null ? '' : (r.cupos_disponibles ?? ''),
+      voluntariosNecesarios: r.voluntarios_necesarios ?? 0,
+      descripcion:           r.descripcion || '',
+      estado:                r.estado || 'Publicado',
+      publicado:             (r.publicado_en || '').toString().slice(0, 10),
+      recursos: (r.evento_recursos || []).map(er => ({
+        recursoId:     er.recurso_id,
+        recursoNombre: er.recursos?.nombre || 'Recurso',
+        cantidad:      er.cantidad,
+        unidad:        er.recursos?.unidad || 'unidades'
+      })),
+      especialistas: (r.voluntarios_eventos || []).map(ve => ({
+        usuarioId:    ve.usuario_id,
+        nombre:       ve.usuarios?.nombre || '',
+        especialidad: ve.rol_en_evento || ''
+      }))
     };
-
-    eventos.push(nuevo);
-    localStorage.setItem(KEY, JSON.stringify(eventos));
-
-    // ── Sincronizar con bsp_eventos_vol (usado por voluntarios y recursos) ──
-    // Agrega el nuevo evento a la lista de eventos de voluntarios para que
-    // aparezca disponible en los módulos de calificación y asignación de recursos.
-    _sincronizarConEventosVol(nuevo);
-
-    return { ok: true, evento: nuevo };
   }
 
-  /**
-   * Sincroniza el evento recién publicado con la colección bsp_eventos_vol
-   * que usan los módulos de voluntarios y recursos.
-   * Si ya existe un evento con el mismo id, no lo duplica.
-   */
-  function _sincronizarConEventosVol(evento) {
-    const KEY_VOL = 'bsp_eventos_vol';
-    let eventosVol = [];
-
-    try {
-      eventosVol = JSON.parse(localStorage.getItem(KEY_VOL) || '[]');
-    } catch (_) {
-      eventosVol = [];
+  function _msg(error) {
+    if (error?.code === '42501' || /row-level security/i.test(error?.message || '')) {
+      return 'No tienes permisos para realizar esta acción.';
     }
-
-    // Solo agregar si no existe ya
-    if (!eventosVol.find(e => e.id === evento.id)) {
-      eventosVol.push({
-        id:                    evento.id,
-        nombre:                evento.titulo,
-        fecha:                 evento.fecha,
-        lugar:                 evento.ubicacion,
-        // Guardar cuántos voluntarios necesita este evento
-        // para que el módulo del voluntario pueda mostrarlo
-        voluntariosNecesarios: evento.voluntariosNecesarios || 0,
-        voluntarios:           []
-      });
-      localStorage.setItem(KEY_VOL, JSON.stringify(eventosVol));
-    }
+    return error?.message || 'Ocurrió un error al procesar la solicitud.';
   }
 
-  /**
-   * Actualiza un evento existente manteniendo sus recursos y sincronización.
-   * @param {number} id
-   * @param {object} data - mismos campos que publicar()
-   */
-  function actualizar(id, data) {
-    if (!data.titulo?.trim())    return { ok: false, error: 'El título es obligatorio.' };
-    if (!data.fecha)             return { ok: false, error: 'La fecha es obligatoria.' };
-    if (!data.horario?.trim())   return { ok: false, error: 'El horario es obligatorio.' };
-    if (!data.ubicacion?.trim()) return { ok: false, error: 'La ubicación es obligatoria.' };
+  async function getAll() {
+    const { data, error } = await sb.from(TABLA).select(SEL).order('fecha', { ascending: true });
+    if (error) { console.error('EventosModel.getAll:', error); return []; }
+    return (data || []).map(_fromRow);
+  }
 
-    const eventos = getAll();
-    const idx     = eventos.findIndex(e => e.id === id);
-    if (idx === -1) return { ok: false, error: 'Evento no encontrado.' };
+  async function getById(id) {
+    const { data, error } = await sb.from(TABLA).select(SEL).eq('id', id).single();
+    if (error || !data) return null;
+    return _fromRow(data);
+  }
 
-    eventos[idx] = {
-      ...eventos[idx],
-      titulo:                data.titulo.trim(),
-      fecha:                 data.fecha,
-      horario:               data.horario.trim(),
-      ubicacion:             data.ubicacion.trim(),
-      asistentes:            data.asistentes?.trim() || '—',
-      voluntariosNecesarios: parseInt(data.voluntariosNecesarios) || 0,
-      descripcion:           data.descripcion?.trim() || '',
-      recursos:              data.recursos || eventos[idx].recursos || []
+  // El formulario web no captura sede; usamos la primera disponible como default
+  // (por si eventos.sede_id sigue siendo NOT NULL). Idealmente correr el ALTER
+  // de supabase_ajustes_eventos_recursos.sql para hacerla opcional.
+  async function _sedeDefault() {
+    const { data } = await sb.from('sedes').select('id').limit(1).maybeSingle();
+    return data?.id || null;
+  }
+
+  async function _syncRecursos(eventoId, recursos) {
+    await sb.from(REC).delete().eq('evento_id', eventoId);
+    const filas = (recursos || []).map(r => ({
+      evento_id: eventoId, recurso_id: r.recursoId, cantidad: parseInt(r.cantidad) || 1
+    }));
+    if (filas.length) await sb.from(REC).insert(filas);
+  }
+
+  async function _syncEspecialistas(eventoId, especialistas) {
+    await sb.from(VOL).delete().eq('id_de_evento', eventoId);
+    const filas = (especialistas || []).map(e => ({
+      id_de_evento: eventoId, usuario_id: e.usuarioId, rol_en_evento: e.especialidad || null
+    }));
+    if (filas.length) await sb.from(VOL).insert(filas);
+  }
+
+  function _fila(data) {
+    const { hora, horaFin } = _split(data.horario);
+    const asist = (data.asistentes !== '' && data.asistentes != null) ? parseInt(data.asistentes) : null;
+    return {
+      titulo:                 data.titulo.trim(),
+      descripcion:            data.descripcion?.trim() || null,
+      fecha:                  data.fecha,
+      hora:                   hora,
+      hora_fin:               horaFin,
+      ubicacion:              data.ubicacion?.trim() || null,
+      cupos_disponibles:      isNaN(asist) ? null : asist,
+      voluntarios_necesarios: parseInt(data.voluntariosNecesarios) || 0,
+      estado:                 ESTADOS.includes(data.estado) ? data.estado : 'Publicado'
     };
-
-    localStorage.setItem(KEY, JSON.stringify(eventos));
-
-    // Sincronizar cambios en bsp_eventos_vol también
-    _actualizarEventosVol(eventos[idx]);
-
-    return { ok: true, evento: eventos[idx] };
   }
 
-  /**
-   * Actualiza el nombre, fecha y lugar del evento en bsp_eventos_vol
-   * para que los módulos de voluntarios reflejen los cambios.
-   */
-  function _actualizarEventosVol(evento) {
-    const KEY_VOL = 'bsp_eventos_vol';
-    try {
-      const eventosVol = JSON.parse(localStorage.getItem(KEY_VOL) || '[]');
-      const idx = eventosVol.findIndex(e => e.id === evento.id);
-      if (idx !== -1) {
-        eventosVol[idx].nombre = evento.titulo;
-        eventosVol[idx].fecha  = evento.fecha;
-        eventosVol[idx].lugar  = evento.ubicacion;
-        eventosVol[idx].voluntariosNecesarios = evento.voluntariosNecesarios || 0;
-        localStorage.setItem(KEY_VOL, JSON.stringify(eventosVol));
-      }
-    } catch (_) {}
+  async function publicar(data) {
+    if (!data.titulo?.trim()) return { ok: false, error: 'El título es obligatorio.' };
+    if (!data.fecha)          return { ok: false, error: 'La fecha es obligatoria.' };
+
+    const fila = _fila(data);
+    fila.publicado_en = new Date().toISOString();
+    fila.sede_id = await _sedeDefault();   // el form no captura sede
+    const { data: ins, error } = await sb.from(TABLA).insert(fila).select('id').single();
+    if (error) return { ok: false, error: _msg(error) };
+
+    await _syncRecursos(ins.id, data.recursos);
+    await _syncEspecialistas(ins.id, data.especialistas);
+    return { ok: true, evento: await getById(ins.id) };
   }
 
-  /** Elimina un evento publicado */
-  function eliminar(id) {
-    const eventos = getAll().filter(e => e.id !== id);
-    localStorage.setItem(KEY, JSON.stringify(eventos));
+  async function actualizar(id, data) {
+    if (!data.titulo?.trim()) return { ok: false, error: 'El título es obligatorio.' };
+    if (!data.fecha)          return { ok: false, error: 'La fecha es obligatoria.' };
 
-    // Eliminar también de bsp_eventos_vol
-    try {
-      const KEY_VOL  = 'bsp_eventos_vol';
-      const vol      = JSON.parse(localStorage.getItem(KEY_VOL) || '[]').filter(e => e.id !== id);
-      localStorage.setItem(KEY_VOL, JSON.stringify(vol));
-    } catch (_) {}
+    const { error } = await sb.from(TABLA).update(_fila(data)).eq('id', id);
+    if (error) return { ok: false, error: _msg(error) };
 
+    await _syncRecursos(id, data.recursos);
+    await _syncEspecialistas(id, data.especialistas);
+    return { ok: true, evento: await getById(id) };
+  }
+
+  async function eliminar(id) {
+    await sb.from(REC).delete().eq('evento_id', id);
+    await sb.from(VOL).delete().eq('id_de_evento', id);
+    const { error } = await sb.from(TABLA).delete().eq('id', id);
+    if (error) return { ok: false, error: _msg(error) };
     return { ok: true };
   }
 
-  // ── API pública ──────────────────────────────────────────────────────────
-  return { getAll, getById, publicar, actualizar, eliminar };
+  return { getAll, getById, publicar, actualizar, eliminar, ESTADOS };
 
 })();

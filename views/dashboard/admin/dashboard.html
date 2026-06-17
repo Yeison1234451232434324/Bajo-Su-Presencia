@@ -64,7 +64,7 @@
           </svg>
         </div>
         <div class="label">Miembros Activos</div>
-        <div class="value">247</div>
+        <div class="value" id="kpi-miembros">—</div>
         <div class="sub">↑ 12 este mes</div>
       </div>
 
@@ -78,7 +78,7 @@
           </svg>
         </div>
         <div class="label">Eventos este Mes</div>
-        <div class="value">8</div>
+        <div class="value" id="kpi-eventos">—</div>
         <div class="sub">↑ 2 vs mes anterior</div>
       </div>
 
@@ -90,7 +90,7 @@
           </svg>
         </div>
         <div class="label">Noticias Publicadas</div>
-        <div class="value">15</div>
+        <div class="value" id="kpi-noticias">—</div>
         <div class="sub">↑ 3 esta semana</div>
       </div>
 
@@ -102,7 +102,7 @@
           </svg>
         </div>
         <div class="label">Oraciones Publicadas</div>
-        <div class="value">30</div>
+        <div class="value" id="kpi-oraciones">—</div>
         <div class="sub">1 por día</div>
       </div>
 
@@ -113,7 +113,7 @@
           </svg>
         </div>
         <div class="label">Voluntarios Activos</div>
-        <div class="value">34</div>
+        <div class="value" id="kpi-voluntarios">—</div>
         <div class="sub">↑ 5 este mes</div>
       </div>
 
@@ -123,8 +123,8 @@
             <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
           </svg>
         </div>
-        <div class="label">Asistencia Promedio</div>
-        <div class="value">218</div>
+        <div class="label">Asistencias Confirmadas</div>
+        <div class="value" id="kpi-asistencia">—</div>
         <div class="sub">↑ 8% vs mes anterior</div>
       </div>
 
@@ -362,6 +362,36 @@
 <!-- Controller del sidebar (inyecta el nav y carga el usuario logueado) -->
   <script src="../../../controllers/validators.helper.js"></script>
   <script src="../../../controllers/sidebar.controller.js"></script>
+  <!-- Supabase: SDK + cliente para los KPIs reales -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../../../controllers/supabase.client.js"></script>
+
+  <!-- KPIs en vivo desde la BD (las gráficas de tendencia son ilustrativas) -->
+  <script>
+  window.addEventListener('DOMContentLoaded', async () => {
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    if (typeof sb === 'undefined') return;
+    try {
+      const { data: usuarios } = await sb.from('usuarios').select('activo, roles(nombre)');
+      const activos = (usuarios || []).filter(u => u.activo !== false);
+      set('kpi-miembros',    activos.length);
+      set('kpi-voluntarios', activos.filter(u => u.roles?.nombre === 'Voluntario').length);
+
+      const hoy = new Date();
+      const ini = new Date(hoy.getFullYear(), hoy.getMonth(), 1).toISOString().slice(0, 10);
+      const fin = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0).toISOString().slice(0, 10);
+      const ev  = await sb.from('eventos').select('id', { count:'exact', head:true }).gte('fecha', ini).lte('fecha', fin);
+      set('kpi-eventos', ev.count ?? 0);
+
+      const not = await sb.from('noticias').select('id', { count:'exact', head:true });
+      set('kpi-noticias', not.count ?? 0);
+      const ora = await sb.from('oraciones').select('id', { count:'exact', head:true });
+      set('kpi-oraciones', ora.count ?? 0);
+      const asi = await sb.from('asistencias').select('id', { count:'exact', head:true }).eq('asistió', true);
+      set('kpi-asistencia', asi.count ?? 0);
+    } catch (_) {}
+  });
+  </script>
 
 <!--
   Gráficas del dashboard (Chart.js)
@@ -369,163 +399,114 @@
   Cada gráfica lee datos estáticos de ejemplo.
 -->
 <script>
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
 
   const gridColor = '#f0ece0';
   const fontColor = '#6b7280';
+  const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+  // Últimos 6 meses
+  const now = new Date();
+  const months = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({ y: d.getFullYear(), m: d.getMonth(),
+      key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`, label: meses[d.getMonth()] });
+  }
+  const labels = months.map(x => x.label);
+
+  // ── Traer datos reales de Supabase ───────────────────────────────────────
+  let usuarios = [], noticias = [], oraciones = [], eventos = [];
+  if (typeof sb !== 'undefined') {
+    try { usuarios  = (await sb.from('usuarios').select('especialidad, creado_en, roles(nombre)')).data || []; } catch (_) {}
+    try { noticias  = (await sb.from('noticias').select('publicado_en')).data || []; } catch (_) {}
+    try { oraciones = (await sb.from('oraciones').select('publicado_en')).data || []; } catch (_) {}
+    try { eventos   = (await sb.from('eventos').select('fecha')).data || []; } catch (_) {}
+  }
+
+  const _fechaUsuario = (u) => new Date(u.creado_en || now);
+  const countByMonth = (rows, field) =>
+    months.map(mo => rows.filter(r => (r[field] || '').toString().startsWith(mo.key)).length);
+
+  // Crecimiento de usuarios (acumulado por fin de mes)
+  const cumMiembros = months.map(mo => {
+    const fin = new Date(mo.y, mo.m + 1, 0, 23, 59, 59);
+    return usuarios.filter(u => _fechaUsuario(u) <= fin).length;
+  });
+  const cumVols = months.map(mo => {
+    const fin = new Date(mo.y, mo.m + 1, 0, 23, 59, 59);
+    return usuarios.filter(u => u.roles && u.roles.nombre === 'Voluntario' && _fechaUsuario(u) <= fin).length;
+  });
+
+  const noticiasMes  = countByMonth(noticias, 'publicado_en');
+  const oracionesMes = countByMonth(oraciones, 'publicado_en');
+  const eventosMes   = countByMonth(eventos, 'fecha');
+
+  // Distribución de voluntarios por especialidad
+  const vols = usuarios.filter(u => u.roles && u.roles.nombre === 'Voluntario');
+  const distMap = {};
+  vols.forEach(u => {
+    const k = (u.especialidad && u.especialidad.trim()) ? u.especialidad : 'Sin especialidad';
+    distMap[k] = (distMap[k] || 0) + 1;
+  });
+  let volLabels = Object.keys(distMap);
+  let volData   = volLabels.map(k => distMap[k]);
+  if (volLabels.length === 0) { volLabels = ['Sin voluntarios']; volData = [0]; }
+  const palette = ['#1E3A8A','#d97706','#059669','#7c3aed','#db2777','#F5C215','#0891b2','#ef4444'];
+  const volColors = volLabels.map((_, i) => palette[i % palette.length]);
 
   // ── 2.3 Crecimiento de Usuarios ──────────────────────────────────────────
   new Chart(document.getElementById('userGrowthChart').getContext('2d'), {
     type: 'line',
-    data: {
-      labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
-      datasets: [
-        {
-          label: 'Miembros',
-          data: [180, 195, 210, 205, 230, 247],
-          fill: true,
-          backgroundColor: 'rgba(30,58,138,0.10)',
-          borderColor: '#1E3A8A',
-          tension: 0.4,
-          pointBackgroundColor: '#1E3A8A',
-          pointRadius: 5,
-          pointHoverRadius: 7
-        },
-        {
-          label: 'Voluntarios',
-          data: [20, 22, 25, 27, 30, 34],
-          fill: true,
-          backgroundColor: 'rgba(245,194,21,0.10)',
-          borderColor: '#F5C215',
-          tension: 0.4,
-          pointBackgroundColor: '#F5C215',
-          pointRadius: 5,
-          pointHoverRadius: 7
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { position: 'top', labels: { color: fontColor, font: { size: 12 } } }
-      },
-      scales: {
-        y: { beginAtZero: false, grid: { color: gridColor }, ticks: { color: fontColor } },
-        x: { grid: { display: false }, ticks: { color: fontColor } }
-      }
-    }
+    data: { labels, datasets: [
+      { label: 'Miembros', data: cumMiembros, fill: true, backgroundColor: 'rgba(30,58,138,0.10)', borderColor: '#1E3A8A', tension: 0.4, pointBackgroundColor: '#1E3A8A', pointRadius: 5, pointHoverRadius: 7 },
+      { label: 'Voluntarios', data: cumVols, fill: true, backgroundColor: 'rgba(245,194,21,0.10)', borderColor: '#F5C215', tension: 0.4, pointBackgroundColor: '#F5C215', pointRadius: 5, pointHoverRadius: 7 }
+    ]},
+    options: { responsive: true, plugins: { legend: { position: 'top', labels: { color: fontColor, font: { size: 12 } } } },
+      scales: { y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: fontColor } }, x: { grid: { display: false }, ticks: { color: fontColor } } } }
   });
 
   // ── 2.4 Contenido Publicado ───────────────────────────────────────────────
   new Chart(document.getElementById('contentChart').getContext('2d'), {
     type: 'bar',
-    data: {
-      labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
-      datasets: [
-        {
-          label: 'Noticias',
-          data: [3, 4, 2, 5, 4, 3],
-          backgroundColor: '#1E3A8A',
-          borderRadius: 6
-        },
-        {
-          label: 'Oraciones',
-          data: [28, 28, 31, 30, 31, 30],
-          backgroundColor: '#F5C215',
-          borderRadius: 6
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { position: 'top', labels: { color: fontColor, font: { size: 12 } } }
-      },
-      scales: {
-        y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: fontColor } },
-        x: { grid: { display: false }, ticks: { color: fontColor } }
-      }
-    }
+    data: { labels, datasets: [
+      { label: 'Noticias', data: noticiasMes, backgroundColor: '#1E3A8A', borderRadius: 6 },
+      { label: 'Oraciones', data: oracionesMes, backgroundColor: '#F5C215', borderRadius: 6 }
+    ]},
+    options: { responsive: true, plugins: { legend: { position: 'top', labels: { color: fontColor, font: { size: 12 } } } },
+      scales: { y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: fontColor } }, x: { grid: { display: false }, ticks: { color: fontColor } } } }
   });
 
-  // ── 2.5 Eventos y Actividades por Mes ────────────────────────────────────
+  // ── 2.5 Eventos por Mes ──────────────────────────────────────────────────
   new Chart(document.getElementById('eventsMonthChart').getContext('2d'), {
     type: 'bar',
-    data: {
-      labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
-      datasets: [
-        {
-          label: 'Cultos',
-          data: [4, 4, 5, 4, 5, 4],
-          backgroundColor: '#1E3A8A',
-          borderRadius: 6
-        },
-        {
-          label: 'Actividades',
-          data: [2, 3, 2, 4, 3, 4],
-          backgroundColor: '#d97706',
-          borderRadius: 6
-        },
-        {
-          label: 'Misiones',
-          data: [1, 1, 2, 1, 0, 2],
-          backgroundColor: '#F5C215',
-          borderRadius: 6
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      aspectRatio: 2,
-      plugins: {
-        legend: { position: 'top', labels: { color: fontColor, font: { size: 12 } } }
-      },
-      scales: {
-        y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: fontColor } },
-        x: { grid: { display: false }, ticks: { color: fontColor } }
-      }
-    }
+    data: { labels, datasets: [
+      { label: 'Eventos', data: eventosMes, backgroundColor: '#1E3A8A', borderRadius: 6 }
+    ]},
+    options: { responsive: true, maintainAspectRatio: true, aspectRatio: 2,
+      plugins: { legend: { position: 'top', labels: { color: fontColor, font: { size: 12 } } } },
+      scales: { y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: fontColor } }, x: { grid: { display: false }, ticks: { color: fontColor } } } }
   });
 
-  // ── 2.6 Distribución de Voluntarios ──────────────────────────────────────
-  const volLabels = ['Música', 'Logística', 'Jóvenes', 'Comunicaciones', 'Recepción', 'Otros'];
-  const volData   = [8, 6, 7, 5, 4, 4];
-  const volColors = ['#1E3A8A', '#d97706', '#059669', '#7c3aed', '#db2777', '#F5C215'];
-
+  // ── 2.6 Distribución de Voluntarios (por especialidad) ───────────────────
   new Chart(document.getElementById('volunteersChart').getContext('2d'), {
     type: 'doughnut',
-    data: {
-      labels: volLabels,
-      datasets: [{
-        data: volData,
-        backgroundColor: volColors,
-        borderWidth: 2,
-        borderColor: '#faf8f3',
-        hoverOffset: 8
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      aspectRatio: 1,
-      cutout: '65%',
-      plugins: {
-        legend: { display: false }
-      }
-    }
+    data: { labels: volLabels, datasets: [{ data: volData, backgroundColor: volColors, borderWidth: 2, borderColor: '#faf8f3', hoverOffset: 8 }] },
+    options: { responsive: true, maintainAspectRatio: true, aspectRatio: 1, cutout: '65%', plugins: { legend: { display: false } } }
   });
 
-  // Leyenda personalizada para la dona
   const legendEl = document.getElementById('volunteersLegend');
-  volLabels.forEach((label, i) => {
-    legendEl.innerHTML += `
-      <div class="donut-legend-item">
-        <span class="donut-legend-dot" style="background:${volColors[i]}"></span>
-        <span class="donut-legend-label">${label}</span>
-        <span class="donut-legend-val">${volData[i]}</span>
-      </div>`;
-  });
+  if (legendEl) {
+    legendEl.innerHTML = '';
+    volLabels.forEach((label, i) => {
+      legendEl.innerHTML += `
+        <div class="donut-legend-item">
+          <span class="donut-legend-dot" style="background:${volColors[i]}"></span>
+          <span class="donut-legend-label">${label}</span>
+          <span class="donut-legend-val">${volData[i]}</span>
+        </div>`;
+    });
+  }
 
 });
 </script>

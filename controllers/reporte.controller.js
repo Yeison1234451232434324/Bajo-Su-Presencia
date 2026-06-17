@@ -44,9 +44,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // 1. VISTA DE EVENTOS PASADOS
   // ════════════════════════════════════════════════════════════════
 
-  function renderEventos() {
+  async function renderEventos() {
     let eventos = [];
-    try { eventos = EventosModel.getAll(); } catch(_) {}
+    try { eventos = await EventosModel.getAll(); } catch(_) {}
 
     const hoy = new Date().toISOString().split('T')[0];
     // Solo eventos cuya fecha ya pasó
@@ -63,8 +63,8 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    pasados.forEach(ev => {
-      const reporte    = ReportesModel.getByEvento(ev.id);
+    for (const ev of pasados) {
+      const reporte    = await ReportesModel.getByEvento(ev.id);
       const tieneRep   = !!reporte;
       const fechaFmt   = _formatFecha(ev.fecha);
 
@@ -87,14 +87,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
       card.addEventListener('click', () => seleccionarEvento(ev));
       gridEventos.appendChild(card);
-    });
+    }
   }
 
   // ════════════════════════════════════════════════════════════════
   // 2. SELECCIONAR EVENTO
   // ════════════════════════════════════════════════════════════════
 
-  function seleccionarEvento(ev) {
+  async function seleccionarEvento(ev) {
     eventoActual = ev;
 
     // Actualizar banner
@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
     banner.querySelector('.rep-banner-lugar').textContent   = ev.ubicacion || '';
 
     // Pre-llenar formulario si ya existe reporte
-    const reporte = ReportesModel.getByEvento(ev.id);
+    const reporte = await ReportesModel.getByEvento(ev.id);
     if (reporte) {
       document.getElementById('rep-ofrenda').value      = reporte.ofrenda;
       document.getElementById('rep-incidentes').value   = reporte.incidentes === 'Ninguno' ? '' : reporte.incidentes;
@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // 3. GUARDAR REPORTE
   // ════════════════════════════════════════════════════════════════
 
-  formReporte.addEventListener('submit', e => {
+  formReporte.addEventListener('submit', async e => {
     e.preventDefault();
     if (!eventoActual) return;
 
@@ -145,7 +145,9 @@ document.addEventListener('DOMContentLoaded', () => {
       creadoPor:    _getNombreUsuario()
     };
 
-    const resultado = ReportesModel.guardar(data);
+    let resultado;
+    try { resultado = await ReportesModel.guardar(data); }
+    catch (ex) { showAlertError('Error de conexión. Intenta de nuevo.'); return; }
 
     if (!resultado.ok) {
       showAlertError(resultado.error);

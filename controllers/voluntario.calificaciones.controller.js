@@ -32,32 +32,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // cuyo nombre coincida con el username de la sesión.
   // En un sistema real esto vendría del backend; aquí lo resolvemos
   // buscando en las calificaciones existentes o usando el nombre de sesión.
-  const nombreSesion = sesion.nombre; // username guardado al hacer login
+  const nombreSesion = sesion.nombre; // nombre completo guardado al hacer login
 
-  /**
-   * Obtiene el ID del voluntario logueado buscando en las calificaciones.
-   * Si no tiene calificaciones aún, devuelve null y se muestra estado vacío.
-   */
-  function obtenerVoluntarioId() {
-    const califs = VoluntariosModel.getCalificaciones();
-    // Buscar por nombre (voluntarioNombre coincide con el nombre de sesión)
-    const calif = califs.find(c =>
-      c.voluntarioNombre.toLowerCase() === nombreSesion.toLowerCase()
-    );
-    if (calif) return calif.voluntarioId;
-
-    // Si no hay calificaciones, buscar en los eventos como voluntario asignado
-    const eventos = VoluntariosModel.getEventos();
-    for (const ev of eventos) {
-      const vol = ev.voluntarios.find(v =>
-        v.nombre.toLowerCase() === nombreSesion.toLowerCase()
-      );
-      if (vol) return vol.id;
-    }
-    return null;
-  }
-
-  const voluntarioId = obtenerVoluntarioId();
+  // El id (usuarios) del voluntario se resuelve con miUsuarioId() en la init.
+  let voluntarioId = null;
 
   // ── Actualizar nombre en el encabezado ────────────────────────────────────
   document.getElementById('vol-nombre-header').textContent = nombreSesion;
@@ -66,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // RESUMEN ESTADÍSTICO
   // ════════════════════════════════════════════════════════════════
 
-  function renderResumen() {
+  async function renderResumen() {
     if (!voluntarioId) {
       // Sin datos: mostrar estado vacío en todas las tarjetas
       document.getElementById('res-promedio').textContent = '—';
@@ -77,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const resumen = VoluntariosModel.getResumenVoluntario(voluntarioId);
+    const resumen = await VoluntariosModel.getResumenVoluntario(voluntarioId);
 
     // Promedio con estrellas visuales
     document.getElementById('res-promedio').textContent = resumen.promedio || '—';
@@ -126,9 +104,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let dtCalif = null;
 
-  function renderHistorial() {
+  async function renderHistorial() {
     const historial = voluntarioId
-      ? VoluntariosModel.getHistorialVoluntario(voluntarioId)
+      ? await VoluntariosModel.getHistorialVoluntario(voluntarioId)
       : [];
 
     // Extraer eventos únicos para el filtro
@@ -196,6 +174,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ── Render inicial ────────────────────────────────────────────────────────
-  renderResumen();
-  renderHistorial();
+  (async () => {
+    try { voluntarioId = await window.miUsuarioId(); } catch (_) { voluntarioId = null; }
+    await renderResumen();
+    await renderHistorial();
+  })();
 });
