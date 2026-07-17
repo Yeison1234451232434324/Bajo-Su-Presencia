@@ -10,7 +10,7 @@
  *   eventoId      ↔ evento_id
  *   creadoPor     ↔ creado_por (uuid usuarios; se setea al usuario logueado)
  *   eventoTitulo  ← eventos.titulo (join)
- *   creadoEn      ← created_at
+ *   creadoEn      ← creado_en
  * Requiere window.sb y window.miUsuarioId.
  * ============================================================
  */
@@ -35,28 +35,28 @@ const ReportesModel = (() => {
       incidentes:    r.incidentes || 'Ninguno',
       observaciones: r.observaciones || '',
       creadoPor:     (nombres && nombres[r.creado_por]) || '',
-      creadoEn:      (r.created_at || '').toString().slice(0, 10)
+      creadoEn:      (r.creado_en || '').toString().slice(0, 10)
     };
   }
 
   async function _nombres(ids) {
     const uniq = [...new Set((ids || []).filter(Boolean))];
     if (!uniq.length) return {};
-    const { data } = await sb.from('usuarios').select('id, nombre').in('id', uniq);
+    const { data } = await DB.from('usuarios').select('id, nombre:nombre_completo').in('id', uniq);
     const map = {};
     (data || []).forEach(u => { map[u.id] = u.nombre; });
     return map;
   }
 
   async function getAll() {
-    const { data, error } = await sb.from(TABLA).select('*, eventos(titulo)');
+    const { data, error } = await DB.from(TABLA).select('*, eventos(titulo)');
     if (error) { console.error('ReportesModel.getAll:', error); return []; }
     const nombres = await _nombres((data || []).map(r => r.creado_por));
     return (data || []).map(r => _fromRow(r, nombres));
   }
 
   async function getByEvento(eventoId) {
-    const { data, error } = await sb.from(TABLA).select('*, eventos(titulo)').eq('evento_id', eventoId).maybeSingle();
+    const { data, error } = await DB.from(TABLA).select('*, eventos(titulo)').eq('evento_id', eventoId).maybeSingle();
     if (error || !data) return null;
     const nombres = await _nombres([data.creado_por]);
     return _fromRow(data, nombres);
@@ -76,17 +76,17 @@ const ReportesModel = (() => {
       creado_por:        await window.miUsuarioId()
     };
 
-    const { data: ya } = await sb.from(TABLA).select('id').eq('evento_id', data.eventoId).maybeSingle();
+    const { data: ya } = await DB.from(TABLA).select('id').eq('evento_id', data.eventoId).maybeSingle();
     let res;
-    if (ya) res = await sb.from(TABLA).update(fila).eq('id', ya.id).select('*, eventos(titulo)').single();
-    else    res = await sb.from(TABLA).insert(fila).select('*, eventos(titulo)').single();
+    if (ya) res = await DB.from(TABLA).update(fila).eq('id', ya.id).select('*, eventos(titulo)').single();
+    else    res = await DB.from(TABLA).insert(fila).select('*, eventos(titulo)').single();
     if (res.error) return { ok: false, error: _msg(res.error) };
     const nombres = await _nombres([res.data.creado_por]);
     return { ok: true, reporte: _fromRow(res.data, nombres) };
   }
 
   async function eliminar(eventoId) {
-    const { error } = await sb.from(TABLA).delete().eq('evento_id', eventoId);
+    const { error } = await DB.from(TABLA).delete().eq('evento_id', eventoId);
     if (error) return { ok: false, error: _msg(error) };
     return { ok: true };
   }

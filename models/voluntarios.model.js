@@ -4,10 +4,10 @@
  * ============================================================
  * - Eventos con sus voluntarios asignados  → voluntarios_eventos
  * - Calificaciones de voluntarios           → evaluaciones
- *   (la web usa "estrellas" 1-5; se guardan en los 4 criterios
- *    puntualidad/actitud/desempeno/compromiso y al leer se promedian)
+ *   (esquema certificado: una columna "estrellas" 1-5, evaluador_id FK
+ *    a usuarios y evaluado_en timestamptz)
  * - Disponibilidad del voluntario           → voluntarios_eventos.disponible
- * Métodos ASÍNCRONOS. Requiere window.sb.
+ * Métodos ASÍNCRONOS. Requiere window.DB (controllers/db.client.js → Data Gateway PHP).
  * ============================================================
  */
 
@@ -18,7 +18,7 @@ const VoluntariosModel = (() => {
   const EVAL    = 'evaluaciones';
 
   const SEL_EV = 'id, titulo, fecha, ubicacion, voluntarios_necesarios, ' +
-                 'voluntarios_eventos(usuario_id, rol_en_evento, disponible, usuarios(nombre))';
+                 'voluntarios_eventos(usuario_id, rol_en_evento, disponible, usuarios(nombre:nombre_completo))';
 
   function _msg(error) {
     if (error?.code === '42501' || /row-level security/i.test(error?.message || '')) {
@@ -27,10 +27,9 @@ const VoluntariosModel = (() => {
     return error?.message || 'Ocurrió un error al procesar la solicitud.';
   }
 
-  function _estrellas(r) {
-    const v = ((r.puntualidad || 0) + (r.actitud || 0) + (r.desempeno || 0) + (r.compromiso || 0)) / 4;
-    return Math.round(v);
-  }
+  // evaluaciones tiene DOS FKs a usuarios (usuario_id y evaluador_id):
+  // el embed debe desambiguarse con el nombre de la columna.
+  const SEL_EVAL = '*, eventos(titulo), voluntario:usuarios!usuario_id(nombre:nombre_completo)';
 
   function _evToVol(e) {
     return {
@@ -51,67 +50,65 @@ const VoluntariosModel = (() => {
   function _calif(c) {
     return {
       id:               c.id,
-      eventoId:         c.id_de_evento,
+      eventoId:         c.evento_id,
       eventoNombre:     c.eventos?.titulo || '',
       voluntarioId:     c.usuario_id,
-      voluntarioNombre: c.usuarios?.nombre || '',
-      estrellas:        _estrellas(c),
+      voluntarioNombre: c.voluntario?.nombre || '',
+      estrellas:        c.estrellas || 0,
       comentario:       c.comentarios || '',
-      fecha:            (c.fecha || '').toString().slice(0, 10)
+      fecha:            (c.evaluado_en || '').toString().slice(0, 10)
     };
   }
 
   // ── EVENTOS + voluntarios ──────────────────────────────────────────────────
   async function getEventos() {
-    const { data, error } = await sb.from(EVENTOS).select(SEL_EV).order('fecha', { ascending: true });
+    const { data, error } = await DB.from(EVENTOS).select(SEL_EV).order('fecha', { ascending: true });
     if (error) { console.error('VoluntariosModel.getEventos:', error); return []; }
     return (data || []).map(_evToVol);
   }
 
   async function getEventoById(id) {
-    const { data, error } = await sb.from(EVENTOS).select(SEL_EV).eq('id', id).single();
+    const { data, error } = await DB.from(EVENTOS).select(SEL_EV).eq('id', id).single();
     if (error || !data) return null;
     return _evToVol(data);
   }
 
   // ── CALIFICACIONES ──────────────────────────────────────────────────────────
   async function getCalificaciones() {
-    const { data, error } = await sb.from(EVAL).select('*, eventos(titulo), usuarios(nombre)');
+    const { data, error } = await DB.from(EVAL).select(SEL_EVAL);
     if (error) { console.error('VoluntariosModel.getCalificaciones:', error); return []; }
     return (data || []).map(_calif);
   }
 
   async function getCalifByEventoVoluntario(eventoId, voluntarioId) {
-    const { data } = await sb.from(EVAL).select('*, eventos(titulo)')
-      .eq('id_de_evento', eventoId).eq('usuario_id', voluntarioId).maybeSingle();
+    const { data } = await DB.from(EVAL).select('*, eventos(titulo)')
+      .eq('evento_id', eventoId).eq('usuario_id', voluntarioId).maybeSingle();
     return data ? _calif(data) : null;
   }
 
   async function guardarCalificacion(data) {
     if (data.estrellas < 1 || data.estrellas > 5) return { ok: false, error: 'Las estrellas deben ser entre 1 y 5.' };
-    const evaluador = (JSON.parse(localStorage.getItem('usuarioLogueado') || '{}')).nombre || 'Administrador';
+    // evaluador_id: FK real al usuario logueado (ya no un nombre editable)
+    const evaluadorId = (typeof window.miUsuarioId === 'function') ? await window.miUsuarioId() : null;
     const fila = {
-      id_de_evento:     data.eventoId,
-      usuario_id:       data.voluntarioId,
-      evaluador_nombre: evaluador,
-      puntualidad:      data.estrellas,
-      actitud:          data.estrellas,
-      desempeno:        data.estrellas,
-      compromiso:       data.estrellas,
-      comentarios:      data.comentario || null,
-      fecha:            new Date().toISOString()
+      evento_id:    data.eventoId,
+      usuario_id:   data.voluntarioId,
+      evaluador_id: evaluadorId,
+      estrellas:    data.estrellas,
+      comentarios:  data.comentario || null,
+      evaluado_en:  new Date().toISOString()
     };
-    const { data: ya } = await sb.from(EVAL).select('id')
-      .eq('id_de_evento', data.eventoId).eq('usuario_id', data.voluntarioId).maybeSingle();
+    const { data: ya } = await DB.from(EVAL).select('id')
+      .eq('evento_id', data.eventoId).eq('usuario_id', data.voluntarioId).maybeSingle();
     let error;
-    if (ya) ({ error } = await sb.from(EVAL).update(fila).eq('id', ya.id));
-    else    ({ error } = await sb.from(EVAL).insert(fila));
+    if (ya) ({ error } = await DB.from(EVAL).update(fila).eq('id', ya.id));
+    else    ({ error } = await DB.from(EVAL).insert(fila));
     if (error) return { ok: false, error: _msg(error) };
     return { ok: true };
   }
 
   async function getHistorialVoluntario(voluntarioId) {
-    const { data } = await sb.from(EVAL).select('*, eventos(titulo), usuarios(nombre)').eq('usuario_id', voluntarioId);
+    const { data } = await DB.from(EVAL).select(SEL_EVAL).eq('usuario_id', voluntarioId);
     return (data || []).map(_calif);
   }
 
@@ -128,22 +125,22 @@ const VoluntariosModel = (() => {
 
   // ── DISPONIBILIDAD ──────────────────────────────────────────────────────────
   async function estaInscrito(eventoId, voluntarioId) {
-    const { data } = await sb.from(VE).select('id, disponible')
-      .eq('id_de_evento', eventoId).eq('usuario_id', voluntarioId).maybeSingle();
+    const { data } = await DB.from(VE).select('id, disponible')
+      .eq('evento_id', eventoId).eq('usuario_id', voluntarioId).maybeSingle();
     return data || null;
   }
 
   async function unirseEvento(eventoId, voluntarioId, rol) {
-    const { error } = await sb.from(VE).insert({
-      id_de_evento: eventoId, usuario_id: voluntarioId, rol_en_evento: rol || 'Voluntario General', disponible: true
+    const { error } = await DB.from(VE).insert({
+      evento_id: eventoId, usuario_id: voluntarioId, rol_en_evento: rol || 'Voluntario General', disponible: true
     });
     if (error) return { ok: false, error: _msg(error) };
     return { ok: true };
   }
 
   async function setDisponibilidad(eventoId, voluntarioId, disponible) {
-    const { error } = await sb.from(VE).update({ disponible })
-      .eq('id_de_evento', eventoId).eq('usuario_id', voluntarioId);
+    const { error } = await DB.from(VE).update({ disponible })
+      .eq('evento_id', eventoId).eq('usuario_id', voluntarioId);
     if (error) return { ok: false, error: _msg(error) };
     return { ok: true };
   }

@@ -43,28 +43,28 @@ const ActividadesModel = (() => {
   async function _nombres(ids) {
     const uniq = [...new Set((ids || []).filter(Boolean))];
     if (!uniq.length) return {};
-    const { data } = await sb.from('usuarios').select('id, nombre').in('id', uniq);
+    const { data } = await DB.from('usuarios').select('id, nombre:nombre_completo').in('id', uniq);
     const map = {};
     (data || []).forEach(u => { map[u.id] = u.nombre; });
     return map;
   }
 
   async function getAll() {
-    const { data, error } = await sb.from(TABLA).select('*');
+    const { data, error } = await DB.from(TABLA).select('*');
     if (error) { console.error('ActividadesModel.getAll:', error); return []; }
     const nombres = await _nombres((data || []).map(a => a.voluntario_id));
     return (data || []).map(a => _fromRow(a, nombres));
   }
 
   async function getByEvento(eventoId) {
-    const { data, error } = await sb.from(TABLA).select('*').eq('evento_id', eventoId);
+    const { data, error } = await DB.from(TABLA).select('*').eq('evento_id', eventoId);
     if (error) { console.error('ActividadesModel.getByEvento:', error); return []; }
     const nombres = await _nombres((data || []).map(a => a.voluntario_id));
     return (data || []).map(a => _fromRow(a, nombres));
   }
 
   async function getById(id) {
-    const { data, error } = await sb.from(TABLA).select('*').eq('id', id).single();
+    const { data, error } = await DB.from(TABLA).select('*').eq('id', id).single();
     if (error || !data) return null;
     const nombres = await _nombres([data.voluntario_id]);
     return _fromRow(data, nombres);
@@ -83,7 +83,7 @@ const ActividadesModel = (() => {
       voluntario_id: data.voluntarioId,
       completada:    false
     };
-    const { data: ins, error } = await sb.from(TABLA).insert(fila).select('*').single();
+    const { data: ins, error } = await DB.from(TABLA).insert(fila).select('*').single();
     if (error) return { ok: false, error: _msg(error) };
     const nombres = await _nombres([ins.voluntario_id]);
     return { ok: true, actividad: _fromRow(ins, nombres) };
@@ -99,20 +99,20 @@ const ActividadesModel = (() => {
       prioridad:     ['alta','media','baja'].includes(data.prioridad) ? data.prioridad : 'media',
       voluntario_id: data.voluntarioId
     };
-    const { data: upd, error } = await sb.from(TABLA).update(fila).eq('id', id).select('*').single();
+    const { data: upd, error } = await DB.from(TABLA).update(fila).eq('id', id).select('*').single();
     if (error) return { ok: false, error: _msg(error) };
     const nombres = await _nombres([upd.voluntario_id]);
     return { ok: true, actividad: _fromRow(upd, nombres) };
   }
 
   async function toggleCompletada(id, completada) {
-    const { error } = await sb.from(TABLA).update({ completada: !!completada }).eq('id', id);
+    const { error } = await DB.from(TABLA).update({ completada: !!completada }).eq('id', id);
     if (error) return { ok: false, error: _msg(error) };
     return { ok: true };
   }
 
   async function eliminar(id) {
-    const { error } = await sb.from(TABLA).delete().eq('id', id);
+    const { error } = await DB.from(TABLA).delete().eq('id', id);
     if (error) return { ok: false, error: _msg(error) };
     return { ok: true };
   }

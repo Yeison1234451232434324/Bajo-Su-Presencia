@@ -39,6 +39,17 @@ window.sbAuthTmp = function () {
  * Lo usan los modelos para setear usuario_id al crear registros.
  */
 window.miUsuarioId = async function () {
+  // 1) Preferir el id del JWT propio (sub = usuarios.id). Es fiable y no depende
+  //    de la sesión de Supabase.
+  try {
+    const tok = window.bspAuth && window.bspAuth.getToken && window.bspAuth.getToken();
+    if (tok) {
+      const payload = JSON.parse(atob(tok.split('.')[1]));
+      if (payload && payload.sub) return payload.sub;
+    }
+  } catch (_) { /* sigue al fallback */ }
+
+  // 2) Fallback: a partir de la sesión de Supabase.
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return null;
   const { data } = await sb.from('usuarios').select('id').eq('auth_id', user.id).single();

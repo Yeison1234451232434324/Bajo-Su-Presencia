@@ -4,13 +4,14 @@
  * ============================================================
  * CRUD de PQR contra public.pqr. Métodos ASÍNCRONOS.
  *
- * Mapeo app ↔ BD:
- *   email (app)        ↔ correo (BD)
- *   telefono (app)     ↔ teléfono (BD, con tilde)
- *   descripcion (app)  ↔ descripción (BD, con tilde)
- *   creadoEn / respondidoEn / respondidoPor ↔ creado_en / respondido_en / respondido_por
+ * Mapeo app ↔ BD (esquema certificado, sin tildes):
+ *   email (app)       ↔ correo (BD)
+ *   telefono          ↔ telefono
+ *   descripcion       ↔ descripcion
+ *   respondidoPor     ← usuarios.nombre vía FK respondido_por_id
+ *   creadoEn / respondidoEn ↔ creado_en / respondido_en
  *
- * Requiere window.sb (controllers/supabase.client.js).
+ * Requiere window.DB (controllers/db.client.js → Data Gateway PHP).
  * ============================================================
  */
 
@@ -19,6 +20,9 @@ const PQRModel = (() => {
   const TABLA = 'pqr';
   const TIPOS = ['Petición', 'Queja', 'Reclamo'];
   const ESTADOS = ['Pendiente', 'En proceso', 'Resuelto', 'Cerrado'];
+  // pqr tiene DOS FKs a usuarios (usuario_id y respondido_por_id):
+  // el embed se desambigua con el nombre de la columna.
+  const SEL = '*, respondido:usuarios!respondido_por_id(nombre:nombre_completo)';
 
   function _fromRow(r) {
     return {
@@ -26,15 +30,15 @@ const PQRModel = (() => {
       tipo:         r.tipo || 'Petición',
       nombre:       r.nombre || '',
       email:        r.correo || '',
-      telefono:     r['teléfono'] || '',
+      telefono:     r.telefono || '',
       asunto:       r.asunto || '',
-      descripcion:  r['descripción'] || '',
+      descripcion:  r.descripcion || '',
       estado:       r.estado || 'Pendiente',
       prioridad:    r.prioridad || 'Media',
       creadoEn:     r.creado_en || '',
       respuesta:    r.respuesta || '',
       respondidoEn: r.respondido_en || null,
-      respondidoPor:r.respondido_por || ''
+      respondidoPor:r.respondido?.nombre || ''
     };
   }
 
@@ -46,13 +50,13 @@ const PQRModel = (() => {
   }
 
   async function getAll() {
-    const { data, error } = await sb.from(TABLA).select('*').order('creado_en', { ascending: false });
+    const { data, error } = await DB.from(TABLA).select(SEL).order('creado_en', { ascending: false });
     if (error) { console.error('PQRModel.getAll:', error); return []; }
     return (data || []).map(_fromRow);
   }
 
   async function getById(id) {
-    const { data, error } = await sb.from(TABLA).select('*').eq('id', id).single();
+    const { data, error } = await DB.from(TABLA).select(SEL).eq('id', id).single();
     if (error || !data) return null;
     return _fromRow(data);
   }
@@ -64,42 +68,45 @@ const PQRModel = (() => {
     if (!data.descripcion?.trim()) return { ok: false, error: 'La descripción es obligatoria.' };
 
     const fila = {
-      tipo:         TIPOS.includes(data.tipo) ? data.tipo : 'Petición',
-      nombre:       data.nombre.trim(),
-      correo:       data.email.trim().toLowerCase(),
-      'teléfono':   data.telefono?.trim() || null,
-      asunto:       data.asunto.trim(),
-      'descripción':data.descripcion.trim(),
-      estado:       'Pendiente',
-      prioridad:    ['Baja','Media','Alta'].includes(data.prioridad) ? data.prioridad : 'Media'
+      tipo:        TIPOS.includes(data.tipo) ? data.tipo : 'Petición',
+      nombre:      data.nombre.trim(),
+      correo:      data.email.trim().toLowerCase(),
+      telefono:    data.telefono?.trim() || null,
+      asunto:      data.asunto.trim(),
+      descripcion: data.descripcion.trim(),
+      estado:      'Pendiente',
+      prioridad:   ['Baja','Media','Alta'].includes(data.prioridad) ? data.prioridad : 'Media'
     };
-    const { data: ins, error } = await sb.from(TABLA).insert(fila).select().single();
+    const { data: ins, error } = await DB.from(TABLA).insert(fila).select(SEL).single();
     if (error) return { ok: false, error: _msg(error) };
     return { ok: true, pqr: _fromRow(ins) };
   }
 
   async function cambiarEstado(id, nuevoEstado) {
     if (!ESTADOS.includes(nuevoEstado)) return { ok: false, error: 'Estado no válido.' };
-    const { data, error } = await sb.from(TABLA).update({ estado: nuevoEstado }).eq('id', id).select().single();
+    const { data, error } = await DB.from(TABLA).update({ estado: nuevoEstado }).eq('id', id).select(SEL).single();
     if (error) return { ok: false, error: _msg(error) };
     return { ok: true, pqr: _fromRow(data) };
   }
 
-  async function responder(id, respuesta, nuevoEstado, respondidoPor) {
+  // El 4º parámetro (nombre del respondedor) queda ignorado: ahora se guarda
+  // la FK respondido_por_id del usuario logueado (no un texto editable).
+  async function responder(id, respuesta, nuevoEstado, _respondidoPor) {
     if (!respuesta || !respuesta.trim()) return { ok: false, error: 'La respuesta no puede estar vacía.' };
+    const respondidoPorId = (typeof window.miUsuarioId === 'function') ? await window.miUsuarioId() : null;
     const fila = {
-      respuesta:       respuesta.trim(),
-      respondido_en:   new Date().toISOString(),
-      respondido_por:  respondidoPor?.trim() || 'Administrador'
+      respuesta:          respuesta.trim(),
+      respondido_en:      new Date().toISOString(),
+      respondido_por_id:  respondidoPorId
     };
     if (ESTADOS.includes(nuevoEstado)) fila.estado = nuevoEstado;
-    const { data, error } = await sb.from(TABLA).update(fila).eq('id', id).select().single();
+    const { data, error } = await DB.from(TABLA).update(fila).eq('id', id).select(SEL).single();
     if (error) return { ok: false, error: _msg(error) };
     return { ok: true, pqr: _fromRow(data) };
   }
 
   async function eliminar(id) {
-    const { error } = await sb.from(TABLA).delete().eq('id', id);
+    const { error } = await DB.from(TABLA).delete().eq('id', id);
     if (error) return { ok: false, error: _msg(error) };
     return { ok: true };
   }

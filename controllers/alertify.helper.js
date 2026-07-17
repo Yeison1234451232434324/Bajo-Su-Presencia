@@ -17,7 +17,7 @@
 if (typeof alertify !== 'undefined') {
   // ── Configuración global ──────────────────────────────────────
   alertify.set('notifier', 'position', 'top-right');
-  alertify.set('notifier', 'delay', 4);
+  alertify.set('notifier', 'delay', 6);
 
   // Estilos personalizados
   const style = document.createElement('style');
@@ -212,7 +212,8 @@ function showAlertSuccess(message) {
  */
 function showAlertError(message) {
   if (typeof alertify !== 'undefined') {
-    alertify.error(message);
+    // 9 s para que el usuario alcance a leer el error (no se esfuma rápido).
+    alertify.notify(message, 'error', 9);
   } else {
     console.error('✕ ERROR:', message);
   }

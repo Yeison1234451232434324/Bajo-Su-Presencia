@@ -43,13 +43,13 @@ const OracionModel = (() => {
   }
 
   async function getAll() {
-    const { data, error } = await sb.from(TABLA).select('*').order('publicado_en', { ascending: false });
+    const { data, error } = await DB.from(TABLA).select('*').order('publicado_en', { ascending: false });
     if (error) { console.error('OracionModel.getAll:', error); return []; }
     return (data || []).map(_fromRow);
   }
 
   async function getById(id) {
-    const { data, error } = await sb.from(TABLA).select('*').eq('id', id).single();
+    const { data, error } = await DB.from(TABLA).select('*').eq('id', id).single();
     if (error || !data) return null;
     return _fromRow(data);
   }
@@ -63,7 +63,7 @@ const OracionModel = (() => {
       usuario_id:   await window.miUsuarioId(),
       publicado_en: new Date().toISOString()
     };
-    const { data: ins, error } = await sb.from(TABLA).insert(fila).select().single();
+    const { data: ins, error } = await DB.from(TABLA).insert(fila).select().single();
     if (error) return { ok: false, error: _msg(error) };
     return { ok: true, oracion: _fromRow(ins) };
   }
@@ -75,13 +75,13 @@ const OracionModel = (() => {
       versiculo:  data.versiculo?.trim() || null,
       imagen_url: data.imagen?.trim() || null
     };
-    const { data: upd, error } = await sb.from(TABLA).update(fila).eq('id', id).select().single();
+    const { data: upd, error } = await DB.from(TABLA).update(fila).eq('id', id).select().single();
     if (error) return { ok: false, error: _msg(error) };
     return { ok: true, oracion: _fromRow(upd) };
   }
 
   async function eliminar(id) {
-    const { error } = await sb.from(TABLA).delete().eq('id', id);
+    const { error } = await DB.from(TABLA).delete().eq('id', id);
     if (error) return { ok: false, error: _msg(error) };
     return { ok: true };
   }

@@ -46,13 +46,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 2) Si no coincide, por rol (primer usuario con ese rol)
   async function obtenerUsuarioActual() {
     if (typeof UsuariosModel === 'undefined') return null;
-    // Resolver el usuario logueado por su id real (auth → usuarios)
-    const id = await window.miUsuarioId();
-    if (id) {
-      const u = await UsuariosModel.getById(id);
-      if (u) return u;
-    }
-    return null;
+    // Endpoint de "mi perfil": cualquier rol puede ver SU propio perfil (usa el JWT).
+    return await UsuariosModel.getMiPerfil();
   }
 
   const usuario = await obtenerUsuarioActual();
@@ -246,7 +241,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     let resultado;
-    try { resultado = await UsuariosModel.update(usuario.id, data); }
+    try { resultado = await UsuariosModel.updateMiPerfil(data); }
     catch (ex) { showAlertError('Error de conexión. Intenta de nuevo.'); return; }
     if (!resultado.ok) {
       showAlertError(resultado.error || 'No se pudo guardar el perfil.');

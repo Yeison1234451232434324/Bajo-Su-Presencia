@@ -22,10 +22,10 @@ const EventosModel = (() => {
   const TABLA = 'eventos';
   const REC   = 'evento_recursos';
   const VOL   = 'voluntarios_eventos';
-  const ESTADOS = ['Publicado', 'En ejecución', 'Finalizado'];
+  const ESTADOS = ['Publicado', 'En ejecución', 'Finalizado', 'Cancelado'];
 
   const SEL = '*, evento_recursos(recurso_id, cantidad, recursos(nombre, unidad)), ' +
-              'voluntarios_eventos(usuario_id, rol_en_evento, usuarios(nombre))';
+              'voluntarios_eventos(usuario_id, rol_en_evento, usuarios(nombre:nombre_completo))';
 
   function _combinar(hora, horaFin) {
     if (!hora) return '';
@@ -74,13 +74,13 @@ const EventosModel = (() => {
   }
 
   async function getAll() {
-    const { data, error } = await sb.from(TABLA).select(SEL).order('fecha', { ascending: true });
+    const { data, error } = await DB.from(TABLA).select(SEL).order('fecha', { ascending: true });
     if (error) { console.error('EventosModel.getAll:', error); return []; }
     return (data || []).map(_fromRow);
   }
 
   async function getById(id) {
-    const { data, error } = await sb.from(TABLA).select(SEL).eq('id', id).single();
+    const { data, error } = await DB.from(TABLA).select(SEL).eq('id', id).single();
     if (error || !data) return null;
     return _fromRow(data);
   }
@@ -89,24 +89,24 @@ const EventosModel = (() => {
   // (por si eventos.sede_id sigue siendo NOT NULL). Idealmente correr el ALTER
   // de supabase_ajustes_eventos_recursos.sql para hacerla opcional.
   async function _sedeDefault() {
-    const { data } = await sb.from('sedes').select('id').limit(1).maybeSingle();
+    const { data } = await DB.from('sedes').select('id').limit(1).maybeSingle();
     return data?.id || null;
   }
 
   async function _syncRecursos(eventoId, recursos) {
-    await sb.from(REC).delete().eq('evento_id', eventoId);
+    await DB.from(REC).delete().eq('evento_id', eventoId);
     const filas = (recursos || []).map(r => ({
       evento_id: eventoId, recurso_id: r.recursoId, cantidad: parseInt(r.cantidad) || 1
     }));
-    if (filas.length) await sb.from(REC).insert(filas);
+    if (filas.length) await DB.from(REC).insert(filas);
   }
 
   async function _syncEspecialistas(eventoId, especialistas) {
-    await sb.from(VOL).delete().eq('id_de_evento', eventoId);
+    await DB.from(VOL).delete().eq('evento_id', eventoId);
     const filas = (especialistas || []).map(e => ({
-      id_de_evento: eventoId, usuario_id: e.usuarioId, rol_en_evento: e.especialidad || null
+      evento_id: eventoId, usuario_id: e.usuarioId, rol_en_evento: e.especialidad || null
     }));
-    if (filas.length) await sb.from(VOL).insert(filas);
+    if (filas.length) await DB.from(VOL).insert(filas);
   }
 
   function _fila(data) {
@@ -132,7 +132,7 @@ const EventosModel = (() => {
     const fila = _fila(data);
     fila.publicado_en = new Date().toISOString();
     fila.sede_id = await _sedeDefault();   // el form no captura sede
-    const { data: ins, error } = await sb.from(TABLA).insert(fila).select('id').single();
+    const { data: ins, error } = await DB.from(TABLA).insert(fila).select('id').single();
     if (error) return { ok: false, error: _msg(error) };
 
     await _syncRecursos(ins.id, data.recursos);
@@ -144,7 +144,7 @@ const EventosModel = (() => {
     if (!data.titulo?.trim()) return { ok: false, error: 'El título es obligatorio.' };
     if (!data.fecha)          return { ok: false, error: 'La fecha es obligatoria.' };
 
-    const { error } = await sb.from(TABLA).update(_fila(data)).eq('id', id);
+    const { error } = await DB.from(TABLA).update(_fila(data)).eq('id', id);
     if (error) return { ok: false, error: _msg(error) };
 
     await _syncRecursos(id, data.recursos);
@@ -153,9 +153,9 @@ const EventosModel = (() => {
   }
 
   async function eliminar(id) {
-    await sb.from(REC).delete().eq('evento_id', id);
-    await sb.from(VOL).delete().eq('id_de_evento', id);
-    const { error } = await sb.from(TABLA).delete().eq('id', id);
+    // Las FKs con ON DELETE CASCADE limpian evento_recursos y
+    // voluntarios_eventos automáticamente al borrar el evento.
+    const { error } = await DB.from(TABLA).delete().eq('id', id);
     if (error) return { ok: false, error: _msg(error) };
     return { ok: true };
   }

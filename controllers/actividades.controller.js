@@ -155,13 +155,31 @@ document.addEventListener('DOMContentLoaded', () => {
   // ════════════════════════════════════════════════════════════════
   async function _cargarVoluntarios() {
     selectVol.innerHTML = '<option value="">Selecciona un voluntario</option>';
+
+    // Solo los voluntarios INSCRITOS al evento seleccionado (voluntarios_eventos),
+    // no todos los usuarios. Se relee el evento para tener la lista actualizada.
+    let inscritos = [];
     try {
-      const usuarios = await UsuariosModel.getAll();
-      _volsCache = usuarios.filter(u => u.activo && (u.rol === 'Voluntario' || u.rol === 'Colaborador'));
-    } catch (_) { _volsCache = []; }
-    _volsCache.forEach(v => {
+      const ev = eventoActual ? await EventosModel.getById(eventoActual.id) : null;
+      inscritos = (ev && Array.isArray(ev.especialistas)) ? ev.especialistas
+                : (eventoActual && eventoActual.especialistas) || [];
+    } catch (_) {
+      inscritos = (eventoActual && eventoActual.especialistas) || [];
+    }
+    _volsCache = inscritos;
+
+    if (!inscritos.length) {
       const opt = document.createElement('option');
-      opt.value = v.id; opt.textContent = v.nombre;
+      opt.value = ''; opt.disabled = true;
+      opt.textContent = 'No hay voluntarios inscritos a este evento';
+      selectVol.appendChild(opt);
+      return;
+    }
+
+    inscritos.forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v.usuarioId;
+      opt.textContent = v.nombre || 'Voluntario';
       selectVol.appendChild(opt);
     });
   }

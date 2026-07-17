@@ -5,9 +5,8 @@
  * Inventario de recursos (tabla public.recursos) + asignaciones de recursos
  * a eventos (tabla puente public.evento_recursos). Métodos ASÍNCRONOS.
  *
- * Mapeo app ↔ BD:
- *   descripcion (app) ↔ descripción (BD, con tilde)
- *   (creado no existe en BD → se devuelve vacío)
+ * Mapeo app ↔ BD (esquema certificado, sin tildes):
+ *   descripcion ↔ descripcion · creado ← creado_en
  *
  * Requiere window.sb (controllers/supabase.client.js).
  * ============================================================
@@ -23,11 +22,11 @@ const RecursosModel = (() => {
       id:          r.id,
       nombre:      r.nombre || '',
       categoria:   r.categoria || '',
-      descripcion: r['descripción'] || '',
+      descripcion: r.descripcion || '',
       cantidad:    r.cantidad ?? 0,
       unidad:      r.unidad || 'unidades',
       disponible:  r.disponible !== false,
-      creado:      ''
+      creado:      (r.creado_en || '').toString().slice(0, 10)
     };
   }
 
@@ -41,13 +40,13 @@ const RecursosModel = (() => {
 
   // ── Inventario ─────────────────────────────────────────────────────────────
   async function getAll() {
-    const { data, error } = await sb.from(TABLA).select('*').order('nombre', { ascending: true });
+    const { data, error } = await DB.from(TABLA).select('*').order('nombre', { ascending: true });
     if (error) { console.error('RecursosModel.getAll:', error); return []; }
     return (data || []).map(_fromRow);
   }
 
   async function getById(id) {
-    const { data, error } = await sb.from(TABLA).select('*').eq('id', id).single();
+    const { data, error } = await DB.from(TABLA).select('*').eq('id', id).single();
     if (error || !data) return null;
     return _fromRow(data);
   }
@@ -57,14 +56,14 @@ const RecursosModel = (() => {
     if (data.cantidad < 0)    return { ok: false, error: 'La cantidad no puede ser negativa.' };
 
     const fila = {
-      nombre:        data.nombre.trim(),
-      categoria:     data.categoria,
-      'descripción': data.descripcion?.trim() || null,
-      cantidad:      parseInt(data.cantidad) || 0,
-      unidad:        data.unidad?.trim() || 'unidades',
-      disponible:    true
+      nombre:      data.nombre.trim(),
+      categoria:   data.categoria,
+      descripcion: data.descripcion?.trim() || null,
+      cantidad:    parseInt(data.cantidad) || 0,
+      unidad:      data.unidad?.trim() || 'unidades',
+      disponible:  true
     };
-    const { data: ins, error } = await sb.from(TABLA).insert(fila).select().single();
+    const { data: ins, error } = await DB.from(TABLA).insert(fila).select().single();
     if (error) return { ok: false, error: _msg(error) };
     return { ok: true, recurso: _fromRow(ins) };
   }
@@ -72,13 +71,13 @@ const RecursosModel = (() => {
   async function update(id, data) {
     if (data.cantidad < 0) return { ok: false, error: 'La cantidad no puede ser negativa.' };
     const fila = {
-      nombre:        data.nombre.trim(),
-      categoria:     data.categoria,
-      'descripción': data.descripcion?.trim() || null,
-      cantidad:      parseInt(data.cantidad) || 0,
-      unidad:        data.unidad?.trim() || 'unidades'
+      nombre:      data.nombre.trim(),
+      categoria:   data.categoria,
+      descripcion: data.descripcion?.trim() || null,
+      cantidad:    parseInt(data.cantidad) || 0,
+      unidad:      data.unidad?.trim() || 'unidades'
     };
-    const { data: upd, error } = await sb.from(TABLA).update(fila).eq('id', id).select().single();
+    const { data: upd, error } = await DB.from(TABLA).update(fila).eq('id', id).select().single();
     if (error) return { ok: false, error: _msg(error) };
     return { ok: true, recurso: _fromRow(upd) };
   }
@@ -90,15 +89,14 @@ const RecursosModel = (() => {
       return { ok: false, error: 'No se puede activar un recurso sin stock (cantidad = 0).' };
     }
     const nuevo = !r.disponible;
-    const { error } = await sb.from(TABLA).update({ disponible: nuevo }).eq('id', id);
+    const { error } = await DB.from(TABLA).update({ disponible: nuevo }).eq('id', id);
     if (error) return { ok: false, error: _msg(error) };
     return { ok: true, disponible: nuevo };
   }
 
   async function remove(id) {
-    // Limpia asignaciones a eventos antes de borrar el recurso
-    await sb.from(PUENTE).delete().eq('recurso_id', id);
-    const { error } = await sb.from(TABLA).delete().eq('id', id);
+    // La FK con ON DELETE CASCADE limpia evento_recursos automáticamente
+    const { error } = await DB.from(TABLA).delete().eq('id', id);
     if (error) return { ok: false, error: _msg(error) };
     return { ok: true };
   }
@@ -115,7 +113,7 @@ const RecursosModel = (() => {
 
   // ── Asignaciones recurso ↔ evento (tabla evento_recursos) ──────────────────
   async function getAsignacionesPorEvento(eventoId) {
-    const { data, error } = await sb
+    const { data, error } = await DB
       .from(PUENTE)
       .select('id, recurso_id, cantidad, recursos(nombre, unidad)')
       .eq('evento_id', eventoId);
@@ -139,13 +137,13 @@ const RecursosModel = (() => {
       return { ok: false, error: `Solo hay ${recurso.cantidad} ${recurso.unidad} disponibles.` };
     }
     // upsert por (evento_id, recurso_id)
-    const { data: ya } = await sb.from(PUENTE).select('id')
+    const { data: ya } = await DB.from(PUENTE).select('id')
       .eq('evento_id', data.eventoId).eq('recurso_id', data.recursoId).maybeSingle();
     let error;
     if (ya) {
-      ({ error } = await sb.from(PUENTE).update({ cantidad: parseInt(data.cantidad) }).eq('id', ya.id));
+      ({ error } = await DB.from(PUENTE).update({ cantidad: parseInt(data.cantidad) }).eq('id', ya.id));
     } else {
-      ({ error } = await sb.from(PUENTE).insert({
+      ({ error } = await DB.from(PUENTE).insert({
         evento_id: data.eventoId, recurso_id: data.recursoId, cantidad: parseInt(data.cantidad)
       }));
     }
@@ -154,7 +152,7 @@ const RecursosModel = (() => {
   }
 
   async function quitarAsignacion(eventoId, recursoId) {
-    const { error } = await sb.from(PUENTE).delete().eq('evento_id', eventoId).eq('recurso_id', recursoId);
+    const { error } = await DB.from(PUENTE).delete().eq('evento_id', eventoId).eq('recurso_id', recursoId);
     if (error) return { ok: false, error: _msg(error) };
     return { ok: true };
   }

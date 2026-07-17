@@ -5,12 +5,13 @@
  * Lectura de asistencias (la app móvil las escribe vía QR/reserva).
  * La calificación del evento por el asistente se toma de
  * calificaciones_eventos (promedio de ujieres/sonido/mensaje).
- * Métodos ASÍNCRONOS. Requiere window.sb.
+ * Métodos ASÍNCRONOS. Requiere window.DB (controllers/db.client.js → Data Gateway PHP).
  *
- * Mapeo app ↔ BD:
- *   eventoId↔id_de_evento, email↔correo, telefono↔teléfono,
- *   asistio↔asistió, fechaInscripcion↔fecha_inscripción,
- *   fechaAsistencia↔fecha_asistencia, metodo↔método
+ * Mapeo app ↔ BD (esquema certificado):
+ *   eventoId↔evento_id, email↔correo, telefono↔telefono,
+ *   fechaInscripcion↔fecha_inscripcion, fechaAsistencia↔fecha_asistencia,
+ *   metodo↔metodo. Los booleanos inscrito/asistio se DERIVAN de "estado"
+ *   (confirmada→asistida→calificada / cancelada), única fuente de verdad.
  * ============================================================
  */
 
@@ -19,20 +20,20 @@ const AsistenciasModel = (() => {
   const TABLA = 'asistencias';
 
   function _fromRow(r, califMap) {
-    const calif = califMap[`${r.id_de_evento}|${r.usuario_id}`] || null;
+    const calif = califMap[`${r.evento_id}|${r.usuario_id}`] || null;
     return {
       id:               r.id,
-      eventoId:         r.id_de_evento,
+      eventoId:         r.evento_id,
       eventoNombre:     r.eventos?.titulo || '',
       eventoFecha:      r.eventos?.fecha || '',
       nombre:           r.nombre || '',
       email:            r.correo || '',
-      telefono:         r['teléfono'] || '',
-      inscrito:         r.inscrito !== false,
-      fechaInscripcion: (r['fecha_inscripción'] || '').toString().slice(0, 10),
-      asistio:          r['asistió'] === true,
+      telefono:         r.telefono || '',
+      inscrito:         r.estado !== 'cancelada',
+      fechaInscripcion: (r.fecha_inscripcion || '').toString().slice(0, 10),
+      asistio:          r.estado === 'asistida' || r.estado === 'calificada',
       fechaAsistencia:  r.fecha_asistencia ? r.fecha_asistencia.toString().slice(0, 16).replace('T', ' ') : null,
-      metodo:           r['método'] || null,
+      metodo:           r.metodo || null,
       calificacion:     calif ? calif.estrellas : null,
       comentario:       calif ? calif.testimonio : ''
     };
@@ -40,17 +41,17 @@ const AsistenciasModel = (() => {
 
   // Construye un mapa de calificaciones de evento por (evento|usuario)
   async function _califMap() {
-    const { data } = await sb.from('calificaciones_eventos').select('id_de_evento, usuario_id, ujieres, sonido, mensaje, testimonio');
+    const { data } = await DB.from('calificaciones_eventos').select('evento_id, usuario_id, ujieres, sonido, mensaje, testimonio');
     const map = {};
     (data || []).forEach(c => {
       const est = Math.round(((c.ujieres || 0) + (c.sonido || 0) + (c.mensaje || 0)) / 3);
-      map[`${c.id_de_evento}|${c.usuario_id}`] = { estrellas: est, testimonio: c.testimonio || '' };
+      map[`${c.evento_id}|${c.usuario_id}`] = { estrellas: est, testimonio: c.testimonio || '' };
     });
     return map;
   }
 
   async function getAll() {
-    const { data, error } = await sb.from(TABLA).select('*, eventos(titulo, fecha)');
+    const { data, error } = await DB.from(TABLA).select('*, eventos(titulo, fecha)');
     if (error) { console.error('AsistenciasModel.getAll:', error); return []; }
     const califMap = await _califMap();
     return (data || []).map(r => _fromRow(r, califMap));

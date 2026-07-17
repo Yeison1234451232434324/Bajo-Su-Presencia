@@ -25,6 +25,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
     <title>Login</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
@@ -66,11 +68,12 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
-    <script src="../../../controllers/alertify.helper.js"></script>
+    <script src="../../../controllers/alertify.helper.js?v=6"></script>
     <!-- SDK de Supabase + cliente compartido (deben ir ANTES de auth.controller.js) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="../../../controllers/supabase.client.js"></script>
-    <script src="../../../controllers/auth.controller.js"></script>
+    <script src="../../../controllers/supabase.client.js?v=6"></script>
+    <script src="../../../controllers/api.config.js?v=6"></script>
+    <script src="../../../controllers/auth.controller.js?v=6"></script>
     <script>
         // Toggle mostrar/ocultar contraseña
         document.getElementById('toggle-password').addEventListener('click', function() {

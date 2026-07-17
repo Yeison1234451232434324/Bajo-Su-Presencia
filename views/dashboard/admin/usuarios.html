@@ -114,18 +114,30 @@
 
     <form id="form-usuario" novalidate>
 
-      <!-- Nombre completo -->
-      <div class="form-group">
-        <label for="campo-nombre">Nombre Completo</label>
-        <input
-          type="text"
-          id="campo-nombre"
-          class="form-control"
-          placeholder="Ej: María González"
-          required
-          minlength="3"
-          oninput="this.value=this.value.replace(/[0-9]/g,'')"
-        />
+      <!-- Nombres + Apellidos (hechos atómicos: columnas nombres/apellidos) -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="campo-nombre">Nombres</label>
+          <input
+            type="text"
+            id="campo-nombre"
+            class="form-control"
+            placeholder="Ej: María Fernanda"
+            required
+            minlength="3"
+            oninput="this.value=this.value.replace(/[0-9]/g,'')"
+          />
+        </div>
+        <div class="form-group">
+          <label for="campo-apellidos">Apellidos</label>
+          <input
+            type="text"
+            id="campo-apellidos"
+            class="form-control"
+            placeholder="Ej: González Pérez"
+            oninput="this.value=this.value.replace(/[0-9]/g,'')"
+          />
+        </div>
       </div>
 
       <!-- Username + Email -->
@@ -284,6 +296,8 @@
   <!-- Supabase: SDK + cliente compartido (ANTES del modelo, que usa window.sb) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../../../controllers/supabase.client.js"></script>
+  <script src="../../../controllers/api.config.js"></script>
+  <script src="../../../controllers/db.client.js"></script>
   <!-- Model -->
   <script src="../../../models/usuarios.model.js"></script>
   <!-- Motor DataTable -->

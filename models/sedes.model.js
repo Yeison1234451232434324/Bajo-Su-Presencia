@@ -6,9 +6,11 @@
  * Todos los métodos son ASÍNCRONOS (devuelven Promesas) → el
  * controller debe usar await.
  *
- * Mapeo app ↔ BD:
- *   pastor (app)  ↔  pastor_encargado (BD)
- *   el resto coincide: nombre, ciudad, direccion, telefono, miembros
+ * Mapeo app ↔ BD (esquema certificado):
+ *   pastor (app) ↔ pastor_encargado (BD)
+ *   miembros ya NO existe en BD (era un contador manual derivado, eliminado
+ *   en la auditoría); se devuelve 0 para no romper vistas antiguas.
+ *   el resto coincide: nombre, ciudad, direccion, telefono
  *
  * Requiere window.sb (controllers/supabase.client.js) cargado antes.
  * ============================================================
@@ -27,7 +29,7 @@ const SedesModel = (() => {
       direccion: r.direccion || '',
       telefono:  r.telefono  || '',
       pastor:    r.pastor_encargado || '',
-      miembros:  r.miembros  || 0
+      miembros:  0   // columna eliminada del esquema (dato derivado)
     };
   }
 
@@ -41,14 +43,14 @@ const SedesModel = (() => {
 
   /** Devuelve todas las sedes (ordenadas por nombre) */
   async function getAll() {
-    const { data, error } = await sb.from(TABLA).select('*').order('nombre', { ascending: true });
+    const { data, error } = await DB.from(TABLA).select('*').order('nombre', { ascending: true });
     if (error) { console.error('SedesModel.getAll:', error); return []; }
     return (data || []).map(_fromRow);
   }
 
   /** Devuelve una sede por id (uuid) o null */
   async function getById(id) {
-    const { data, error } = await sb.from(TABLA).select('*').eq('id', id).single();
+    const { data, error } = await DB.from(TABLA).select('*').eq('id', id).single();
     if (error || !data) return null;
     return _fromRow(data);
   }
@@ -64,18 +66,17 @@ const SedesModel = (() => {
       ciudad:           data.ciudad.trim(),
       direccion:        data.direccion.trim(),
       telefono:         data.telefono?.trim() || null,
-      pastor_encargado: data.pastor?.trim()   || null,
-      miembros:         parseInt(data.miembros) || 0
+      pastor_encargado: data.pastor?.trim()   || null
     };
 
-    const { data: ins, error } = await sb.from(TABLA).insert(fila).select().single();
+    const { data: ins, error } = await DB.from(TABLA).insert(fila).select().single();
     if (error) return { ok: false, error: _msg(error) };
     return { ok: true, sede: _fromRow(ins) };
   }
 
   /** Elimina una sede por id (uuid) */
   async function eliminar(id) {
-    const { error } = await sb.from(TABLA).delete().eq('id', id);
+    const { error } = await DB.from(TABLA).delete().eq('id', id);
     if (error) return { ok: false, error: _msg(error) };
     return { ok: true };
   }

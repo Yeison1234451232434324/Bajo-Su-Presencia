@@ -163,7 +163,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!u) return;
     editandoId = id;
     modalTitle.textContent = 'Editar Usuario';
-    document.getElementById('campo-nombre').value    = u.nombre;
+    document.getElementById('campo-nombre').value    = u.nombres || u.nombre;
+    document.getElementById('campo-apellidos').value = u.apellidos || '';
     document.getElementById('campo-username').value  = u.username;
     document.getElementById('campo-email').value     = u.email;
     document.getElementById('campo-rol').value       = u.rol;
@@ -200,7 +201,8 @@ document.addEventListener('DOMContentLoaded', () => {
     modalError.style.display = 'none';
 
     /* Leer valores — todos trimados antes de validar y antes de guardar */
-    const nombre   = BSPVal.cleanText(document.getElementById('campo-nombre').value);
+    const nombre    = BSPVal.cleanText(document.getElementById('campo-nombre').value);
+    const apellidos = BSPVal.cleanText(document.getElementById('campo-apellidos').value);
     const username = document.getElementById('campo-username').value.trim().toLowerCase();
     const emailVal = document.getElementById('campo-email').value.trim().toLowerCase();
     const rol      = document.getElementById('campo-rol').value;
@@ -212,16 +214,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const bio         = BSPVal.cleanText(document.getElementById('campo-bio').value);
 
     // ── Limpiar estado previo ─────────────────────────────────────────────
-    _ok('campo-nombre','campo-username','campo-email','campo-rol','campo-password','campo-especialidad');
+    _ok('campo-nombre','campo-apellidos','campo-username','campo-email','campo-rol','campo-password','campo-especialidad');
     let valido = true;
 
-    /* Nombre completo: mínimo 3, máximo 80, solo letras */
+    /* Nombres: mínimo 3, máximo 80, solo letras */
     let err;
     err = BSPVal.txt(nombre, { min: 3, max: 80, label: 'El nombre' });
     if (err) { _err('campo-nombre', err); valido = false; }
     else {
       err = BSPVal.soloLetras(nombre, { label: 'El nombre' });
       if (err) { _err('campo-nombre', err); valido = false; }
+    }
+
+    /* Apellidos: opcional; si viene, máximo 80 y solo letras */
+    if (apellidos) {
+      err = BSPVal.txt(apellidos, { min: 2, max: 80, label: 'El apellido' })
+         || BSPVal.soloLetras(apellidos, { label: 'El apellido' });
+      if (err) { _err('campo-apellidos', err); valido = false; }
     }
 
     /* Username: mínimo 3, máximo 30, solo alfanumérico + _ */
@@ -255,8 +264,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!valido) return;
     // ─────────────────────────────────────────────────────────────────────
 
-    /* Enviar datos limpios al modelo — never raw .value */
-    const data = { nombre, username, email: emailVal, rol, password, telefono, ubicacion, ocupacion, especialidad, bio };
+    /* Enviar datos limpios al modelo — never raw .value.
+       nombres/apellidos son los hechos atómicos (BD); nombre queda solo
+       para los mensajes de la interfaz. */
+    const data = { nombres: nombre, apellidos, nombre: apellidos ? `${nombre} ${apellidos}` : nombre,
+                   username, email: emailVal, rol, password, telefono, ubicacion, ocupacion, especialidad, bio };
 
     /* Llamada async al modelo (Supabase) */
     let resultado;
@@ -368,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ── Restricciones HTML dinámicas ─────────────────────────────────────────
-  [['campo-nombre', 80], ['campo-username', 30], ['campo-telefono', 20],
+  [['campo-nombre', 80], ['campo-apellidos', 80], ['campo-username', 30], ['campo-telefono', 20],
    ['campo-ubicacion', 120], ['campo-ocupacion', 100], ['campo-bio', 500]].forEach(([id, max]) => {
     const el = document.getElementById(id);
     if (el) el.maxLength = max;
