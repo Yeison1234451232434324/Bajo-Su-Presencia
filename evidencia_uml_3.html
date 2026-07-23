@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>UML MVC — Actividades · Reportes · Sedes</title>
+<style>
+  @page { size: 420mm 297mm; margin: 0; }
+  html,body{margin:0;padding:0;background:#fff;font-family:"Segoe UI",Arial,sans-serif;}
+  .wrap{width:420mm;height:297mm;}
+  svg{width:100%;height:100%;display:block;}
+  .ttl{font-size:12.5px;font-weight:700;}
+  .mem{font-size:10.5px;}
+  .layer{font-size:20px;font-weight:700;fill:#1d3a6b;}
+  .uselbl{font-size:11px;fill:#374151;}
+  .head{font-size:24px;font-weight:700;fill:#1d3a6b;}
+  .sub{font-size:13px;fill:#6b7280;}
+  .note{font-size:10.5px;fill:#b45309;font-style:italic;}
+</style>
+</head>
+<body>
+<div class="wrap">
+<svg viewBox="0 0 1680 1290" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="tri" markerWidth="16" markerHeight="14" refX="15" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M1,1 L15,7 L1,13 Z" fill="#fff" stroke="#222" stroke-width="1.3"/></marker>
+    <marker id="use" markerWidth="12" markerHeight="12" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M1,1 L9,5 L1,9" fill="none" stroke="#374151" stroke-width="1.3"/></marker>
+  </defs>
+
+  <text x="30" y="34" class="head">Diagrama de Clases UML — Aplicación Web (patrón MVC)</text>
+  <text x="30" y="54" class="sub">Bajo Su Presencia · Módulos: Gestión de Actividades · Sistema de Reportes · Gestión de Sedes</text>
+
+  <g transform="translate(1140,18)">
+    <rect x="0" y="0" width="510" height="48" fill="#f8fafc" stroke="#cbd5e1"/>
+    <line x1="14" y1="18" x2="54" y2="18" stroke="#222" stroke-width="1.4" marker-end="url(#tri)"/>
+    <text x="62" y="22" class="uselbl">herencia — el Modelo reutiliza Conexión</text>
+    <line x1="14" y1="38" x2="54" y2="38" stroke="#374151" stroke-width="1.4" stroke-dasharray="5,3" marker-end="url(#use)"/>
+    <text x="62" y="42" class="uselbl">«use» — dependencia (Vista→Control→Modelo)</text>
+  </g>
+
+  <rect x="20" y="70" width="1640" height="470" fill="#eef4ff" stroke="#9bb4e0"/>
+  <text x="34" y="96" class="layer">Capa Modelo</text>
+  <rect x="20" y="556" width="1640" height="300" fill="#f3eefe" stroke="#c4b5e8"/>
+  <text x="34" y="582" class="layer">Capa Control</text>
+  <rect x="20" y="872" width="1640" height="400" fill="#fff7ea" stroke="#e6c48f"/>
+  <text x="34" y="898" class="layer">Capa Vista</text>
+  <text x="150" y="898" class="sub">vistas = archivos HTML · «atributos» = elementos del DOM · «métodos» = eventos que emiten</text>
+
+  <!-- paquete frameworks -->
+  <g>
+    <rect x="40" y="104" width="320" height="166" fill="#fffdf5" stroke="#0e7490" stroke-width="2"/>
+    <rect x="40" y="92" width="150" height="14" fill="#fffdf5" stroke="#0e7490" stroke-width="2"/>
+    <text x="48" y="103" class="mem" style="font-weight:700;fill:#0e7490">«frameworks»</text>
+    <text x="200" y="123" text-anchor="middle" class="ttl" style="fill:#0e7490">Librerías externas (CDN)</text>
+    <line x1="40" y1="129" x2="360" y2="129" stroke="#0e7490"/>
+    <text x="50" y="146" class="mem">▸ Supabase JS — datos + Auth (JWT)</text>
+    <text x="50" y="162" class="mem">▸ Chart.js — gráficas / barras de reportes</text>
+    <text x="50" y="178" class="mem">▸ Alertify.js — alertas / notificaciones</text>
+    <text x="50" y="194" class="mem">▸ Boxicons — iconografía</text>
+    <text x="50" y="210" class="mem">▸ Google Fonts — tipografías</text>
+    <line x1="40" y1="218" x2="360" y2="218" stroke="#0e7490"/>
+    <text x="50" y="234" class="note">Estilos: CSS propio por módulo</text>
+    <text x="50" y="250" class="note">(no se usa Bootstrap ni Tailwind)</text>
+  </g>
+  <g stroke="#374151" stroke-width="1.3" fill="none" stroke-dasharray="5,3">
+    <path d="M697,166 L360,166" marker-end="url(#use)"/></g>
+  <text x="455" y="160" class="uselbl">«use» Supabase JS</text>
+
+  <!-- CONEXION -->
+  <g>
+    <rect x="697" y="110" width="220" height="112" fill="#fff" stroke="#c0392b" stroke-width="2.2"/>
+    <text x="807" y="127" text-anchor="middle" class="ttl">Conexion</text>
+    <line x1="697" y1="133" x2="917" y2="133" stroke="#c0392b"/>
+    <text x="705" y="148" class="mem">-url</text>
+    <text x="705" y="162" class="mem">-anonKey</text>
+    <text x="705" y="176" class="mem">-sb (cliente)</text>
+    <line x1="697" y1="183" x2="917" y2="183" stroke="#c0392b"/>
+    <text x="705" y="198" class="mem">+crearCliente()</text>
+    <text x="705" y="212" class="mem">+miUsuarioId()</text>
+  </g>
+
+  <!-- ===== MODELOS ===== -->
+  <!-- ModeloActividades c1 -->
+  <g>
+    <rect x="55" y="300" width="220" height="180" fill="#fff" stroke="#222"/>
+    <text x="165" y="317" text-anchor="middle" class="ttl">ModeloActividades</text>
+    <line x1="55" y1="323" x2="275" y2="323" stroke="#222"/>
+    <text x="63" y="337" class="mem">-TABLA = "actividades"</text>
+    <line x1="55" y1="344" x2="275" y2="344" stroke="#222"/>
+    <text x="63" y="358" class="mem">+getAll()</text>
+    <text x="63" y="372" class="mem">+getByEvento(eventoId)</text>
+    <text x="63" y="386" class="mem">+getById(id)</text>
+    <text x="63" y="400" class="mem">+crear(datos)</text>
+    <text x="63" y="414" class="mem">+actualizar(id, datos)</text>
+    <text x="63" y="428" class="mem">+toggleCompletada(id, c)</text>
+    <text x="63" y="442" class="mem">+eliminar(id)</text>
+    <text x="63" y="456" class="mem">+getResumenEvento(eventoId)</text>
+  </g>
+  <!-- ModeloReportes c3 -->
+  <g>
+    <rect x="695" y="300" width="220" height="124" fill="#fff" stroke="#222"/>
+    <text x="805" y="317" text-anchor="middle" class="ttl">ModeloReportes</text>
+    <line x1="695" y1="323" x2="915" y2="323" stroke="#222"/>
+    <text x="703" y="337" class="mem">-TABLA = "informes"</text>
+    <line x1="695" y1="344" x2="915" y2="344" stroke="#222"/>
+    <text x="703" y="358" class="mem">+getAll()</text>
+    <text x="703" y="372" class="mem">+getByEvento(eventoId)</text>
+    <text x="703" y="386" class="mem">+guardar(datos)</text>
+    <text x="703" y="400" class="mem">+eliminar(eventoId)</text>
+  </g>
+  <!-- ModeloAsistencias c4 (soporte de reportes) -->
+  <g>
+    <rect x="1015" y="300" width="220" height="124" fill="#fff" stroke="#222"/>
+    <text x="1125" y="317" text-anchor="middle" class="ttl">ModeloAsistencias</text>
+    <line x1="1015" y1="323" x2="1235" y2="323" stroke="#222"/>
+    <text x="1023" y="337" class="mem">-TABLA = "asistencias"</text>
+    <line x1="1015" y1="344" x2="1235" y2="344" stroke="#222"/>
+    <text x="1023" y="358" class="mem">+getAll()</text>
+    <text x="1023" y="372" class="mem">+getByEvento(eventoId)</text>
+    <text x="1023" y="386" class="mem">+getEventos()</text>
+    <text x="1023" y="400" class="mem">+getResumen(eventoId)</text>
+  </g>
+  <!-- ModeloSedes c5 -->
+  <g>
+    <rect x="1335" y="300" width="220" height="110" fill="#fff" stroke="#222"/>
+    <text x="1445" y="317" text-anchor="middle" class="ttl">ModeloSedes</text>
+    <line x1="1335" y1="323" x2="1555" y2="323" stroke="#222"/>
+    <text x="1343" y="337" class="mem">-TABLA = "sedes"</text>
+    <line x1="1335" y1="344" x2="1555" y2="344" stroke="#222"/>
+    <text x="1343" y="358" class="mem">+getAll()</text>
+    <text x="1343" y="372" class="mem">+getById(id)</text>
+    <text x="1343" y="386" class="mem">+agregar(datos)</text>
+    <text x="1343" y="400" class="mem">+eliminar(id)</text>
+  </g>
+
+  <!-- ===== CONTROLADORES (con atributos = estado + métodos) ===== -->
+  <!-- ControladorActividades c1 -->
+  <g>
+    <rect x="55" y="600" width="220" height="166" fill="#fff" stroke="#222"/>
+    <text x="165" y="617" text-anchor="middle" class="ttl">ControladorActividades</text>
+    <line x1="55" y1="623" x2="275" y2="623" stroke="#222"/>
+    <text x="63" y="637" class="mem">-eventoSeleccionado : uuid</text>
+    <text x="63" y="651" class="mem">-modalActividad : HTMLDiv</text>
+    <line x1="55" y1="658" x2="275" y2="658" stroke="#222"/>
+    <text x="63" y="672" class="mem">+renderEventos()</text>
+    <text x="63" y="686" class="mem">+seleccionarEvento()</text>
+    <text x="63" y="700" class="mem">+renderActividades()</text>
+    <text x="63" y="714" class="mem">+abrirNuevaActividad()</text>
+    <text x="63" y="728" class="mem">+abrirEditar(id)</text>
+    <text x="63" y="742" class="mem">+eliminarActividad(id)</text>
+    <text x="63" y="756" class="mem">+cargarVoluntarios()</text>
+  </g>
+  <!-- ControladorVolActividades c2 -->
+  <g>
+    <rect x="375" y="600" width="220" height="124" fill="#fff" stroke="#222"/>
+    <text x="485" y="617" text-anchor="middle" class="ttl">ControladorVolActividades</text>
+    <line x1="375" y1="623" x2="595" y2="623" stroke="#222"/>
+    <text x="383" y="637" class="mem">-secciones : HTMLDiv</text>
+    <text x="383" y="651" class="mem">-barraGlobal : HTMLDiv</text>
+    <line x1="375" y1="658" x2="595" y2="658" stroke="#222"/>
+    <text x="383" y="672" class="mem">+render()</text>
+    <text x="383" y="686" class="mem">+toggleActividadVoluntario(id)</text>
+    <text x="383" y="700" class="mem">+actualizarBarraGlobal()</text>
+    <text x="383" y="714" class="mem">+agruparPorEvento()</text>
+  </g>
+  <!-- ControladorReporte c3 -->
+  <g>
+    <rect x="695" y="600" width="220" height="138" fill="#fff" stroke="#222"/>
+    <text x="805" y="617" text-anchor="middle" class="ttl">ControladorReporte</text>
+    <line x1="695" y1="623" x2="915" y2="623" stroke="#222"/>
+    <text x="703" y="637" class="mem">-eventoSeleccionado : uuid</text>
+    <text x="703" y="651" class="mem">-formInforme : HTMLForm</text>
+    <line x1="695" y1="658" x2="915" y2="658" stroke="#222"/>
+    <text x="703" y="672" class="mem">+renderEventos()</text>
+    <text x="703" y="686" class="mem">+seleccionarEvento()</text>
+    <text x="703" y="700" class="mem">+guardarReporte()</text>
+    <text x="703" y="714" class="mem">+renderReporteExistente()</text>
+    <text x="703" y="728" class="mem">+cancelarReporte()</text>
+  </g>
+  <!-- ControladorGenerarReportes c4 -->
+  <g>
+    <rect x="1015" y="600" width="220" height="152" fill="#fff" stroke="#222"/>
+    <text x="1125" y="617" text-anchor="middle" class="ttl">ControladorGenerarReportes</text>
+    <line x1="1015" y1="623" x2="1235" y2="623" stroke="#222"/>
+    <text x="1023" y="637" class="mem">-historial : array</text>
+    <text x="1023" y="651" class="mem">-filtros : HTMLForm</text>
+    <line x1="1015" y1="658" x2="1235" y2="658" stroke="#222"/>
+    <text x="1023" y="672" class="mem">+renderHistorial()</text>
+    <text x="1023" y="686" class="mem">+generarReporte()</text>
+    <text x="1023" y="700" class="mem">+descargarPDF()</text>
+    <text x="1023" y="714" class="mem">+filtrar()</text>
+    <text x="1023" y="728" class="mem">+stats()  +tabla()</text>
+    <text x="1023" y="742" class="mem">+barras()  +portada()</text>
+  </g>
+  <!-- ControladorSedes c5 -->
+  <g>
+    <rect x="1335" y="600" width="220" height="124" fill="#fff" stroke="#222"/>
+    <text x="1445" y="617" text-anchor="middle" class="ttl">ControladorSedes</text>
+    <line x1="1335" y1="623" x2="1555" y2="623" stroke="#222"/>
+    <text x="1343" y="637" class="mem">-tablaSedes : DataTable</text>
+    <text x="1343" y="651" class="mem">-modalSede : HTMLDiv</text>
+    <line x1="1335" y1="658" x2="1555" y2="658" stroke="#222"/>
+    <text x="1343" y="672" class="mem">+render()</text>
+    <text x="1343" y="686" class="mem">+abrirModalSede()</text>
+    <text x="1343" y="700" class="mem">+cerrarModalSede()</text>
+    <text x="1343" y="714" class="mem">+eliminarSede(id)</text>
+  </g>
+
+  <!-- ===== VISTAS ===== -->
+  <!-- actividades c1 -->
+  <g>
+    <rect x="55" y="940" width="220" height="118" fill="#fff" stroke="#222"/>
+    <text x="165" y="957" text-anchor="middle" class="ttl">actividades</text>
+    <line x1="55" y1="963" x2="275" y2="963" stroke="#222"/>
+    <text x="63" y="977" class="mem">-listaEventos : HTMLDiv</text>
+    <text x="63" y="991" class="mem">-modalActividad : HTMLDiv</text>
+    <line x1="55" y1="998" x2="275" y2="998" stroke="#222"/>
+    <text x="63" y="1012" class="mem">+onCrear() «evento»</text>
+    <text x="63" y="1026" class="mem">+onEditar() «evento»</text>
+    <text x="63" y="1040" class="mem">+onEliminar() «evento»</text>
+  </g>
+  <!-- mis-actividades c2 -->
+  <g>
+    <rect x="375" y="940" width="220" height="104" fill="#fff" stroke="#222"/>
+    <text x="485" y="957" text-anchor="middle" class="ttl">mis-actividades</text>
+    <line x1="375" y1="963" x2="595" y2="963" stroke="#222"/>
+    <text x="383" y="977" class="mem">-secciones : HTMLDiv</text>
+    <text x="383" y="991" class="mem">-checkActividad : HTMLInput</text>
+    <line x1="375" y1="998" x2="595" y2="998" stroke="#222"/>
+    <text x="383" y="1012" class="mem">+onCompletar() «evento»</text>
+  </g>
+  <!-- reporte (informe) c3 -->
+  <g>
+    <rect x="695" y="940" width="220" height="118" fill="#fff" stroke="#222"/>
+    <text x="805" y="957" text-anchor="middle" class="ttl">reporte</text>
+    <line x1="695" y1="963" x2="915" y2="963" stroke="#222"/>
+    <text x="703" y="977" class="mem">-listaEventos : HTMLDiv</text>
+    <text x="703" y="991" class="mem">-formInforme : HTMLForm</text>
+    <line x1="695" y1="998" x2="915" y2="998" stroke="#222"/>
+    <text x="703" y="1012" class="mem">+onSeleccionar() «evento»</text>
+    <text x="703" y="1026" class="mem">+onGuardar() «evento»</text>
+    <text x="703" y="1040" class="mem">+onCancelar() «evento»</text>
+  </g>
+  <!-- generar-reportes c4 -->
+  <g>
+    <rect x="1015" y="940" width="220" height="118" fill="#fff" stroke="#222"/>
+    <text x="1125" y="957" text-anchor="middle" class="ttl">generar-reportes</text>
+    <line x1="1015" y1="963" x2="1235" y2="963" stroke="#222"/>
+    <text x="1023" y="977" class="mem">-filtros : HTMLForm</text>
+    <text x="1023" y="991" class="mem">-tablaHistorial : HTMLTable</text>
+    <line x1="1015" y1="998" x2="1235" y2="998" stroke="#222"/>
+    <text x="1023" y="1012" class="mem">+onGenerar() «evento»</text>
+    <text x="1023" y="1026" class="mem">+onDescargarPDF() «evento»</text>
+    <text x="1023" y="1040" class="mem">+onFiltrar() «evento»</text>
+  </g>
+  <!-- sedes c5 -->
+  <g>
+    <rect x="1335" y="940" width="220" height="104" fill="#fff" stroke="#222"/>
+    <text x="1445" y="957" text-anchor="middle" class="ttl">sedes</text>
+    <line x1="1335" y1="963" x2="1555" y2="963" stroke="#222"/>
+    <text x="1343" y="977" class="mem">-tablaSedes : HTMLTable</text>
+    <text x="1343" y="991" class="mem">-modalSede : HTMLDiv</text>
+    <line x1="1335" y1="998" x2="1555" y2="998" stroke="#222"/>
+    <text x="1343" y="1012" class="mem">+onAgregar() «evento»</text>
+    <text x="1343" y="1026" class="mem">+onEliminar() «evento»</text>
+  </g>
+
+  <!-- ===== RELACIONES ===== -->
+  <!-- Modelos -> Conexion (herencia) -->
+  <g stroke="#222" stroke-width="1.3" fill="none">
+    <path d="M165,300 L165,260 L760,260 L795,222" marker-end="url(#tri)"/>
+    <path d="M805,300 L805,236" marker-end="url(#tri)"/>
+    <path d="M1125,300 L1125,265 L850,265 L820,224" marker-end="url(#tri)"/>
+    <path d="M1445,300 L1445,250 L860,250 L824,222" marker-end="url(#tri)"/>
+  </g>
+  <!-- Controladores -> Modelos (use) -->
+  <g stroke="#374151" stroke-width="1.3" fill="none" stroke-dasharray="5,3">
+    <path d="M165,600 L165,480" marker-end="url(#use)"/>
+    <path d="M485,600 L485,545 L180,545 L180,480" marker-end="url(#use)"/>
+    <path d="M805,600 L805,424" marker-end="url(#use)"/>
+    <path d="M1110,600 L1110,545 L820,545 L820,424" marker-end="url(#use)"/>
+    <path d="M1140,600 L1140,424" marker-end="url(#use)"/>
+    <path d="M1445,600 L1445,410" marker-end="url(#use)"/>
+  </g>
+  <g class="uselbl">
+    <text x="170" y="560">+use</text>
+    <text x="370" y="540">+use</text>
+    <text x="810" y="560">+use</text>
+    <text x="1148" y="560">+use</text>
+    <text x="1450" y="560">+use</text>
+    <text x="600" y="540" class="note">Generar-reportes usa Reportes + Asistencias</text>
+  </g>
+  <!-- Vistas -> Controladores (use) -->
+  <g stroke="#374151" stroke-width="1.3" fill="none" stroke-dasharray="5,3">
+    <path d="M165,940 L165,766" marker-end="url(#use)"/>
+    <path d="M485,940 L485,724" marker-end="url(#use)"/>
+    <path d="M805,940 L805,738" marker-end="url(#use)"/>
+    <path d="M1125,940 L1125,752" marker-end="url(#use)"/>
+    <path d="M1445,940 L1445,724" marker-end="url(#use)"/>
+  </g>
+  <g class="uselbl">
+    <text x="170" y="860">+use</text>
+    <text x="490" y="860">+use</text>
+    <text x="810" y="860">+use</text>
+    <text x="1130" y="860">+use</text>
+    <text x="1450" y="860">+use</text>
+  </g>
+</svg>
+</div>
+</body>
+</html>

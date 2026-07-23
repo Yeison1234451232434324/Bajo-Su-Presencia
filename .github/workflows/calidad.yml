@@ -1,0 +1,120 @@
+# ============================================================================
+#  Canalización de Calidad — Bajo Su Presencia
+#
+#  Ejecuta en cada cambio las mismas verificaciones que se pueden lanzar en
+#  local, de modo que ningún fallo dependa de que alguien se acuerde de
+#  ejecutarlas a mano.
+#
+#  Política de fallo:
+#    · BLOQUEAN la integración: sintaxis, PHPStan, pruebas, validación de
+#      Composer y auditoría de seguridad de dependencias.
+#    · INFORMAN sin bloquear: PHPCS y Rector, porque su incumplimiento es de
+#      estilo o de modernización y no compromete el funcionamiento. Conviene
+#      endurecerlos a bloqueantes una vez saneada la deuda existente.
+# ============================================================================
+
+name: Calidad
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  # Un empujón nuevo sobre la misma rama cancela el análisis anterior.
+  group: calidad-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  calidad:
+    name: Análisis estático y pruebas
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Preparar PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: curl, json, mbstring
+          # pcov habilita la cobertura sin el coste de rendimiento de Xdebug.
+          coverage: pcov
+          tools: composer:v2
+
+      - name: Cachear las dependencias
+        uses: actions/cache@v4
+        with:
+          path: backend/vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('backend/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      # ── 1. Validación de Composer ─────────────────────────────────────
+      - name: Validar composer.json y composer.lock
+        run: composer validate --strict
+
+      # ── 2. Instalación ────────────────────────────────────────────────
+      - name: Instalar dependencias
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      # ── 3. Sintaxis ───────────────────────────────────────────────────
+      - name: Comprobar sintaxis de todos los archivos PHP
+        run: |
+          find src public routes tests -name '*.php' -print0 \
+            | xargs -0 -n1 php -l > /dev/null
+
+      # ── 4. Análisis estático (BLOQUEANTE) ─────────────────────────────
+      - name: PHPStan (nivel 8)
+        run: vendor/bin/phpstan analyse --no-progress --error-format=github
+
+      # ── 5. Estilo de código (informativo) ─────────────────────────────
+      - name: PHP_CodeSniffer (PSR-12)
+        continue-on-error: true
+        run: |
+          if [ -f vendor/bin/phpcs ]; then
+            vendor/bin/phpcs --standard=phpcs.xml --report=full
+          else
+            echo "PHPCS no instalado; se omite."
+          fi
+
+      # ── 6. Modernización (informativo, sin aplicar cambios) ───────────
+      - name: Rector (simulación)
+        continue-on-error: true
+        run: |
+          if [ -f vendor/bin/rector ]; then
+            vendor/bin/rector process --dry-run --no-progress-bar
+          else
+            echo "Rector no instalado; se omite."
+          fi
+
+      # ── 7. Pruebas (BLOQUEANTE) ───────────────────────────────────────
+      - name: Ejecutar la suite de pruebas
+        run: composer test
+
+      # ── 8. Auditoría de dependencias (BLOQUEANTE) ─────────────────────
+      - name: composer audit
+        run: composer audit --no-interaction
+
+      # ── 9. Informe ────────────────────────────────────────────────────
+      - name: Publicar informe de PHPStan
+        if: always()
+        run: |
+          vendor/bin/phpstan analyse --no-progress --error-format=json > phpstan-report.json || true
+
+      - name: Guardar los informes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: informes-calidad
+          path: backend/phpstan-report.json
+          retention-days: 14
+          if-no-files-found: ignore

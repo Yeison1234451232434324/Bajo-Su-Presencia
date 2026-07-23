@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<ruleset name="BajoSuPresencia">
+    <description>
+        Estándar de codificación del backend: PSR-12, tal y como declara
+        ESTANDAR_DE_CODIFICACION.md (indentación de 4 espacios, llaves de
+        clase y método en línea nueva, visibilidad explícita).
+    </description>
+
+    <!-- Rutas analizadas -->
+    <file>src</file>
+    <file>public</file>
+    <file>routes</file>
+    <file>tests</file>
+
+    <!-- Nunca se analiza código de terceros -->
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/logs/*</exclude-pattern>
+
+    <!-- Estándar base -->
+    <rule ref="PSR12"/>
+
+    <!--
+        El proyecto documenta y usa 120 columnas; el aviso por defecto salta a
+        las 80, lo que generaría cientos de falsos positivos sobre código
+        perfectamente legible.
+    -->
+    <rule ref="Generic.Files.LineLength">
+        <properties>
+            <property name="lineLimit" value="120"/>
+            <property name="absoluteLineLimit" value="0"/>
+        </properties>
+    </rule>
+
+    <arg name="colors"/>
+    <arg name="encoding" value="utf-8"/>
+    <arg value="sp"/>
+</ruleset>

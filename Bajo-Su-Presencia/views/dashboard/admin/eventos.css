@@ -1,0 +1,872 @@
+/*
+ * ================================================================
+ *  EVENTOS ADMIN — Estilos del módulo de publicación de eventos
+ * ================================================================
+ *  ¿Qué hace este archivo?
+ *  Estiliza la página donde el admin crea y gestiona eventos:
+ *
+ *  SECCIÓN 1 — Formulario de publicación:
+ *    - Encabezado de recursos con contador de seleccionados
+ *    - Mensaje de advertencia cuando no hay recursos en inventario
+ *    - Grilla de tarjetas de recursos (con checkbox de selección,
+ *      ícono de categoría, stock disponible y campo de cantidad)
+ *    - Estado visual "seleccionado" con borde azul y fondo suave
+ *
+ *  SECCIÓN 2 — Lista de eventos publicados:
+ *    - Tarjetas de cada evento con título, fecha, descripción
+ *    - Chips (etiquetas) de recursos asignados al evento
+ *    - Botón de eliminar evento
+ *    - Placeholder cuando la lista está vacía
+ *
+ *  ¿Cómo se usa?
+ *  Se carga DESPUÉS de panel.css en eventos.html del admin.
+ * ================================================================
+ */
+
+/* ══════════════════════════════════════════════════
+   PUBLICAR EVENTO — CSS específico
+   Complementa panel.css (variables y estilos base)
+══════════════════════════════════════════════════ */
+
+/* ── Encabezado de la sección de recursos ── */
+.ev-recursos-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.875rem;
+}
+
+/* Contador de recursos seleccionados */
+.ev-contador {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #9ca3af;
+  font-style: italic;
+  transition: color 0.2s;
+}
+
+/* Mensaje cuando no hay recursos en el inventario */
+.ev-sin-recursos-msg {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  border-radius: 0.875rem;
+  font-size: 1rem;
+  color: #92400e;
+}
+.ev-sin-recursos-msg i { font-size: 1.2rem; color: #d97706; }
+.ev-sin-recursos-msg a {
+  color: var(--primary);
+  font-weight: 700;
+  text-decoration: underline;
+  margin-left: 0.25rem;
+}
+
+/* ── Grilla de tarjetas de recursos ── */
+.ev-recursos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.875rem;
+}
+
+/* Tarjeta individual de recurso */
+.ev-recurso-card {
+  border: 2px solid #e5e7eb;
+  border-radius: 1rem;
+  padding: 0.875rem 1rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  background: #fff;
+}
+.ev-recurso-card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 2px 10px rgba(30,58,138,0.1);
+}
+
+/* Estado seleccionado: borde azul + fondo suave */
+.ev-recurso-card.ev-rec-selected {
+  border-color: var(--primary);
+  background: #eff6ff;
+  box-shadow: 0 2px 12px rgba(30,58,138,0.15);
+}
+
+/* Checkbox de selección */
+.ev-rec-check input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+  cursor: pointer;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+/* Cuerpo de la tarjeta */
+.ev-rec-body { flex: 1; min-width: 0; }
+
+.ev-rec-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.2rem;
+}
+
+/* Ícono de categoría */
+.ev-rec-icon {
+  font-size: 1.1rem;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+/* Nombre del recurso (label clickeable) */
+.ev-rec-nombre {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #1a1a2e;
+  cursor: pointer;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Badge de stock disponible */
+.ev-rec-stock {
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+/* Badge de especialidad (tarjetas de especialistas) */
+.ev-badge-especialidad {
+  background: #e0f2fe;
+  color: #0369a1;
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+/* Categoría del recurso */
+.ev-rec-cat {
+  font-size: 0.8125rem;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+
+/* Sección de cantidad (visible solo cuando está seleccionado) */
+.ev-rec-qty {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+.ev-rec-qty label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+}
+.ev-qty-input {
+  width: 70px;
+  padding: 0.3rem 0.5rem;
+  border: 2px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 0.9375rem;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.ev-qty-input:focus { border-color: var(--primary); }
+.ev-qty-max {
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+/* ══════════════════════════════════════════════════
+   LISTA DE EVENTOS PUBLICADOS
+══════════════════════════════════════════════════ */
+.ev-publicados-section {
+  margin-top: 2.5rem;
+  max-width: 56rem;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
+.ev-publicados-titulo {
+  font-family: var(--font-title);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.ev-publicados-titulo i { color: var(--primary); }
+
+/* Tarjeta de evento publicado */
+.ev-publicado-card {
+  background: #fff;
+  border: 2px solid var(--border);
+  border-radius: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  transition: box-shadow 0.2s;
+}
+.ev-publicado-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+/* Encabezado de la tarjeta: título + botón eliminar */
+.ev-pub-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+.ev-pub-titulo {
+  font-family: var(--font-title);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+.ev-pub-meta {
+  font-size: 0.9375rem;
+  color: var(--muted);
+  margin-top: 0.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+.ev-pub-meta i { font-size: 0.95rem; }
+
+/* Descripción del evento */
+.ev-pub-desc {
+  font-size: 0.9375rem;
+  color: #374151;
+  margin: 0.5rem 0 0.75rem;
+  line-height: 1.5;
+}
+
+/* Sección de recursos asignados */
+.ev-pub-recursos {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #f3f0e8;
+}
+.ev-pub-recursos-label {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  white-space: nowrap;
+  padding-top: 2px;
+}
+.ev-chips-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/* Chip de recurso asignado */
+.ev-chip-recurso {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: #dbeafe;
+  color: #1d4ed8;
+  border-radius: 999px;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+.ev-chip-recurso i { font-size: 0.85rem; }
+
+/* Texto cuando no hay recursos asignados */
+.ev-sin-recursos {
+  font-size: 0.8125rem;
+  color: #9ca3af;
+  font-style: italic;
+}
+
+/* Botón eliminar evento */
+.btn-ev-eliminar {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 0.5rem;
+  background: #fee2e2;
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, transform 0.1s;
+}
+.btn-ev-eliminar:hover  { background: #fecaca; }
+.btn-ev-eliminar:active { transform: scale(0.92); }
+
+/* Placeholder lista vacía */
+.ev-lista-vacia {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2.5rem;
+  background: #fff;
+  border: 2px dashed var(--border);
+  border-radius: 1.25rem;
+  color: #9ca3af;
+  text-align: center;
+}
+.ev-lista-vacia i { font-size: 2.5rem; color: #d1d5db; }
+
+/* ══════════════════════════════════════════════════
+   PLANTILLAS DE EVENTOS
+══════════════════════════════════════════════════ */
+.ev-plantillas-wrap {
+  background: #fff;
+  border: 2px solid var(--border);
+  border-radius: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.25rem;
+}
+.ev-plantillas-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.875rem;
+}
+.ev-plantillas-label i { font-size: 1rem; color: var(--primary); }
+.ev-plantillas-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.ev-plantilla-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.875rem;
+  border: 2px solid var(--border);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--primary-dark);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+  font-family: var(--font-text);
+}
+.ev-plantilla-btn:hover {
+  border-color: var(--primary);
+  background: #eff6ff;
+  color: var(--primary);
+}
+.ev-plantilla-btn.activa {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: #fff;
+}
+.ev-plantilla-btn i { font-size: 1rem; }
+
+/* ── Selector de horario (dos time inputs lado a lado) ── */
+.ev-horario-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.ev-horario-wrap .form-control {
+  flex: 1;
+  min-width: 0;
+}
+.ev-horario-sep {
+  color: #9ca3af;
+  font-weight: 700;
+  flex-shrink: 0;
+  font-size: 1rem;
+  user-select: none;
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .ev-recursos-grid { grid-template-columns: 1fr; }
+  .ev-pub-header { flex-direction: column; }
+  .ev-horario-wrap { flex-wrap: wrap; }
+}
+
+/* ══════════════════════════════════════════════════
+   HISTORIAL — Badges de estado y acciones
+══════════════════════════════════════════════════ */
+
+/* Fila título + badge */
+.ev-pub-titulo-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+/* Info del encabezado (título + meta) */
+.ev-pub-header-info { flex: 1; min-width: 0; }
+
+/* Badge de estado del evento */
+.ev-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.ev-badge--activo {
+  background: #d1fae5;
+  color: #065f46;
+}
+.ev-badge--pasado {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+/* Estados del evento */
+.ev-badge--publicado {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+.ev-badge--ejecucion {
+  background: #fef3c7;
+  color: #b45309;
+}
+.ev-badge--finalizado {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+/* Grupo de botones de acción */
+.ev-pub-acciones {
+  display: flex;
+  gap: 0.4rem;
+  flex-shrink: 0;
+  align-items: flex-start;
+}
+
+/* Botón de acción base */
+.btn-ev-accion {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, transform 0.1s;
+}
+.btn-ev-accion:active { transform: scale(0.92); }
+
+/* Ver detalle — azul */
+.btn-ev-ver {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+.btn-ev-ver:hover { background: #bfdbfe; }
+
+/* Editar — amarillo */
+.btn-ev-editar {
+  background: #fef9c3;
+  color: #a16207;
+}
+.btn-ev-editar:hover { background: #fef08a; }
+
+/* Eliminar — rojo (reemplaza el anterior .btn-ev-eliminar) */
+.btn-ev-eliminar {
+  background: #fee2e2;
+  color: #dc2626;
+}
+.btn-ev-eliminar:hover { background: #fecaca; }
+
+/* Fecha de publicación */
+.ev-pub-fecha-pub {
+  font-size: 0.8125rem;
+  color: #9ca3af;
+  margin-top: 0.6rem;
+  font-style: italic;
+}
+
+/* ══════════════════════════════════════════════════
+   MODALES — Ver detalle y Editar evento
+══════════════════════════════════════════════════ */
+
+/* Overlay oscuro */
+.ev-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  backdrop-filter: blur(2px);
+}
+
+/* Caja del modal */
+.ev-modal-box {
+  background: #fff;
+  border-radius: 1.25rem;
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  animation: ev-modal-in 0.2s ease;
+}
+
+/* Modal ancho para edición */
+.ev-modal-box--wide { max-width: 680px; }
+
+@keyframes ev-modal-in {
+  from { opacity: 0; transform: translateY(-16px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Encabezado del modal */
+.ev-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem 0;
+  gap: 1rem;
+}
+
+.ev-modal-title {
+  font-family: var(--font-title);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Botón cerrar modal */
+.ev-modal-close {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 0.5rem;
+  background: #f3f4f6;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.ev-modal-close:hover { background: #e5e7eb; color: #111; }
+
+/* Cuerpo del modal */
+.ev-modal-body {
+  padding: 1.25rem 1.5rem 1.5rem;
+}
+
+/* ── Detalle del evento ── */
+.ev-detalle-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.ev-detalle-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.ev-detalle-label {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.ev-detalle-label i { font-size: 0.9rem; }
+
+.ev-detalle-valor {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.ev-detalle-desc {
+  margin: 0.75rem 0;
+  padding: 0.75rem 1rem;
+  background: #f9fafb;
+  border-radius: 0.75rem;
+  border-left: 3px solid var(--primary);
+}
+.ev-detalle-desc p {
+  font-size: 0.9375rem;
+  color: #374151;
+  margin-top: 0.4rem;
+  line-height: 1.5;
+}
+
+.ev-detalle-recursos { margin-top: 0.75rem; }
+
+/* ── Footer del modal de edición ── */
+.ev-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f3f0e8;
+}
+
+.btn-ev-cancelar {
+  padding: 0.6rem 1.25rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.75rem;
+  background: #fff;
+  color: #6b7280;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn-ev-cancelar:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+/* ── Responsive modales ── */
+@media (max-width: 640px) {
+  .ev-detalle-grid { grid-template-columns: 1fr; }
+  .ev-modal-box, .ev-modal-box--wide { max-width: 100%; }
+  .ev-pub-acciones { flex-wrap: wrap; }
+}
+
+/* ══════════════════════════════════════════════════
+   LAYOUT FORMULARIO + PREVISUALIZACIÓN
+══════════════════════════════════════════════════ */
+
+/* Contenedor de dos columnas */
+.ev-form-preview-layout {
+  display: grid;
+  grid-template-columns: 1fr 0px;   /* columna preview colapsada por defecto */
+  gap: 0;
+  align-items: flex-start;
+  max-width: 72rem;
+  margin: 0 auto;
+  width: 100%;
+  transition: grid-template-columns 0.35s ease, gap 0.35s ease;
+}
+
+/* Cuando hay datos: expande la columna de previsualización */
+.ev-form-preview-layout:has(.ev-preview-col--visible) {
+  grid-template-columns: 1fr 340px;
+  gap: 1.75rem;
+}
+
+/* Columna del formulario */
+.ev-form-col {
+  min-width: 0;
+}
+
+/* Columna de la previsualización — oculta por defecto */
+.ev-preview-col {
+  min-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  width: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease, width 0.35s ease;
+}
+
+/* Visible: se expande y aparece */
+.ev-preview-col--visible {
+  opacity: 1;
+  width: 340px;
+  pointer-events: auto;
+  overflow: visible;
+}
+
+/* Hace que la previsualización se quede fija mientras se hace scroll */
+.ev-preview-sticky {
+  position: sticky;
+  top: 1.5rem;
+}
+
+/* ── Etiqueta "Vista previa" ── */
+.ev-preview-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+.ev-preview-label i { font-size: 1rem; }
+
+/* ── Tarjeta de previsualización ── */
+.ev-preview-card {
+  background: #fff;
+  border: 2px solid var(--border);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+  transition: box-shadow 0.2s;
+  min-height: 200px;
+  display: flex;
+}
+.ev-preview-card:hover {
+  box-shadow: 0 6px 28px rgba(0,0,0,0.11);
+}
+
+/* Barra de color lateral (igual a las tarjetas de la página pública) */
+.ev-preview-bar {
+  width: 6px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, var(--primary) 0%, #2D4FAF 100%);
+  border-radius: 0 0 0 0;
+}
+
+/* Cuerpo de la tarjeta */
+.ev-preview-body {
+  flex: 1;
+  padding: 1.25rem 1.25rem 1.25rem 1rem;
+  min-width: 0;
+}
+
+/* ── Estado vacío ── */
+.ev-preview-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 2rem 1rem;
+  text-align: center;
+  color: #c4bfb0;
+  min-height: 160px;
+}
+.ev-preview-empty i {
+  font-size: 2.5rem;
+  color: #ddd8cc;
+}
+.ev-preview-empty p {
+  font-size: 0.9375rem;
+  line-height: 1.4;
+}
+
+/* ── Contenido de la tarjeta ── */
+.ev-prev-titulo {
+  font-family: var(--font-title, 'Cormorant Garamond', serif);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 0.75rem;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+/* Lista de datos del evento */
+.ev-prev-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.ev-prev-info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.9375rem;
+  color: #374151;
+}
+
+.ev-prev-icon {
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Descripción en la previsualización */
+.ev-prev-desc {
+  font-size: 0.9375rem;
+  color: #6b7280;
+  line-height: 1.5;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #f3f0e8;
+  word-break: break-word;
+}
+
+/* ── Nota informativa debajo de la tarjeta ── */
+.ev-preview-nota {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  color: #9ca3af;
+  margin-top: 0.75rem;
+  font-style: italic;
+}
+.ev-preview-nota i { font-size: 0.9rem; flex-shrink: 0; }
+
+/* ── Responsive: una columna en pantallas pequeñas ── */
+@media (max-width: 900px) {
+  .ev-form-preview-layout,
+  .ev-form-preview-layout:has(.ev-preview-col--visible) {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  .ev-preview-sticky {
+    position: static;
+  }
+  /* En móvil la previsualización va arriba del formulario */
+  .ev-preview-col {
+    order: -1;
+    width: 100% !important;
+  }
+  .ev-preview-col--visible {
+    width: 100% !important;
+  }
+}

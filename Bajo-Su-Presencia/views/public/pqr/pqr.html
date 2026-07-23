@@ -1,0 +1,416 @@
+﻿<!--
+  ================================================================
+  PQR PÚBLICO — Peticiones, Quejas y Reclamos
+  ================================================================
+  Página pública donde cualquier persona puede enviar un PQR
+  a la iglesia Bajo Su Presencia.
+
+  Archivos que usa:
+    - ../../public/inicio/styles.css  → estilos del header/footer
+    - pqr.css                         → estilos del formulario
+    - ../../../models/pqr.model.js    → modelo de datos
+    - ../../../controllers/pqr.controller.js → lógica del formulario
+  ================================================================
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PQR – Bajo Su Presencia</title>
+  <link rel="stylesheet" href="../inicio/styles.css" />
+  <link rel="stylesheet" href="pqr.css" />
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css" />
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     HEADER (igual que index.html)
+══════════════════════════════════════════ -->
+<header class="site-header">
+  <div class="header-inner">
+
+    <!-- Logo + nombre -->
+    <div class="header-brand">
+      <img src="../../../assets/images/logo.png" alt="Bajo Su Presencia" class="header-logo" />
+      <div>
+        <h1 class="header-title">Bajo Su Presencia</h1>
+        <p class="header-subtitle">Donde mora su espíritu</p>
+      </div>
+    </div>
+
+    <!-- Menú desktop -->
+    <div class="header-menu" id="header-menu">
+      <ul class="lista-menu">
+        <li><a href="../inicio/index.html#Inicio">Inicio</a></li>
+        <li><a href="../inicio/index.html#Oracion">Oración</a></li>
+        <li><a href="../inicio/index.html#Noticias">Noticias</a></li>
+        <li><a href="../inicio/index.html#Eventos">Eventos</a></li>
+        <li><a href="pqr.html" class="active">PQR</a></li>
+      </ul>
+    </div>
+
+    <!-- Botones desktop -->
+    <div class="header-actions">
+      <a href="../login/login.html">
+        <button class="btn btn-outline">Iniciar Sesión</button>
+      </a>
+      <a href="../inicio/index.html#Contacto">
+        <button class="btn btn-primary">Contacto</button>
+      </a>
+    </div>
+
+    <!-- Botón hamburguesa (solo móvil) -->
+    <button class="header-hamburger" id="header-hamburger" aria-label="Abrir menú" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+  </div>
+
+  <!-- Menú móvil desplegable -->
+  <div class="header-mobile-menu" id="header-mobile-menu" aria-hidden="true">
+    <ul class="mobile-lista-menu">
+      <li><a href="../inicio/index.html#Inicio"   onclick="cerrarMenuMovil()">Inicio</a></li>
+      <li><a href="../inicio/index.html#Oracion"  onclick="cerrarMenuMovil()">Oración</a></li>
+      <li><a href="../inicio/index.html#Noticias" onclick="cerrarMenuMovil()">Noticias</a></li>
+      <li><a href="../inicio/index.html#Eventos"  onclick="cerrarMenuMovil()">Eventos</a></li>
+      <li><a href="pqr.html"                      onclick="cerrarMenuMovil()">PQR</a></li>
+      <li><a href="../inicio/index.html#Contacto" onclick="cerrarMenuMovil()">Contacto</a></li>
+    </ul>
+    <div class="mobile-menu-actions">
+      <a href="../login/login.html" class="mobile-btn-login">
+        Iniciar Sesión
+      </a>
+    </div>
+  </div>
+
+</header>
+
+<!-- ══════════════════════════════════════════
+     CONTENIDO PRINCIPAL
+══════════════════════════════════════════ -->
+<main style="padding-top: 80px;">
+
+  <section class="pqr-section">
+    <div class="pqr-container">
+
+      <!-- Encabezado -->
+      <div class="pqr-header">
+        <div class="pqr-header-icon">
+          <i class="bx bx-message-detail"></i>
+        </div>
+        <h2>Peticiones, Quejas y Reclamos</h2>
+        <p>
+          Tu voz es importante para nosotros. Comparte tus peticiones, quejas o reclamos
+          y nuestro equipo te responderá a la brevedad posible.
+        </p>
+      </div>
+
+      <!-- Tarjeta del formulario -->
+      <div class="pqr-card">
+
+        <!-- Nota informativa -->
+        <div class="pqr-info-note">
+          <i class="bx bx-info-circle"></i>
+          <p>
+            Todos los campos marcados con <strong>*</strong> son obligatorios.
+            Tu solicitud será atendida en un plazo máximo de 5 días hábiles.
+          </p>
+        </div>
+
+        <!-- Mensaje de error -->
+        <div class="pqr-error-msg" id="pqr-error-msg" role="alert"></div>
+
+        <!-- Formulario -->
+        <form id="form-pqr" novalidate>
+
+          <!-- Tipo de solicitud -->
+          <div class="pqr-form-group">
+            <label for="pqr-tipo">
+              <i class="bx bx-category"></i>
+              Tipo de solicitud *
+            </label>
+            <select id="pqr-tipo" class="pqr-select" required>
+              <option value="">— Selecciona el tipo —</option>
+              <option value="Petición">Petición</option>
+              <option value="Queja">Queja</option>
+              <option value="Reclamo">Reclamo</option>
+            </select>
+          </div>
+
+          <!-- Nombre + Email -->
+          <div class="pqr-form-row">
+            <div class="pqr-form-group">
+              <label for="pqr-nombre">
+                <i class="bx bx-user"></i>
+                Nombre completo *
+              </label>
+              <input
+                type="text"
+                id="pqr-nombre"
+                class="pqr-input"
+                placeholder="Tu nombre completo"
+                required
+              />
+            </div>
+            <div class="pqr-form-group">
+              <label for="pqr-email">
+                <i class="bx bx-envelope"></i>
+                Correo electrónico *
+              </label>
+              <input
+                type="email"
+                id="pqr-email"
+                class="pqr-input"
+                placeholder="tu@correo.com"
+                required
+              />
+            </div>
+          </div>
+
+          <!-- Teléfono (opcional) -->
+          <div class="pqr-form-group">
+            <label for="pqr-telefono">
+              <i class="bx bx-phone"></i>
+              Teléfono
+              <span class="optional-tag">(opcional)</span>
+            </label>
+            <input
+              type="tel"
+              id="pqr-telefono"
+              class="pqr-input"
+              inputmode="numeric"
+              maxlength="10"
+              pattern="\d{10}"
+              title="Exactamente 10 dígitos numéricos"
+              placeholder="Ej: 3000000000"
+            />
+          </div>
+
+          <!-- Asunto -->
+          <div class="pqr-form-group">
+            <label for="pqr-asunto">
+              <i class="bx bx-edit-alt"></i>
+              Asunto *
+            </label>
+            <input
+              type="text"
+              id="pqr-asunto"
+              class="pqr-input"
+              placeholder="Describe brevemente el motivo de tu solicitud"
+              required
+            />
+          </div>
+
+          <!-- Descripción -->
+          <div class="pqr-form-group">
+            <label for="pqr-descripcion">
+              <i class="bx bx-text"></i>
+              Descripción detallada *
+            </label>
+            <textarea
+              id="pqr-descripcion"
+              class="pqr-textarea"
+              rows="5"
+              placeholder="Explica con detalle tu petición, queja o reclamo. Incluye fechas, nombres o cualquier información relevante que nos ayude a atenderte mejor."
+              required
+            ></textarea>
+          </div>
+
+          <!-- Botón enviar -->
+          <button type="submit" class="pqr-btn-submit" id="pqr-btn-submit">
+            <i class="bx bx-send"></i>
+            Enviar solicitud
+          </button>
+
+        </form>
+
+        <!-- Mensaje de éxito (oculto por defecto) -->
+        <div class="pqr-success" id="pqr-success">
+          <div class="pqr-success-icon">
+            <i class="bx bx-check"></i>
+          </div>
+          <h3>¡Solicitud enviada!</h3>
+          <p>
+            Tu solicitud ha sido recibida exitosamente. Nuestro equipo la revisará
+            y te contactaremos al correo electrónico proporcionado.
+          </p>
+          <button class="pqr-success-btn" id="pqr-btn-nueva">
+            <i class="bx bx-plus"></i>
+            Enviar otra solicitud
+          </button>
+        </div>
+
+      </div><!-- /pqr-card -->
+
+    </div><!-- /pqr-container -->
+  </section>
+
+</main>
+
+<!-- ══════════════════════════════════════════
+     FOOTER — Igual que index.html
+══════════════════════════════════════════ -->
+<footer class="site-footer" id="Contacto">
+  <div class="footer-top-line"></div>
+
+  <div class="section-container">
+    <div class="footer-grid">
+
+      <!-- Columna 1: Logo + descripción + redes -->
+      <div class="footer-col footer-col--brand">
+        <img src="../../../assets/images/logo.png" alt="Bajo Su Presencia" class="footer-logo" />
+        <h4 class="footer-col-title">Bajo Su Presencia</h4>
+        <p class="footer-tagline">Iglesia Cristiana · B.S.P</p>
+        <p class="footer-text">
+          Somos una comunidad de fe fundada en 1995, dedicada a llevar el mensaje
+          de amor y esperanza de Cristo a todas las personas. Un espacio donde cada
+          alma encuentra refugio, sanación y propósito bajo la presencia divina.
+        </p>
+        <div class="footer-social">
+          <!-- Facebook -->
+          <a href="https://www.facebook.com" class="footer-social-btn footer-social-btn--fb"
+             target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+              <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.267h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Columna 2: Contacto -->
+      <div class="footer-col">
+        <h4 class="footer-col-title footer-col-title--accent">Contacto</h4>
+        <div class="footer-contact-list">
+
+          <!-- Dirección → Google Maps -->
+          <a href="https://www.google.com/maps/search/Calle+45+%2312-34+Chapinero+Bogota+Colombia"
+             target="_blank" rel="noopener noreferrer" class="footer-contact-item footer-contact-item--link">
+            <span class="footer-contact-icon-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+              </svg>
+            </span>
+            <span class="footer-contact-text">Calle 45 #12-34<br/>Localidad de Chapinero<br/>Bogotá, Colombia</span>
+          </a>
+
+          <!-- Teléfono -->
+          <a href="tel:+5716012345" class="footer-contact-item footer-contact-item--link">
+            <span class="footer-contact-icon-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+              </svg>
+            </span>
+            <span class="footer-contact-text">+57 (601) 234-5678</span>
+          </a>
+
+          <!-- Email → mailto -->
+          <a href="mailto:contacto@bajosupresencia.org" class="footer-contact-item footer-contact-item--link">
+            <span class="footer-contact-icon-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+              </svg>
+            </span>
+            <span class="footer-contact-text">contacto@bajosupresencia.org</span>
+          </a>
+
+          <!-- PQR (activo) -->
+          <a href="pqr.html" class="footer-contact-item footer-contact-item--link">
+            <span class="footer-contact-icon-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+              </svg>
+            </span>
+            <span class="footer-contact-text">Peticiones, Quejas y Reclamos</span>
+          </a>
+
+        </div>
+      </div>
+
+      <!-- Columna 3: Horarios + versículo -->
+      <div class="footer-col">
+        <h4 class="footer-col-title footer-col-title--accent">Horarios de Servicio</h4>
+        <div class="footer-schedule">
+          <div class="footer-schedule-row">
+            <span>Domingo · Culto Principal</span>
+            <span class="footer-schedule-time">10:00 AM</span>
+          </div>
+          <div class="footer-schedule-row">
+            <span>Miércoles · Estudio Bíblico</span>
+            <span class="footer-schedule-time">7:00 PM</span>
+          </div>
+          <div class="footer-schedule-row">
+            <span>Viernes · Reunión Jóvenes</span>
+            <span class="footer-schedule-time">6:00 PM</span>
+          </div>
+          <div class="footer-schedule-row" style="border-bottom:none;">
+            <span>Sábado · Oración Matutina</span>
+            <span class="footer-schedule-time">8:00 AM</span>
+          </div>
+        </div>
+        <div class="footer-versiculo">
+          <p>"Porque donde están dos o tres congregados en mi nombre, allí estoy yo en medio de ellos."</p>
+          <span>— Mateo 18:20</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer-divider"></div>
+
+    <div class="footer-bottom">
+      <p class="footer-copy">© 2026 Iglesia Bajo Su Presencia · Todos los derechos reservados</p>
+      <p class="footer-copy-gold">"En su presencia hay plenitud de gozo" — Salmos 16:11</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
+<!-- Menú hamburguesa -->
+<script>
+(function () {
+  const btn  = document.getElementById('header-hamburger');
+  const menu = document.getElementById('header-mobile-menu');
+
+  btn.addEventListener('click', () => {
+    const abierto = menu.classList.toggle('header-mobile-menu--open');
+    btn.classList.toggle('header-hamburger--open', abierto);
+    btn.setAttribute('aria-expanded', abierto);
+    menu.setAttribute('aria-hidden', !abierto);
+    document.body.style.overflow = abierto ? 'hidden' : '';
+  });
+
+  window.cerrarMenuMovil = function () {
+    menu.classList.remove('header-mobile-menu--open');
+    btn.classList.remove('header-hamburger--open');
+    btn.setAttribute('aria-expanded', 'false');
+    menu.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  };
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.site-header')) cerrarMenuMovil();
+  });
+})();
+</script>
+
+<!-- Supabase: SDK + cliente (ANTES del modelo) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8" integrity="sha384-Tve8O+C6PBzsIMK/IRCwHbi8fyEzXIlIs6OfVBZHubplwYhaQF/4Mzxqgg+pp/oy" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="../../../controllers/supabase.client.js"></script>
+<script src="../../../controllers/api.config.js"></script>
+<script src="../../../controllers/db.client.js"></script>
+<!-- Modelo PQR -->
+<script src="../../../models/pqr.model.js"></script>
+<!-- Alertify -->
+<script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js" integrity="sha384-3kOl9EzcOjFxTuc9knN784SI3NaWSFtoc4bHR9P8rsADaAZx9PC++m1OimQhoCCb" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="../../../controllers/alertify.helper.js"></script>
+<!-- Controlador PQR público -->
+  <script src="../../../controllers/validators.helper.js"></script>
+  <script src="../../../controllers/pqr.controller.js"></script>
+
+</body>
+</html>

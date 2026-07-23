@@ -1,0 +1,54 @@
+# ============================================================================
+#  Bajo Su Presencia — Configuración de Apache
+#
+#  Doble barrera de seguridad:
+#    1. El Front Controller (index.php) sirve SOLO lo que autoriza su lista
+#       blanca. Es la defensa principal y funciona en cualquier servidor.
+#    2. Este archivo bloquea además a nivel de servidor los archivos sensibles,
+#       por si alguna vez se desactivara la reescritura o se sirviera el
+#       directorio directamente.
+#
+#  IMPORTANTE: el servidor embebido de PHP (`php -S`) IGNORA este archivo.
+#  En desarrollo la protección la aporta index.php como router:
+#      php -S localhost:5500 index.php
+# ============================================================================
+
+# ── Impedir el listado de directorios ──────────────────────────────────────
+Options -Indexes -MultiViews
+
+# ── Bloqueo de archivos y carpetas sensibles ───────────────────────────────
+# .env contiene la SUPABASE_SERVICE_KEY (ignora RLS), el JWT_SECRET y la
+# contraseña de correo: su exposición compromete todo el sistema.
+<FilesMatch "^\.(env|git.*|htaccess|htpasswd)$|\.(sql|log|md|lock|json|ini|bak|old|yml|yaml)$">
+  Require all denied
+</FilesMatch>
+
+# Carpetas que nunca deben servirse por HTTP.
+RedirectMatch 404 (?i)/(backend|vendor|logs|\.git|\.claude|node_modules)(/|$)
+
+# ── Reescritura hacia el Front Controller ──────────────────────────────────
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Fuerza HTTPS en producción (desactivar en desarrollo local sin TLS).
+  # RewriteCond %{HTTPS} off
+  # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # Todo pasa por index.php: él decide qué se sirve y qué no.
+  RewriteCond %{REQUEST_URI} !^/index\.php$
+  RewriteRule ^ index.php [L]
+</IfModule>
+
+# ── Cabeceras de seguridad (respaldo; index.php ya las emite) ──────────────
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always unset X-Powered-By
+  Header always unset Server
+</IfModule>
+
+# ── Compresión ─────────────────────────────────────────────────────────────
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript image/svg+xml
+</IfModule>

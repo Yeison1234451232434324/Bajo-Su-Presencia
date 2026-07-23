@@ -1,0 +1,243 @@
+<!--
+  ================================================================
+  RECUPERAR CONTRASEÑA — OTP de 6 dígitos + JWT (una sola página)
+  ================================================================
+  Flujo (sin recargar, vía fetch):
+    1. Correo        → POST /api/auth/password/forgot   → recibe reset_token
+    2. Código OTP    → POST /api/auth/password/verify-otp → reset_token verificado
+    3. Nueva clave   → POST /api/auth/password/reset
+    · Reenvío        → POST /api/auth/password/resend (habilitado a los 60 s)
+
+  El JWT (reset_token) se guarda SOLO en memoria (variable JS), nunca en
+  localStorage. El OTP llega únicamente por correo.
+
+  Archivos: login.css · recuperar.css · api.config.js · alertify
+  ================================================================
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+    <title>Recuperar Contraseña</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css" />
+    <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="recuperar.css">
+    <style>
+      .paso { display:none; }
+      .paso.activo { display:block; }
+      .otp-input { letter-spacing:14px; text-align:center; font-size:22px; font-weight:600; }
+      .reglas { list-style:none; padding:0; margin:8px 0 4px; font-size:12.5px; }
+      .reglas li { color:#9aa3b2; margin:3px 0; transition:.15s; }
+      .reglas li.ok { color:#00b37e; }
+      .reglas li::before { content:'○ '; }
+      .reglas li.ok::before { content:'✓ '; }
+      .link-accion { background:none; border:none; color:#1E3A8A; font-weight:600; cursor:pointer; font-size:13px; }
+      .link-accion:disabled { color:#9aa3b2; cursor:default; }
+      .sub { color:#6b7280; font-size:13.5px; text-align:center; margin:-4px 0 14px; }
+    </style>
+</head>
+<body>
+    <div class="container recuperar-container">
+        <a href="login.html" class="btn-cerrar" title="Volver al Login"><i class='bx bx-arrow-back'></i></a>
+
+        <!-- ── Paso 1: correo ─────────────────────────────────────────── -->
+        <form id="form-email" class="paso activo">
+            <h1>Recuperar Contraseña</h1>
+            <p class="recuperar-texto">Ingresa tu correo y te enviaremos un código de verificación.</p>
+            <div class="input-box">
+                <input type="email" id="email" placeholder="Correo electrónico" autocomplete="email" required>
+                <i class='bx bxs-envelope'></i>
+            </div>
+            <button type="submit" class="boton">Enviar código</button>
+        </form>
+
+        <!-- ── Paso 2: OTP ────────────────────────────────────────────── -->
+        <form id="form-otp" class="paso">
+            <h1>Verifica tu correo</h1>
+            <p class="sub">Escribe el código de 6 dígitos que enviamos a tu correo.</p>
+            <div class="input-box">
+                <input type="text" id="otp" class="otp-input" inputmode="numeric" maxlength="6"
+                       pattern="\d{6}" placeholder="••••••" autocomplete="one-time-code" required>
+                <i class='bx bxs-lock-alt'></i>
+            </div>
+            <button type="submit" class="boton">Verificar</button>
+            <p class="sub" style="margin-top:12px">
+                ¿No te llegó? <button type="button" id="btn-resend" class="link-accion" disabled>Reenviar (60s)</button>
+            </p>
+        </form>
+
+        <!-- ── Paso 3: nueva contraseña ───────────────────────────────── -->
+        <form id="form-pass" class="paso">
+            <h1>Nueva contraseña</h1>
+            <p class="sub">Crea una contraseña segura.</p>
+            <div class="input-box">
+                <input type="password" id="pass1" placeholder="Nueva contraseña" autocomplete="new-password" required>
+                <i class='bx bxs-lock-alt'></i>
+            </div>
+            <div class="input-box">
+                <input type="password" id="pass2" placeholder="Confirmar contraseña" autocomplete="new-password" required>
+                <i class='bx bxs-lock-alt'></i>
+            </div>
+            <ul class="reglas" id="reglas">
+                <li data-r="len">Mínimo 8 caracteres</li>
+                <li data-r="may">Una mayúscula</li>
+                <li data-r="min">Una minúscula</li>
+                <li data-r="num">Un número</li>
+                <li data-r="esp">Un carácter especial</li>
+                <li data-r="match">Las contraseñas coinciden</li>
+            </ul>
+            <button type="submit" class="boton" id="btn-guardar" disabled>Cambiar contraseña</button>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js" integrity="sha384-3kOl9EzcOjFxTuc9knN784SI3NaWSFtoc4bHR9P8rsADaAZx9PC++m1OimQhoCCb" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="../../../controllers/alertify.helper.js"></script>
+    <script src="../../../controllers/api.config.js"></script>
+    <script>
+    (function () {
+        // ── Estado en memoria (NUNCA en localStorage) ──────────────────────
+        let resetToken = null;
+        let resendTimer = null;
+
+        const API = window.API_BASE;
+        const pasos = {
+            email: document.getElementById('form-email'),
+            otp:   document.getElementById('form-otp'),
+            pass:  document.getElementById('form-pass')
+        };
+        function mostrar(paso) {
+            Object.values(pasos).forEach(p => p.classList.remove('activo'));
+            pasos[paso].classList.add('activo');
+        }
+
+        async function post(path, payload) {
+            const res = await fetch(`${API}${path}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            let body = {};
+            try { body = await res.json(); } catch (_) {}
+            return { ok: res.ok && body.status === 'success', body };
+        }
+
+        function btnLoading(btn, on, txt) {
+            if (on) { btn.dataset.txt = btn.textContent; btn.disabled = true; btn.textContent = txt; }
+            else    { btn.disabled = false; btn.textContent = btn.dataset.txt || btn.textContent; }
+        }
+
+        // ── Cooldown de 60s para reenviar ──────────────────────────────────
+        function iniciarCooldown() {
+            const btn = document.getElementById('btn-resend');
+            let s = 60;
+            btn.disabled = true; btn.textContent = `Reenviar (${s}s)`;
+            clearInterval(resendTimer);
+            resendTimer = setInterval(() => {
+                s--;
+                if (s <= 0) { clearInterval(resendTimer); btn.disabled = false; btn.textContent = 'Reenviar'; }
+                else btn.textContent = `Reenviar (${s}s)`;
+            }, 1000);
+        }
+
+        // ── Paso 1: solicitar OTP ──────────────────────────────────────────
+        pasos.email.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const btn = e.target.querySelector('button');
+            btnLoading(btn, true, 'Enviando…');
+            const { ok, body } = await post('/api/auth/password/forgot', { correo: email });
+            btnLoading(btn, false);
+            if (ok && body.data?.reset_token) {
+                resetToken = body.data.reset_token;
+                showAlertSuccess(body.message || 'Código enviado.');
+                mostrar('otp');
+                iniciarCooldown();
+                document.getElementById('otp').focus();
+            } else {
+                showAlertError(body.message || 'No se pudo procesar la solicitud.');
+            }
+        });
+
+        // ── Paso 2: verificar OTP ──────────────────────────────────────────
+        document.getElementById('otp').addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
+        });
+        pasos.otp.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const otp = document.getElementById('otp').value.trim();
+            if (otp.length !== 6) { showAlertError('El código debe tener 6 dígitos.'); return; }
+            const btn = e.target.querySelector('button[type=submit]');
+            btnLoading(btn, true, 'Verificando…');
+            const { ok, body } = await post('/api/auth/password/verify-otp', { reset_token: resetToken, otp });
+            btnLoading(btn, false);
+            if (ok && body.data?.reset_token) {
+                resetToken = body.data.reset_token; // ahora es el token "verificado"
+                showAlertSuccess('Código correcto.');
+                mostrar('pass');
+                document.getElementById('pass1').focus();
+            } else {
+                showAlertError(body.message || 'Código incorrecto o expirado.');
+            }
+        });
+
+        // ── Reenviar ───────────────────────────────────────────────────────
+        document.getElementById('btn-resend').addEventListener('click', async (e) => {
+            e.preventDefault();
+            const { ok, body } = await post('/api/auth/password/resend', { reset_token: resetToken });
+            if (ok && body.data?.reset_token) {
+                resetToken = body.data.reset_token;
+                showAlertSuccess('Te enviamos un código nuevo.');
+                iniciarCooldown();
+            } else {
+                showAlertError(body.message || 'No se pudo reenviar el código.');
+            }
+        });
+
+        // ── Paso 3: política de contraseña en vivo ─────────────────────────
+        function evaluar() {
+            const p = document.getElementById('pass1').value;
+            const c = document.getElementById('pass2').value;
+            const r = {
+                len:   p.length >= 8,
+                may:   /[A-Z]/.test(p),
+                min:   /[a-z]/.test(p),
+                num:   /\d/.test(p),
+                esp:   /[^A-Za-z0-9]/.test(p),
+                match: p !== '' && p === c
+            };
+            document.querySelectorAll('#reglas li').forEach(li => {
+                li.classList.toggle('ok', !!r[li.dataset.r]);
+            });
+            document.getElementById('btn-guardar').disabled = !Object.values(r).every(Boolean);
+        }
+        document.getElementById('pass1').addEventListener('input', evaluar);
+        document.getElementById('pass2').addEventListener('input', evaluar);
+
+        pasos.pass.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const p = document.getElementById('pass1').value;
+            const btn = document.getElementById('btn-guardar');
+            btnLoading(btn, true, 'Guardando…');
+            const { ok, body } = await post('/api/auth/password/reset', { reset_token: resetToken, contrasena: p });
+            btnLoading(btn, false);
+            if (ok) {
+                resetToken = null;
+                pasos.pass.innerHTML = `
+                    <h1>¡Listo!</h1>
+                    <div style="text-align:center;font-size:60px;line-height:1;margin:10px 0;color:#00b37e">✓</div>
+                    <p class="recuperar-texto">Tu contraseña fue actualizada. Ya puedes iniciar sesión.</p>
+                    <a href="login.html" class="boton" style="display:block;text-align:center;text-decoration:none">
+                        Ir al inicio de sesión</a>`;
+            } else {
+                showAlertError(body.message || 'No se pudo cambiar la contraseña.');
+            }
+        });
+    })();
+    </script>
+</body>
+</html>

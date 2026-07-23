@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Evidencia de Producto — Bajo Su Presencia</title>
+<style>
+  :root{
+    --azul:#1d3a6b; --azul2:#2563eb; --oro:#c79a3b; --tinta:#1f2937;
+    --gris:#6b7280; --linea:#d8dee9; --vista:#0e7490; --ctrl:#7c3aed; --modelo:#b45309;
+    --bgvista:#e0f2fe; --bgctrl:#ede9fe; --bgmodelo:#fef3c7; --bgdatos:#dcfce7; --datos:#15803d;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;color:var(--tinta);
+    font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:12px;line-height:1.5;}
+  .page{width:210mm;min-height:296mm;padding:18mm 16mm;margin:0 auto;page-break-after:always;position:relative;background:#fff;}
+  .page:last-child{page-break-after:auto;}
+  h1,h2,h3{color:var(--azul);margin:0 0 .4em;}
+  h2{font-size:19px;border-bottom:3px solid var(--oro);padding-bottom:6px;margin-top:4px;}
+  h3{font-size:14px;color:var(--azul2);margin-top:18px;}
+  p{margin:.3em 0 .7em;}
+  .muted{color:var(--gris);}
+  code{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:3px;padding:1px 5px;
+    font-family:"Cascadia Code",Consolas,monospace;font-size:11px;color:#0f172a;}
+  /* ── Portada ── */
+  .cover{display:flex;flex-direction:column;justify-content:center;align-items:center;
+    text-align:center;height:260mm;border:2px solid var(--oro);border-radius:10px;}
+  .cover .crest{font-size:62px;color:var(--oro);}
+  .cover h1{font-size:34px;color:var(--azul);margin:.1em 0;}
+  .cover .sub{font-size:18px;color:var(--azul2);font-weight:600;}
+  .cover .line{width:120px;height:3px;background:var(--oro);margin:18px 0;}
+  .cover .meta{margin-top:30px;font-size:13px;color:var(--tinta);}
+  .cover .meta b{color:var(--azul);}
+  .badge{display:inline-block;background:var(--azul);color:#fff;border-radius:20px;
+    padding:4px 14px;font-size:12px;font-weight:600;margin:4px;}
+  /* ── Diagrama de capas (arquitectura) ── */
+  .layer{border:2px solid var(--linea);border-radius:8px;padding:10px 14px;margin:9px 0;position:relative;}
+  .layer .lt{font-weight:700;font-size:13px;}
+  .layer .ld{font-size:11px;color:var(--gris);}
+  .layer .tag{position:absolute;right:10px;top:9px;font-size:10px;font-weight:700;
+    background:#fff;border:1px solid var(--linea);border-radius:12px;padding:1px 8px;}
+  .L1{background:var(--bgvista);border-color:var(--vista);}
+  .L2{background:var(--bgctrl);border-color:var(--ctrl);}
+  .L3{background:var(--bgmodelo);border-color:var(--modelo);}
+  .L4{background:#f1f5f9;border-color:#64748b;}
+  .L5{background:var(--bgdatos);border-color:var(--datos);}
+  .arrow{text-align:center;color:var(--gris);font-size:16px;line-height:1;margin:-3px 0;}
+  /* ── Diagrama MVC (3 columnas) ── */
+  .mvc{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0;}
+  .col{border-radius:8px;padding:8px 10px;border:2px solid;}
+  .col h4{margin:0 0 6px;font-size:12px;display:flex;align-items:center;gap:6px;}
+  .col ul{margin:0;padding-left:15px;}
+  .col li{font-size:10.5px;margin:2px 0;}
+  .col .file{font-family:Consolas,monospace;font-size:10px;color:#0f172a;display:block;
+    background:rgba(255,255,255,.6);border-radius:3px;padding:2px 5px;margin-bottom:5px;}
+  .cV{background:var(--bgvista);border-color:var(--vista);} .cV h4{color:var(--vista);}
+  .cC{background:var(--bgctrl);border-color:var(--ctrl);} .cC h4{color:var(--ctrl);}
+  .cM{background:var(--bgmodelo);border-color:var(--modelo);} .cM h4{color:var(--modelo);}
+  .flowrow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;
+    color:var(--gris);font-size:18px;font-weight:700;margin:-4px 0;}
+  .datos{background:var(--bgdatos);border:2px solid var(--datos);border-radius:8px;
+    padding:7px 10px;text-align:center;font-size:11px;}
+  .datos b{color:var(--datos);}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:50%;}
+  .modhead{background:var(--azul);color:#fff;border-radius:6px;padding:6px 12px;font-weight:700;
+    font-size:14px;margin:16px 0 4px;}
+  .note{background:#fffbeb;border-left:4px solid var(--oro);padding:7px 12px;font-size:11px;margin:8px 0;border-radius:0 6px 6px 0;}
+  table.cmp{width:100%;border-collapse:collapse;margin:8px 0;font-size:10.5px;}
+  table.cmp th{background:var(--azul);color:#fff;text-align:left;padding:5px 8px;}
+  table.cmp td{border:1px solid var(--linea);padding:4px 8px;vertical-align:top;}
+  table.cmp tr:nth-child(even){background:#f8fafc;}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11px;margin:8px 0 4px;}
+  .legend span{display:flex;align-items:center;gap:5px;}
+  .foot{position:absolute;bottom:10mm;left:16mm;right:16mm;border-top:1px solid var(--linea);
+    padding-top:5px;font-size:9.5px;color:var(--gris);display:flex;justify-content:space-between;}
+  .toc li{margin:6px 0;font-size:13px;}
+  .toc b{color:var(--azul2);}
+</style>
+</head>
+<body>
+
+<!-- ══════════ PORTADA ══════════ -->
+<div class="page">
+  <div class="cover">
+    <div class="crest">✝</div>
+    <div class="sub">Sistema de Gestión Eclesiástica</div>
+    <h1>Bajo Su Presencia</h1>
+    <div class="line"></div>
+    <div class="sub" style="color:var(--oro)">Evidencia de Producto</div>
+    <p class="muted" style="max-width:60%">Diagramas Modelo–Vista–Controlador (MVC) y arquitectura
+      de los módulos asignados.</p>
+    <div style="margin-top:18px">
+      <span class="badge">Grupo 2 · Contenido</span>
+      <span class="badge">Grupo 8 · PQR</span>
+      <span class="badge">Grupo 9 · Ayuda</span>
+      <span class="badge">Grupo 10 · Perfiles</span>
+    </div>
+    <div class="meta">
+      <p><b>Arquitectura:</b> MVC en cliente (JavaScript) + Supabase (PostgreSQL)</p>
+      <p><b>Stack:</b> HTML5 · CSS3 · JavaScript (ES) · Supabase (PostgREST · Auth · RLS)</p>
+      <p><b>Fecha:</b> 19 de junio de 2026</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ÍNDICE ══════════ -->
+<div class="page">
+  <h2>Contenido</h2>
+  <ol class="toc">
+    <li><b>1.</b> Arquitectura general del sistema</li>
+    <li><b>2.</b> El patrón Modelo–Vista–Controlador aplicado</li>
+    <li><b>3.</b> Grupo 2 — Gestión de Contenido
+      <span class="muted">(Eventos · Noticias · Oración del Día)</span></li>
+    <li><b>4.</b> Grupo 8 — PQR
+      <span class="muted">(Radicación · Listado · Respuesta · Categorización)</span></li>
+    <li><b>5.</b> Grupo 9 — Ayuda
+      <span class="muted">(Panel lateral · Búsqueda · Filtrado por rol · Contextual)</span></li>
+    <li><b>6.</b> Grupo 10 — Perfiles
+      <span class="muted">(Ver · Editar · Experiencia · Formación)</span></li>
+  </ol>
+
+  <h3>Convenciones de los diagramas</h3>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--vista)"></span> <b>Vista</b> — archivos HTML / interfaz</span>
+    <span><span class="dot" style="background:var(--ctrl)"></span> <b>Controlador</b> — <code>*.controller.js</code></span>
+    <span><span class="dot" style="background:var(--modelo)"></span> <b>Modelo</b> — <code>*.model.js</code></span>
+    <span><span class="dot" style="background:var(--datos)"></span> <b>Datos</b> — Supabase / tabla</span>
+  </div>
+  <p class="muted">Cada diagrama muestra el flujo real <b>Vista → Controlador → Modelo → Datos</b>,
+    nombrando los archivos y funciones efectivamente implementados en el repositorio.</p>
+
+  <div class="foot"><span>Bajo Su Presencia · Evidencia de Producto</span><span>Índice</span></div>
+</div>
+
+<!-- ══════════ 1. ARQUITECTURA ══════════ -->
+<div class="page">
+  <h2>1. Arquitectura general del sistema</h2>
+  <p>La aplicación web sigue una <b>arquitectura por capas</b> con patrón <b>MVC del lado del cliente</b>.
+    El navegador ejecuta Vistas, Controladores y Modelos en JavaScript; la persistencia, autenticación
+    y seguridad por rol se delegan en <b>Supabase</b>, que expone PostgreSQL mediante una API REST
+    (PostgREST) protegida con políticas <b>RLS</b>.</p>
+
+  <div class="layer L1"><span class="tag">CLIENTE</span>
+    <div class="lt">① Capa de Presentación — Vistas</div>
+    <div class="ld">Archivos <code>views/**.html</code> + CSS. Formularios, tablas, modales y el panel de ayuda.
+      Capturan la interacción del usuario y muestran los datos.</div></div>
+  <div class="arrow">▼ &nbsp; eventos del DOM &nbsp; ▲ &nbsp; render</div>
+  <div class="layer L2"><span class="tag">CLIENTE</span>
+    <div class="lt">② Capa de Control — Controladores</div>
+    <div class="ld"><code>controllers/*.controller.js</code>. Escuchan eventos, <b>validan</b> y <b>sanitizan</b>
+      entradas, orquestan la lógica y piden datos al Modelo. No acceden a la BD directamente.</div></div>
+  <div class="arrow">▼ &nbsp; llamadas a funciones &nbsp; ▲ &nbsp; objetos normalizados</div>
+  <div class="layer L3"><span class="tag">CLIENTE</span>
+    <div class="lt">③ Capa de Modelo — Modelos</div>
+    <div class="ld"><code>models/*.model.js</code>. Único punto de acceso a datos: construyen las consultas,
+      normalizan filas (<code>_fromRow</code>) y traducen errores (<code>_msg</code>).</div></div>
+  <div class="arrow">▼ &nbsp; <code>window.sb</code> &nbsp; ▲</div>
+  <div class="layer L4"><span class="tag">PUENTE</span>
+    <div class="lt">④ Cliente de datos — <code>supabase.client.js</code></div>
+    <div class="ld">Inicializa el SDK de Supabase (<code>window.sb</code>), gestiona el token de sesión (JWT)
+      y helpers como <code>miUsuarioId()</code>.</div></div>
+  <div class="arrow">▼ &nbsp; HTTPS / REST + JWT &nbsp; ▲</div>
+  <div class="layer L5"><span class="tag">BACKEND</span>
+    <div class="lt">⑤ Supabase — PostgREST · Auth · RLS · PostgreSQL</div>
+    <div class="ld">Autenticación con JWT, API REST automática sobre las tablas y <b>seguridad por rol</b>
+      mediante Row Level Security. Base de datos PostgreSQL (tablas <code>eventos</code>,
+      <code>noticias</code>, <code>oraciones</code>, <code>pqr</code>, <code>usuarios</code>…).</div></div>
+
+  <div class="note"><b>Por qué esta arquitectura:</b> separar Vista/Controlador/Modelo hace el código
+    mantenible y testeable; delegar la seguridad en RLS garantiza que cada rol solo accede a lo que le
+    corresponde <b>aunque la validación del cliente fallara</b>, porque la regla vive en la base de datos.</div>
+
+  <div class="foot"><span>Bajo Su Presencia · Evidencia de Producto</span><span>1 · Arquitectura</span></div>
+</div>
+
+<!-- ══════════ 2. PATRÓN MVC ══════════ -->
+<div class="page">
+  <h2>2. El patrón Modelo–Vista–Controlador aplicado</h2>
+  <p>Todos los módulos comparten el mismo flujo. El usuario interactúa con la <b>Vista</b>; el
+    <b>Controlador</b> reacciona, valida y coordina; el <b>Modelo</b> resuelve el acceso a datos contra
+    Supabase y devuelve objetos limpios que el Controlador entrega a la Vista para renderizar.</p>
+
+  <div class="mvc">
+    <div class="col cV"><h4>🖥️ Vista</h4>
+      <ul><li>Formulario / tabla / modal en HTML</li><li>Dispara eventos (<code>submit</code>, <code>click</code>, <code>input</code>)</li><li>Muestra resultados y mensajes</li></ul></div>
+    <div class="col cC"><h4>🎛️ Controlador</h4>
+      <ul><li>Escucha el evento del DOM</li><li>Valida y sanitiza la entrada</li><li>Llama al Modelo y recibe la respuesta</li><li>Pinta la Vista / muestra alertas</li></ul></div>
+    <div class="col cM"><h4>📦 Modelo</h4>
+      <ul><li>Construye la consulta con <code>window.sb</code></li><li>Normaliza filas (<code>_fromRow</code>)</li><li>Devuelve <code>{ ok, data, error }</code></li></ul></div>
+  </div>
+  <div class="flowrow"><div>▶</div><div>▶</div><div>▶</div></div>
+  <div class="datos"><b>④⑤ Datos:</b> <code>supabase.client.js</code> → Supabase (PostgREST · Auth · RLS) → PostgreSQL</div>
+
+  <h3>Responsabilidades (resumen)</h3>
+  <table class="cmp">
+    <tr><th>Capa</th><th>Responsabilidad</th><th>Qué NO hace</th></tr>
+    <tr><td><b>Vista</b></td><td>Presentar información y capturar interacción.</td><td>No contiene lógica de negocio ni consultas.</td></tr>
+    <tr><td><b>Controlador</b></td><td>Validar, orquestar, conectar Vista y Modelo.</td><td>No accede directamente a la base de datos.</td></tr>
+    <tr><td><b>Modelo</b></td><td>Acceso a datos, normalización y manejo de errores.</td><td>No manipula el DOM.</td></tr>
+  </table>
+
+  <div class="foot"><span>Bajo Su Presencia · Evidencia de Producto</span><span>2 · Patrón MVC</span></div>
+</div>
+
+<!-- ══════════ 3. GRUPO 2 ══════════ -->
+<div class="page">
+  <h2>3. Grupo 2 — Gestión de Contenido</h2>
+  <p class="muted">Publicación de Eventos, Noticias y Oración del Día. Tres módulos hermanos con idéntico
+    patrón MVC (CRUD): formulario de publicación + historial con editar/ver/eliminar.</p>
+
+  <div class="modhead">2.1 Publicación de Eventos</div>
+  <div class="mvc">
+    <div class="col cV"><h4>Vista</h4>
+      <span class="file">views/dashboard/admin/ (eventos)</span>
+      <ul><li>Formulario: título, fecha, horario, sede, recursos, especialistas</li><li>Historial de eventos</li><li>Modal ver / editar</li></ul></div>
+    <div class="col cC"><h4>Controlador</h4>
+      <span class="file">eventos.controller.js</span>
+      <ul><li><code>cargarRecursos()</code></li><li><code>combinarHorario()</code></li><li>submit → <code>publicar/actualizar</code></li><li><code>editar</code> · <code>eliminar</code></li></ul></div>
+    <div class="col cM"><h4>Modelo</h4>
+      <span class="file">eventos.model.js</span>
+      <ul><li><code>getAll()</code> · <code>getById()</code></li><li><code>publicar()</code> · <code>actualizar()</code></li><li><code>eliminar()</code></li><li><code>_syncRecursos/_syncEspecialistas</code></li></ul></div>
+  </div>
+  <div class="flowrow"><div>▶</div><div>▶</div><div>▶</div></div>
+  <div class="datos"><b>Tablas:</b> <code>eventos</code> + <code>evento_recursos</code> + <code>voluntarios_eventos</code> + <code>sedes</code></div>
+
+  <div class="modhead">2.2 Publicación de Noticias</div>
+  <div class="mvc">
+    <div class="col cV"><h4>Vista</h4>
+      <span class="file">views/dashboard/admin/ (noticias)</span>
+      <ul><li>Formulario con vista previa en vivo</li><li>Historial de noticias</li><li>Modal ver noticia</li></ul></div>
+    <div class="col cC"><h4>Controlador</h4>
+      <span class="file">noticias.controller.js</span>
+      <ul><li><code>actualizarPreview()</code></li><li>submit → <code>crear/actualizar</code></li><li><code>editarNoticia()</code> · <code>verNoticia()</code></li><li><code>eliminarNoticia()</code></li></ul></div>
+    <div class="col cM"><h4>Modelo</h4>
+      <span class="file">noticias.model.js</span>
+      <ul><li><code>getAll()</code> · <code>getById()</code></li><li><code>crear()</code> · <code>actualizar()</code></li><li><code>eliminar()</code></li></ul></div>
+  </div>
+  <div class="flowrow"><div>▶</div><div>▶</div><div>▶</div></div>
+  <div class="datos"><b>Tabla:</b> <code>noticias</code> <span class="muted">(con relación <code>usuarios(nombre)</code> como autor)</span></div>
+
+  <div class="modhead">2.3 Publicación de Oración del Día</div>
+  <div class="mvc">
+    <div class="col cV"><h4>Vista</h4>
+      <span class="file">views/dashboard/admin/ (oración)</span>
+      <ul><li>Formulario: título, versículo, referencia, contenido</li><li>Vista previa</li><li>Historial</li></ul></div>
+    <div class="col cC"><h4>Controlador</h4>
+      <span class="file">oracion.controller.js</span>
+      <ul><li><code>updatePrayerPreview()</code></li><li>submit → <code>crear/actualizar</code></li><li><code>editarOracion()</code> · <code>verOracion()</code></li><li><code>eliminarOracion()</code></li></ul></div>
+    <div class="col cM"><h4>Modelo</h4>
+      <span class="file">oracion.model.js</span>
+      <ul><li><code>getAll()</code> · <code>getById()</code></li><li><code>crear()</code> · <code>actualizar()</code></li><li><code>eliminar()</code></li></ul></div>
+  </div>
+  <div class="flowrow"><div>▶</div><div>▶</div><div>▶</div></div>
+  <div class="datos"><b>Tabla:</b> <code>oraciones</code></div>
+
+  <div class="foot"><span>Bajo Su Presencia · Evidencia de Producto</span><span>3 · Grupo 2 — Contenido</span></div>
+</div>
+
+<!-- ══════════ 4. GRUPO 8 PQR ══════════ -->
+<div class="page">
+  <h2>4. Grupo 8 — PQR (Peticiones, Quejas y Reclamos)</h2>
+  <p class="muted">Cuatro submódulos servidos por <b>dos controladores</b> (público y administrativo) sobre
+    un <b>modelo común</b> <code>pqr.model.js</code> y la tabla <code>pqr</code>.</p>
+
+  <div class="modhead">8.1 Radicación de PQR &nbsp;·&nbsp; 8.2 Listado (Vista Administrativa)</div>
+  <div class="mvc">
+    <div class="col cV"><h4>Vista</h4>
+      <span class="file">views/public/pqr/ (radicar)</span>
+      <span class="file">views/dashboard/admin/ (listado)</span>
+      <ul><li>8.1 Formulario público de radicación</li><li>8.2 Tabla con contadores y exportación</li></ul></div>
+    <div class="col cC"><h4>Controlador</h4>
+      <span class="file">pqr.controller.js (8.1)</span>
+      <span class="file">pqr-admin.controller.js (8.2)</span>
+      <ul><li>submit → <code>crear()</code> + <code>mostrarError()</code></li><li><code>renderTabla()</code> · <code>actualizarContadores()</code></li><li>exportación (DataTable)</li></ul></div>
+    <div class="col cM"><h4>Modelo</h4>
+      <span class="file">pqr.model.js</span>
+      <ul><li><code>crear()</code></li><li><code>getAll()</code> · <code>getById()</code></li></ul></div>
+  </div>
+  <div class="flowrow"><div>▶</div><div>▶</div><div>▶</div></div>
+  <div class="datos"><b>Tabla:</b> <code>pqr</code></div>
+
+  <div class="modhead">8.3 Respuesta a PQR &nbsp;·&nbsp; 8.4 Categorización</div>
+  <div class="mvc">
+    <div class="col cV"><h4>Vista</h4>
+      <span class="file">views/dashboard/admin/ (gestión)</span>
+      <ul><li>8.3 Modal de respuesta</li><li>8.4 Filtros por tipo, estado y prioridad</li><li>Indicadores / estadísticas</li></ul></div>
+    <div class="col cC"><h4>Controlador</h4>
+      <span class="file">pqr-admin.controller.js</span>
+      <ul><li>8.3 <code>btnGuardar</code> → <code>responder()</code></li><li>8.4 filtros → <code>cambiarEstado()</code></li><li>tarjetas → <code>getEstadisticas()</code></li></ul></div>
+    <div class="col cM"><h4>Modelo</h4>
+      <span class="file">pqr.model.js</span>
+      <ul><li><code>responder(id, resp, estado, por)</code></li><li><code>cambiarEstado(id, estado)</code></li><li><code>getEstadisticas()</code></li></ul></div>
+  </div>
+  <div class="flowrow"><div>▶</div><div>▶</div><div>▶</div></div>
+  <div class="datos"><b>Tabla:</b> <code>pqr</code> <span class="muted">(campos tipo, prioridad, estado, respuesta, respondido_por)</span></div>
+
+  <div class="note"><b>Categorización (8.4):</b> se resuelve por los campos <code>tipo</code> (petición/queja/reclamo),
+    <code>prioridad</code> y <code>estado</code>, combinados en los filtros del listado y agregados por
+    <code>getEstadisticas()</code> para los contadores del panel.</div>
+
+  <div class="foot"><span>Bajo Su Presencia · Evidencia de Producto</span><span>4 · Grupo 8 — PQR</span></div>
+</div>
+
+<!-- ══════════ 5. GRUPO 9 AYUDA ══════════ -->
+<div class="page">
+  <h2>5. Grupo 9 — Ayuda</h2>
+  <p class="muted">Caso particular de MVC: el <b>Modelo es una base de conocimiento en memoria</b>
+    (no usa base de datos). El Controlador filtra ese contenido por rol y lo inyecta como un widget
+    lateral en cualquier pantalla.</p>
+
+  <div class="note"><b>Nota de arquitectura:</b> <code>ayuda.controller.js</code> no realiza ninguna
+    llamada a Supabase. El "Modelo" es la constante <b>BASE DE CONOCIMIENTO</b> definida en el propio
+    archivo, lo que hace la ayuda instantánea y disponible sin conexión.</div>
+
+  <div class="modhead">9.1 Panel Lateral &nbsp;·&nbsp; 9.2 Búsqueda en Tiempo Real</div>
+  <div class="mvc">
+    <div class="col cV"><h4>Vista</h4>
+      <span class="file">Widget inyectado en el DOM</span>
+      <ul><li>9.1 Botón + panel lateral (acordeón)</li><li>9.2 Caja de búsqueda</li><li>Ítem en el sidebar</li></ul></div>
+    <div class="col cC"><h4>Controlador</h4>
+      <span class="file">ayuda.controller.js</span>
+      <ul><li><code>_bspInjectWidget()</code></li><li><code>_bspInjectSidebarItem()</code></li><li><code>_bspBuildAccordionHTML()</code></li><li>9.2 filtro al teclear (<code>input</code>)</li></ul></div>
+    <div class="col cM"><h4>Modelo</h4>
+      <span class="file">BASE DE CONOCIMIENTO (en memoria)</span>
+      <ul><li>Guías por sección y pregunta/respuesta</li><li>Sin acceso a BD</li></ul></div>
+  </div>
+  <div class="flowrow"><div>▶</div><div>▶</div><div>▶</div></div>
+  <div class="datos"><b>Origen de datos:</b> estructura local en JavaScript <span class="muted">(no hay tabla)</span></div>
+
+  <div class="modhead">9.3 Guías Filtradas por Rol &nbsp;·&nbsp; 9.4 Guía Contextual por Módulo</div>
+  <div class="mvc">
+    <div class="col cV"><h4>Vista</h4>
+      <span class="file">Acordeón con secciones visibles</span>
+      <ul><li>9.3 Solo las guías del rol actual</li><li>9.4 Secciones agrupadas por módulo</li><li>Ícono según rol</li></ul></div>
+    <div class="col cC"><h4>Controlador</h4>
+      <span class="file">ayuda.controller.js</span>
+      <ul><li>9.3 <code>_bspGetRol()</code> → <code>_bspFilterData(rol)</code></li><li><code>_bspGetRolIcon(rol)</code></li><li>9.4 secciones contextuales por módulo</li></ul></div>
+    <div class="col cM"><h4>Modelo</h4>
+      <span class="file">BASE DE CONOCIMIENTO (etiquetada por rol/módulo)</span>
+      <ul><li>Cada guía marcada con su rol y módulo</li><li>El filtro selecciona el subconjunto</li></ul></div>
+  </div>
+  <div class="flowrow"><div>▶</div><div>▶</div><div>▶</div></div>
+  <div class="datos"><b>Rol del usuario:</b> obtenido de la sesión de Supabase Auth para decidir qué guías mostrar</div>
+
+  <div class="foot"><span>Bajo Su Presencia · Evidencia de Producto</span><span>5 · Grupo 9 — Ayuda</span></div>
+</div>
+
+<!-- ══════════ 6. GRUPO 10 PERFILES ══════════ -->
+<div class="page">
+  <h2>6. Grupo 10 — Perfiles</h2>
+  <p class="muted">Los cuatro submódulos operan sobre la tabla <code>usuarios</code> a través de
+    <code>usuarios.model.js</code>; el controlador <code>perfil.controller.js</code> gestiona la vista,
+    la foto y el formulario del perfil propio.</p>
+
+  <div class="modhead">10.1 Ver Perfil &nbsp;·&nbsp; 10.2 Editar Perfil</div>
+  <div class="mvc">
+    <div class="col cV"><h4>Vista</h4>
+      <span class="file">views/dashboard/ (perfil)</span>
+      <ul><li>10.1 Cabecera con datos y foto</li><li>10.2 Formulario editable</li><li>Vista previa de foto</li></ul></div>
+    <div class="col cC"><h4>Controlador</h4>
+      <span class="file">perfil.controller.js</span>
+      <ul><li><code>obtenerUsuarioActual()</code></li><li><code>pintarCabecera()</code></li><li><code>mostrarFotoPreview()</code> · <code>redimensionarImagen()</code></li><li>submit → <code>update()</code></li></ul></div>
+    <div class="col cM"><h4>Modelo</h4>
+      <span class="file">usuarios.model.js</span>
+      <ul><li><code>getById()</code> · <code>getByUsername()</code></li><li><code>update()</code></li></ul></div>
+  </div>
+  <div class="flowrow"><div>▶</div><div>▶</div><div>▶</div></div>
+  <div class="datos"><b>Tabla:</b> <code>usuarios</code> <span class="muted">(con relación <code>roles(nombre)</code>)</span></div>
+
+  <div class="modhead">10.3 Experiencia y Especialidades &nbsp;·&nbsp; 10.4 Títulos y Formación</div>
+  <div class="mvc">
+    <div class="col cV"><h4>Vista</h4>
+      <span class="file">views/dashboard/ (perfil)</span>
+      <ul><li>10.3 Selector de especialidad (catálogo)</li><li>10.4 Campos de biografía / formación</li></ul></div>
+    <div class="col cC"><h4>Controlador</h4>
+      <span class="file">perfil.controller.js</span>
+      <ul><li>Lee catálogo de especialidades (lista blanca)</li><li>Arma el objeto de perfil</li><li>submit → <code>update()</code></li></ul></div>
+    <div class="col cM"><h4>Modelo</h4>
+      <span class="file">usuarios.model.js</span>
+      <ul><li><code>update()</code> (campos <code>especialidad</code>, <code>bio</code>…)</li><li><code>getEspecialistas()</code></li></ul></div>
+  </div>
+  <div class="flowrow"><div>▶</div><div>▶</div><div>▶</div></div>
+  <div class="datos"><b>Tabla:</b> <code>usuarios</code> <span class="muted">(columnas <code>especialidad</code>, <code>bio</code>, <code>ocupación</code>, <code>foto_url</code>)</span></div>
+
+  <div class="note"><b>Seguridad:</b> el perfil propio se edita con el <code>id</code> del usuario autenticado
+    (de la sesión); RLS garantiza que un usuario solo pueda modificar su propia fila, sin importar lo que
+    envíe el cliente.</div>
+
+  <div class="foot"><span>Bajo Su Presencia · Evidencia de Producto</span><span>6 · Grupo 10 — Perfiles</span></div>
+</div>
+
+</body>
+</html>

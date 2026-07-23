@@ -1,0 +1,55 @@
+{
+    "name": "bsp/backend-supabase",
+    "description": "Backend PHP en capas conectado a Supabase (Auth GoTrue + PostgREST) con JWT propio.",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.1",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "firebase/php-jwt": "^7.1",
+        "phpmailer/phpmailer": "^7.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "scripts": {
+        "start": "php -S localhost:8000 -t public",
+        "test": "php tests/run.php",
+        "lint": "php -l public/index.php",
+        "analyse": "phpstan analyse --no-progress",
+        "cs": "phpcs --standard=phpcs.xml",
+        "cs:fix": "phpcbf --standard=phpcs.xml",
+        "rector:dry": "rector process --dry-run --no-progress-bar",
+        "rector": "rector process --no-progress-bar",
+        "calidad": [
+            "@lint",
+            "@analyse",
+            "@cs",
+            "@test",
+            "composer audit --no-interaction"
+        ]
+    },
+    "scripts-descriptions": {
+        "start": "Levanta el API en http://localhost:8000",
+        "test": "Ejecuta la suite de pruebas (lógica pura, sin red ni base de datos)",
+        "lint": "Comprobación sintáctica del punto de entrada",
+        "analyse": "PHPStan nivel 8 sobre src, public, routes y tests",
+        "cs": "Comprueba el cumplimiento de PSR-12",
+        "cs:fix": "Corrige automáticamente los incumplimientos de PSR-12",
+        "rector:dry": "Muestra las modernizaciones propuestas sin aplicarlas",
+        "rector": "Aplica las modernizaciones (revisar el diff antes de confirmar)",
+        "calidad": "Ejecuta la batería completa: sintaxis, PHPStan, PSR-12, pruebas y auditoría"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.2",
+        "rector/rector": "^2.5",
+        "squizlabs/php_codesniffer": "^4.0"
+    }
+}

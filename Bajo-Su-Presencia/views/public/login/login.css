@@ -1,0 +1,188 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: url(fonfdo.jpeg) no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+.container  {
+  position: relative;
+   width: 420px;
+   border: 2px solid rgba(255, 255, 255, .2);
+   backdrop-filter: blur(10px);
+   color: white;
+   border-radius: 12px;
+   padding: 30px 40px;
+}
+.btn-cerrar {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 35px;
+  height: 35px;
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  text-decoration: none;
+  font-size: 24px;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.btn-cerrar:hover {
+  background: rgba(255, 255, 255, 0.2); 
+  transform: scale(1.1);
+}
+
+.container h1{
+  font-size: 36px;
+  text-align: center;
+}
+
+.container .input-box {
+  position: relative;
+  width: 100%;
+  height: 50px;
+  margin: 30px 0;
+}
+
+.input-box input{
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  border: 2px solid rgba(255, 255, 255, .2);
+  border-radius: 40px;
+  font-size: 16px;
+  color: white;
+  padding: 20px 45px 20px 20px;
+}
+ 
+.input-box input::placeholder{
+  color: white;
+}
+
+.input-box i{
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+}
+
+.container .recordar-contraseña {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14.5px;
+  margin: -15px 0 15px;
+}
+
+.recordar-contraseña label input{
+  accent-color: white;
+  margin: 3px;
+}
+
+.recordar-contraseña a{
+  color: white;
+  text-decoration: none;
+}
+
+.recordar-contraseña a:hover {
+  text-decoration: underline;
+} 
+
+.container .boton {
+  width: 100%;
+  height: 45px;
+  background: white;
+  border: none;
+  outline: none;
+  border-radius: 40px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, .1);
+  cursor: pointer;
+  font-size: 16px;
+  color: #333;
+  font-weight: 600;
+  margin: 20px 0 15px;
+}
+
+/* ── Toggle mostrar/ocultar contraseña ── */
+.toggle-password {
+  position: absolute;
+  right: 45px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: white;
+  font-size: 18px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  z-index: 2;
+  transition: opacity 0.2s;
+}
+.toggle-password:hover { opacity: 0.75; }
+.toggle-password i {
+  font-size: 1.15rem;
+  line-height: 1;
+  position: static;
+  transform: none;
+  right: auto;
+  top: auto;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .container {
+    width: 95vw;
+    padding: 24px 20px;
+    margin: 1rem;
+  }
+  .container h1 { font-size: 28px; }
+  .container .input-box { margin: 20px 0; }
+  .recordar-contraseña { flex-direction: column; gap: 0.5rem; }
+}
+
+@media (max-width: 360px) {
+  .container { padding: 20px 14px; }
+  .container h1 { font-size: 24px; }
+}
+
+/* ─────────────────────────────────────────────
+   ACCESIBILIDAD — Texto solo para lectores de pantalla
+   ─────────────────────────────────────────────
+   Oculta un elemento visualmente pero lo mantiene en el árbol de
+   accesibilidad. Se usa para las etiquetas de los campos, que el diseño
+   sustituye por `placeholder` (que no es un nombre accesible).
+   No se usa `display:none` ni `visibility:hidden` porque ambos lo
+   retirarían también de los lectores de pantalla.
+───────────────────────────────────────────── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

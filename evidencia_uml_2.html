@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>UML MVC — Recursos · Voluntarios · Calificaciones · Usuarios</title>
+<style>
+  @page { size: 460mm 297mm; margin: 0; }
+  html,body{margin:0;padding:0;background:#fff;font-family:"Segoe UI",Arial,sans-serif;}
+  .wrap{width:460mm;height:297mm;}
+  svg{width:100%;height:100%;display:block;}
+  .ttl{font-size:12px;font-weight:700;}
+  .mem{font-size:10px;}
+  .layer{font-size:20px;font-weight:700;fill:#1d3a6b;}
+  .uselbl{font-size:11px;fill:#374151;}
+  .head{font-size:24px;font-weight:700;fill:#1d3a6b;}
+  .sub{font-size:13px;fill:#6b7280;}
+  .note{font-size:10px;fill:#b45309;font-style:italic;}
+</style>
+</head>
+<body>
+<div class="wrap">
+<svg viewBox="0 0 1840 1290" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="tri" markerWidth="16" markerHeight="14" refX="15" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M1,1 L15,7 L1,13 Z" fill="#fff" stroke="#222" stroke-width="1.3"/></marker>
+    <marker id="use" markerWidth="12" markerHeight="12" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M1,1 L9,5 L1,9" fill="none" stroke="#374151" stroke-width="1.3"/></marker>
+  </defs>
+
+  <text x="30" y="34" class="head">Diagrama de Clases UML — Aplicación Web (patrón MVC)</text>
+  <text x="30" y="54" class="sub">Bajo Su Presencia · Recursos e Inventario · Gestión de Voluntarios · Calificación de Voluntarios · Gestión de Usuarios (Login)</text>
+
+  <g transform="translate(1300,18)">
+    <rect x="0" y="0" width="510" height="48" fill="#f8fafc" stroke="#cbd5e1"/>
+    <line x1="14" y1="18" x2="54" y2="18" stroke="#222" stroke-width="1.4" marker-end="url(#tri)"/>
+    <text x="62" y="22" class="uselbl">herencia — el Modelo reutiliza Conexión</text>
+    <line x1="14" y1="38" x2="54" y2="38" stroke="#374151" stroke-width="1.4" stroke-dasharray="5,3" marker-end="url(#use)"/>
+    <text x="62" y="42" class="uselbl">«use» — dependencia (Vista→Control→Modelo)</text>
+  </g>
+
+  <rect x="20" y="70" width="1800" height="470" fill="#eef4ff" stroke="#9bb4e0"/>
+  <text x="34" y="96" class="layer">Capa Modelo</text>
+  <rect x="20" y="556" width="1800" height="300" fill="#f3eefe" stroke="#c4b5e8"/>
+  <text x="34" y="582" class="layer">Capa Control</text>
+  <rect x="20" y="872" width="1800" height="400" fill="#fff7ea" stroke="#e6c48f"/>
+  <text x="34" y="898" class="layer">Capa Vista</text>
+  <text x="150" y="898" class="sub">vistas = archivos HTML · «atributos» = elementos del DOM · «métodos» = eventos que emiten</text>
+
+  <!-- paquete frameworks -->
+  <g>
+    <rect x="40" y="104" width="300" height="166" fill="#fffdf5" stroke="#0e7490" stroke-width="2"/>
+    <rect x="40" y="92" width="150" height="14" fill="#fffdf5" stroke="#0e7490" stroke-width="2"/>
+    <text x="48" y="103" class="mem" style="font-weight:700;fill:#0e7490">«frameworks»</text>
+    <text x="190" y="123" text-anchor="middle" class="ttl" style="fill:#0e7490">Librerías externas (CDN)</text>
+    <line x1="40" y1="129" x2="340" y2="129" stroke="#0e7490"/>
+    <text x="50" y="146" class="mem">▸ Supabase JS — datos + Auth (JWT)</text>
+    <text x="50" y="162" class="mem">▸ Chart.js — gráficas del dashboard</text>
+    <text x="50" y="178" class="mem">▸ Alertify.js — alertas / notificaciones</text>
+    <text x="50" y="194" class="mem">▸ Boxicons — iconografía</text>
+    <text x="50" y="210" class="mem">▸ Google Fonts — tipografías</text>
+    <line x1="40" y1="218" x2="340" y2="218" stroke="#0e7490"/>
+    <text x="50" y="234" class="note">Estilos: CSS propio por módulo</text>
+    <text x="50" y="250" class="note">(no se usa Bootstrap ni Tailwind)</text>
+  </g>
+  <g stroke="#374151" stroke-width="1.3" fill="none" stroke-dasharray="5,3">
+    <path d="M715,166 L340,166" marker-end="url(#use)"/></g>
+  <text x="460" y="160" class="uselbl">«use» Supabase JS</text>
+
+  <!-- CONEXION (incluye Supabase Auth) -->
+  <g>
+    <rect x="715" y="110" width="220" height="126" fill="#fff" stroke="#c0392b" stroke-width="2.2"/>
+    <text x="825" y="127" text-anchor="middle" class="ttl">Conexion</text>
+    <line x1="715" y1="133" x2="935" y2="133" stroke="#c0392b"/>
+    <text x="723" y="148" class="mem">-url   -anonKey   -sb</text>
+    <line x1="715" y1="155" x2="935" y2="155" stroke="#c0392b"/>
+    <text x="723" y="170" class="mem">+crearCliente()</text>
+    <text x="723" y="184" class="mem">+auth.signInWithPassword()</text>
+    <text x="723" y="198" class="mem">+auth.signOut()</text>
+    <text x="723" y="212" class="mem">+miUsuarioId()</text>
+    <text x="723" y="228" class="note">= supabase.client.js (Supabase Auth)</text>
+  </g>
+
+  <!-- ===== MODELOS ===== -->
+  <!-- ModeloRecursos c1 (40) -->
+  <g>
+    <rect x="40" y="300" width="220" height="216" fill="#fff" stroke="#222"/>
+    <text x="150" y="317" text-anchor="middle" class="ttl">ModeloRecursos</text>
+    <line x1="40" y1="323" x2="260" y2="323" stroke="#222"/>
+    <text x="48" y="337" class="mem">-TABLA = "recursos"</text>
+    <text x="48" y="351" class="mem">-PUENTE = "evento_recursos"</text>
+    <line x1="40" y1="358" x2="260" y2="358" stroke="#222"/>
+    <text x="48" y="372" class="mem">+getAll()</text>
+    <text x="48" y="386" class="mem">+getById(id)</text>
+    <text x="48" y="400" class="mem">+create(datos)</text>
+    <text x="48" y="414" class="mem">+update(id, datos)</text>
+    <text x="48" y="428" class="mem">+toggleDisponible(id)</text>
+    <text x="48" y="442" class="mem">+remove(id)</text>
+    <text x="48" y="456" class="mem">+getEstadisticas()</text>
+    <text x="48" y="470" class="mem">+getAsignacionesPorEvento(ev)</text>
+    <text x="48" y="484" class="mem">+asignarRecurso(datos)</text>
+    <text x="48" y="498" class="mem">+quitarAsignacion(ev, rec)</text>
+  </g>
+  <!-- ModeloVoluntarios c3 (580) -->
+  <g>
+    <rect x="580" y="300" width="220" height="222" fill="#fff" stroke="#222"/>
+    <text x="690" y="317" text-anchor="middle" class="ttl">ModeloVoluntarios</text>
+    <line x1="580" y1="323" x2="800" y2="323" stroke="#222"/>
+    <text x="588" y="337" class="mem">-EVENTOS = "eventos"</text>
+    <text x="588" y="351" class="mem">-EVAL = "evaluaciones"</text>
+    <line x1="580" y1="358" x2="800" y2="358" stroke="#222"/>
+    <text x="588" y="372" class="mem">+getEventos()</text>
+    <text x="588" y="386" class="mem">+getEventoById(id)</text>
+    <text x="588" y="400" class="mem">+getCalificaciones()</text>
+    <text x="588" y="414" class="mem">+getCalifByEventoVol(e, v)</text>
+    <text x="588" y="428" class="mem">+guardarCalificacion(datos)</text>
+    <text x="588" y="442" class="mem">+getHistorialVoluntario(v)</text>
+    <text x="588" y="456" class="mem">+getResumenVoluntario(v)</text>
+    <text x="588" y="470" class="mem">+estaInscrito(e, v)</text>
+    <text x="588" y="484" class="mem">+unirseEvento(e, v, rol)</text>
+    <text x="588" y="498" class="mem">+setDisponibilidad(e, v, d)</text>
+  </g>
+  <!-- ModeloUsuarios c5 (1120) -->
+  <g>
+    <rect x="1120" y="300" width="220" height="194" fill="#fff" stroke="#222"/>
+    <text x="1230" y="317" text-anchor="middle" class="ttl">ModeloUsuarios</text>
+    <line x1="1120" y1="323" x2="1340" y2="323" stroke="#222"/>
+    <text x="1128" y="337" class="mem">-TABLA = "usuarios"</text>
+    <text x="1128" y="351" class="mem">-ESPECIALIDADES[]</text>
+    <line x1="1120" y1="358" x2="1340" y2="358" stroke="#222"/>
+    <text x="1128" y="372" class="mem">+getAll()</text>
+    <text x="1128" y="386" class="mem">+getById(id)</text>
+    <text x="1128" y="400" class="mem">+getByUsername(u)</text>
+    <text x="1128" y="414" class="mem">+create(datos)</text>
+    <text x="1128" y="428" class="mem">+update(id, datos)</text>
+    <text x="1128" y="442" class="mem">+toggleActivo(id)</text>
+    <text x="1128" y="456" class="mem">+remove(id)</text>
+    <text x="1128" y="470" class="mem">+getEspecialistas()</text>
+  </g>
+
+  <!-- ===== CONTROLADORES (con atributos = estado + métodos) ===== -->
+  <!-- ControladorRecursos c1 (40) -->
+  <g>
+    <rect x="40" y="600" width="220" height="166" fill="#fff" stroke="#222"/>
+    <text x="150" y="617" text-anchor="middle" class="ttl">ControladorRecursos</text>
+    <line x1="40" y1="623" x2="260" y2="623" stroke="#222"/>
+    <text x="48" y="637" class="mem">-dtRecursos : DataTable</text>
+    <text x="48" y="651" class="mem">-modalRecurso : HTMLDiv</text>
+    <line x1="40" y1="658" x2="260" y2="658" stroke="#222"/>
+    <text x="48" y="672" class="mem">+renderTabla()</text>
+    <text x="48" y="686" class="mem">+actualizarEstadisticas()</text>
+    <text x="48" y="700" class="mem">+abrirCrear()</text>
+    <text x="48" y="714" class="mem">+abrirEditar(id)</text>
+    <text x="48" y="728" class="mem">+toggleRecurso(id)</text>
+    <text x="48" y="742" class="mem">+eliminarRecurso(id)</text>
+    <text x="48" y="756" class="mem">+categoriaBadge()</text>
+  </g>
+  <!-- ControladorVoluntarios c2 (310) -->
+  <g>
+    <rect x="310" y="600" width="220" height="138" fill="#fff" stroke="#222"/>
+    <text x="420" y="617" text-anchor="middle" class="ttl">ControladorVoluntarios</text>
+    <line x1="310" y1="623" x2="530" y2="623" stroke="#222"/>
+    <text x="318" y="637" class="mem">-selEvento : HTMLSelect</text>
+    <text x="318" y="651" class="mem">-modalCalif : HTMLDiv</text>
+    <line x1="310" y1="658" x2="530" y2="658" stroke="#222"/>
+    <text x="318" y="672" class="mem">+cargarSelectEventos()</text>
+    <text x="318" y="686" class="mem">+renderTablaVoluntarios()</text>
+    <text x="318" y="700" class="mem">+abrirModalCalif()</text>
+    <text x="318" y="714" class="mem">+guardarCalificacion()</text>
+    <text x="318" y="728" class="mem">+verHistorial(v) / verResumen(v)</text>
+  </g>
+  <!-- ControladorVolPanel c3 (580) -->
+  <g>
+    <rect x="580" y="600" width="220" height="124" fill="#fff" stroke="#222"/>
+    <text x="690" y="617" text-anchor="middle" class="ttl">ControladorVolPanel</text>
+    <line x1="580" y1="623" x2="800" y2="623" stroke="#222"/>
+    <text x="588" y="637" class="mem">-listaEventos : HTMLDiv</text>
+    <text x="588" y="651" class="mem">-filtroEstado : string</text>
+    <line x1="580" y1="658" x2="800" y2="658" stroke="#222"/>
+    <text x="588" y="672" class="mem">+render()</text>
+    <text x="588" y="686" class="mem">+accionEvento()  «disponib.»</text>
+    <text x="588" y="700" class="mem">+toggleActividadVoluntario()</text>
+    <text x="588" y="714" class="mem">+actualizarContadores()</text>
+  </g>
+  <!-- ControladorVolCalificaciones c4 (850) -->
+  <g>
+    <rect x="850" y="600" width="220" height="124" fill="#fff" stroke="#222"/>
+    <text x="960" y="617" text-anchor="middle" class="ttl">ControladorVolCalificaciones</text>
+    <line x1="850" y1="623" x2="1070" y2="623" stroke="#222"/>
+    <text x="858" y="637" class="mem">-voluntarioId : uuid</text>
+    <text x="858" y="651" class="mem">-contenedor : HTMLDiv</text>
+    <line x1="850" y1="658" x2="1070" y2="658" stroke="#222"/>
+    <text x="858" y="672" class="mem">+renderResumen()</text>
+    <text x="858" y="686" class="mem">+renderHistorial()</text>
+    <text x="858" y="700" class="mem">+renderCard()</text>
+    <text x="858" y="714" class="mem">+renderEstrellasFijas()</text>
+  </g>
+  <!-- ControladorUsuarios c5 (1120) -->
+  <g>
+    <rect x="1120" y="600" width="220" height="152" fill="#fff" stroke="#222"/>
+    <text x="1230" y="617" text-anchor="middle" class="ttl">ControladorUsuarios</text>
+    <line x1="1120" y1="623" x2="1340" y2="623" stroke="#222"/>
+    <text x="1128" y="637" class="mem">-tabla : DataTable</text>
+    <text x="1128" y="651" class="mem">-modalUsuario : HTMLDiv</text>
+    <line x1="1120" y1="658" x2="1340" y2="658" stroke="#222"/>
+    <text x="1128" y="672" class="mem">+renderTabla()</text>
+    <text x="1128" y="686" class="mem">+abrirCrear()</text>
+    <text x="1128" y="700" class="mem">+abrirEditar(id)</text>
+    <text x="1128" y="714" class="mem">+toggleUsuario(id)</text>
+    <text x="1128" y="728" class="mem">+verPerfil(id)</text>
+    <text x="1128" y="742" class="mem">+rolBadge()</text>
+  </g>
+  <!-- ControladorLogin c6 (1390) -->
+  <g>
+    <rect x="1390" y="600" width="220" height="138" fill="#fff" stroke="#222"/>
+    <text x="1500" y="617" text-anchor="middle" class="ttl">ControladorLogin</text>
+    <line x1="1390" y1="623" x2="1610" y2="623" stroke="#222"/>
+    <text x="1398" y="637" class="mem">-formLogin : HTMLForm</text>
+    <text x="1398" y="651" class="mem">-RUTAS_POR_ROL : map</text>
+    <line x1="1390" y1="658" x2="1610" y2="658" stroke="#222"/>
+    <text x="1398" y="672" class="mem">+onSubmit()  «evento»</text>
+    <text x="1398" y="686" class="mem">+signInWithPassword()</text>
+    <text x="1398" y="700" class="mem">+cargarPerfil()</text>
+    <text x="1398" y="714" class="mem">+redirigirPorRol()</text>
+    <text x="1398" y="728" class="mem">+signOut()</text>
+  </g>
+
+  <!-- ===== VISTAS ===== -->
+  <!-- recursos c1 -->
+  <g>
+    <rect x="40" y="940" width="220" height="118" fill="#fff" stroke="#222"/>
+    <text x="150" y="957" text-anchor="middle" class="ttl">recursos</text>
+    <line x1="40" y1="963" x2="260" y2="963" stroke="#222"/>
+    <text x="48" y="977" class="mem">-tablaRecursos : HTMLTable</text>
+    <text x="48" y="991" class="mem">-modalRecurso : HTMLDiv</text>
+    <line x1="40" y1="998" x2="260" y2="998" stroke="#222"/>
+    <text x="48" y="1012" class="mem">+onCrear() «evento»</text>
+    <text x="48" y="1026" class="mem">+onEditar() «evento»</text>
+    <text x="48" y="1040" class="mem">+onEliminar() «evento»</text>
+  </g>
+  <!-- voluntarios c2 -->
+  <g>
+    <rect x="310" y="940" width="220" height="118" fill="#fff" stroke="#222"/>
+    <text x="420" y="957" text-anchor="middle" class="ttl">voluntarios</text>
+    <line x1="310" y1="963" x2="530" y2="963" stroke="#222"/>
+    <text x="318" y="977" class="mem">-selEvento : HTMLSelect</text>
+    <text x="318" y="991" class="mem">-tablaVol : HTMLTable</text>
+    <line x1="310" y1="998" x2="530" y2="998" stroke="#222"/>
+    <text x="318" y="1012" class="mem">+onCalificar() «evento»</text>
+    <text x="318" y="1026" class="mem">+onVerHistorial() «evento»</text>
+  </g>
+  <!-- panel-voluntario c3 -->
+  <g>
+    <rect x="580" y="940" width="220" height="104" fill="#fff" stroke="#222"/>
+    <text x="690" y="957" text-anchor="middle" class="ttl">panel-voluntario</text>
+    <line x1="580" y1="963" x2="800" y2="963" stroke="#222"/>
+    <text x="588" y="977" class="mem">-listaEventos : HTMLDiv</text>
+    <text x="588" y="991" class="mem">-checkActividad : HTMLInput</text>
+    <line x1="580" y1="998" x2="800" y2="998" stroke="#222"/>
+    <text x="588" y="1012" class="mem">+onDisponible() «evento»</text>
+    <text x="588" y="1026" class="mem">+onCompletar() «evento»</text>
+  </g>
+  <!-- calificaciones c4 -->
+  <g>
+    <rect x="850" y="940" width="220" height="104" fill="#fff" stroke="#222"/>
+    <text x="960" y="957" text-anchor="middle" class="ttl">calificaciones</text>
+    <line x1="850" y1="963" x2="1070" y2="963" stroke="#222"/>
+    <text x="858" y="977" class="mem">-resumenCard : HTMLDiv</text>
+    <text x="858" y="991" class="mem">-listaHistorial : HTMLDiv</text>
+    <line x1="850" y1="998" x2="1070" y2="998" stroke="#222"/>
+    <text x="858" y="1012" class="mem">+onVerHistorial() «evento»</text>
+    <text x="858" y="1026" class="mem">+onFiltrar() «evento»</text>
+  </g>
+  <!-- usuarios c5 -->
+  <g>
+    <rect x="1120" y="940" width="220" height="118" fill="#fff" stroke="#222"/>
+    <text x="1230" y="957" text-anchor="middle" class="ttl">usuarios</text>
+    <line x1="1120" y1="963" x2="1340" y2="963" stroke="#222"/>
+    <text x="1128" y="977" class="mem">-tablaUsuarios : HTMLTable</text>
+    <text x="1128" y="991" class="mem">-modalUsuario : HTMLDiv</text>
+    <line x1="1120" y1="998" x2="1340" y2="998" stroke="#222"/>
+    <text x="1128" y="1012" class="mem">+onCrear() «evento»</text>
+    <text x="1128" y="1026" class="mem">+onEditar() «evento»</text>
+    <text x="1128" y="1040" class="mem">+onDesactivar() «evento»</text>
+  </g>
+  <!-- login c6 -->
+  <g>
+    <rect x="1390" y="940" width="220" height="104" fill="#fff" stroke="#222"/>
+    <text x="1500" y="957" text-anchor="middle" class="ttl">login</text>
+    <line x1="1390" y1="963" x2="1610" y2="963" stroke="#222"/>
+    <text x="1398" y="977" class="mem">-formLogin : HTMLForm</text>
+    <text x="1398" y="991" class="mem">-inputEmail / inputPass</text>
+    <line x1="1390" y1="998" x2="1610" y2="998" stroke="#222"/>
+    <text x="1398" y="1012" class="mem">+onSubmit() «evento»</text>
+  </g>
+
+  <!-- ===== RELACIONES ===== -->
+  <!-- Modelos -> Conexion (herencia) -->
+  <g stroke="#222" stroke-width="1.3" fill="none">
+    <path d="M150,300 L150,262 L778,262 L813,236" marker-end="url(#tri)"/>
+    <path d="M690,300 L690,272 L808,272 L820,236" marker-end="url(#tri)"/>
+    <path d="M1230,300 L1230,272 L848,272 L836,236" marker-end="url(#tri)"/>
+  </g>
+  <!-- Controladores -> Modelos (use) -->
+  <g stroke="#374151" stroke-width="1.3" fill="none" stroke-dasharray="5,3">
+    <path d="M150,600 L150,516" marker-end="url(#use)"/>
+    <path d="M420,600 L420,545 L695,545 L695,522" marker-end="url(#use)"/>
+    <path d="M690,600 L690,522" marker-end="url(#use)"/>
+    <path d="M960,600 L960,535 L685,535 L685,522" marker-end="url(#use)"/>
+    <path d="M1230,600 L1230,494" marker-end="url(#use)"/>
+    <path d="M1500,600 L1500,545 L1235,545 L1235,494" marker-end="url(#use)"/>
+    <path d="M1480,600 L1480,255 L940,255" marker-end="url(#use)"/>
+  </g>
+  <g class="uselbl">
+    <text x="155" y="560">+use</text>
+    <text x="400" y="540">+use</text>
+    <text x="695" y="560">+use</text>
+    <text x="965" y="528">+use</text>
+    <text x="1235" y="560">+use</text>
+    <text x="1300" y="540">+use</text>
+    <text x="990" y="250">«use» Supabase Auth</text>
+  </g>
+  <!-- Vistas -> Controladores (use) -->
+  <g stroke="#374151" stroke-width="1.3" fill="none" stroke-dasharray="5,3">
+    <path d="M150,940 L150,766" marker-end="url(#use)"/>
+    <path d="M420,940 L420,738" marker-end="url(#use)"/>
+    <path d="M690,940 L690,724" marker-end="url(#use)"/>
+    <path d="M960,940 L960,724" marker-end="url(#use)"/>
+    <path d="M1230,940 L1230,752" marker-end="url(#use)"/>
+    <path d="M1500,940 L1500,738" marker-end="url(#use)"/>
+  </g>
+  <g class="uselbl">
+    <text x="155" y="860">+use</text>
+    <text x="425" y="860">+use</text>
+    <text x="695" y="860">+use</text>
+    <text x="965" y="860">+use</text>
+    <text x="1235" y="860">+use</text>
+    <text x="1505" y="860">+use</text>
+  </g>
+</svg>
+</div>
+</body>
+</html>

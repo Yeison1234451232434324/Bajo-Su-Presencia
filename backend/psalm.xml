@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!--
+    Psalm — análisis estático complementario a PHPStan.
+
+    Por qué ambos: PHPStan y Psalm implementan inferencias distintas y cada uno
+    detecta defectos que al otro se le escapan (Psalm es más fuerte en tipos de
+    array con forma y en el seguimiento de la nulabilidad entre métodos).
+
+    `errorLevel="3"` es el punto de partida recomendado para un código sin
+    anotaciones previas de Psalm; conviene bajarlo (más estricto) de forma
+    progresiva conforme se saneen los hallazgos, igual que se hizo con PHPStan.
+
+    ESTADO: configuración preparada. Psalm NO está instalado en este entorno
+    (véase el informe de la Fase 5). Para activarlo:
+        composer require --dev vimeo/psalm
+        vendor/bin/psalm
+-->
+<psalm
+    errorLevel="3"
+    resolveFromConfigFile="true"
+    findUnusedBaselineEntry="true"
+    findUnusedCode="false"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://getpsalm.org/schema/config"
+    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+>
+    <projectFiles>
+        <directory name="src" />
+        <directory name="public" />
+        <directory name="routes" />
+        <directory name="tests" />
+        <ignoreFiles>
+            <directory name="vendor" />
+            <directory name="logs" />
+        </ignoreFiles>
+    </projectFiles>
+
+    <issueHandlers>
+        <!--
+            El cuerpo de las peticiones es JSON decodificado: `mixed` por
+            naturaleza. Se rebaja a aviso en lugar de silenciarlo, para que
+            siga siendo visible mientras se introducen accesores tipados en
+            la clase Request (mismo trabajo pendiente que impide el nivel 9
+            de PHPStan).
+        -->
+        <MixedAssignment errorLevel="info" />
+        <MixedArgument errorLevel="info" />
+    </issueHandlers>
+</psalm>

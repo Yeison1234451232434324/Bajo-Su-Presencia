@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Diagrama de Clases UML — Bajo Su Presencia (Web)</title>
+<style>
+  @page { size: 420mm 297mm; margin: 0; }   /* A3 apaisado */
+  html,body{margin:0;padding:0;background:#fff;font-family:"Segoe UI",Arial,sans-serif;}
+  .wrap{width:420mm;height:297mm;}
+  svg{width:100%;height:100%;display:block;}
+  text{font-family:"Segoe UI",Arial,sans-serif;}
+  .ttl{font-size:13px;font-weight:700;}
+  .mem{font-size:11px;}
+  .layer{font-size:20px;font-weight:700;fill:#1d3a6b;}
+  .uselbl{font-size:11px;fill:#374151;}
+  .head{font-size:24px;font-weight:700;fill:#1d3a6b;}
+  .sub{font-size:13px;fill:#6b7280;}
+  .note{font-size:11px;fill:#b45309;font-style:italic;}
+</style>
+</head>
+<body>
+<div class="wrap">
+<svg viewBox="0 0 1680 1290" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- triángulo hueco = herencia / «usa Conexión» -->
+    <marker id="tri" markerWidth="16" markerHeight="14" refX="15" refY="7" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M1,1 L15,7 L1,13 Z" fill="#fff" stroke="#222" stroke-width="1.3"/>
+    </marker>
+    <!-- flecha abierta = dependencia «use» -->
+    <marker id="use" markerWidth="12" markerHeight="12" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M1,1 L9,5 L1,9" fill="none" stroke="#374151" stroke-width="1.3"/>
+    </marker>
+  </defs>
+
+  <!-- Título -->
+  <text x="30" y="34" class="head">Diagrama de Clases UML — Aplicación Web (patrón MVC)</text>
+  <text x="30" y="54" class="sub">Bajo Su Presencia · Módulos: Gestión de Contenido (2) · PQR (8) · Ayuda (9) · Perfiles (10)</text>
+
+  <!-- Leyenda -->
+  <g transform="translate(1140,18)">
+    <rect x="0" y="0" width="510" height="48" fill="#f8fafc" stroke="#cbd5e1"/>
+    <line x1="14" y1="18" x2="54" y2="18" stroke="#222" stroke-width="1.4" marker-end="url(#tri)"/>
+    <text x="62" y="22" class="uselbl">herencia — el Modelo reutiliza Conexión</text>
+    <line x1="14" y1="38" x2="54" y2="38" stroke="#374151" stroke-width="1.4" stroke-dasharray="5,3" marker-end="url(#use)"/>
+    <text x="62" y="42" class="uselbl">«use» — dependencia (Vista→Control→Modelo)</text>
+  </g>
+
+  <!-- ════ Contenedores de capa ════ -->
+  <rect x="20" y="70" width="1640" height="470" fill="#eef4ff" stroke="#9bb4e0"/>
+  <text x="34" y="96" class="layer">Capa Modelo</text>
+  <rect x="20" y="556" width="1640" height="300" fill="#f3eefe" stroke="#c4b5e8"/>
+  <text x="34" y="582" class="layer">Capa Control</text>
+  <rect x="20" y="872" width="1640" height="400" fill="#fff7ea" stroke="#e6c48f"/>
+  <text x="34" y="898" class="layer">Capa Vista</text>
+  <text x="150" y="898" class="sub">vistas = archivos HTML · «atributos» = elementos del DOM · «métodos» = eventos que emiten</text>
+
+  <!-- ════════════ CONEXIÓN (base) ════════════ -->
+  <g>
+    <rect x="712" y="110" width="215" height="112" fill="#fff" stroke="#c0392b" stroke-width="2.2"/>
+    <text x="819" y="127" text-anchor="middle" class="ttl">Conexion</text>
+    <line x1="712" y1="133" x2="927" y2="133" stroke="#c0392b"/>
+    <text x="720" y="148" class="mem">-url</text>
+    <text x="720" y="162" class="mem">-anonKey</text>
+    <text x="720" y="176" class="mem">-sb (cliente)</text>
+    <line x1="712" y1="183" x2="927" y2="183" stroke="#c0392b"/>
+    <text x="720" y="198" class="mem">+crearCliente()</text>
+    <text x="720" y="212" class="mem">+miUsuarioId()</text>
+  </g>
+
+  <!-- ════════════ PAQUETE: FRAMEWORKS / LIBRERÍAS ════════════ -->
+  <g>
+    <rect x="40" y="104" width="320" height="166" fill="#fffdf5" stroke="#0e7490" stroke-width="2"/>
+    <!-- pestaña de paquete UML -->
+    <rect x="40" y="92" width="150" height="14" fill="#fffdf5" stroke="#0e7490" stroke-width="2"/>
+    <text x="48" y="103" class="mem" style="font-weight:700;fill:#0e7490">«frameworks»</text>
+    <text x="200" y="123" text-anchor="middle" class="ttl" style="fill:#0e7490">Librerías externas (CDN)</text>
+    <line x1="40" y1="129" x2="360" y2="129" stroke="#0e7490"/>
+    <text x="50" y="146" class="mem">▸ Supabase JS — datos + Auth (JWT)</text>
+    <text x="50" y="162" class="mem">▸ Chart.js — gráficas del dashboard</text>
+    <text x="50" y="178" class="mem">▸ Alertify.js — alertas / notificaciones</text>
+    <text x="50" y="194" class="mem">▸ Boxicons — iconografía</text>
+    <text x="50" y="210" class="mem">▸ Google Fonts — tipografías</text>
+    <line x1="40" y1="218" x2="360" y2="218" stroke="#0e7490"/>
+    <text x="50" y="234" class="note">Estilos: CSS propio por módulo</text>
+    <text x="50" y="250" class="note">(no se usa Bootstrap ni Tailwind)</text>
+  </g>
+  <!-- dependencia: Conexion «use» Supabase JS -->
+  <g stroke="#374151" stroke-width="1.3" fill="none" stroke-dasharray="5,3">
+    <path d="M712,166 L360,166" marker-end="url(#use)"/>
+  </g>
+  <text x="470" y="160" class="uselbl">«use» Supabase JS</text>
+
+  <!-- ════════════ MODELOS ════════════ -->
+  <!-- ModeloEventos c1 -->
+  <g>
+    <rect x="35" y="300" width="215" height="150" fill="#fff" stroke="#222"/>
+    <text x="142" y="317" text-anchor="middle" class="ttl">ModeloEventos</text>
+    <line x1="35" y1="323" x2="250" y2="323" stroke="#222"/>
+    <text x="43" y="337" class="mem">-TABLA = "eventos"</text>
+    <line x1="35" y1="344" x2="250" y2="344" stroke="#222"/>
+    <text x="43" y="358" class="mem">+getAll()</text>
+    <text x="43" y="372" class="mem">+getById(id)</text>
+    <text x="43" y="386" class="mem">+publicar(datos)</text>
+    <text x="43" y="400" class="mem">+actualizar(id, datos)</text>
+    <text x="43" y="414" class="mem">+eliminar(id)</text>
+    <text x="43" y="428" class="mem">-syncRecursos()</text>
+    <text x="43" y="442" class="mem">-syncEspecialistas()</text>
+  </g>
+  <!-- ModeloNoticias c2 -->
+  <g>
+    <rect x="265" y="300" width="215" height="122" fill="#fff" stroke="#222"/>
+    <text x="372" y="317" text-anchor="middle" class="ttl">ModeloNoticias</text>
+    <line x1="265" y1="323" x2="480" y2="323" stroke="#222"/>
+    <text x="273" y="337" class="mem">-TABLA = "noticias"</text>
+    <line x1="265" y1="344" x2="480" y2="344" stroke="#222"/>
+    <text x="273" y="358" class="mem">+getAll()</text>
+    <text x="273" y="372" class="mem">+getById(id)</text>
+    <text x="273" y="386" class="mem">+crear(datos)</text>
+    <text x="273" y="400" class="mem">+actualizar(id, datos)</text>
+    <text x="273" y="414" class="mem">+eliminar(id)</text>
+  </g>
+  <!-- ModeloOracion c3 -->
+  <g>
+    <rect x="495" y="300" width="215" height="122" fill="#fff" stroke="#222"/>
+    <text x="602" y="317" text-anchor="middle" class="ttl">ModeloOracion</text>
+    <line x1="495" y1="323" x2="710" y2="323" stroke="#222"/>
+    <text x="503" y="337" class="mem">-TABLA = "oraciones"</text>
+    <line x1="495" y1="344" x2="710" y2="344" stroke="#222"/>
+    <text x="503" y="358" class="mem">+getAll()</text>
+    <text x="503" y="372" class="mem">+getById(id)</text>
+    <text x="503" y="386" class="mem">+crear(datos)</text>
+    <text x="503" y="400" class="mem">+actualizar(id, datos)</text>
+    <text x="503" y="414" class="mem">+eliminar(id)</text>
+  </g>
+  <!-- ModeloPQR c4 -->
+  <g>
+    <rect x="725" y="300" width="215" height="150" fill="#fff" stroke="#222"/>
+    <text x="832" y="317" text-anchor="middle" class="ttl">ModeloPQR</text>
+    <line x1="725" y1="323" x2="940" y2="323" stroke="#222"/>
+    <text x="733" y="337" class="mem">-TABLA = "pqr"</text>
+    <line x1="725" y1="344" x2="940" y2="344" stroke="#222"/>
+    <text x="733" y="358" class="mem">+getAll()</text>
+    <text x="733" y="372" class="mem">+getById(id)</text>
+    <text x="733" y="386" class="mem">+crear(datos)</text>
+    <text x="733" y="400" class="mem">+cambiarEstado(id, estado)</text>
+    <text x="733" y="414" class="mem">+responder(id, resp, est, por)</text>
+    <text x="733" y="428" class="mem">+eliminar(id)</text>
+    <text x="733" y="442" class="mem">+getEstadisticas()</text>
+  </g>
+  <!-- ModeloUsuarios c6 -->
+  <g>
+    <rect x="1185" y="300" width="215" height="164" fill="#fff" stroke="#222"/>
+    <text x="1292" y="317" text-anchor="middle" class="ttl">ModeloUsuarios</text>
+    <line x1="1185" y1="323" x2="1400" y2="323" stroke="#222"/>
+    <text x="1193" y="337" class="mem">-TABLA = "usuarios"</text>
+    <line x1="1185" y1="344" x2="1400" y2="344" stroke="#222"/>
+    <text x="1193" y="358" class="mem">+getAll()</text>
+    <text x="1193" y="372" class="mem">+getById(id)</text>
+    <text x="1193" y="386" class="mem">+getByUsername(u)</text>
+    <text x="1193" y="400" class="mem">+create(datos)</text>
+    <text x="1193" y="414" class="mem">+update(id, datos)</text>
+    <text x="1193" y="428" class="mem">+toggleActivo(id)</text>
+    <text x="1193" y="442" class="mem">+remove(id)</text>
+    <text x="1193" y="456" class="mem">+getEspecialistas()</text>
+  </g>
+  <!-- ModeloAyuda c7 (en memoria, NO usa Conexion) -->
+  <g>
+    <rect x="1415" y="300" width="215" height="94" fill="#fff" stroke="#222"/>
+    <text x="1522" y="317" text-anchor="middle" class="ttl">ModeloAyuda</text>
+    <line x1="1415" y1="323" x2="1630" y2="323" stroke="#222"/>
+    <text x="1423" y="337" class="mem">-BASE_CONOCIMIENTO</text>
+    <line x1="1415" y1="344" x2="1630" y2="344" stroke="#222"/>
+    <text x="1423" y="358" class="mem">+filtrarPorRol(rol)</text>
+    <text x="1423" y="372" class="mem">+buscar(texto)</text>
+    <text x="1423" y="388" class="note">en memoria · sin BD</text>
+  </g>
+
+  <!-- ════════════ CONTROLADORES ════════════ -->
+  <!-- ControladorEventos c1 -->
+  <g>
+    <rect x="35" y="600" width="215" height="150" fill="#fff" stroke="#222"/>
+    <text x="142" y="617" text-anchor="middle" class="ttl">ControladorEventos</text>
+    <line x1="35" y1="623" x2="250" y2="623" stroke="#222"/>
+    <text x="43" y="637" class="mem">-cacheRecursos : array</text>
+    <text x="43" y="651" class="mem">-cacheEspecialistas : array</text>
+    <line x1="35" y1="658" x2="250" y2="658" stroke="#222"/>
+    <text x="43" y="672" class="mem">+init()</text>
+    <text x="43" y="686" class="mem">+cargarRecursos()</text>
+    <text x="43" y="700" class="mem">+combinarHorario()</text>
+    <text x="43" y="714" class="mem">+guardar()</text>
+    <text x="43" y="728" class="mem">+editar(id)</text>
+    <text x="43" y="742" class="mem">+eliminar(id)</text>
+  </g>
+  <!-- ControladorNoticias c2 -->
+  <g>
+    <rect x="265" y="600" width="215" height="150" fill="#fff" stroke="#222"/>
+    <text x="372" y="617" text-anchor="middle" class="ttl">ControladorNoticias</text>
+    <line x1="265" y1="623" x2="480" y2="623" stroke="#222"/>
+    <text x="273" y="637" class="mem">-formNoticia : HTMLForm</text>
+    <text x="273" y="651" class="mem">-preview : HTMLDiv</text>
+    <line x1="265" y1="658" x2="480" y2="658" stroke="#222"/>
+    <text x="273" y="672" class="mem">+init()</text>
+    <text x="273" y="686" class="mem">+actualizarPreview()</text>
+    <text x="273" y="700" class="mem">+guardar()</text>
+    <text x="273" y="714" class="mem">+editarNoticia(id)</text>
+    <text x="273" y="728" class="mem">+verNoticia(id)</text>
+    <text x="273" y="742" class="mem">+eliminarNoticia(id)</text>
+  </g>
+  <!-- ControladorOracion c3 -->
+  <g>
+    <rect x="495" y="600" width="215" height="150" fill="#fff" stroke="#222"/>
+    <text x="602" y="617" text-anchor="middle" class="ttl">ControladorOracion</text>
+    <line x1="495" y1="623" x2="710" y2="623" stroke="#222"/>
+    <text x="503" y="637" class="mem">-formOracion : HTMLForm</text>
+    <text x="503" y="651" class="mem">-preview : HTMLDiv</text>
+    <line x1="495" y1="658" x2="710" y2="658" stroke="#222"/>
+    <text x="503" y="672" class="mem">+init()</text>
+    <text x="503" y="686" class="mem">+updatePrayerPreview()</text>
+    <text x="503" y="700" class="mem">+guardar()</text>
+    <text x="503" y="714" class="mem">+editarOracion(id)</text>
+    <text x="503" y="728" class="mem">+verOracion(id)</text>
+    <text x="503" y="742" class="mem">+eliminarOracion(id)</text>
+  </g>
+  <!-- ControladorPQRAdmin c4 -->
+  <g>
+    <rect x="725" y="600" width="215" height="164" fill="#fff" stroke="#222"/>
+    <text x="832" y="617" text-anchor="middle" class="ttl">ControladorPQRAdmin</text>
+    <line x1="725" y1="623" x2="940" y2="623" stroke="#222"/>
+    <text x="733" y="637" class="mem">-dtPQR : DataTable</text>
+    <text x="733" y="651" class="mem">-modalRespuesta : HTMLDiv</text>
+    <line x1="725" y1="658" x2="940" y2="658" stroke="#222"/>
+    <text x="733" y="672" class="mem">+init()</text>
+    <text x="733" y="686" class="mem">+renderTabla()</text>
+    <text x="733" y="700" class="mem">+actualizarContadores()</text>
+    <text x="733" y="714" class="mem">+responder()</text>
+    <text x="733" y="728" class="mem">+cambiarEstado()</text>
+    <text x="733" y="742" class="mem">+filtrar()</text>
+    <text x="733" y="756" class="mem">+exportar()</text>
+  </g>
+  <!-- ControladorPQR (público) c5 -->
+  <g>
+    <rect x="955" y="600" width="215" height="108" fill="#fff" stroke="#222"/>
+    <text x="1062" y="617" text-anchor="middle" class="ttl">ControladorPQR</text>
+    <line x1="955" y1="623" x2="1170" y2="623" stroke="#222"/>
+    <text x="963" y="637" class="mem">-formPQR : HTMLForm</text>
+    <line x1="955" y1="644" x2="1170" y2="644" stroke="#222"/>
+    <text x="963" y="658" class="mem">+init()</text>
+    <text x="963" y="672" class="mem">+radicar()</text>
+    <text x="963" y="686" class="mem">+mostrarError(msg)</text>
+  </g>
+  <!-- ControladorPerfil c6 -->
+  <g>
+    <rect x="1185" y="600" width="215" height="150" fill="#fff" stroke="#222"/>
+    <text x="1292" y="617" text-anchor="middle" class="ttl">ControladorPerfil</text>
+    <line x1="1185" y1="623" x2="1400" y2="623" stroke="#222"/>
+    <text x="1193" y="637" class="mem">-formPerfil : HTMLForm</text>
+    <text x="1193" y="651" class="mem">-usuarioActual : object</text>
+    <line x1="1185" y1="658" x2="1400" y2="658" stroke="#222"/>
+    <text x="1193" y="672" class="mem">+init()</text>
+    <text x="1193" y="686" class="mem">+obtenerUsuarioActual()</text>
+    <text x="1193" y="700" class="mem">+pintarCabecera()</text>
+    <text x="1193" y="714" class="mem">+mostrarFotoPreview()</text>
+    <text x="1193" y="728" class="mem">+redimensionarImagen()</text>
+    <text x="1193" y="742" class="mem">+guardar()</text>
+  </g>
+  <!-- ControladorAyuda c7 -->
+  <g>
+    <rect x="1415" y="600" width="215" height="150" fill="#fff" stroke="#222"/>
+    <text x="1522" y="617" text-anchor="middle" class="ttl">ControladorAyuda</text>
+    <line x1="1415" y1="623" x2="1630" y2="623" stroke="#222"/>
+    <text x="1423" y="637" class="mem">-BASE_CONOCIMIENTO : array</text>
+    <text x="1423" y="651" class="mem">-rolActual : string</text>
+    <line x1="1415" y1="658" x2="1630" y2="658" stroke="#222"/>
+    <text x="1423" y="672" class="mem">+injectWidget()</text>
+    <text x="1423" y="686" class="mem">+injectSidebarItem()</text>
+    <text x="1423" y="700" class="mem">+getRol()</text>
+    <text x="1423" y="714" class="mem">+filterData(rol)</text>
+    <text x="1423" y="728" class="mem">+buildAccordion()</text>
+    <text x="1423" y="742" class="mem">+buscar()</text>
+  </g>
+
+  <!-- ════════════ VISTAS (con elementos del DOM y eventos) ════════════ -->
+  <!-- eventos c1 -->
+  <g>
+    <rect x="35" y="940" width="215" height="118" fill="#fff" stroke="#222"/>
+    <text x="142" y="957" text-anchor="middle" class="ttl">eventos</text>
+    <line x1="35" y1="963" x2="250" y2="963" stroke="#222"/>
+    <text x="43" y="977" class="mem">-formEvento : HTMLForm</text>
+    <text x="43" y="991" class="mem">-tablaHistorial : HTMLTable</text>
+    <line x1="35" y1="998" x2="250" y2="998" stroke="#222"/>
+    <text x="43" y="1012" class="mem">+onSubmit() «evento»</text>
+    <text x="43" y="1026" class="mem">+onEditar() «evento»</text>
+    <text x="43" y="1040" class="mem">+onEliminar() «evento»</text>
+  </g>
+  <!-- noticias c2 -->
+  <g>
+    <rect x="265" y="940" width="215" height="118" fill="#fff" stroke="#222"/>
+    <text x="372" y="957" text-anchor="middle" class="ttl">noticias</text>
+    <line x1="265" y1="963" x2="480" y2="963" stroke="#222"/>
+    <text x="273" y="977" class="mem">-formNoticia : HTMLForm</text>
+    <text x="273" y="991" class="mem">-preview : HTMLDiv</text>
+    <line x1="265" y1="998" x2="480" y2="998" stroke="#222"/>
+    <text x="273" y="1012" class="mem">+onSubmit() «evento»</text>
+    <text x="273" y="1026" class="mem">+onPreview() «evento»</text>
+    <text x="273" y="1040" class="mem">+onEditar() «evento»</text>
+  </g>
+  <!-- oracion c3 -->
+  <g>
+    <rect x="495" y="940" width="215" height="118" fill="#fff" stroke="#222"/>
+    <text x="602" y="957" text-anchor="middle" class="ttl">oracion</text>
+    <line x1="495" y1="963" x2="710" y2="963" stroke="#222"/>
+    <text x="503" y="977" class="mem">-formOracion : HTMLForm</text>
+    <text x="503" y="991" class="mem">-preview : HTMLDiv</text>
+    <line x1="495" y1="998" x2="710" y2="998" stroke="#222"/>
+    <text x="503" y="1012" class="mem">+onSubmit() «evento»</text>
+    <text x="503" y="1026" class="mem">+onPreview() «evento»</text>
+    <text x="503" y="1040" class="mem">+onVer() «evento»</text>
+  </g>
+  <!-- pqr-admin c4 -->
+  <g>
+    <rect x="725" y="940" width="215" height="132" fill="#fff" stroke="#222"/>
+    <text x="832" y="957" text-anchor="middle" class="ttl">pqr-admin</text>
+    <line x1="725" y1="963" x2="940" y2="963" stroke="#222"/>
+    <text x="733" y="977" class="mem">-tablaPQR : HTMLTable</text>
+    <text x="733" y="991" class="mem">-modalRespuesta : HTMLDiv</text>
+    <text x="733" y="1005" class="mem">-filtros : HTMLSelect</text>
+    <line x1="725" y1="1012" x2="940" y2="1012" stroke="#222"/>
+    <text x="733" y="1026" class="mem">+onResponder() «evento»</text>
+    <text x="733" y="1040" class="mem">+onFiltrar() «evento»</text>
+    <text x="733" y="1054" class="mem">+onExportar() «evento»</text>
+  </g>
+  <!-- pqr público c5 -->
+  <g>
+    <rect x="955" y="940" width="215" height="104" fill="#fff" stroke="#222"/>
+    <text x="1062" y="957" text-anchor="middle" class="ttl">pqr (público)</text>
+    <line x1="955" y1="963" x2="1170" y2="963" stroke="#222"/>
+    <text x="963" y="977" class="mem">-formPQR : HTMLForm</text>
+    <line x1="955" y1="984" x2="1170" y2="984" stroke="#222"/>
+    <text x="963" y="998" class="mem">+onSubmit() «evento»</text>
+    <text x="963" y="1012" class="mem">+onNueva() «evento»</text>
+  </g>
+  <!-- perfil c6 -->
+  <g>
+    <rect x="1185" y="940" width="215" height="118" fill="#fff" stroke="#222"/>
+    <text x="1292" y="957" text-anchor="middle" class="ttl">perfil</text>
+    <line x1="1185" y1="963" x2="1400" y2="963" stroke="#222"/>
+    <text x="1193" y="977" class="mem">-formPerfil : HTMLForm</text>
+    <text x="1193" y="991" class="mem">-inputFoto : HTMLInput</text>
+    <line x1="1185" y1="998" x2="1400" y2="998" stroke="#222"/>
+    <text x="1193" y="1012" class="mem">+onSubmit() «evento»</text>
+    <text x="1193" y="1026" class="mem">+onCambiarFoto() «evento»</text>
+    <text x="1193" y="1040" class="mem">+onQuitarFoto() «evento»</text>
+  </g>
+  <!-- ayuda widget c7 -->
+  <g>
+    <rect x="1415" y="940" width="215" height="104" fill="#fff" stroke="#222"/>
+    <text x="1522" y="957" text-anchor="middle" class="ttl">ayuda (widget)</text>
+    <line x1="1415" y1="963" x2="1630" y2="963" stroke="#222"/>
+    <text x="1423" y="977" class="mem">-panelAyuda : HTMLAside</text>
+    <text x="1423" y="991" class="mem">-inputBuscar : HTMLInput</text>
+    <line x1="1415" y1="998" x2="1630" y2="998" stroke="#222"/>
+    <text x="1423" y="1012" class="mem">+onAbrir() «evento»</text>
+    <text x="1423" y="1026" class="mem">+onBuscar() «evento»</text>
+  </g>
+  <!-- vista compartida: plantilla / dashboard -->
+  <g>
+    <rect x="630" y="1180" width="420" height="70" fill="#fff" stroke="#222" stroke-dasharray="4,2"/>
+    <text x="840" y="1198" text-anchor="middle" class="ttl">plantilla (dashboard)</text>
+    <line x1="630" y1="1204" x2="1050" y2="1204" stroke="#222"/>
+    <text x="638" y="1218" class="mem">-sidebar : HTMLNav        -contenedorVistas : HTMLDiv</text>
+    <line x1="630" y1="1225" x2="1050" y2="1225" stroke="#222"/>
+    <text x="638" y="1239" class="mem">+cargarVista(modulo)   +cerrarSesion() «evento»</text>
+  </g>
+
+  <!-- ════════════ RELACIONES ════════════ -->
+  <!-- Modelos → Conexion (herencia, triángulo hueco) -->
+  <g stroke="#222" stroke-width="1.3" fill="none">
+    <path d="M142,300 L142,250 L780,250 L805,222" marker-end="url(#tri)"/>
+    <path d="M372,300 L372,265 L795,265 L812,222" marker-end="url(#tri)"/>
+    <path d="M602,300 L602,278 L805,278 L818,222" marker-end="url(#tri)"/>
+    <path d="M832,300 L832,235 L826,224" marker-end="url(#tri)"/>
+    <path d="M1292,300 L1292,265 L860,265 L833,224" marker-end="url(#tri)"/>
+  </g>
+  <g class="uselbl" fill="#374151">
+    <text x="430" y="246">+use (Conexión)</text>
+    <text x="900" y="260">+use</text>
+  </g>
+
+  <!-- Controladores → Modelos (use, dashed) -->
+  <g stroke="#374151" stroke-width="1.3" fill="none" stroke-dasharray="5,3">
+    <path d="M142,600 L142,450" marker-end="url(#use)"/>
+    <path d="M372,600 L372,422" marker-end="url(#use)"/>
+    <path d="M602,600 L602,422" marker-end="url(#use)"/>
+    <path d="M832,600 L832,450" marker-end="url(#use)"/>
+    <path d="M1062,600 L1062,540 L900,540 L880,452" marker-end="url(#use)"/>
+    <path d="M1292,600 L1292,464" marker-end="url(#use)"/>
+    <path d="M1522,600 L1522,394" marker-end="url(#use)"/>
+  </g>
+  <g class="uselbl">
+    <text x="148" y="520">+use</text>
+    <text x="378" y="520">+use</text>
+    <text x="608" y="520">+use</text>
+    <text x="838" y="520">+use</text>
+    <text x="1068" y="560">+use</text>
+    <text x="1298" y="520">+use</text>
+    <text x="1528" y="520">+use</text>
+  </g>
+
+  <!-- Vistas → Controladores (use, dashed) -->
+  <g stroke="#374151" stroke-width="1.3" fill="none" stroke-dasharray="5,3">
+    <path d="M142,940 L142,750" marker-end="url(#use)"/>
+    <path d="M372,940 L372,750" marker-end="url(#use)"/>
+    <path d="M602,940 L602,750" marker-end="url(#use)"/>
+    <path d="M832,940 L832,764" marker-end="url(#use)"/>
+    <path d="M1062,940 L1062,708" marker-end="url(#use)"/>
+    <path d="M1292,940 L1292,750" marker-end="url(#use)"/>
+    <path d="M1522,940 L1522,750" marker-end="url(#use)"/>
+  </g>
+  <g class="uselbl">
+    <text x="148" y="860">+use</text>
+    <text x="378" y="860">+use</text>
+    <text x="608" y="860">+use</text>
+    <text x="838" y="860">+use</text>
+    <text x="1068" y="860">+use</text>
+    <text x="1298" y="860">+use</text>
+    <text x="1528" y="860">+use</text>
+  </g>
+
+</svg>
+</div>
+</body>
+</html>

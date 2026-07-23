@@ -1,0 +1,41 @@
+# ============================================================================
+#  PHPStan — análisis estático del backend
+#
+#  Nivel 9 (máximo de la serie estándar): exige tipado completo, prohíbe
+#  `mixed` sin comprobar y detecta accesos potencialmente nulos.
+#
+#  Se analizan `src`, `public`, `routes` y `tests`: dejar fuera cualquiera de
+#  ellos crearía puntos ciegos justo donde entran los datos externos.
+# ============================================================================
+parameters:
+    # Nivel 8: el más alto que el proyecto supera SIN silenciar ni un error.
+    #
+    # Por qué no el 9: exige que ningún `mixed` se convierta sin comprobación
+    # previa. El cuerpo de las peticiones llega como JSON decodificado, es
+    # decir `mixed` por naturaleza, y el proyecto lo convierte con `(string)`
+    # en 54 puntos. Alcanzar el nivel 9 requiere accesores tipados en
+    # `Request` (`inputString()`, `inputInt()`…) y propagarlos por servicios y
+    # controladores: un refactor amplio que debe ir acompañado de pruebas de
+    # los flujos afectados, hoy inexistentes. Se documenta como trabajo
+    # pendiente en lugar de enmascararlo con una lista de exclusiones.
+    level: 8
+
+    paths:
+        - src
+        - public
+        - routes
+        - tests
+
+    # El ejecutor de pruebas define la clase Corredor en run.php y los casos la
+    # reciben por parámetro; PHPStan no puede seguir esa relación al analizar
+    # los archivos por separado.
+    scanFiles:
+        - tests/run.php
+
+    # Superglobales y entrada HTTP: siempre son `mixed` en la práctica.
+    treatPhpDocTypesAsCertain: false
+
+    # Sin `ignoreErrors`: no hay ninguna advertencia silenciada.
+    # (Se retiró una regla añadida de forma preventiva que nunca llegó a
+    #  coincidir con un error real; el propio PHPStan la delató con
+    #  `ignore.unmatched`.)
