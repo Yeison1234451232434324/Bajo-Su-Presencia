@@ -368,6 +368,20 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8" integrity="sha384-Tve8O+C6PBzsIMK/IRCwHbi8fyEzXIlIs6OfVBZHubplwYhaQF/4Mzxqgg+pp/oy" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="../../../controllers/supabase.client.js"></script>
 
+  <!-- Autenticación de la sesión.
+       api.config.js  → define bspAuth/bspBindLogout: sin él, "Cerrar Sesión"
+                        solo navegaba al login SIN borrar el token, de modo que
+                        el botón "atrás" restauraba el panel con la sesión viva.
+       session.manager.js → valida el JWT en el servidor para proteger la vista. -->
+  <script src="../../../controllers/api.config.js"></script>
+  <script src="../../../controllers/session.manager.js"></script>
+  <script>
+    // La dashboard es exclusiva de administradores: se exige una sesión válida
+    // verificada por el backend. Sin ella, se regresa al login con
+    // location.replace (no queda en el historial de "atrás").
+    if (window.BSPSession) { window.BSPSession.exigir(['Administrador']); }
+  </script>
+
   <!-- KPIs en vivo desde la BD (las gráficas de tendencia son ilustrativas) -->
   <script>
   window.addEventListener('DOMContentLoaded', async () => {

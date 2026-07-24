@@ -72,7 +72,7 @@ a    { text-decoration: none; }
 }
 .section-desc {
   font-family: var(--font-text);
-  font-size: clamp(1rem, 2vw, 1.25rem);
+  font-size: clamp(1.125rem, 2.2vw, 1.5rem);
   color: var(--muted-foreground);
   font-style: italic;
   margin-top: 0.5rem;
@@ -92,34 +92,44 @@ a    { text-decoration: none; }
 .header-inner {
   max-width: 80rem;
   margin: 0 auto;
-  padding: 1rem 1.5rem;
+  padding: 1.1rem 2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1.5rem;
 }
 .header-brand {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
   cursor: pointer;
+  flex-shrink: 0;
 }
-.header-logo    { 
-    height: 60px;
-    margin-right: 100px;
-              }
+.header-logo    {
+    height: 64px;
+    margin-right: 0;
+}
 .header-title   {
   font-family: var(--font-serif);
-  font-size: 1.5rem;
+  font-size: 1.85rem;
   font-weight: 700;
   color: var(--foreground);
   letter-spacing: 0.03em;
+  line-height: 1.15;
 }
 
+/* El menú ocupa el espacio central y queda centrado: reparte mejor el header
+   y elimina el hueco vacío que dejaba el margen del logo. */
+.header-menu {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
 .lista-menu {
     list-style: none;
     display: flex;
-    justify-content: flex-end;
-    gap: 20px;
+    justify-content: center;
+    gap: 2.25rem;
     padding: 0;
     margin: 0;
     color: #0F1E5A;
@@ -128,6 +138,9 @@ a    { text-decoration: none; }
     color:#0F1E5A ;
   text-decoration: none;
   transition: color 0.3s ease;
+  font-size: 1.2rem;      /* ~19px: legible sin gafas */
+  font-weight: 600;
+  padding: 0.35rem 0.25rem;
 }
 
 .lista-menu a:hover{
@@ -135,25 +148,26 @@ a    { text-decoration: none; }
 }
 .header-subtitle {
   font-family: var(--font-text);
-  font-size: 0.9375rem;
+  font-size: 1.1rem;
   color: var(--muted-foreground);
   font-style: italic;
 }
-.header-actions { display: flex; gap: 0.75rem; }
+.header-actions { display: flex; gap: 1rem; }
 
 /* Botones del header */
 .btn {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.625rem 1.25rem;
+  padding: 0.7rem 1.6rem;
   border-radius: 9999px;
   font-family: var(--font-text);
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
   border: none;
+  white-space: nowrap;
 }
 .btn-outline {
   background: white;
@@ -747,7 +761,9 @@ a    { text-decoration: none; }
 
 /* ── 1024px ── */
 @media (max-width: 1024px) {
-  .header-logo { margin-right: 2rem; }
+  .header-logo { margin-right: 0; }
+  .lista-menu  { gap: 1.5rem; }
+  .lista-menu a { font-size: 1.1rem; }
   .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
 }
 
@@ -924,7 +940,7 @@ a    { text-decoration: none; }
   padding: 3rem;
   color: var(--muted-foreground);
   font-family: var(--font-text);
-  font-size: 1.1rem;
+  font-size: 1.35rem;
   font-style: italic;
 }
 .carousel-empty span { font-size: 2.5rem; }
@@ -1355,6 +1371,40 @@ a    { text-decoration: none; }
   box-shadow: 0 6px 20px rgba(30,58,138,0.4);
   transform: translateY(-1px);
 }
+
+/* ═════════════════════════════════════════════════════════════════════════
+   ACCESIBILIDAD — Tamaño mínimo de letra para adultos mayores
+   ─────────────────────────────────────────────────────────────────────────
+   El resto del homepage tenía textos de 13px (0.8125rem) y 15px (0.9375rem)
+   en tarjetas, pie de página y ventanas emergentes, difíciles de leer sin
+   gafas. Aquí se elevan a un mínimo cómodo (≈15–17px) SIN tocar cada regla
+   original: este bloque va al final, así que gana por orden de cascada.
+   Los títulos y el hero ya eran grandes y no se modifican.
+   ═════════════════════════════════════════════════════════════════════════ */
+
+/* ── Tarjetas de noticias ── */
+.news-card-excerpt { font-size: 1.075rem; }   /* 16 → ~17px  cuerpo */
+.news-card-meta    { font-size: 1.0625rem; }  /* 15 → 17px   fecha/autor */
+.card-leer-mas     { font-size: 1.075rem; }   /* 16 → ~17px  "Leer más" */
+
+/* ── Pie de página ── */
+.footer-tagline       { font-size: 1rem; }        /* 15 → 16px */
+.footer-text          { font-size: 1.075rem; }    /* 16 → ~17px */
+.footer-contact-text  { font-size: 1.075rem; }    /* 16 → ~17px  dirección/tel */
+.footer-schedule-row  { font-size: 1.0625rem; }   /* 15 → 17px   horarios */
+.footer-schedule-time { font-size: 1.0625rem; }   /* 15 → 17px */
+.footer-versiculo p   { font-size: 1.05rem; }     /* 15 → ~17px  versículo */
+.footer-versiculo span{ font-size: 0.95rem; }     /* 13 → ~15px  referencia */
+.footer-copy          { font-size: 1rem; }        /* 15 → 16px   copyright */
+.footer-copy-gold     { font-size: 1rem; }        /* 15 → 16px */
+
+/* ── Ventana emergente (noticias / eventos) ── */
+.mf-badge        { font-size: 0.95rem; }   /* 13 → ~15px  etiqueta */
+.mf-meta         { font-size: 1.05rem; }   /* 16 → ~17px  fecha/autor */
+.mf-contenido    { font-size: 1.05rem; }   /* 16 → ~17px  cuerpo noticia */
+.mf-ev-item      { font-size: 1.05rem; }   /* 16 → ~17px  datos evento */
+.mf-ev-card-label{ font-size: 0.95rem; }   /* 13 → ~15px  etiqueta dato */
+.mf-ev-card-val  { font-size: 1.05rem; }   /* 16 → ~17px  valor dato */
 
 /* ── Activar en móvil ── */
 @media (max-width: 768px) {

@@ -1,3 +1,15 @@
+// ── Protección contra el botón "atrás" tras cerrar sesión ────────────────────
+// Al cerrar sesión se borra el token, pero el navegador puede restaurar esta
+// página desde su caché de historial (bfcache) SIN volver a ejecutar el JS de
+// arranque; por eso las <meta> de no-cache no bastan. El evento `pageshow` sí se
+// dispara también en esa restauración: si ya no hay sesión, se expulsa al login
+// con location.replace para no dejar el panel accesible.
+window.addEventListener("pageshow", () => {
+  let haySesion = false;
+  try { haySesion = !!localStorage.getItem("bspToken"); } catch (_) { /* noop */ }
+  if (!haySesion) window.location.replace("../../public/login/login.html");
+});
+
 document.addEventListener("DOMContentLoaded", () => {
 
   // ── Inyectar Boxicons si no está cargado ──────────────────────────────────

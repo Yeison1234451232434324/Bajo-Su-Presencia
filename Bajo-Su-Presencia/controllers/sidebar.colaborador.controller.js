@@ -1,3 +1,12 @@
+// ── Protección contra el botón "atrás" tras cerrar sesión ────────────────────
+// El navegador puede restaurar esta página desde el bfcache SIN re-ejecutar el
+// JS de arranque; `pageshow` sí se dispara en ese caso. Sin token, al login.
+window.addEventListener("pageshow", () => {
+  let haySesion = false;
+  try { haySesion = !!localStorage.getItem("bspToken"); } catch (_) { /* noop */ }
+  if (!haySesion) window.location.replace("../../public/login/login.html");
+});
+
 document.addEventListener("DOMContentLoaded", () => {
 
   // ── Inyectar Boxicons si no está cargado ──────────────────────────────────

@@ -415,6 +415,26 @@
   document.addEventListener('click', e => {
     if (!e.target.closest('.site-header')) cerrarMenuMovil();
   });
+
+  // ── Navegación por anclas (#Inicio, #Contacto, …) ────────────────────────
+  // El front controller inyecta una etiqueta <base> para que funcionen las
+  // rutas relativas de los assets. Como efecto colateral, un enlace "#Contacto"
+  // se resolvía contra esa base ( /Bajo-Su-Presencia/views/public/inicio/ ) en
+  // lugar de contra la URL limpia /inicio, provocando un 404. Se interceptan los
+  // clics de todos los enlaces de ancla y se hace scroll suave dentro de la
+  // misma página, sin navegar.
+  document.querySelectorAll('a[href^="#"]').forEach(enlace => {
+    enlace.addEventListener('click', e => {
+      const id = enlace.getAttribute('href').slice(1);
+      e.preventDefault();                       // nunca navegar (evita el 404 por <base>)
+      const destino = id ? document.getElementById(id) : null;
+      if (destino) {
+        destino.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+  });
 })();
 </script>
 
