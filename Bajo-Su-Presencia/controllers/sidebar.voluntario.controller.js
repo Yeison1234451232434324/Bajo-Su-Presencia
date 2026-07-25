@@ -63,6 +63,14 @@ document.addEventListener("DOMContentLoaded", () => {
         </a>
         <span class="tooltip">Actividades Asignadas</span>
       </li>
+      <!-- Eventos disponibles para inscribirse -->
+      <li>
+        <a href="eventos.html" id="nav-eventos">
+          <i class="bx bx-calendar-event" aria-hidden="true"></i>
+          <span class="nav-item">Eventos</span>
+        </a>
+        <span class="tooltip">Eventos</span>
+      </li>
       <!-- Mi perfil -->
       <li>
         <a href="perfil.html" id="nav-perfil">
@@ -142,6 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const path = window.location.pathname;
   if      (path.includes("calificaciones.html"))  document.getElementById("nav-calificaciones")?.parentElement.classList.add("active-item");
   else if (path.includes("mis-actividades.html"))   document.getElementById("nav-mis-actividades")?.parentElement.classList.add("active-item");
+  else if (path.includes("eventos"))                document.getElementById("nav-eventos")?.parentElement.classList.add("active-item");
   else if (path.includes("perfil.html"))            document.getElementById("nav-perfil")?.parentElement.classList.add("active-item");
 
   // ── Cargar datos del usuario desde localStorage ───────────────────────────

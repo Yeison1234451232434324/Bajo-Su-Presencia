@@ -156,6 +156,29 @@ const EventosModel = (() => {
     return { ok: true };
   }
 
-  return { getAll, getById, crear, actualizar, eliminar, ESTADOS };
+  // ── Inscripción de un voluntario a un evento ────────────────────────────
+  // Un voluntario se apunta a un evento creando su fila en voluntarios_eventos.
+  // El rol_en_evento queda null (voluntario general); la disponibilidad, true.
+  async function inscribir(eventoId, usuarioId, rol = null) {
+    if (!eventoId || !usuarioId) return { ok: false, error: 'Datos de inscripción incompletos.' };
+    const { error } = await DB.from(VOL).insert({
+      evento_id:     eventoId,
+      usuario_id:    usuarioId,
+      rol_en_evento: rol || null,
+      disponible:    true
+    });
+    if (error) return { ok: false, error: _msg(error) };
+    return { ok: true };
+  }
+
+  // Cancela la inscripción del voluntario (borra su fila puente para ese evento).
+  async function cancelarInscripcion(eventoId, usuarioId) {
+    if (!eventoId || !usuarioId) return { ok: false, error: 'Datos de inscripción incompletos.' };
+    const { error } = await DB.from(VOL).delete().eq('evento_id', eventoId).eq('usuario_id', usuarioId);
+    if (error) return { ok: false, error: _msg(error) };
+    return { ok: true };
+  }
+
+  return { getAll, getById, crear, actualizar, eliminar, inscribir, cancelarInscripcion, ESTADOS };
 
 })();

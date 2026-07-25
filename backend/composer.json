@@ -17,10 +17,11 @@
     },
     "config": {
         "optimize-autoloader": true,
-        "sort-packages": true
+        "sort-packages": true,
+        "process-timeout": 0
     },
     "scripts": {
-        "start": "php -S localhost:8000 -t public",
+        "start": "php -S 127.0.0.1:8000 -t public",
         "test": "php tests/run.php",
         "lint": "php -l public/index.php",
         "analyse": "phpstan analyse --no-progress",
@@ -37,7 +38,7 @@
         ]
     },
     "scripts-descriptions": {
-        "start": "Levanta el API en http://localhost:8000",
+        "start": "Levanta el API en http://127.0.0.1:8000",
         "test": "Ejecuta la suite de pruebas (lógica pura, sin red ni base de datos)",
         "lint": "Comprobación sintáctica del punto de entrada",
         "analyse": "PHPStan nivel 8 sobre src, public, routes y tests",

@@ -47,18 +47,18 @@ Navegador (frontend)  →  Backend PHP  →  Supabase (PostgreSQL + Auth)
 ```powershell
 cd "C:\Users\User\Desktop\defbsp\backend"
 composer install        # solo la primera vez
-composer start          # queda en http://localhost:8000
+composer start          # queda en http://127.0.0.1:8000
 ```
-Verifica: abre `http://localhost:8000/api/health` → `{"status":"success",...}`.
+Verifica: abre `http://127.0.0.1:8000/api/health` → `{"status":"success",...}`.
 
 **Terminal 2 — Frontend (Front Controller, SIN auto-reload):**
 ```powershell
 cd "C:\Users\User\Desktop\defbsp"
-php -S localhost:5500 index.php
+php -S 127.0.0.1:5501 index.php
 ```
 Abre el login:
 ```
-http://localhost:5500/login
+http://127.0.0.1:5501/login
 ```
 
 > ⛔ **NUNCA uses `php -S ... -t .`** (servir la raíz del proyecto). Ese comando

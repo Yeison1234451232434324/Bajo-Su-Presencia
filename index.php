@@ -62,7 +62,7 @@ function enviarCabecerasSeguridad(): void
          . "style-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com https://unpkg.com 'unsafe-inline'; "
          . "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net https://unpkg.com data:; "
          . "img-src 'self' data: https:; "
-         . "connect-src 'self' http://localhost:8000 https://*.supabase.co; "
+         . "connect-src 'self' http://localhost:8000 http://127.0.0.1:8000 https://*.supabase.co; "
          . "frame-ancestors 'self'; base-uri 'self'; object-src 'none'";
     header('Content-Security-Policy: ' . $csp);
 
@@ -132,6 +132,7 @@ function tablaDeRutas(): array
         '/voluntario/calificaciones'  => 'views/dashboard/voluntario/calificaciones.html',
         '/voluntario/disponibilidad'  => 'views/dashboard/voluntario/disponibilidad.html',
         '/voluntario/actividades'     => 'views/dashboard/voluntario/mis-actividades.html',
+        '/voluntario/eventos'         => 'views/dashboard/voluntario/eventos.html',
         '/voluntario/perfil'          => 'views/dashboard/voluntario/perfil.html',
 
         // ── Perfil genérico ──────────────────────────────────────

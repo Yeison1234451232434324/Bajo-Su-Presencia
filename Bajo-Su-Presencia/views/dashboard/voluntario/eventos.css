@@ -1,0 +1,158 @@
+/* ================================================================
+   EVENTOS DISPONIBLES — Panel del voluntario
+   Estilos específicos de la vista. Reutiliza las variables de color
+   y las clases .badge de panel.css.
+   ================================================================ */
+
+/* ── Encabezado ─────────────────────────────────────────────────── */
+.vev-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.vev-header-left { display: flex; align-items: center; gap: 1rem; }
+.vev-header-icon {
+  width: 52px; height: 52px;
+  flex-shrink: 0;
+  display: grid; place-items: center;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: #fff;
+  font-size: 1.6rem;
+  box-shadow: 0 6px 16px rgba(30, 58, 138, .25);
+}
+.vev-header-text h2 {
+  margin: 0;
+  font-family: var(--font-title);
+  color: var(--primary-dark);
+  font-size: 1.6rem;
+}
+.vev-header-text p { margin: .15rem 0 0; color: var(--muted); font-size: .95rem; }
+
+.vev-header-count {
+  display: flex; flex-direction: column; align-items: center;
+  padding: .5rem 1.1rem;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  min-width: 92px;
+}
+.vev-count-num { font-size: 1.5rem; font-weight: 800; color: var(--primary); line-height: 1; }
+.vev-count-label { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+
+/* ── Grid de tarjetas ───────────────────────────────────────────── */
+.vev-lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
+}
+
+/* ── Tarjeta de evento ──────────────────────────────────────────── */
+.vev-card {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(15, 30, 90, .05);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.vev-card:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(15, 30, 90, .12); }
+.vev-card.is-inscrito { border-color: #059669; box-shadow: 0 4px 16px rgba(5, 150, 105, .15); }
+
+.vev-card-top {
+  padding: 1.1rem 1.25rem .75rem;
+  border-bottom: 1px solid var(--border);
+}
+.vev-card-titulo-row {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: .6rem;
+}
+.vev-card-titulo {
+  margin: 0;
+  font-family: var(--font-title);
+  color: var(--primary-dark);
+  font-size: 1.2rem;
+  line-height: 1.25;
+}
+.vev-card-desc {
+  margin: .55rem 0 0;
+  color: var(--muted);
+  font-size: .92rem;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── Metadatos (fecha, hora, lugar) ─────────────────────────────── */
+.vev-card-meta {
+  display: flex; flex-direction: column; gap: .5rem;
+  padding: 1rem 1.25rem;
+  flex: 1;
+}
+.vev-meta-item { display: flex; align-items: center; gap: .55rem; color: #374151; font-size: .92rem; }
+.vev-meta-item i { color: var(--primary); font-size: 1.1rem; flex-shrink: 0; }
+.vev-meta-item.is-muted { color: var(--muted); }
+
+/* Cupos de voluntario */
+.vev-cupos { font-weight: 600; }
+.vev-cupos.is-disponible { color: #059669; }
+.vev-cupos.is-disponible i { color: #059669; }
+.vev-cupos.is-lleno { color: #dc2626; }
+.vev-cupos.is-lleno i { color: #dc2626; }
+
+/* ── Pie con estado + botón ─────────────────────────────────────── */
+.vev-card-foot {
+  display: flex; align-items: center; justify-content: space-between; gap: .75rem;
+  padding: .9rem 1.25rem 1.1rem;
+  border-top: 1px solid var(--border);
+  background: #fcfbf7;
+}
+
+.vev-btn {
+  display: inline-flex; align-items: center; gap: .45rem;
+  padding: .55rem 1.05rem;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--font-text);
+  font-size: .92rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .15s ease, opacity .15s ease;
+}
+.vev-btn i { font-size: 1.15rem; }
+.vev-btn:disabled { opacity: .6; cursor: not-allowed; }
+
+.vev-btn-inscribir { background: var(--primary); color: #fff; }
+.vev-btn-inscribir:hover:not(:disabled) { background: var(--primary-dark); }
+
+.vev-btn-cancelar { background: #fee2e2; color: #dc2626; }
+.vev-btn-cancelar:hover:not(:disabled) { background: #fecaca; }
+
+.vev-inscrito-tag {
+  display: inline-flex; align-items: center; gap: .35rem;
+  color: #059669; font-weight: 700; font-size: .9rem;
+}
+
+/* ── Estados de carga / vacío ───────────────────────────────────── */
+.vev-loading, .vev-empty {
+  grid-column: 1 / -1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: .75rem;
+  padding: 3rem 1rem;
+  color: var(--muted);
+  text-align: center;
+}
+.vev-loading i, .vev-empty i { font-size: 2.5rem; color: var(--primary-light); }
+.vev-empty i { color: #cbd5e1; }
+
+/* ── Responsivo ─────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .vev-lista { grid-template-columns: 1fr; }
+  .vev-header-count { align-self: flex-start; }
+}

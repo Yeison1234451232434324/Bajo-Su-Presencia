@@ -1,0 +1,86 @@
+<!--
+  ================================================================
+  EVENTOS DISPONIBLES — Panel del voluntario
+  ================================================================
+  Muestra al voluntario los eventos de la iglesia y le permite
+  inscribirse o cancelar su inscripción. La inscripción crea/borra
+  su fila en la tabla puente voluntarios_eventos.
+
+  Archivos que usa:
+    - panel.css                            → estilos base del panel
+    - eventos.css                          → estilos específicos de esta vista
+    - sidebar.voluntario.controller.js     → sidebar del voluntario
+    - eventos.model.js                     → lectura de eventos + inscribir/cancelar
+    - voluntario.eventos.controller.js     → lógica de la vista
+  ================================================================
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- Favicon oficial (logo de Bajo Su Presencia) — rutas absolutas: mismas en toda vista -->
+  <link rel="icon" href="/Bajo-Su-Presencia/assets/images/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/Bajo-Su-Presencia/assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/Bajo-Su-Presencia/assets/images/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/Bajo-Su-Presencia/assets/images/apple-touch-icon.png">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eventos – Bajo Su Presencia</title>
+  <link rel="stylesheet" href="panel.css" />
+  <link rel="stylesheet" href="eventos.css" />
+  <!-- Alertify Notifications CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js" integrity="sha384-3kOl9EzcOjFxTuc9knN784SI3NaWSFtoc4bHR9P8rsADaAZx9PC++m1OimQhoCCb" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+
+<main class="main" id="main">
+  <section class="panel active" style="display:block;">
+
+    <!-- ── Encabezado ─────────────────────────────────────────────────── -->
+    <div class="vev-header-row">
+      <div class="vev-header-left">
+        <div class="vev-header-icon">
+          <i class="bx bx-calendar-event" aria-hidden="true"></i>
+        </div>
+        <div class="vev-header-text">
+          <h2>Eventos</h2>
+          <p>Inscríbete en los eventos de la congregación donde quieras servir</p>
+        </div>
+      </div>
+      <div class="vev-header-count" id="vev-count" hidden>
+        <span class="vev-count-num" id="vev-count-num">0</span>
+        <span class="vev-count-label">inscrito(s)</span>
+      </div>
+    </div>
+
+    <!-- ── Contenedor de tarjetas de evento ───────────────────────────── -->
+    <div id="vev-lista" class="vev-lista" aria-live="polite">
+      <!-- Estado de carga inicial -->
+      <div class="vev-loading" id="vev-loading">
+        <i class="bx bx-loader-alt bx-spin" aria-hidden="true"></i>
+        <p>Cargando eventos…</p>
+      </div>
+    </div>
+
+  </section>
+</main>
+
+<!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
+  <script src="../../../helpers/validators.helper.js"></script>
+  <script src="../../../controllers/sidebar.voluntario.controller.js"></script>
+<!-- Supabase: SDK + cliente (ANTES de los modelos) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8" integrity="sha384-Tve8O+C6PBzsIMK/IRCwHbi8fyEzXIlIs6OfVBZHubplwYhaQF/4Mzxqgg+pp/oy" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="../../../services/supabase.client.js"></script>
+<script src="../../../config/api.config.js"></script>
+<!-- Control de acceso verificado contra el servidor (debe ir tras api.config.js) -->
+<script src="../../../core/session.manager.js"></script>
+<script src="../../../services/db.client.js"></script>
+<script src="../../../models/eventos.model.js"></script>
+<!-- Alertify Helper -->
+<script src="../../../helpers/alertify.helper.js"></script>
+  <script src="../../../controllers/voluntario.eventos.controller.js"></script>
+
+  <script src="../../../controllers/ayuda.controller.js"></script>
+</body>
+</html>
