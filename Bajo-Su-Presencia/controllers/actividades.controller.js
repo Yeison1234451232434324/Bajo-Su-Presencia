@@ -51,6 +51,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     for (const ev of eventos) {
       const resumen = await ActividadesModel.getResumenEvento(ev.id);
       const volDisp = ev.voluntariosNecesarios || 0;
+      const volInscritos = (ev.especialistas || []).length;   // inscritos en voluntarios_eventos
       const fechaFmt = _formatFecha(ev.fecha);
 
       const card = document.createElement('div');
@@ -63,6 +64,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           ${ev.horario ? `<p class="act-ev-meta"><i class="bx bx-time" aria-hidden="true"></i> ${ev.horario}</p>` : ''}
           <p class="act-ev-meta"><i class="bx bx-notepad" aria-hidden="true"></i> ${resumen.total} actividad(es) - ${resumen.completadas} completada(s)</p>
           <p class="act-ev-meta act-ev-vol"><i class="bx bx-group" aria-hidden="true"></i> ${volDisp} voluntario(s) necesario(s)</p>
+          <p class="act-ev-meta act-ev-inscritos"><i class="bx bx-user-check" aria-hidden="true"></i> ${volInscritos} voluntario(s) inscrito(s)</p>
         </div>`;
       card.addEventListener('click', () => seleccionarEvento(ev));
       gridEventos.appendChild(card);

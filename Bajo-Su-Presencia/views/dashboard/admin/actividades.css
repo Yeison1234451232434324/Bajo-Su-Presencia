@@ -80,6 +80,8 @@
 .act-ev-meta i { font-size: 0.95rem; color: var(--primary); }
 .act-ev-vol { color: #059669 !important; }
 .act-ev-vol i { color: #059669 !important; }
+.act-ev-inscritos { color: #1d4ed8 !important; font-weight: 600; }
+.act-ev-inscritos i { color: #1d4ed8 !important; }
 
 /* ── Barra superior de la vista de actividades ───────────────── */
 .act-topbar {
