@@ -7,7 +7,7 @@
  *   (esquema certificado: una columna "estrellas" 1-5, evaluador_id FK
  *    a usuarios y evaluado_en timestamptz)
  * - Disponibilidad del voluntario           → voluntarios_eventos.disponible
- * Métodos ASÍNCRONOS. Requiere window.DB (controllers/db.client.js → Data Gateway PHP).
+ * Métodos ASÍNCRONOS. Requiere window.DB (services/db.client.js → Data Gateway PHP).
  * ============================================================
  */
 
@@ -20,12 +20,8 @@ const VoluntariosModel = (() => {
   const SEL_EV = 'id, titulo, fecha, ubicacion, voluntarios_necesarios, ' +
                  'voluntarios_eventos(usuario_id, rol_en_evento, disponible, usuarios(nombre:nombre_completo))';
 
-  function _msg(error) {
-    if (error?.code === '42501' || /row-level security/i.test(error?.message || '')) {
-      return 'No tienes permisos para realizar esta acción.';
-    }
-    return error?.message || 'Ocurrió un error al procesar la solicitud.';
-  }
+  // Traducción de errores centralizada en db.client.js (window.DB.mensajeError).
+  function _msg(error) { return DB.mensajeError(error); }
 
   // evaluaciones tiene DOS FKs a usuarios (usuario_id y evaluador_id):
   // el embed debe desambiguarse con el nombre de la columna.

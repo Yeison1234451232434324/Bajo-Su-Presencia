@@ -17,7 +17,7 @@
  *   especialidad (app) ↔ usuario_especialidades → especialidades.nombre
  *     (catálogo N:M; el backend embebe la relación y sincroniza al guardar)
  *
- * Requiere window.apiFetch (controllers/api.config.js) y una sesión iniciada
+ * Requiere window.apiFetch (config/api.config.js) y una sesión iniciada
  * (JWT propio) con rol Administrador.
  * ============================================================
  */
@@ -91,7 +91,7 @@ const UsuariosModel = (() => {
   }
 
   // ── Crear (cuenta Auth + perfil, vía backend) ────────────────────────────
-  async function create(data) {
+  async function crear(data) {
     if (!data.email?.trim()) return { ok: false, error: 'El correo es obligatorio.' };
     if (!data.password)      return { ok: false, error: 'La contraseña es obligatoria.' };
     try {
@@ -101,7 +101,7 @@ const UsuariosModel = (() => {
   }
 
   // ── Actualizar perfil ────────────────────────────────────────────────────
-  async function update(id, data) {
+  async function actualizar(id, data) {
     try {
       const row = await apiFetch(`/api/usuarios/${id}`, { method: 'PUT', body: data });
       return { ok: true, user: row ? _fromRow(row) : null };
@@ -117,7 +117,7 @@ const UsuariosModel = (() => {
   }
 
   // ── Eliminar perfil ──────────────────────────────────────────────────────
-  async function remove(id) {
+  async function eliminar(id) {
     try {
       await apiFetch(`/api/usuarios/${id}`, { method: 'DELETE' });
       return { ok: true };
@@ -132,6 +132,6 @@ const UsuariosModel = (() => {
     } catch (_) { return []; }
   }
 
-  return { getAll, getById, getByUsername, getMiPerfil, updateMiPerfil, create, update, toggleActivo, remove, getEspecialistas, ESPECIALIDADES };
+  return { getAll, getById, getByUsername, getMiPerfil, updateMiPerfil, crear, actualizar, toggleActivo, eliminar, getEspecialistas, ESPECIALIDADES };
 
 })();

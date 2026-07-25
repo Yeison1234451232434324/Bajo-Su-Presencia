@@ -24,6 +24,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- Favicon oficial (logo de Bajo Su Presencia) — rutas absolutas: mismas en toda vista -->
+  <link rel="icon" href="/Bajo-Su-Presencia/assets/images/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/Bajo-Su-Presencia/assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/Bajo-Su-Presencia/assets/images/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/Bajo-Su-Presencia/assets/images/apple-touch-icon.png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gestión de Recursos – Bajo Su Presencia</title>
@@ -48,7 +53,7 @@
 
     <!-- Guía de sección -->
     <div class="guia-seccion">
-      <p class="guia-seccion-label"><i class="bx bx-info-circle"></i> Guía de sección</p>
+      <p class="guia-seccion-label"><i class="bx bx-info-circle" aria-hidden="true"></i> Guía de sección</p>
       <p class="guia-seccion-texto">Administra el inventario de recursos físicos disponibles para los eventos: sillas, micrófonos, proyectores y más. Puedes agregar nuevos recursos, actualizar el stock y activar o desactivar su disponibilidad.</p>
     </div>
 
@@ -57,7 +62,7 @@
 
       <div class="stat-rec-card">
         <div class="stat-rec-icon" style="background:#dbeafe;">
-          <i class="bx bx-package" style="color:#1E3A8A;"></i>
+          <i class="bx bx-package" style="color:#1E3A8A;" aria-hidden="true"></i>
         </div>
         <div>
           <p class="stat-rec-label">Total Recursos</p>
@@ -67,7 +72,7 @@
 
       <div class="stat-rec-card">
         <div class="stat-rec-icon" style="background:#d1fae5;">
-          <i class="bx bx-check-circle" style="color:#059669;"></i>
+          <i class="bx bx-check-circle" style="color:#059669;" aria-hidden="true"></i>
         </div>
         <div>
           <p class="stat-rec-label">Disponibles</p>
@@ -77,7 +82,7 @@
 
       <div class="stat-rec-card">
         <div class="stat-rec-icon" style="background:#fee2e2;">
-          <i class="bx bx-x-circle" style="color:#dc2626;"></i>
+          <i class="bx bx-x-circle" style="color:#dc2626;" aria-hidden="true"></i>
         </div>
         <div>
           <p class="stat-rec-label">No Disponibles</p>
@@ -87,7 +92,7 @@
 
       <div class="stat-rec-card">
         <div class="stat-rec-icon" style="background:#fef3c7;">
-          <i class="bx bx-error" style="color:#d97706;"></i>
+          <i class="bx bx-error" style="color:#d97706;" aria-hidden="true"></i>
         </div>
         <div>
           <p class="stat-rec-label">Sin Stock</p>
@@ -100,7 +105,7 @@
     <!-- Botón nuevo recurso -->
     <div style="display:flex;justify-content:flex-end;margin-bottom:1rem;">
       <button class="btn-nuevo" id="btn-nuevo-recurso">
-        <i class="bx bx-plus"></i>
+        <i class="bx bx-plus" aria-hidden="true"></i>
         Nuevo Recurso
       </button>
     </div>
@@ -119,7 +124,7 @@
   <div class="modal-header">
     <h3 id="modal-title-rec">Nuevo Recurso</h3>
     <button class="btn-cerrar-modal" id="btn-cerrar-modal-rec" aria-label="Cerrar">
-      <i class="bx bx-x"></i>
+      <i class="bx bx-x" aria-hidden="true"></i>
     </button>
   </div>
 
@@ -195,7 +200,7 @@
     <div class="modal-footer">
       <button type="button" class="btn-cancelar" id="btn-cancelar-rec">Cancelar</button>
       <button type="submit" class="btn-guardar">
-        <i class="bx bx-save" style="margin-right:0.35rem;"></i>
+        <i class="bx bx-save" style="margin-right:0.35rem;" aria-hidden="true"></i>
         Guardar
       </button>
     </div>
@@ -205,21 +210,21 @@
 
 <!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
 <!-- Sidebar del admin -->
-  <script src="../../../controllers/validators.helper.js"></script>
+  <script src="../../../helpers/validators.helper.js"></script>
   <script src="../../../controllers/sidebar.controller.js"></script>
 <!-- Supabase: SDK + cliente (ANTES del modelo) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8" integrity="sha384-Tve8O+C6PBzsIMK/IRCwHbi8fyEzXIlIs6OfVBZHubplwYhaQF/4Mzxqgg+pp/oy" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="../../../controllers/supabase.client.js"></script>
-<script src="../../../controllers/api.config.js"></script>
+<script src="../../../services/supabase.client.js"></script>
+<script src="../../../config/api.config.js"></script>
 <!-- Control de acceso verificado contra el servidor -->
-<script src="../../../controllers/session.manager.js"></script>
-<script src="../../../controllers/db.client.js"></script>
+<script src="../../../core/session.manager.js"></script>
+<script src="../../../services/db.client.js"></script>
 <!-- Modelo de recursos -->
 <script src="../../../models/recursos.model.js"></script>
 <!-- Motor DataTable -->
-<script src="../../../controllers/datatable.helper.js"></script>
+<script src="../../../helpers/datatable.helper.js"></script>
 <!-- Alertify Helper -->
-<script src="../../../controllers/alertify.helper.js"></script>
+<script src="../../../helpers/alertify.helper.js"></script>
 <!-- Controlador de recursos -->
   <script src="../../../controllers/recursos.controller.js"></script>
 

@@ -66,18 +66,18 @@ document.addEventListener('DOMContentLoaded', async () => {
           <div class="disp-card-header">
             <div class="disp-card-info">
               <h4 class="disp-evento-nombre">${esc(ev.nombre)}</h4>
-              <p class="disp-evento-meta"><i class="bx bx-calendar"></i> ${esc(fechaStr)}</p>
-              <p class="disp-evento-meta"><i class="bx bx-map-pin"></i> ${esc(ev.lugar || '—')}</p>
-              <p class="disp-evento-meta"><i class="bx bx-group"></i>
+              <p class="disp-evento-meta"><i class="bx bx-calendar" aria-hidden="true"></i> ${esc(fechaStr)}</p>
+              <p class="disp-evento-meta"><i class="bx bx-map-pin" aria-hidden="true"></i> ${esc(ev.lugar || '—')}</p>
+              <p class="disp-evento-meta"><i class="bx bx-group" aria-hidden="true"></i>
                 ${necesarios > 0 ? `Se necesitan <strong>${necesarios}</strong> · Faltan <strong>${faltan}</strong>` : 'Sin cupo de voluntarios definido'}</p>
-              ${estaRegistrado ? `<p class="disp-evento-meta"><i class="bx bx-briefcase"></i> Rol: <strong>${esc(rolEnEvento)}</strong></p>` : ''}
+              ${estaRegistrado ? `<p class="disp-evento-meta"><i class="bx bx-briefcase" aria-hidden="true"></i> Rol: <strong>${esc(rolEnEvento)}</strong></p>` : ''}
             </div>
             <div class="disp-card-estado" style="display:flex;flex-direction:column;gap:0.4rem;align-items:flex-end;">
               ${estadoBadge}${badgeCupo}
             </div>
           </div>
           <button class="btn-disp-accion ${btnClass}" onclick="accionEvento('${ev.id}', '${estaRegistrado ? 'toggle' : 'unirse'}')">
-            <i class="bx ${btnIcono}"></i> ${btnTexto}
+            <i class="bx ${btnIcono}" aria-hidden="true"></i> ${btnTexto}
           </button>
         </div>`;
     }
@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderRow: renderCard, exportable: true, exportName: 'mis_eventos',
         exportFields: ['nombre','fecha','lugar','_estado'],
         exportLabels: ['Evento','Fecha','Lugar','Mi Estado'],
-        emptyHTML: `<div class="dt-empty"><i class="bx bx-calendar-x"></i><p>No hay eventos publicados por el momento.</p></div>`
+        emptyHTML: `<div class="dt-empty"><i class="bx bx-calendar-x" aria-hidden="true"></i><p>No hay eventos publicados por el momento.</p></div>`
       });
       window.__bspDT['eventos-grid'] = dtDisp;
       dtDisp.init();

@@ -8,7 +8,7 @@
  * Mapeo app ↔ BD (esquema certificado, sin tildes):
  *   descripcion ↔ descripcion · creado ← creado_en
  *
- * Requiere window.sb (controllers/supabase.client.js).
+ * Requiere window.sb (services/supabase.client.js).
  * ============================================================
  */
 
@@ -30,12 +30,10 @@ const RecursosModel = (() => {
     };
   }
 
+  // Traducción de errores centralizada en db.client.js (window.DB.mensajeError).
+  // El código 23505 (nombre duplicado) lleva mensaje propio de esta tabla.
   function _msg(error) {
-    if (error?.code === '42501' || /row-level security/i.test(error?.message || '')) {
-      return 'No tienes permisos para realizar esta acción.';
-    }
-    if (error?.code === '23505') return 'Ya existe un recurso con ese nombre.';
-    return error?.message || 'Ocurrió un error al procesar la solicitud.';
+    return DB.mensajeError(error, { '23505': 'Ya existe un recurso con ese nombre.' });
   }
 
   // ── Inventario ─────────────────────────────────────────────────────────────
@@ -51,7 +49,7 @@ const RecursosModel = (() => {
     return _fromRow(data);
   }
 
-  async function create(data) {
+  async function crear(data) {
     if (!data.nombre?.trim()) return { ok: false, error: 'El nombre es obligatorio.' };
     if (data.cantidad < 0)    return { ok: false, error: 'La cantidad no puede ser negativa.' };
 
@@ -68,7 +66,7 @@ const RecursosModel = (() => {
     return { ok: true, recurso: _fromRow(ins) };
   }
 
-  async function update(id, data) {
+  async function actualizar(id, data) {
     if (data.cantidad < 0) return { ok: false, error: 'La cantidad no puede ser negativa.' };
     const fila = {
       nombre:      data.nombre.trim(),
@@ -94,7 +92,7 @@ const RecursosModel = (() => {
     return { ok: true, disponible: nuevo };
   }
 
-  async function remove(id) {
+  async function eliminar(id) {
     // La FK con ON DELETE CASCADE limpia evento_recursos automáticamente
     const { error } = await DB.from(TABLA).delete().eq('id', id);
     if (error) return { ok: false, error: _msg(error) };
@@ -158,7 +156,7 @@ const RecursosModel = (() => {
   }
 
   return {
-    getAll, getById, create, update, toggleDisponible, remove, getEstadisticas,
+    getAll, getById, crear, actualizar, toggleDisponible, eliminar, getEstadisticas,
     getAsignacionesPorEvento, asignarRecurso, quitarAsignacion
   };
 

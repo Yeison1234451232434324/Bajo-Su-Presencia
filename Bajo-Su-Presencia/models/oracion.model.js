@@ -10,7 +10,7 @@
  *   versiculo coincide. fecha/fechaISO ↔ publicado_en (BD).
  *   (las columnas título/referencia de la BD las usa la app móvil)
  *
- * Requiere window.sb y window.miUsuarioId (controllers/supabase.client.js).
+ * Requiere window.sb y window.miUsuarioId (services/supabase.client.js).
  * ============================================================
  */
 
@@ -35,12 +35,8 @@ const OracionModel = (() => {
     };
   }
 
-  function _msg(error) {
-    if (error?.code === '42501' || /row-level security/i.test(error?.message || '')) {
-      return 'No tienes permisos para realizar esta acción.';
-    }
-    return error?.message || 'Ocurrió un error al procesar la solicitud.';
-  }
+  // Traducción de errores centralizada en db.client.js (window.DB.mensajeError).
+  function _msg(error) { return DB.mensajeError(error); }
 
   async function getAll() {
     const { data, error } = await DB.from(TABLA).select('*').order('publicado_en', { ascending: false });

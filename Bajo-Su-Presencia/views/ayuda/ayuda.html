@@ -15,6 +15,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- Favicon oficial (logo de Bajo Su Presencia) — rutas absolutas: mismas en toda vista -->
+  <link rel="icon" href="/Bajo-Su-Presencia/assets/images/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/Bajo-Su-Presencia/assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/Bajo-Su-Presencia/assets/images/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/Bajo-Su-Presencia/assets/images/apple-touch-icon.png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Centro de Ayuda – Bajo Su Presencia</title>
@@ -312,7 +317,7 @@
       <article class="ac-cat-card" id="cat-${cat.id}" aria-labelledby="cat-title-${cat.id}">
         <div class="ac-cat-card-header">
           <div class="ac-cat-icon" style="background:${cat.colorBg};" aria-hidden="true">
-            <i class="bx ${cat.icono}" style="color:${cat.colorStroke};"></i>
+            <i class="bx ${cat.icono}" style="color:${cat.colorStroke};" aria-hidden="true"></i>
           </div>
           <div>
             <h3 class="ac-cat-card-title" id="cat-title-${cat.id}">${cat.categoria}</h3>

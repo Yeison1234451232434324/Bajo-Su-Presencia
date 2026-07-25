@@ -85,22 +85,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             <span style="flex-shrink:0;font-size:0.82rem;color:var(--muted);">${fecha}</span>
             <div class="pqr-acciones-cell" style="flex-shrink:0;">
               <button class="pqr-btn-accion btn-ver-pqr" onclick="abrirModal('${p.id}')" title="Ver detalle y responder">
-                <i class="bx bx-show"></i>
+                <i class="bx bx-show" aria-hidden="true"></i>
               </button>
               <button class="pqr-btn-accion btn-estado-pqr" onclick="ciclarEstado('${p.id}')"
                 title="Cambiar estado: ${siguienteEstado(p.estado)}">
-                <i class="bx bx-transfer-alt"></i>
+                <i class="bx bx-transfer-alt" aria-hidden="true"></i>
               </button>
               <button class="pqr-btn-accion btn-eliminar-pqr" onclick="eliminarPQR('${p.id}')" title="Eliminar PQR">
-                <i class="bx bx-trash"></i>
+                <i class="bx bx-trash" aria-hidden="true"></i>
               </button>
             </div>
           </div>
           <div style="margin-top:0.5rem;font-size:0.875rem;color:var(--muted);">
-            <i class="bx bx-user" style="font-size:0.9rem;"></i>
+            <i class="bx bx-user" style="font-size:0.9rem;" aria-hidden="true"></i>
             ${escapeHtml(p.nombre)}
             &nbsp;·&nbsp;
-            <i class="bx bx-envelope" style="font-size:0.9rem;"></i>
+            <i class="bx bx-envelope" style="font-size:0.9rem;" aria-hidden="true"></i>
             ${escapeHtml(p.email)}
           </div>
         </div>`;
@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         exportName:   'pqr',
         exportFields: ['tipo', 'nombre', 'email', 'asunto', 'prioridad', 'estado', 'creadoFecha'],
         exportLabels: ['Tipo', 'Nombre', 'Email', 'Asunto', 'Prioridad', 'Estado', 'Fecha'],
-        emptyHTML: `<div class="dt-empty"><i class="bx bx-message-detail"></i><p>No se encontraron PQR con esos criterios.</p></div>`
+        emptyHTML: `<div class="dt-empty"><i class="bx bx-message-detail" aria-hidden="true"></i><p>No se encontraron PQR con esos criterios.</p></div>`
       });
       window.__bspDT['dt-pqr'] = dtPQR;
       dtPQR.init();

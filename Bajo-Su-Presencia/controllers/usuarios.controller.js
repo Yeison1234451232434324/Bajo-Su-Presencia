@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         ? '<span class="badge badge-green">Activo</span>'
         : '<span class="badge badge-red">Inactivo</span>';
       const btnToggle = u.id === 1
-        ? `<button class="btn-accion btn-toggle" disabled title="No se puede desactivar al admin principal"><i class="bx bx-lock"></i></button>`
+        ? `<button class="btn-accion btn-toggle" disabled title="No se puede desactivar al admin principal"><i class="bx bx-lock" aria-hidden="true"></i></button>`
         : `<button class="btn-accion btn-toggle" onclick="toggleUsuario('${u.id}')" title="${u.activo ? 'Desactivar' : 'Activar'}"><i class="bx ${u.activo ? 'bx-toggle-right' : 'bx-toggle-left'}"></i></button>`;
       const avatar      = esc(String(u.nombre ?? '').charAt(0).toUpperCase());
       const avatarColor = colorAvatar(u.rol);
@@ -124,8 +124,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           <span style="flex-shrink:0;">${badgeEstado}</span>
           <span style="flex-shrink:0;font-size:0.82rem;color:var(--muted);">${esc(u.creado)}</span>
           <div class="acciones-cell" style="flex-shrink:0;margin-left:auto;">
-            <button class="btn-accion btn-ver" onclick="verPerfil('${u.id}')" title="Ver perfil"><i class="bx bx-id-card"></i></button>
-            <button class="btn-accion btn-editar" onclick="abrirEditar('${u.id}')" title="Editar usuario"><i class="bx bx-edit"></i></button>
+            <button class="btn-accion btn-ver" onclick="verPerfil('${u.id}')" title="Ver perfil"><i class="bx bx-id-card" aria-hidden="true"></i></button>
+            <button class="btn-accion btn-editar" onclick="abrirEditar('${u.id}')" title="Editar usuario"><i class="bx bx-edit" aria-hidden="true"></i></button>
             ${btnToggle}
           </div>
         </div>`;
@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         exportName:   'usuarios',
         exportFields: ['nombre', 'username', 'email', 'rol', 'especialidad', 'ocupacion', 'ubicacion', 'telefono', 'estadoTexto', 'creado'],
         exportLabels: ['Nombre', 'Usuario', 'Correo', 'Rol', 'Especialidad', 'Ocupación', 'Ubicación', 'Teléfono', 'Estado', 'Registrado'],
-        emptyHTML: `<div class="dt-empty"><i class="bx bx-user-x"></i><p>No se encontraron usuarios con esos criterios.</p></div>`
+        emptyHTML: `<div class="dt-empty"><i class="bx bx-user-x" aria-hidden="true"></i><p>No se encontraron usuarios con esos criterios.</p></div>`
       });
       window.__bspDT['dt-usuarios'] = dtUsuarios;
       dtUsuarios.init();
@@ -291,8 +291,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     let resultado;
     try {
       resultado = editandoId === null
-        ? await UsuariosModel.create(data)
-        : await UsuariosModel.update(editandoId, data);
+        ? await UsuariosModel.crear(data)
+        : await UsuariosModel.actualizar(editandoId, data);
     } catch (ex) {
       modalError.textContent = 'Error de conexión. Revisa tu internet e intenta de nuevo.';
       modalError.style.display = 'block';
@@ -332,7 +332,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!valor) return '';
     return `
       <div class="perfil-row">
-        <i class="bx ${icono}"></i>
+        <i class="bx ${icono}" aria-hidden="true"></i>
         <div>
           <p class="perfil-row-label">${label}</p>
           <p class="perfil-row-valor">${valor}</p>

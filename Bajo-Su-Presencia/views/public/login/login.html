@@ -23,6 +23,11 @@
 <html lang="en">
 
 <head>
+  <!-- Favicon oficial (logo de Bajo Su Presencia) — rutas absolutas: mismas en toda vista -->
+  <link rel="icon" href="/Bajo-Su-Presencia/assets/images/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/Bajo-Su-Presencia/assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/Bajo-Su-Presencia/assets/images/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/Bajo-Su-Presencia/assets/images/apple-touch-icon.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
@@ -82,11 +87,11 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js" integrity="sha384-3kOl9EzcOjFxTuc9knN784SI3NaWSFtoc4bHR9P8rsADaAZx9PC++m1OimQhoCCb" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="../../../controllers/alertify.helper.js?v=6"></script>
+    <script src="../../../helpers/alertify.helper.js?v=6"></script>
     <!-- SDK de Supabase + cliente compartido (deben ir ANTES de auth.controller.js) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8" integrity="sha384-Tve8O+C6PBzsIMK/IRCwHbi8fyEzXIlIs6OfVBZHubplwYhaQF/4Mzxqgg+pp/oy" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="../../../controllers/supabase.client.js?v=6"></script>
-    <script src="../../../controllers/api.config.js?v=6"></script>
+    <script src="../../../services/supabase.client.js?v=6"></script>
+    <script src="../../../config/api.config.js?v=6"></script>
     <script src="../../../controllers/auth.controller.js?v=6"></script>
     <script>
         // Toggle mostrar/ocultar contraseña

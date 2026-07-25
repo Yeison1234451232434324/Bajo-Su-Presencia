@@ -7,7 +7,13 @@
  * ============================================================
  */
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+
+  // Control de acceso verificado contra el SERVIDOR (rol tomado del JWT).
+  // Unifica el criterio con el resto del panel: antes esta vista solo
+  // dependía de localStorage, que el usuario puede editar.
+  const sesion = await window.BSPSession.exigir(['Administrador']);
+  if (!sesion) return;
 
   /** Escapa datos de usuario antes de insertarlos con innerHTML (anti-XSS). */
   const esc = (v) => (window.BSPVal?.escapeHtml
@@ -35,16 +41,16 @@ document.addEventListener('DOMContentLoaded', () => {
       return `
         <div class="sed-item">
           <div class="sed-item-header">
-            <div class="sed-item-icon"><i class="bx bx-buildings"></i></div>
+            <div class="sed-item-icon"><i class="bx bx-buildings" aria-hidden="true"></i></div>
             <span class="sed-item-nombre">${esc(s.nombre)}</span>
             <button class="sed-btn-eliminar" onclick="eliminarSede('${s.id}')" title="Eliminar sede">
-              <i class="bx bx-trash"></i>
+              <i class="bx bx-trash" aria-hidden="true"></i>
             </button>
           </div>
           <div class="sed-item-meta">
-            <p><i class="bx bx-map-pin"></i> ${esc(s.direccion)}, ${esc(s.ciudad)}</p>
-            ${s.telefono ? `<p><i class="bx bx-phone"></i> ${esc(s.telefono)}</p>` : ''}
-            ${s.pastor   ? `<p><i class="bx bx-user-circle"></i> ${esc(s.pastor)}${s.miembros ? ` · ${esc(s.miembros)} miembros` : ''}</p>` : ''}
+            <p><i class="bx bx-map-pin" aria-hidden="true"></i> ${esc(s.direccion)}, ${esc(s.ciudad)}</p>
+            ${s.telefono ? `<p><i class="bx bx-phone" aria-hidden="true"></i> ${esc(s.telefono)}</p>` : ''}
+            ${s.pastor   ? `<p><i class="bx bx-user-circle" aria-hidden="true"></i> ${esc(s.pastor)}${s.miembros ? ` · ${esc(s.miembros)} miembros` : ''}</p>` : ''}
           </div>
         </div>`;
     }
@@ -60,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
         exportName:   'sedes',
         exportFields: ['nombre', 'ciudad', 'direccion', 'telefono', 'pastor', 'miembrosTexto'],
         exportLabels: ['Sede', 'Ciudad', 'Dirección', 'Teléfono', 'Pastor/a', 'Miembros'],
-        emptyHTML: `<div class="dt-empty"><i class="bx bx-buildings"></i><p>No hay sedes registradas. Agrega la primera.</p></div>`
+        emptyHTML: `<div class="dt-empty"><i class="bx bx-buildings" aria-hidden="true"></i><p>No hay sedes registradas. Agrega la primera.</p></div>`
       });
       window.__bspDT['dt-sedes'] = dtSedes;
       dtSedes.init();
@@ -155,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
     /* Llamada async al modelo con try-catch */
     let res;
     try {
-      res = await SedesModel.agregar(data);
+      res = await SedesModel.crear(data);
     } catch (ex) {
       showAlertError('Error de conexión. Revisa tu internet e intenta de nuevo.');
       return;

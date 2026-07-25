@@ -15,7 +15,13 @@
  * ============================================================
  */
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+
+  // Control de acceso verificado contra el SERVIDOR (rol tomado del JWT).
+  // Unifica el criterio con el resto del panel: antes esta vista solo
+  // dependía de localStorage, que el usuario puede editar.
+  const sesion = await window.BSPSession.exigir(['Administrador','Colaborador']);
+  if (!sesion) return;
 
   // ── Referencias DOM del formulario ──────────────────────────────────────
   const form         = document.getElementById('form-noticia');
@@ -327,30 +333,30 @@ document.addEventListener('DOMContentLoaded', () => {
                    onerror="this.parentElement.style.display='none'" />
                  <div class="nt-card-img-fade"></div>
                </div>`
-            : `<div class="nt-card-img-placeholder"><i class="bx bx-news"></i></div>`}
+            : `<div class="nt-card-img-placeholder"><i class="bx bx-news" aria-hidden="true"></i></div>`}
           <div class="nt-card-body">
             <div class="nt-card-header">
               <h4 class="nt-card-titulo">${esc(noticia.titulo)}</h4>
               <div class="nt-card-acciones">
                 <button class="btn-accion-nt btn-ver-nt"
                   onclick="verNoticia('${noticia.id}')" title="Leer noticia completa">
-                  <i class="bx bx-show"></i>
+                  <i class="bx bx-show" aria-hidden="true"></i>
                 </button>
                 <button class="btn-accion-nt btn-editar-nt"
                   onclick="editarNoticia('${noticia.id}')" title="Editar noticia">
-                  <i class="bx bx-edit"></i>
+                  <i class="bx bx-edit" aria-hidden="true"></i>
                 </button>
                 ${!_esColaborador ? `
                 <button class="btn-accion-nt btn-eliminar-nt"
                   onclick="eliminarNoticia('${noticia.id}')" title="Eliminar noticia">
-                  <i class="bx bx-trash"></i>
+                  <i class="bx bx-trash" aria-hidden="true"></i>
                 </button>` : ''}
               </div>
             </div>
             <p class="nt-card-resumen">${esc(resumenCorto)}</p>
             <div class="nt-card-meta">
-              <span><i class="bx bx-calendar"></i> ${esc(noticia.fecha)}</span>
-              <span><i class="bx bx-user"></i> ${esc(noticia.autor)}</span>
+              <span><i class="bx bx-calendar" aria-hidden="true"></i> ${esc(noticia.fecha)}</span>
+              <span><i class="bx bx-user" aria-hidden="true"></i> ${esc(noticia.autor)}</span>
             </div>
           </div>
         </div>`;
@@ -372,7 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
         exportName:   'noticias',
         exportFields: ['titulo', 'autor', 'fecha', 'resumen'],
         exportLabels: ['Título', 'Autor', 'Fecha', 'Resumen'],
-        emptyHTML:    `<div class="dt-empty"><i class="bx bx-news"></i><p>Aún no hay noticias publicadas.</p></div>`
+        emptyHTML:    `<div class="dt-empty"><i class="bx bx-news" aria-hidden="true"></i><p>Aún no hay noticias publicadas.</p></div>`
       });
       window.__bspDT['lista-noticias'] = dtNoticias;
       dtNoticias.init();

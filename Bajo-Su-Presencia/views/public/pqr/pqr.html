@@ -15,6 +15,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- Favicon oficial (logo de Bajo Su Presencia) — rutas absolutas: mismas en toda vista -->
+  <link rel="icon" href="/Bajo-Su-Presencia/assets/images/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/Bajo-Su-Presencia/assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/Bajo-Su-Presencia/assets/images/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/Bajo-Su-Presencia/assets/images/apple-touch-icon.png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PQR – Bajo Su Presencia</title>
@@ -101,7 +106,7 @@
       <!-- Encabezado -->
       <div class="pqr-header">
         <div class="pqr-header-icon">
-          <i class="bx bx-message-detail"></i>
+          <i class="bx bx-message-detail" aria-hidden="true"></i>
         </div>
         <h2>Peticiones, Quejas y Reclamos</h2>
         <p>
@@ -115,7 +120,7 @@
 
         <!-- Nota informativa -->
         <div class="pqr-info-note">
-          <i class="bx bx-info-circle"></i>
+          <i class="bx bx-info-circle" aria-hidden="true"></i>
           <p>
             Todos los campos marcados con <strong>*</strong> son obligatorios.
             Tu solicitud será atendida en un plazo máximo de 5 días hábiles.
@@ -131,7 +136,7 @@
           <!-- Tipo de solicitud -->
           <div class="pqr-form-group">
             <label for="pqr-tipo">
-              <i class="bx bx-category"></i>
+              <i class="bx bx-category" aria-hidden="true"></i>
               Tipo de solicitud *
             </label>
             <select id="pqr-tipo" class="pqr-select" required>
@@ -146,7 +151,7 @@
           <div class="pqr-form-row">
             <div class="pqr-form-group">
               <label for="pqr-nombre">
-                <i class="bx bx-user"></i>
+                <i class="bx bx-user" aria-hidden="true"></i>
                 Nombre completo *
               </label>
               <input
@@ -159,7 +164,7 @@
             </div>
             <div class="pqr-form-group">
               <label for="pqr-email">
-                <i class="bx bx-envelope"></i>
+                <i class="bx bx-envelope" aria-hidden="true"></i>
                 Correo electrónico *
               </label>
               <input
@@ -175,7 +180,7 @@
           <!-- Teléfono (opcional) -->
           <div class="pqr-form-group">
             <label for="pqr-telefono">
-              <i class="bx bx-phone"></i>
+              <i class="bx bx-phone" aria-hidden="true"></i>
               Teléfono
               <span class="optional-tag">(opcional)</span>
             </label>
@@ -194,7 +199,7 @@
           <!-- Asunto -->
           <div class="pqr-form-group">
             <label for="pqr-asunto">
-              <i class="bx bx-edit-alt"></i>
+              <i class="bx bx-edit-alt" aria-hidden="true"></i>
               Asunto *
             </label>
             <input
@@ -209,7 +214,7 @@
           <!-- Descripción -->
           <div class="pqr-form-group">
             <label for="pqr-descripcion">
-              <i class="bx bx-text"></i>
+              <i class="bx bx-text" aria-hidden="true"></i>
               Descripción detallada *
             </label>
             <textarea
@@ -223,7 +228,7 @@
 
           <!-- Botón enviar -->
           <button type="submit" class="pqr-btn-submit" id="pqr-btn-submit">
-            <i class="bx bx-send"></i>
+            <i class="bx bx-send" aria-hidden="true"></i>
             Enviar solicitud
           </button>
 
@@ -232,7 +237,7 @@
         <!-- Mensaje de éxito (oculto por defecto) -->
         <div class="pqr-success" id="pqr-success">
           <div class="pqr-success-icon">
-            <i class="bx bx-check"></i>
+            <i class="bx bx-check" aria-hidden="true"></i>
           </div>
           <h3>¡Solicitud enviada!</h3>
           <p>
@@ -240,7 +245,7 @@
             y te contactaremos al correo electrónico proporcionado.
           </p>
           <button class="pqr-success-btn" id="pqr-btn-nueva">
-            <i class="bx bx-plus"></i>
+            <i class="bx bx-plus" aria-hidden="true"></i>
             Enviar otra solicitud
           </button>
         </div>
@@ -400,16 +405,16 @@
 
 <!-- Supabase: SDK + cliente (ANTES del modelo) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8" integrity="sha384-Tve8O+C6PBzsIMK/IRCwHbi8fyEzXIlIs6OfVBZHubplwYhaQF/4Mzxqgg+pp/oy" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="../../../controllers/supabase.client.js"></script>
-<script src="../../../controllers/api.config.js"></script>
-<script src="../../../controllers/db.client.js"></script>
+<script src="../../../services/supabase.client.js"></script>
+<script src="../../../config/api.config.js"></script>
+<script src="../../../services/db.client.js"></script>
 <!-- Modelo PQR -->
 <script src="../../../models/pqr.model.js"></script>
 <!-- Alertify -->
 <script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js" integrity="sha384-3kOl9EzcOjFxTuc9knN784SI3NaWSFtoc4bHR9P8rsADaAZx9PC++m1OimQhoCCb" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="../../../controllers/alertify.helper.js"></script>
+<script src="../../../helpers/alertify.helper.js"></script>
 <!-- Controlador PQR público -->
-  <script src="../../../controllers/validators.helper.js"></script>
+  <script src="../../../helpers/validators.helper.js"></script>
   <script src="../../../controllers/pqr.controller.js"></script>
 
 </body>

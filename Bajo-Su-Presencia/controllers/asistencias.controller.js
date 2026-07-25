@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     selEvento.innerHTML = '<option value="">— Sin eventos —</option>';
     detalle.innerHTML = `
       <div class="asist-empty">
-        <i class="bx bx-calendar-x"></i>
+        <i class="bx bx-calendar-x" aria-hidden="true"></i>
         <p>No hay registros de asistencia.</p>
         <small>Los datos se sincronizan desde la app móvil.</small>
       </div>`;
@@ -79,10 +79,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   function filaAsistencia(a) {
     const contacto = [a.email, a.telefono].filter(Boolean).map(esc).join('&nbsp;·&nbsp;');
     const badgeAsistencia = a.asistio
-      ? `<span class="asist-badge asist-badge--asistio"><i class="bx bx-qr-scan"></i> Asistió por QR${a.fechaAsistencia ? ` · ${esc(a.fechaAsistencia)}` : ''}</span>`
-      : `<span class="asist-badge asist-badge--falta"><i class="bx bx-x-circle"></i> No asistió</span>`;
+      ? `<span class="asist-badge asist-badge--asistio"><i class="bx bx-qr-scan" aria-hidden="true"></i> Asistió por QR${a.fechaAsistencia ? ` · ${esc(a.fechaAsistencia)}` : ''}</span>`
+      : `<span class="asist-badge asist-badge--falta"><i class="bx bx-x-circle" aria-hidden="true"></i> No asistió</span>`;
     const califHint = tieneCalificacion(a)
-      ? `<span class="asist-row-calif" title="Ya calificó"><i class="bx bxs-star"></i> ${esc(a.calificacion)}/5</span>`
+      ? `<span class="asist-row-calif" title="Ya calificó"><i class="bx bxs-star" aria-hidden="true"></i> ${esc(a.calificacion)}/5</span>`
       : '';
 
     return `
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           ${contacto ? `<p class="asist-row-sub">${contacto}</p>` : ''}
         </div>
         <div class="asist-row-estados">
-          <span class="asist-badge asist-badge--inscrito"><i class="bx bx-user-plus"></i> Inscrito${a.fechaInscripcion ? ` · ${esc(a.fechaInscripcion)}` : ''}</span>
+          <span class="asist-badge asist-badge--inscrito"><i class="bx bx-user-plus" aria-hidden="true"></i> Inscrito${a.fechaInscripcion ? ` · ${esc(a.fechaInscripcion)}` : ''}</span>
           ${badgeAsistencia}
         </div>
       </div>`;
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           </div>
         </div>
         ${a.comentario
-          ? `<p class="asist-comentario"><i class="bx bxs-quote-alt-left"></i> ${a.comentario}</p>`
+          ? `<p class="asist-comentario"><i class="bx bxs-quote-alt-left" aria-hidden="true"></i> ${a.comentario}</p>`
           : `<p class="asist-sin-comentario">Calificó sin dejar comentario.</p>`}
       </div>`;
   }
@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const calificacionesHTML = califican.length
       ? califican.map(cardCalificacion).join('')
       : `<div class="asist-empty asist-empty--sm">
-           <i class="bx bx-message-square-x"></i>
+           <i class="bx bx-message-square-x" aria-hidden="true"></i>
            <p>Aún no hay calificaciones para este evento.</p>
            <small>Aparecerán aquí cuando los asistentes lo califiquen desde la app.</small>
          </div>`;
@@ -141,13 +141,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     detalle.innerHTML = `
       <div class="asist-evento-detalle">
         <div class="asist-evento-head">
-          <h3 class="asist-evento-titulo"><i class="bx bx-calendar-event"></i> ${ev ? ev.nombre : 'Evento'}</h3>
-          ${ev && ev.fecha ? `<span class="asist-evento-fecha"><i class="bx bx-time-five"></i> ${ev.fecha}</span>` : ''}
+          <h3 class="asist-evento-titulo"><i class="bx bx-calendar-event" aria-hidden="true"></i> ${ev ? ev.nombre : 'Evento'}</h3>
+          ${ev && ev.fecha ? `<span class="asist-evento-fecha"><i class="bx bx-time-five" aria-hidden="true"></i> ${ev.fecha}</span>` : ''}
         </div>
 
         <section class="asist-bloque">
           <h4 class="asist-sec-title">
-            <i class="bx bx-list-check"></i> Asistencia
+            <i class="bx bx-list-check" aria-hidden="true"></i> Asistencia
             <span class="asist-sec-count">${registros.filter(r => r.asistio).length} de ${registros.length} confirmaron por QR</span>
           </h4>
           <div id="tabla-asistencias"></div>
@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         <section class="asist-bloque">
           <h4 class="asist-sec-title">
-            <i class="bx bxs-star"></i> Calificaciones del evento
+            <i class="bx bxs-star" aria-hidden="true"></i> Calificaciones del evento
             <span class="asist-sec-count">${califican.length} ${califican.length === 1 ? 'calificación' : 'calificaciones'}</span>
           </h4>
           <div class="asist-califs">${calificacionesHTML}</div>
@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       exportName:   `asistencia_${(ev ? ev.nombre : 'evento').replace(/\s+/g, '_').toLowerCase()}`,
       exportFields: ['nombre', 'email', 'telefono', 'estadoAsistencia', 'fechaInscripcion', 'fechaAsistencia', 'calificacionTexto', 'comentario'],
       exportLabels: ['Nombre', 'Correo', 'Teléfono', 'Asistencia', 'Inscrito', 'Hora escaneo QR', 'Calificación', 'Comentario'],
-      emptyHTML:    `<div class="asist-empty asist-empty--sm"><i class="bx bx-user-x"></i><p>Nadie se ha inscrito a este evento todavía.</p></div>`
+      emptyHTML:    `<div class="asist-empty asist-empty--sm"><i class="bx bx-user-x" aria-hidden="true"></i><p>Nadie se ha inscrito a este evento todavía.</p></div>`
     });
     window.__bspDT = window.__bspDT || {};
     window.__bspDT['tabla-asistencias'] = dt;

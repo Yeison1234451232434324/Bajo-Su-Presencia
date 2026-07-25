@@ -374,7 +374,7 @@ function _bspInjectStyles() {
 
     .bsp-close-btn {
       background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
-      color: #fff; width: 34px; height: 34px; border-radius: 50%; cursor: pointer;
+      color: #fff; width: 44px; height: 44px; border-radius: 50%; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       transition: background 0.2s; flex-shrink: 0;
     }
@@ -602,7 +602,7 @@ function _bspBuildAccordionHTML(data) {
     html += `
       <div class="bsp-cat-sep" aria-hidden="true">
         <div class="bsp-cat-sep-icon" style="background:${cat.colorBg}">
-          <i class="bx ${cat.icono}" style="color:${cat.colorStroke}"></i>
+          <i class="bx ${cat.icono}" style="color:${cat.colorStroke}" aria-hidden="true"></i>
         </div>
         <span class="bsp-cat-sep-label">${cat.categoria}</span>
       </div>`;
@@ -808,7 +808,7 @@ function _bspInjectSidebarItem() {
     li.className = 'bsp-sidebar-ayuda-li';
     li.innerHTML = `
       <a href="../../ayuda/ayuda.html" aria-label="Centro de Ayuda">
-        <i class="bx bx-help-circle"></i>
+        <i class="bx bx-help-circle" aria-hidden="true"></i>
         <span class="nav-item">Centro de Ayuda</span>
       </a>
       <span class="tooltip">Centro de Ayuda</span>`;

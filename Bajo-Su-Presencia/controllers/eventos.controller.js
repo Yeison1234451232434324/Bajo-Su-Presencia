@@ -13,7 +13,13 @@
  * ============================================================
  */
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+
+  // Control de acceso verificado contra el SERVIDOR (rol tomado del JWT).
+  // Unifica el criterio con el resto del panel: antes esta vista solo
+  // dependía de localStorage, que el usuario puede editar.
+  const sesion = await window.BSPSession.exigir(['Administrador','Colaborador']);
+  if (!sesion) return;
 
   const form             = document.getElementById('form-evento');
   const recursosGrid     = document.getElementById('recursos-grid');
@@ -75,33 +81,10 @@ document.addEventListener('DOMContentLoaded', () => {
     'Papelería':'bx-file','Cocina':'bx-bowl-hot','Otros':'bx-package'
   };
 
-  function combinarHorario(inicio, fin) {
-    if (!inicio && !fin) return '';
-    if (!fin)    return inicio;
-    if (!inicio) return fin;
-    return `${inicio} - ${fin}`;
-  }
-
-  function convertTo24h(str) {
-    if (!str) return '';
-    str = str.trim();
-    if (/^\d{1,2}:\d{2}$/.test(str)) { const [h, m] = str.split(':'); return `${h.padStart(2,'0')}:${m}`; }
-    const match = str.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
-    if (match) {
-      let h = parseInt(match[1]); const min = match[2], mer = match[3].toUpperCase();
-      if (mer === 'PM' && h !== 12) h += 12;
-      if (mer === 'AM' && h === 12) h = 0;
-      return `${String(h).padStart(2,'0')}:${min}`;
-    }
-    return str;
-  }
-
-  function parseHorario(horario) {
-    if (!horario) return { inicio: '', fin: '' };
-    const parts = horario.split(' - ');
-    if (parts.length >= 2) return { inicio: convertTo24h(parts[0].trim()), fin: convertTo24h(parts[1].trim()) };
-    return { inicio: convertTo24h(parts[0].trim()), fin: '' };
-  }
+  // Las utilidades de horario (combinar / convertir a 24 h / parsear) viven en
+  // helpers/horario.helper.js como funciones puras (window.BSPHorario). Se
+  // extrajeron de aquí para separar el parseo de cadenas de hora de la
+  // orquestación del formulario; la lógica es idéntica.
 
   // ════════════════════════════════════════════════════════════════
   // 1. RECURSOS DEL INVENTARIO (creación)
@@ -127,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <div class="ev-rec-body">
           <div class="ev-rec-header">
-            <i class="bx ${icono} ev-rec-icon"></i>
+            <i class="bx ${icono} ev-rec-icon" aria-hidden="true"></i>
             <label for="chk-rec-${r.id}" class="ev-rec-nombre">${r.nombre}</label>
             <span class="badge badge-green ev-rec-stock">${r.cantidad} ${r.unidad}</span>
           </div>
@@ -211,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <div class="ev-rec-body">
           <div class="ev-rec-header">
-            <i class="bx ${icono} ev-rec-icon"></i>
+            <i class="bx ${icono} ev-rec-icon" aria-hidden="true"></i>
             <label for="edit-chk-rec-${r.id}" class="ev-rec-nombre">${r.nombre}</label>
             <span class="badge badge-green ev-rec-stock">${r.cantidad} ${r.unidad}</span>
           </div>
@@ -284,7 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
       <div class="ev-rec-body">
         <div class="ev-rec-header">
-          <i class="bx bx-user ev-rec-icon"></i>
+          <i class="bx bx-user ev-rec-icon" aria-hidden="true"></i>
           <label for="${prefix}-chk-esp-${u.id}" class="ev-rec-nombre">${u.nombre}</label>
           <span class="badge ev-badge-especialidad ev-rec-stock">${u.especialidad}</span>
         </div>
@@ -424,7 +407,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const data = {
-      titulo, fecha: fechaVal, horario: combinarHorario(horaInicio, horaFin), ubicacion,
+      titulo, fecha: fechaVal, horario: BSPHorario.combinar(horaInicio, horaFin), ubicacion,
       asistentes: asistentesRaw.trim() !== '' ? parseInt(asistentesRaw, 10) : '',
       voluntariosNecesarios: parseInt(voluntariosRaw, 10), descripcion,
       estado: estadoCrear, recursos: recursosSeleccionados,
@@ -432,7 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     let resultado;
-    try { resultado = await EventosModel.publicar(data); }
+    try { resultado = await EventosModel.crear(data); }
     catch (ex) { showAlertError('Error de conexión. Intenta de nuevo.'); return; }
     if (!resultado.ok) { showAlertError(resultado.error); return; }
 
@@ -467,7 +450,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderCard(ev) {
       const chipsRecursos = ev.recursos && ev.recursos.length > 0
-        ? ev.recursos.map(r => `<span class="ev-chip-recurso"><i class="bx bx-package"></i> ${esc(r.recursoNombre)} × ${esc(r.cantidad)}</span>`).join('')
+        ? ev.recursos.map(r => `<span class="ev-chip-recurso"><i class="bx bx-package" aria-hidden="true"></i> ${esc(r.recursoNombre)} × ${esc(r.cantidad)}</span>`).join('')
         : '<span class="ev-sin-recursos">Sin recursos asignados</span>';
       return `
         <div class="ev-publicado-card" id="ev-card-${ev.id}">
@@ -475,27 +458,27 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="ev-pub-header-info">
               <div class="ev-pub-titulo-row"><h4 class="ev-pub-titulo">${esc(ev.titulo)}</h4>${badgeEstado(ev.estado)}</div>
               <p class="ev-pub-meta">
-                <i class="bx bx-calendar"></i> ${esc(ev.fecha)} &nbsp;·&nbsp;
-                <i class="bx bx-time"></i> ${esc(ev.horario)} &nbsp;·&nbsp;
-                <i class="bx bx-map-pin"></i> ${esc(ev.ubicacion)} &nbsp;·&nbsp;
-                <i class="bx bx-group"></i> ${esc(ev.voluntariosNecesarios || 0)} voluntario(s)
+                <i class="bx bx-calendar" aria-hidden="true"></i> ${esc(ev.fecha)} &nbsp;·&nbsp;
+                <i class="bx bx-time" aria-hidden="true"></i> ${esc(ev.horario)} &nbsp;·&nbsp;
+                <i class="bx bx-map-pin" aria-hidden="true"></i> ${esc(ev.ubicacion)} &nbsp;·&nbsp;
+                <i class="bx bx-group" aria-hidden="true"></i> ${esc(ev.voluntariosNecesarios || 0)} voluntario(s)
               </p>
             </div>
             <div class="ev-pub-acciones">
-              <button class="btn-ev-accion btn-ev-ver" onclick="verEvento('${ev.id}')" title="Ver detalle"><i class="bx bx-show"></i></button>
-              <button class="btn-ev-accion btn-ev-editar" onclick="abrirEditar('${ev.id}')" title="Editar evento"><i class="bx bx-edit"></i></button>
-              ${!_esColaborador ? `<button class="btn-ev-accion btn-ev-eliminar" onclick="eliminarEvento('${ev.id}')" title="Eliminar evento"><i class="bx bx-trash"></i></button>` : ''}
+              <button class="btn-ev-accion btn-ev-ver" onclick="verEvento('${ev.id}')" title="Ver detalle"><i class="bx bx-show" aria-hidden="true"></i></button>
+              <button class="btn-ev-accion btn-ev-editar" onclick="abrirEditar('${ev.id}')" title="Editar evento"><i class="bx bx-edit" aria-hidden="true"></i></button>
+              ${!_esColaborador ? `<button class="btn-ev-accion btn-ev-eliminar" onclick="eliminarEvento('${ev.id}')" title="Eliminar evento"><i class="bx bx-trash" aria-hidden="true"></i></button>` : ''}
             </div>
           </div>
           ${ev.descripcion ? `<p class="ev-pub-desc">${esc(ev.descripcion)}</p>` : ''}
           <div class="ev-pub-recursos">
-            <span class="ev-pub-recursos-label"><i class="bx bx-package"></i> Recursos:</span>
+            <span class="ev-pub-recursos-label"><i class="bx bx-package" aria-hidden="true"></i> Recursos:</span>
             <div class="ev-chips-wrap">${chipsRecursos}</div>
           </div>
           ${ev.especialistas && ev.especialistas.length > 0 ? `
           <div class="ev-pub-recursos">
-            <span class="ev-pub-recursos-label"><i class="bx bx-user-voice"></i> Especialistas:</span>
-            <div class="ev-chips-wrap">${ev.especialistas.map(e => `<span class="ev-chip-recurso"><i class="bx bx-user"></i> ${esc(e.nombre)} — ${esc(e.especialidad)}</span>`).join('')}</div>
+            <span class="ev-pub-recursos-label"><i class="bx bx-user-voice" aria-hidden="true"></i> Especialistas:</span>
+            <div class="ev-chips-wrap">${ev.especialistas.map(e => `<span class="ev-chip-recurso"><i class="bx bx-user" aria-hidden="true"></i> ${esc(e.nombre)} — ${esc(e.especialidad)}</span>`).join('')}</div>
           </div>` : ''}
           ${ev.publicado ? `<p class="ev-pub-fecha-pub">Publicado el ${esc(ev.publicado)}</p>` : ''}
         </div>`;
@@ -515,7 +498,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderRow: renderCard, exportable: true, exportName: 'eventos',
         exportFields: ['titulo','fecha','horario','ubicacion','estado','asistentes','descripcion','publicado'],
         exportLabels: ['Título','Fecha','Horario','Ubicación','Estado','Asistentes','Descripción','Publicado'],
-        emptyHTML: `<div class="dt-empty"><i class="bx bx-calendar-x"></i><p>Aún no hay eventos publicados.</p></div>`
+        emptyHTML: `<div class="dt-empty"><i class="bx bx-calendar-x" aria-hidden="true"></i><p>Aún no hay eventos publicados.</p></div>`
       });
       window.__bspDT['lista-eventos-publicados'] = dtEventos;
       dtEventos.init();
@@ -532,23 +515,23 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!ev) return;
     document.getElementById('modal-ver-titulo').innerHTML = `${esc(ev.titulo)} ${badgeEstado(ev.estado)}`;
     const chipsRecursos = ev.recursos && ev.recursos.length > 0
-      ? ev.recursos.map(r => `<span class="ev-chip-recurso"><i class="bx bx-package"></i> ${r.recursoNombre} × ${r.cantidad} ${r.unidad || ''}</span>`).join('')
+      ? ev.recursos.map(r => `<span class="ev-chip-recurso"><i class="bx bx-package" aria-hidden="true"></i> ${r.recursoNombre} × ${r.cantidad} ${r.unidad || ''}</span>`).join('')
       : '<span class="ev-sin-recursos">Sin recursos asignados</span>';
     document.getElementById('modal-ver-body').innerHTML = `
       <div class="ev-detalle-grid">
-        <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-calendar"></i> Fecha</span><span class="ev-detalle-valor">${ev.fecha}</span></div>
-        <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-time"></i> Horario</span><span class="ev-detalle-valor">${ev.horario}</span></div>
-        <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-map-pin"></i> Ubicación</span><span class="ev-detalle-valor">${ev.ubicacion}</span></div>
-        <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-user"></i> Asistentes</span><span class="ev-detalle-valor">${ev.asistentes || '—'}</span></div>
-        <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-group"></i> Voluntarios necesarios</span><span class="ev-detalle-valor">${ev.voluntariosNecesarios || 0}</span></div>
-        <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-calendar-plus"></i> Publicado</span><span class="ev-detalle-valor">${ev.publicado || '—'}</span></div>
-        <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-flag"></i> Estado</span><span class="ev-detalle-valor">${badgeEstado(ev.estado)}</span></div>
+        <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-calendar" aria-hidden="true"></i> Fecha</span><span class="ev-detalle-valor">${ev.fecha}</span></div>
+        <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-time" aria-hidden="true"></i> Horario</span><span class="ev-detalle-valor">${ev.horario}</span></div>
+        <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-map-pin" aria-hidden="true"></i> Ubicación</span><span class="ev-detalle-valor">${ev.ubicacion}</span></div>
+        <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-user" aria-hidden="true"></i> Asistentes</span><span class="ev-detalle-valor">${ev.asistentes || '—'}</span></div>
+        <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-group" aria-hidden="true"></i> Voluntarios necesarios</span><span class="ev-detalle-valor">${ev.voluntariosNecesarios || 0}</span></div>
+        <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-calendar-plus" aria-hidden="true"></i> Publicado</span><span class="ev-detalle-valor">${ev.publicado || '—'}</span></div>
+        <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-flag" aria-hidden="true"></i> Estado</span><span class="ev-detalle-valor">${badgeEstado(ev.estado)}</span></div>
       </div>
-      ${ev.descripcion ? `<div class="ev-detalle-desc"><span class="ev-detalle-label"><i class="bx bx-note"></i> Descripción</span><p>${ev.descripcion}</p></div>` : ''}
-      <div class="ev-detalle-recursos"><span class="ev-detalle-label"><i class="bx bx-package"></i> Recursos asignados</span><div class="ev-chips-wrap" style="margin-top:0.5rem;">${chipsRecursos}</div></div>
-      <div class="ev-detalle-recursos"><span class="ev-detalle-label"><i class="bx bx-user-voice"></i> Especialistas requeridos</span><div class="ev-chips-wrap" style="margin-top:0.5rem;">${
+      ${ev.descripcion ? `<div class="ev-detalle-desc"><span class="ev-detalle-label"><i class="bx bx-note" aria-hidden="true"></i> Descripción</span><p>${ev.descripcion}</p></div>` : ''}
+      <div class="ev-detalle-recursos"><span class="ev-detalle-label"><i class="bx bx-package" aria-hidden="true"></i> Recursos asignados</span><div class="ev-chips-wrap" style="margin-top:0.5rem;">${chipsRecursos}</div></div>
+      <div class="ev-detalle-recursos"><span class="ev-detalle-label"><i class="bx bx-user-voice" aria-hidden="true"></i> Especialistas requeridos</span><div class="ev-chips-wrap" style="margin-top:0.5rem;">${
         ev.especialistas && ev.especialistas.length > 0
-          ? ev.especialistas.map(e => `<span class="ev-chip-recurso"><i class="bx bx-user"></i> ${e.nombre} — ${e.especialidad}</span>`).join('')
+          ? ev.especialistas.map(e => `<span class="ev-chip-recurso"><i class="bx bx-user" aria-hidden="true"></i> ${e.nombre} — ${e.especialidad}</span>`).join('')
           : '<span class="ev-sin-recursos">Sin especialistas asignados</span>'
       }</div></div>`;
     document.getElementById('modal-ver-evento').style.display = 'flex';
@@ -580,7 +563,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const _editEstado = document.getElementById('edit-estado');
     if (_editEstado) _editEstado.value = ev.estado || 'Publicado';
 
-    const { inicio, fin } = parseHorario(ev.horario);
+    const { inicio, fin } = BSPHorario.parse(ev.horario);
     document.getElementById('edit-hora-inicio').value = inicio;
     document.getElementById('edit-hora-fin').value    = fin;
 
@@ -632,7 +615,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const data = {
-      titulo, fecha, horario: combinarHorario(horaIni, horaFin), ubicacion,
+      titulo, fecha, horario: BSPHorario.combinar(horaIni, horaFin), ubicacion,
       asistentes: document.getElementById('edit-asistentes')?.value || '',
       voluntariosNecesarios: voluntarios,
       descripcion: document.getElementById('edit-descripcion')?.value || '',
@@ -753,7 +736,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const voluntarios = document.getElementById('ev-voluntarios')?.value || '';
     const descripcion = document.getElementById('ev-descripcion')?.value.trim() || '';
 
-    const horario  = combinarHorario(horaInicio, horaFin);
+    const horario  = BSPHorario.combinar(horaInicio, horaFin);
     const empty    = document.getElementById('ev-preview-empty');
     const content  = document.getElementById('ev-preview-content');
     const hayDatos = titulo || fecha || horario || ubicacion;

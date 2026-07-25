@@ -87,5 +87,31 @@
     then(resolve, reject) { return this._run().then(resolve, reject); }
   }
 
-  window.DB = { from: (table) => new Query(table) };
+  /**
+   * Traduce un error de la capa de datos a un mensaje para el usuario.
+   *
+   * Vive aquí porque las formas de error que interpreta (`code: '42501'`,
+   * `row-level security`, y demás códigos de PostgREST) las produce EXACTAMENTE
+   * este cliente en `_run()`. Antes estaba copiada byte a byte como `_msg()` en
+   * 9 modelos; cualquier cambio de texto o código nuevo obligaba a editar los 9.
+   * Ahora es la única implementación.
+   *
+   * @param {{code?:string, message?:string}|null} error
+   * @param {Object<string,string>} [especificos] Mensajes propios de una tabla,
+   *        indexados por código SQL (p. ej. { '23505': 'Ya existe...' }). Se
+   *        consultan tras la comprobación de permisos, igual que hacían los
+   *        modelos que tenían reglas adicionales.
+   * @returns {string}
+   */
+  function mensajeError(error, especificos) {
+    if (error?.code === '42501' || /row-level security/i.test(error?.message || '')) {
+      return 'No tienes permisos para realizar esta acción.';
+    }
+    if (especificos && error?.code && especificos[error.code]) {
+      return especificos[error.code];
+    }
+    return error?.message || 'Ocurrió un error al procesar la solicitud.';
+  }
+
+  window.DB = { from: (table) => new Query(table), mensajeError };
 })();

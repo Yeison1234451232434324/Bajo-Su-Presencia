@@ -5,7 +5,7 @@
  * Lectura de asistencias (la app móvil las escribe vía QR/reserva).
  * La calificación del evento por el asistente se toma de
  * calificaciones_eventos (promedio de ujieres/sonido/mensaje).
- * Métodos ASÍNCRONOS. Requiere window.DB (controllers/db.client.js → Data Gateway PHP).
+ * Métodos ASÍNCRONOS. Requiere window.DB (services/db.client.js → Data Gateway PHP).
  *
  * Mapeo app ↔ BD (esquema certificado):
  *   eventoId↔evento_id, email↔correo, telefono↔telefono,

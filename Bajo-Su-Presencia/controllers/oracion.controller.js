@@ -15,7 +15,13 @@
  * ============================================================
  */
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+
+  // Control de acceso verificado contra el SERVIDOR (rol tomado del JWT).
+  // Unifica el criterio con el resto del panel: antes esta vista solo
+  // dependía de localStorage, que el usuario puede editar.
+  const sesion = await window.BSPSession.exigir(['Administrador','Colaborador']);
+  if (!sesion) return;
 
   // ── Rol del usuario activo ────────────────────────────────────────────────
   const _esColaborador = ((JSON.parse(localStorage.getItem('usuarioLogueado') || '{}')).rol || '') === 'Colaborador';
@@ -267,28 +273,28 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="or-card-body">
             <div class="or-card-header">
               <span class="or-card-fecha">
-                <i class="bx bx-calendar"></i> ${esc(oracion.fecha)}
+                <i class="bx bx-calendar" aria-hidden="true"></i> ${esc(oracion.fecha)}
               </span>
               <div class="or-card-acciones">
                 <button class="btn-accion-or btn-ver-or"
                   onclick="verOracion('${oracion.id}')" title="Ver oración completa">
-                  <i class="bx bx-show"></i>
+                  <i class="bx bx-show" aria-hidden="true"></i>
                 </button>
                 <button class="btn-accion-or btn-editar-or"
                   onclick="editarOracion('${oracion.id}')" title="Editar oración">
-                  <i class="bx bx-edit"></i>
+                  <i class="bx bx-edit" aria-hidden="true"></i>
                 </button>
                 ${!_esColaborador ? `
                 <button class="btn-accion-or btn-eliminar-or"
                   onclick="eliminarOracion('${oracion.id}')" title="Eliminar oración">
-                  <i class="bx bx-trash"></i>
+                  <i class="bx bx-trash" aria-hidden="true"></i>
                 </button>` : ''}
               </div>
             </div>
             <p class="or-card-texto">"${esc(textoCorto)}"</p>
             ${oracion.versiculo
               ? `<p class="or-card-versiculo">
-                   <i class="bx bx-book-open"></i> ${oracion.versiculo}
+                   <i class="bx bx-book-open" aria-hidden="true"></i> ${oracion.versiculo}
                  </p>`
               : ''}
           </div>
@@ -310,7 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
         exportName:   'oraciones',
         exportFields: ['fecha', 'texto', 'versiculo'],
         exportLabels: ['Fecha', 'Texto', 'Versículo'],
-        emptyHTML:    `<div class="dt-empty"><i class="bx bx-church"></i><p>Aún no hay oraciones publicadas.</p></div>`
+        emptyHTML:    `<div class="dt-empty"><i class="bx bx-church" aria-hidden="true"></i><p>Aún no hay oraciones publicadas.</p></div>`
       });
       window.__bspDT['lista-oraciones'] = dtOraciones;
       dtOraciones.init();

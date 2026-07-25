@@ -145,13 +145,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         <button class="btn-accion btn-historial"
           onclick="verHistorial('${escJs(vol.id)}', '${escJs(vol.nombre)}')"
           title="Ver historial completo">
-          <i class="bx bx-history"></i>
+          <i class="bx bx-history" aria-hidden="true"></i>
         </button>`;
       const btnResumen = `
         <button class="btn-accion btn-resumen"
           onclick="verResumen('${escJs(vol.id)}', '${escJs(vol.nombre)}')"
           title="Ver resumen estadístico">
-          <i class="bx bx-bar-chart-alt-2"></i>
+          <i class="bx bx-bar-chart-alt-2" aria-hidden="true"></i>
         </button>`;
 
       return `
@@ -193,7 +193,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         exportName:   'voluntarios',
         exportFields: ['nombre', 'rol', 'estadoCalif', 'califEstrellas', 'califComentario'],
         exportLabels: ['Nombre', 'Rol', 'Calificado', 'Estrellas', 'Comentario'],
-        emptyHTML: `<div class="dt-empty"><i class="bx bx-user-x"></i><p>No hay voluntarios en este evento.</p></div>`
+        emptyHTML: `<div class="dt-empty"><i class="bx bx-user-x" aria-hidden="true"></i><p>No hay voluntarios en este evento.</p></div>`
       });
       window.__bspDT['dt-voluntarios'] = dtVoluntarios;
       dtVoluntarios.init();
@@ -386,7 +386,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (historial.length === 0) {
       historialLista.innerHTML = `
         <div class="panel-vacio">
-          <i class="bx bx-history" style="font-size:2.5rem;color:#d1d5db;"></i>
+          <i class="bx bx-history" style="font-size:2.5rem;color:#d1d5db;" aria-hidden="true"></i>
           <p>Este voluntario aún no tiene calificaciones registradas.</p>
         </div>`;
     } else {
@@ -450,7 +450,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const pct     = Math.round((cant / maxVal) * 100);
       distWrap.innerHTML += `
         <div class="dist-fila">
-          <span class="dist-label">${i} <i class="bx bxs-star star-on" style="font-size:0.85rem;"></i></span>
+          <span class="dist-label">${i} <i class="bx bxs-star star-on" style="font-size:0.85rem;" aria-hidden="true"></i></span>
           <div class="dist-barra-wrap">
             <div class="dist-barra" style="width:${pct}%"></div>
           </div>
@@ -477,21 +477,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     panelResumen.style.display   = 'none';
   }
 
-  /** Toast de error (rojo) */
-  function showToastError(title, desc) {
-    let container = document.getElementById('toastContainer');
-    if (!container) {
-      container = document.createElement('div');
-      container.id        = 'toastContainer';
-      container.className = 'toast-container';
-      document.body.appendChild(container);
-    }
-    const toast = document.createElement('div');
-    toast.className = 'toast toast-error';
-    toast.innerHTML = `<div class="toast-title">❌ ${title}</div><div class="toast-desc">${desc}</div>`;
-    container.appendChild(toast);
-    setTimeout(() => toast.remove(), 4000);
-  }
+  // La notificación de error usa la API central showToastError/showAlertError de
+  // alertify.helper.js. La función local que había aquí construía su propio toast
+  // y no llegó a llamarse desde ninguna parte del controlador (código muerto).
 
   // ── Inicialización ───────────────────────────────────────────────────────
   cargarSelectEventos();

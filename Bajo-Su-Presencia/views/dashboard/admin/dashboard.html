@@ -19,6 +19,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- Favicon oficial (logo de Bajo Su Presencia) — rutas absolutas: mismas en toda vista -->
+  <link rel="icon" href="/Bajo-Su-Presencia/assets/images/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/Bajo-Su-Presencia/assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/Bajo-Su-Presencia/assets/images/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/Bajo-Su-Presencia/assets/images/apple-touch-icon.png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
@@ -49,7 +54,7 @@
 
     <!-- Guía de sección -->
     <div class="guia-seccion">
-      <p class="guia-seccion-label"><i class="bx bx-info-circle"></i> Guía de sección</p>
+      <p class="guia-seccion-label"><i class="bx bx-info-circle" aria-hidden="true"></i> Guía de sección</p>
       <p class="guia-seccion-texto">Este es tu centro de operaciones. Desde aquí puedes ver el resumen general de la comunidad: métricas de miembros, eventos del mes, noticias publicadas, voluntarios activos y las gráficas de crecimiento. Úsalo para tomar decisiones rápidas.</p>
     </div>
 
@@ -362,19 +367,21 @@
 </main>
 
 <!-- Controller del sidebar (inyecta el nav y carga el usuario logueado) -->
-  <script src="../../../controllers/validators.helper.js"></script>
+  <script src="../../../helpers/validators.helper.js"></script>
+  <!-- API central de notificaciones (showToast/showAlert*): única fuente en toda la app -->
+  <script src="../../../helpers/alertify.helper.js"></script>
   <script src="../../../controllers/sidebar.controller.js"></script>
   <!-- Supabase: SDK + cliente para los KPIs reales -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8" integrity="sha384-Tve8O+C6PBzsIMK/IRCwHbi8fyEzXIlIs6OfVBZHubplwYhaQF/4Mzxqgg+pp/oy" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="../../../controllers/supabase.client.js"></script>
+  <script src="../../../services/supabase.client.js"></script>
 
   <!-- Autenticación de la sesión.
        api.config.js  → define bspAuth/bspBindLogout: sin él, "Cerrar Sesión"
                         solo navegaba al login SIN borrar el token, de modo que
                         el botón "atrás" restauraba el panel con la sesión viva.
        session.manager.js → valida el JWT en el servidor para proteger la vista. -->
-  <script src="../../../controllers/api.config.js"></script>
-  <script src="../../../controllers/session.manager.js"></script>
+  <script src="../../../config/api.config.js"></script>
+  <script src="../../../core/session.manager.js"></script>
   <script>
     // La dashboard es exclusiva de administradores: se exige una sesión válida
     // verificada por el backend. Sin ella, se regresa al login con

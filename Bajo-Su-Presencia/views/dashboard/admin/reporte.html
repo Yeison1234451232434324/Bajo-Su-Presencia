@@ -23,6 +23,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- Favicon oficial (logo de Bajo Su Presencia) — rutas absolutas: mismas en toda vista -->
+  <link rel="icon" href="/Bajo-Su-Presencia/assets/images/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/Bajo-Su-Presencia/assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/Bajo-Su-Presencia/assets/images/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/Bajo-Su-Presencia/assets/images/apple-touch-icon.png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Subir Reporte – Bajo Su Presencia</title>
@@ -46,7 +51,7 @@
 
     <!-- Guía de sección -->
     <div class="guia-seccion">
-      <p class="guia-seccion-label"><i class="bx bx-info-circle"></i> Guía de sección</p>
+      <p class="guia-seccion-label"><i class="bx bx-info-circle" aria-hidden="true"></i> Guía de sección</p>
       <p class="guia-seccion-texto">Registra el reporte de cada evento finalizado: ofrenda recaudada, incidentes ocurridos y observaciones generales. Esta información alimenta los reportes estadísticos del sistema.</p>
     </div>
 
@@ -66,7 +71,7 @@
       <!-- Botón volver -->
       <div class="rep-topbar">
         <button class="rep-btn-volver" onclick="volverAEventosReporte()">
-          <i class="bx bx-chevron-left"></i> Volver a Eventos
+          <i class="bx bx-chevron-left" aria-hidden="true"></i> Volver a Eventos
         </button>
       </div>
 
@@ -74,16 +79,16 @@
       <div class="rep-banner" id="rep-banner">
         <div class="rep-banner-titulo">—</div>
         <div class="rep-banner-meta">
-          <span><i class="bx bx-calendar"></i> <span class="rep-banner-fecha">—</span></span>
-          <span><i class="bx bx-time"></i> <span class="rep-banner-hora">—</span></span>
-          <span><i class="bx bx-map-pin" style="color:#f87171;"></i> <span class="rep-banner-lugar">—</span></span>
+          <span><i class="bx bx-calendar" aria-hidden="true"></i> <span class="rep-banner-fecha">—</span></span>
+          <span><i class="bx bx-time" aria-hidden="true"></i> <span class="rep-banner-hora">—</span></span>
+          <span><i class="bx bx-map-pin" style="color:#f87171;" aria-hidden="true"></i> <span class="rep-banner-lugar">—</span></span>
         </div>
       </div>
 
       <!-- Formulario -->
       <div class="rep-form-card">
         <div class="rep-form-card-header">
-          <div class="rep-form-card-icon"><i class="bx bx-file"></i></div>
+          <div class="rep-form-card-icon"><i class="bx bx-file" aria-hidden="true"></i></div>
           <h3>Datos del Evento</h3>
         </div>
 
@@ -92,7 +97,7 @@
           <!-- Ofrenda -->
           <div class="rep-field">
             <label for="rep-ofrenda">
-              <i class="bx bx-dollar"></i> Ofrenda Recaudada (COP) *
+              <i class="bx bx-dollar" aria-hidden="true"></i> Ofrenda Recaudada (COP) *
             </label>
             <input
               type="number"
@@ -107,7 +112,7 @@
           <!-- Incidentes -->
           <div class="rep-field">
             <label for="rep-incidentes">
-              <i class="bx bx-error-circle"></i> Incidentes
+              <i class="bx bx-error-circle" aria-hidden="true"></i> Incidentes
             </label>
             <textarea
               id="rep-incidentes"
@@ -121,7 +126,7 @@
           <!-- Observaciones -->
           <div class="rep-field">
             <label for="rep-observaciones">
-              <i class="bx bx-comment-detail"></i> Observaciones *
+              <i class="bx bx-comment-detail" aria-hidden="true"></i> Observaciones *
             </label>
             <textarea
               id="rep-observaciones"
@@ -135,7 +140,7 @@
           <!-- Botones -->
           <div class="rep-form-footer">
             <button type="submit" class="rep-btn-guardar" id="rep-btn-guardar">
-              <i class="bx bx-upload"></i> Cargar Reporte
+              <i class="bx bx-upload" aria-hidden="true"></i> Cargar Reporte
             </button>
             <button type="button" class="rep-btn-cancelar" onclick="cancelarReporte()">
               Cancelar
@@ -156,17 +161,17 @@
 </main>
 
 <!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
-  <script src="../../../controllers/validators.helper.js"></script>
+  <script src="../../../helpers/validators.helper.js"></script>
   <script src="../../../controllers/sidebar.controller.js"></script>
 <!-- Supabase: SDK + cliente (ANTES de los modelos) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8" integrity="sha384-Tve8O+C6PBzsIMK/IRCwHbi8fyEzXIlIs6OfVBZHubplwYhaQF/4Mzxqgg+pp/oy" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="../../../controllers/supabase.client.js"></script>
-<script src="../../../controllers/api.config.js"></script>
-<script src="../../../controllers/db.client.js"></script>
+<script src="../../../services/supabase.client.js"></script>
+<script src="../../../config/api.config.js"></script>
+<script src="../../../services/db.client.js"></script>
 <script src="../../../models/eventos.model.js"></script>
 <script src="../../../models/reportes.model.js"></script>
 <!-- Alertify Helper -->
-<script src="../../../controllers/alertify.helper.js"></script>
+<script src="../../../helpers/alertify.helper.js"></script>
   <script src="../../../controllers/reporte.controller.js"></script>
 
   <script src="../../../controllers/ayuda.controller.js"></script>

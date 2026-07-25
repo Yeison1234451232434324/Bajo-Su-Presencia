@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           flex-wrap:wrap;${!r.disponible ? 'opacity:0.65;background:#fafafa;' : ''}">
           <div class="recurso-cell" style="flex:2;min-width:180px;">
             <div class="recurso-icon ${iconoCategoria(r.categoria)}">
-              <i class="bx ${iconoBx(r.categoria)}"></i>
+              <i class="bx ${iconoBx(r.categoria)}" aria-hidden="true"></i>
             </div>
             <div>
               <p class="recurso-nombre">${esc(r.nombre)}</p>
@@ -95,14 +95,14 @@ document.addEventListener('DOMContentLoaded', async () => {
           <span style="flex-shrink:0;font-size:0.82rem;color:var(--muted);">${esc(r.creado)}</span>
           <div class="acciones-cell" style="flex-shrink:0;margin-left:auto;">
             <button class="btn-accion btn-editar-rec" onclick="abrirEditar('${r.id}')" title="Editar recurso">
-              <i class="bx bx-edit"></i>
+              <i class="bx bx-edit" aria-hidden="true"></i>
             </button>
             <button class="btn-accion ${r.disponible ? 'btn-toggle-on' : 'btn-toggle-off'}"
               onclick="toggleRecurso('${r.id}')" title="${r.disponible ? 'Desactivar' : 'Activar'} recurso">
               <i class="bx ${r.disponible ? 'bx-toggle-right' : 'bx-toggle-left'}"></i>
             </button>
             <button class="btn-accion btn-eliminar-rec" onclick="eliminarRecurso('${r.id}')" title="Eliminar recurso">
-              <i class="bx bx-trash"></i>
+              <i class="bx bx-trash" aria-hidden="true"></i>
             </button>
           </div>
         </div>`;
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         exportName:   'recursos',
         exportFields: ['nombre', 'categoria', 'cantidad', 'unidad', 'estadoDisp', 'creado'],
         exportLabels: ['Recurso', 'Categoría', 'Cantidad', 'Unidad', 'Estado', 'Registrado'],
-        emptyHTML: `<div class="dt-empty"><i class="bx bx-package"></i><p>No se encontraron recursos con esos criterios.</p></div>`
+        emptyHTML: `<div class="dt-empty"><i class="bx bx-package" aria-hidden="true"></i><p>No se encontraron recursos con esos criterios.</p></div>`
       });
       window.__bspDT['dt-recursos'] = dtRecursos;
       dtRecursos.init();
@@ -279,8 +279,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     let resultado;
     try {
       resultado = editandoId === null
-        ? await RecursosModel.create(data)
-        : await RecursosModel.update(editandoId, data);
+        ? await RecursosModel.crear(data)
+        : await RecursosModel.actualizar(editandoId, data);
     } catch (ex) {
       modalError.textContent = 'Error de conexión. Revisa tu internet e intenta de nuevo.';
       modalError.style.display = 'block';
@@ -334,7 +334,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       'Eliminar recurso',
       `¿Eliminar "${r.nombre}" del inventario?`,
       async function() {
-        const resultado = await RecursosModel.remove(id);
+        const resultado = await RecursosModel.eliminar(id);
         if (!resultado.ok) {
           showAlertError(resultado.error);
           return;

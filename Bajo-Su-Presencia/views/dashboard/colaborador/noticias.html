@@ -16,6 +16,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- Favicon oficial (logo de Bajo Su Presencia) — rutas absolutas: mismas en toda vista -->
+  <link rel="icon" href="/Bajo-Su-Presencia/assets/images/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/Bajo-Su-Presencia/assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/Bajo-Su-Presencia/assets/images/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/Bajo-Su-Presencia/assets/images/apple-touch-icon.png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Publicar Noticia – Bajo Su Presencia</title>
@@ -42,7 +47,7 @@
 
       <!-- Guía de sección -->
       <div class="guia-seccion">
-        <p class="guia-seccion-label"><i class="bx bx-info-circle"></i> Guía de sección</p>
+        <p class="guia-seccion-label"><i class="bx bx-info-circle" aria-hidden="true"></i> Guía de sección</p>
         <p class="guia-seccion-texto">Publica noticias y anuncios para mantener informada a la comunidad. Agrega título, resumen, imagen y autor. Puedes editar o eliminar tus publicaciones desde el historial.</p>
       </div>
 
@@ -53,7 +58,7 @@
           <!-- Título -->
           <div class="form-group">
             <label for="news-titulo">
-              <i class="bx bx-news" style="color:var(--primary);"></i>
+              <i class="bx bx-news" style="color:var(--primary);" aria-hidden="true"></i>
               Título de la Noticia
             </label>
             <input type="text" id="news-titulo" class="form-control"
@@ -63,7 +68,7 @@
           <!-- Resumen -->
           <div class="form-group">
             <label for="news-resumen">
-              <i class="bx bx-align-left" style="color:var(--primary);"></i>
+              <i class="bx bx-align-left" style="color:var(--primary);" aria-hidden="true"></i>
               Resumen Breve
             </label>
             <textarea id="news-resumen" class="form-control" rows="2"
@@ -74,14 +79,14 @@
           <div class="form-row">
             <div class="form-group">
               <label for="news-fecha">
-                <i class="bx bx-calendar" style="color:var(--primary);"></i>
+                <i class="bx bx-calendar" style="color:var(--primary);" aria-hidden="true"></i>
                 Fecha
               </label>
               <input type="date" id="news-fecha" class="form-control" required />
             </div>
             <div class="form-group">
               <label for="news-autor">
-                <i class="bx bx-user" style="color:var(--primary);"></i>
+                <i class="bx bx-user" style="color:var(--primary);" aria-hidden="true"></i>
                 Autor
               </label>
               <input type="text" id="news-autor" class="form-control"
@@ -92,7 +97,7 @@
           <!-- Imagen -->
           <div class="form-group">
             <label for="news-imagen">
-              <i class="bx bx-image" style="color:var(--primary);"></i>
+              <i class="bx bx-image" style="color:var(--primary);" aria-hidden="true"></i>
               URL de la Imagen (Opcional)
             </label>
             <input type="url" id="news-imagen" class="form-control"
@@ -102,7 +107,7 @@
           <!-- Contenido completo -->
           <div class="form-group">
             <label for="news-contenido">
-              <i class="bx bx-file-blank" style="color:var(--primary);"></i>
+              <i class="bx bx-file-blank" style="color:var(--primary);" aria-hidden="true"></i>
               Contenido Completo (Opcional)
             </label>
             <textarea id="news-contenido" class="form-control" rows="5"
@@ -112,7 +117,7 @@
           <!-- Vista previa en tiempo real -->
           <div class="news-preview-box" id="news-preview-box" style="display:none;">
             <div class="news-preview-label">
-              <i class="bx bx-show"></i>
+              <i class="bx bx-show" aria-hidden="true"></i>
               Así se verá la noticia en la página pública
             </div>
             <div class="prev-img-wrap" id="prev-img-wrap" style="display:none;">
@@ -141,7 +146,7 @@
 
           <!-- Botón cancelar edición -->
           <button type="button" class="btn-cancelar-noticia" id="btn-cancelar-noticia">
-            <i class="bx bx-x-circle"></i>
+            <i class="bx bx-x-circle" aria-hidden="true"></i>
             Cancelar edición
           </button>
 
@@ -151,7 +156,7 @@
       <!-- ══ HISTORIAL ════════════════════════════════════════════════════ -->
       <div class="nt-historial-section">
         <h3 class="nt-historial-titulo">
-          <i class="bx bx-history"></i>
+          <i class="bx bx-history" aria-hidden="true"></i>
           Noticias Publicadas
         </h3>
         <div class="nt-grid" id="lista-noticias"></div>
@@ -173,7 +178,7 @@
       <div class="modal-nt-header">
         <h3 class="modal-nt-titulo" id="modal-noticia-titulo">—</h3>
         <button class="btn-cerrar-modal-nt" id="btn-cerrar-modal-noticia" aria-label="Cerrar">
-          <i class="bx bx-x"></i>
+          <i class="bx bx-x" aria-hidden="true"></i>
         </button>
       </div>
       <p class="modal-nt-meta"      id="modal-noticia-meta">—</p>
@@ -184,21 +189,21 @@
 
   <!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
   <!-- Sidebar del colaborador -->
-    <script src="../../../controllers/validators.helper.js"></script>
+    <script src="../../../helpers/validators.helper.js"></script>
   <script src="../../../controllers/sidebar.colaborador.controller.js"></script>
   <!-- Supabase: SDK + cliente (ANTES de los modelos) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8" integrity="sha384-Tve8O+C6PBzsIMK/IRCwHbi8fyEzXIlIs6OfVBZHubplwYhaQF/4Mzxqgg+pp/oy" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="../../../controllers/supabase.client.js"></script>
-  <script src="../../../controllers/api.config.js"></script>
-  <script src="../../../controllers/db.client.js"></script>
+  <script src="../../../services/supabase.client.js"></script>
+  <script src="../../../config/api.config.js"></script>
+  <script src="../../../services/db.client.js"></script>
   <!-- Modelo de usuarios (para auto-llenar el autor) -->
   <script src="../../../models/usuarios.model.js"></script>
   <!-- Modelo de noticias -->
   <script src="../../../models/noticias.model.js"></script>
   <!-- Motor DataTable -->
-  <script src="../../../controllers/datatable.helper.js"></script>
+  <script src="../../../helpers/datatable.helper.js"></script>
   <!-- Alertify Helper -->
-  <script src="../../../controllers/alertify.helper.js"></script>
+  <script src="../../../helpers/alertify.helper.js"></script>
   <!-- Controlador de noticias -->
   <script src="../../../controllers/noticias.controller.js"></script>
 

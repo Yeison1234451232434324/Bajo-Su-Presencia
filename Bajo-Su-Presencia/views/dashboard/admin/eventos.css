@@ -370,6 +370,7 @@
   align-items: center;
   gap: 0.4rem;
   padding: 0.45rem 0.875rem;
+  min-height: 44px;              /* objetivo táctil WCAG 2.5.5 (medido: 37px antes) */
   border: 2px solid var(--border);
   border-radius: 999px;
   background: #fff;

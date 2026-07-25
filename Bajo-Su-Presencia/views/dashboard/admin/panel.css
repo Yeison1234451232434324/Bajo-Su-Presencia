@@ -100,20 +100,52 @@ body {
   font-weight: 700;
 }
 
-/* ── Botón toggle ── */
+/* ── Botón toggle: chevron moderno (expandir / contraer) ── */
 .sidebar #btn {
   position: absolute;
-  color: white;
-  top: 0.4rem;
+  top: 0.5rem;
   left: 50%;
-  font-size: 1.4rem;
-  line-height: 50px;
   transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: none;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.10);
+  color: #fff;
   cursor: pointer;
-  transition: left 0.5s ease;
+  -webkit-appearance: none;
+  appearance: none;
   z-index: 10;
+  transition: left 0.4s ease,
+              background-color 0.2s ease,
+              box-shadow 0.2s ease,
+              transform 0.12s ease;
 }
-.sidebar.active #btn { left: 90%; }
+.sidebar #btn svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.sidebar.active #btn      { left: 90%; }
+.sidebar.active #btn svg  { transform: rotate(180deg); }
+
+.sidebar #btn:hover {
+  background: rgba(255, 255, 255, 0.20);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.28);
+}
+.sidebar #btn:active {
+  transform: translateX(-50%) scale(0.9);
+  background: rgba(255, 255, 255, 0.28);
+}
+.sidebar #btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(245, 194, 21, 0.65);
+}
 
 /* ── Usuario ── */
 .sidebar .user {

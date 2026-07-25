@@ -8,14 +8,13 @@
  * ============================================================
  */
 
-// ── Protección contra el botón "atrás" tras cerrar sesión ────────────────────
-// El navegador puede restaurar esta página desde el bfcache SIN re-ejecutar el
-// JS de arranque; `pageshow` sí se dispara en ese caso. Sin token, al login.
-window.addEventListener("pageshow", () => {
-  let haySesion = false;
-  try { haySesion = !!localStorage.getItem("bspToken"); } catch (_) { /* noop */ }
-  if (!haySesion) window.location.replace("../../public/login/login.html");
-});
+// NOTA DE ARQUITECTURA — control de acceso
+// Aquí vivía un SEGUNDO guard que solo comprobaba que el token ESTUVIERA
+// presente, sin validarlo: un token inventado lo superaba. Convivía con el de
+// SessionManager, que sí valida contra el servidor, y dos criterios distintos
+// daban resultados incoherentes según en qué página cayera la navegación.
+// El control de acceso —y su revalidación al restaurar la página con
+// Atrás/Adelante— vive ahora EXCLUSIVAMENTE en session.manager.js.
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -33,11 +32,11 @@ document.addEventListener("DOMContentLoaded", () => {
   <div class="top">
 
     <div class="logo">
-      <i class="bx bx-church"></i>
+      <i class="bx bx-church" aria-hidden="true"></i>
       <span>Bajo Su Presencia</span>
     </div>
 
-    <i class="bx bx-menu" id="btn"></i>
+    <button id="btn" class="sidebar-toggle" type="button" aria-label="Expandir menú" aria-expanded="false" aria-controls="sidebar"><svg class="sidebar-toggle-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg></button>
 
     <div class="user">
       <div class="avatar" id="sidebar-avatar">V</div>
@@ -51,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <!-- Mis calificaciones y observaciones -->
       <li>
         <a href="calificaciones.html" id="nav-calificaciones">
-          <i class="bx bx-star"></i>
+          <i class="bx bx-star" aria-hidden="true"></i>
           <span class="nav-item">Mis Calificaciones</span>
         </a>
         <span class="tooltip">Mis Calificaciones</span>
@@ -59,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <!-- Actividades asignadas al voluntario -->
       <li>
         <a href="mis-actividades.html" id="nav-mis-actividades">
-          <i class="bx bx-task"></i>
+          <i class="bx bx-task" aria-hidden="true"></i>
           <span class="nav-item">Actividades Asignadas</span>
         </a>
         <span class="tooltip">Actividades Asignadas</span>
@@ -67,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <!-- Mi perfil -->
       <li>
         <a href="perfil.html" id="nav-perfil">
-          <i class="bx bx-id-card"></i>
+          <i class="bx bx-id-card" aria-hidden="true"></i>
           <span class="nav-item">Mi Perfil</span>
         </a>
         <span class="tooltip">Mi Perfil</span>
@@ -75,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <!-- Cerrar sesión -->
       <li class="logout-li">
         <a href="../../public/login/login.html" id="nav-logout">
-          <i class="bx bx-log-out"></i>
+          <i class="bx bx-log-out" aria-hidden="true"></i>
           <span class="nav-item">Cerrar Sesión</span>
         </a>
         <span class="tooltip">Cerrar Sesión</span>
@@ -96,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
   mobileBtn.className   = 'mobile-menu-btn';
   mobileBtn.id          = 'mobile-menu-btn';
   mobileBtn.setAttribute('aria-label', 'Abrir menú');
-  mobileBtn.innerHTML   = '<i class="bx bx-menu"></i>';
+  mobileBtn.innerHTML   = '<i class="bx bx-menu" aria-hidden="true"></i>';
   document.body.appendChild(mobileBtn);
 
   // ── Overlay para móvil ────────────────────────────────────────────────────
@@ -106,6 +105,16 @@ document.addEventListener("DOMContentLoaded", () => {
   document.body.appendChild(overlay);
 
   // ── Toggle sidebar ────────────────────────────────────────────────────────
+  /** Refleja en el botón chevron el estado real del sidebar (a11y). */
+  function actualizarEstadoBtn() {
+    const btn = document.getElementById('btn');
+    const sb  = document.getElementById('sidebar');
+    if (!btn || !sb) return;
+    const expandido = sb.classList.contains('active');
+    btn.setAttribute('aria-expanded', String(expandido));
+    btn.setAttribute('aria-label', expandido ? 'Contraer menú' : 'Expandir menú');
+  }
+
   function toggleSidebar() {
     const sidebar  = document.getElementById('sidebar');
     const main     = document.getElementById('main');
@@ -118,6 +127,7 @@ document.addEventListener("DOMContentLoaded", () => {
       sidebar.classList.toggle('active');
       main.classList.toggle('sidebar-open');
     }
+    actualizarEstadoBtn();
   }
 
   document.getElementById('btn').addEventListener('click', toggleSidebar);
@@ -135,27 +145,30 @@ document.addEventListener("DOMContentLoaded", () => {
   else if (path.includes("perfil.html"))            document.getElementById("nav-perfil")?.parentElement.classList.add("active-item");
 
   // ── Cargar datos del usuario desde localStorage ───────────────────────────
-  const userData = localStorage.getItem('usuarioLogueado');
-  if (userData) {
-    const user = JSON.parse(userData);
-    document.getElementById('sidebar-name').textContent   = user.nombre;
-    document.getElementById('sidebar-role').textContent   = user.rol;
-    document.getElementById('sidebar-avatar').textContent = user.nombre.charAt(0).toUpperCase();
-  }
+  // ── Identidad mostrada: SIEMPRE la verificada por el servidor ─────────────
+  // Antes se pintaba leyendo `usuarioLogueado` de localStorage de forma
+  // síncrona. Como el guard es asíncrono, el menú alcanzaba a mostrar la
+  // identidad del usuario ANTERIOR (la que quedó guardada) antes de que la
+  // verificación terminara: de ahí que "apareciera otro usuario".
+  // Ahora se espera a la identidad del JWT verificado en /api/auth/me.
+  (async () => {
+    const nombreEl = document.getElementById('sidebar-name');
+    const rolEl    = document.getElementById('sidebar-role');
+    const avatarEl = document.getElementById('sidebar-avatar');
+    if (!nombreEl || !rolEl || !avatarEl) return;
+
+    const identidad = await window.BSPSession?.identidad();
+    if (!identidad) return;   // sin sesión válida, el guard ya expulsa
+
+    const nombre = identidad.nombre || identidad.correo || '';
+    nombreEl.textContent = nombre;
+    rolEl.textContent    = identidad.rol || '';
+    avatarEl.textContent = nombre.charAt(0).toUpperCase();
+  })();
 });
 
-// ── Toast global (reutilizado en todos los controllers del voluntario) ────
-function showToast(title, desc) {
-  let container = document.getElementById('toastContainer');
-  if (!container) {
-    container = document.createElement('div');
-    container.id        = 'toastContainer';
-    container.className = 'toast-container';
-    document.body.appendChild(container);
-  }
-  const toast = document.createElement('div');
-  toast.className = 'toast';
-  toast.innerHTML = `<div class="toast-title">✅ ${title}</div><div class="toast-desc">${desc}</div>`;
-  container.appendChild(toast);
-  setTimeout(() => toast.remove(), 4000);
-}
+// Las notificaciones viven EXCLUSIVAMENTE en alertify.helper.js
+// (showToast, showToastError, showAlert*). La implementación local que existía
+// aquí construía su propio `.toast-container` y quedaba siempre sobrescrita por
+// la de alertify.helper.js —ambos son scripts clásicos que comparten el ámbito
+// global y el helper se carga después—, así que nunca llegaba a ejecutarse.

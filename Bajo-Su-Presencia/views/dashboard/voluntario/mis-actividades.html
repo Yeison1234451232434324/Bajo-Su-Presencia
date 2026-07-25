@@ -20,6 +20,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- Favicon oficial (logo de Bajo Su Presencia) — rutas absolutas: mismas en toda vista -->
+  <link rel="icon" href="/Bajo-Su-Presencia/assets/images/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/Bajo-Su-Presencia/assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/Bajo-Su-Presencia/assets/images/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/Bajo-Su-Presencia/assets/images/apple-touch-icon.png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mis Actividades – Bajo Su Presencia</title>
@@ -39,7 +44,7 @@
     <div class="mact-header-row">
       <div class="mact-header-left">
         <div class="mact-header-icon">
-          <i class="bx bx-list-check"></i>
+          <i class="bx bx-list-check" aria-hidden="true"></i>
         </div>
         <div class="mact-header-text">
           <h2>Mis Actividades Asignadas</h2>
@@ -72,17 +77,17 @@
 </main>
 
 <!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
-  <script src="../../../controllers/validators.helper.js"></script>
+  <script src="../../../helpers/validators.helper.js"></script>
   <script src="../../../controllers/sidebar.voluntario.controller.js"></script>
 <!-- Supabase: SDK + cliente (ANTES de los modelos) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8" integrity="sha384-Tve8O+C6PBzsIMK/IRCwHbi8fyEzXIlIs6OfVBZHubplwYhaQF/4Mzxqgg+pp/oy" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="../../../controllers/supabase.client.js"></script>
-<script src="../../../controllers/api.config.js"></script>
-<script src="../../../controllers/db.client.js"></script>
+<script src="../../../services/supabase.client.js"></script>
+<script src="../../../config/api.config.js"></script>
+<script src="../../../services/db.client.js"></script>
 <script src="../../../models/eventos.model.js"></script>
 <script src="../../../models/actividades.model.js"></script>
 <!-- Alertify Helper -->
-<script src="../../../controllers/alertify.helper.js"></script>
+<script src="../../../helpers/alertify.helper.js"></script>
   <script src="../../../controllers/voluntario.actividades.controller.js"></script>
 
   <script src="../../../controllers/ayuda.controller.js"></script>

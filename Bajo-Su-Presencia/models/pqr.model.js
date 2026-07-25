@@ -11,7 +11,7 @@
  *   respondidoPor     ← usuarios.nombre vía FK respondido_por_id
  *   creadoEn / respondidoEn ↔ creado_en / respondido_en
  *
- * Requiere window.DB (controllers/db.client.js → Data Gateway PHP).
+ * Requiere window.DB (services/db.client.js → Data Gateway PHP).
  * ============================================================
  */
 
@@ -42,12 +42,8 @@ const PQRModel = (() => {
     };
   }
 
-  function _msg(error) {
-    if (error?.code === '42501' || /row-level security/i.test(error?.message || '')) {
-      return 'No tienes permisos para realizar esta acción.';
-    }
-    return error?.message || 'Ocurrió un error al procesar la solicitud.';
-  }
+  // Traducción de errores centralizada en db.client.js (window.DB.mensajeError).
+  function _msg(error) { return DB.mensajeError(error); }
 
   async function getAll() {
     const { data, error } = await DB.from(TABLA).select(SEL).order('creado_en', { ascending: false });

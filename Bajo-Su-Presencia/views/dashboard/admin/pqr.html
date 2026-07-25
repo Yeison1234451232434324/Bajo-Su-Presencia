@@ -22,6 +22,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- Favicon oficial (logo de Bajo Su Presencia) — rutas absolutas: mismas en toda vista -->
+  <link rel="icon" href="/Bajo-Su-Presencia/assets/images/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/Bajo-Su-Presencia/assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/Bajo-Su-Presencia/assets/images/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/Bajo-Su-Presencia/assets/images/apple-touch-icon.png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gestión de PQR – Bajo Su Presencia</title>
@@ -42,7 +47,7 @@
     <div class="pqr-topbar">
       <div class="pqr-header-left">
         <div class="pqr-header-icon">
-          <i class="bx bx-message-detail"></i>
+          <i class="bx bx-message-detail" aria-hidden="true"></i>
         </div>
         <div class="pqr-header-text">
           <h2>Peticiones, Quejas y Reclamos</h2>
@@ -53,7 +58,7 @@
 
     <!-- Guía de sección -->
     <div class="guia-seccion">
-      <p class="guia-seccion-label"><i class="bx bx-info-circle"></i> Guía de sección</p>
+      <p class="guia-seccion-label"><i class="bx bx-info-circle" aria-hidden="true"></i> Guía de sección</p>
       <p class="guia-seccion-texto">Gestiona las Peticiones, Quejas y Reclamos enviados por la comunidad. Revisa cada solicitud, escribe una respuesta, cambia el estado del proceso y lleva un seguimiento completo de cada caso.</p>
     </div>
 
@@ -62,7 +67,7 @@
 
       <div class="stat-pqr-card">
         <div class="stat-pqr-icon" style="background:#dbeafe;">
-          <i class="bx bx-message-detail" style="color:#1E3A8A;"></i>
+          <i class="bx bx-message-detail" style="color:#1E3A8A;" aria-hidden="true"></i>
         </div>
         <div>
           <p class="stat-pqr-label">Total PQR</p>
@@ -72,7 +77,7 @@
 
       <div class="stat-pqr-card">
         <div class="stat-pqr-icon" style="background:#fef3c7;">
-          <i class="bx bx-time-five" style="color:#d97706;"></i>
+          <i class="bx bx-time-five" style="color:#d97706;" aria-hidden="true"></i>
         </div>
         <div>
           <p class="stat-pqr-label">Pendientes</p>
@@ -82,7 +87,7 @@
 
       <div class="stat-pqr-card">
         <div class="stat-pqr-icon" style="background:#dbeafe;">
-          <i class="bx bx-loader-circle" style="color:#1d4ed8;"></i>
+          <i class="bx bx-loader-circle" style="color:#1d4ed8;" aria-hidden="true"></i>
         </div>
         <div>
           <p class="stat-pqr-label">En Proceso</p>
@@ -92,7 +97,7 @@
 
       <div class="stat-pqr-card">
         <div class="stat-pqr-icon" style="background:#d1fae5;">
-          <i class="bx bx-check-circle" style="color:#059669;"></i>
+          <i class="bx bx-check-circle" style="color:#059669;" aria-hidden="true"></i>
         </div>
         <div>
           <p class="stat-pqr-label">Resueltos</p>
@@ -117,11 +122,11 @@
   <!-- Cabecera -->
   <div class="pqr-modal-header">
     <div class="pqr-modal-header-left">
-      <i class="bx bx-message-detail"></i>
+      <i class="bx bx-message-detail" aria-hidden="true"></i>
       <h3 id="pqr-modal-title">Detalle del PQR</h3>
     </div>
     <button class="pqr-modal-close" id="pqr-modal-close" aria-label="Cerrar">
-      <i class="bx bx-x"></i>
+      <i class="bx bx-x" aria-hidden="true"></i>
     </button>
   </div>
 
@@ -167,7 +172,7 @@
     <!-- Descripción -->
     <div class="pqr-modal-section">
       <h4 class="pqr-modal-section-title">
-        <i class="bx bx-text"></i>
+        <i class="bx bx-text" aria-hidden="true"></i>
         Descripción
       </h4>
       <p class="pqr-descripcion-text" id="modal-descripcion">—</p>
@@ -176,7 +181,7 @@
     <!-- Respuesta existente (se muestra si ya fue respondido) -->
     <div class="pqr-modal-section" id="modal-respuesta-existente-wrap" style="display:none;">
       <h4 class="pqr-modal-section-title">
-        <i class="bx bx-check-circle"></i>
+        <i class="bx bx-check-circle" aria-hidden="true"></i>
         Respuesta enviada
       </h4>
       <div class="pqr-respuesta-existente">
@@ -188,7 +193,7 @@
     <!-- Formulario de respuesta -->
     <div class="pqr-modal-section">
       <h4 class="pqr-modal-section-title">
-        <i class="bx bx-reply"></i>
+        <i class="bx bx-reply" aria-hidden="true"></i>
         Responder / Actualizar
       </h4>
 
@@ -199,7 +204,7 @@
 
         <div>
           <label for="modal-campo-respuesta">
-            <i class="bx bx-message-square-edit"></i>
+            <i class="bx bx-message-square-edit" aria-hidden="true"></i>
             Respuesta al solicitante
           </label>
           <textarea
@@ -212,7 +217,7 @@
 
         <div>
           <label for="modal-campo-estado" style="margin-bottom:0.5rem;">
-            <i class="bx bx-transfer-alt"></i>
+            <i class="bx bx-transfer-alt" aria-hidden="true"></i>
             Cambiar estado
           </label>
           <select id="modal-campo-estado" class="pqr-select-estado-modal">
@@ -234,7 +239,7 @@
       Cancelar
     </button>
     <button type="button" class="pqr-btn-guardar-respuesta" id="pqr-btn-guardar-respuesta">
-      <i class="bx bx-save"></i>
+      <i class="bx bx-save" aria-hidden="true"></i>
       Guardar respuesta
     </button>
   </div>
@@ -242,20 +247,20 @@
 </div><!-- /pqr-modal -->
 
 <!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
-  <script src="../../../controllers/validators.helper.js"></script>
+  <script src="../../../helpers/validators.helper.js"></script>
   <script src="../../../controllers/sidebar.controller.js"></script>
 <!-- Supabase: SDK + cliente (ANTES del modelo) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8" integrity="sha384-Tve8O+C6PBzsIMK/IRCwHbi8fyEzXIlIs6OfVBZHubplwYhaQF/4Mzxqgg+pp/oy" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="../../../controllers/supabase.client.js"></script>
-<script src="../../../controllers/api.config.js"></script>
+<script src="../../../services/supabase.client.js"></script>
+<script src="../../../config/api.config.js"></script>
 <!-- Control de acceso verificado contra el servidor -->
-<script src="../../../controllers/session.manager.js"></script>
-<script src="../../../controllers/db.client.js"></script>
+<script src="../../../core/session.manager.js"></script>
+<script src="../../../services/db.client.js"></script>
 <script src="../../../models/pqr.model.js"></script>
 <!-- Motor DataTable -->
-<script src="../../../controllers/datatable.helper.js"></script>
+<script src="../../../helpers/datatable.helper.js"></script>
 <!-- Alertify Helper -->
-<script src="../../../controllers/alertify.helper.js"></script>
+<script src="../../../helpers/alertify.helper.js"></script>
   <script src="../../../controllers/pqr-admin.controller.js"></script>
 
   <script src="../../../controllers/ayuda.controller.js"></script>

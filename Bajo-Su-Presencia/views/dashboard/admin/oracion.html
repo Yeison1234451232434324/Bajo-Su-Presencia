@@ -27,6 +27,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- Favicon oficial (logo de Bajo Su Presencia) — rutas absolutas: mismas en toda vista -->
+  <link rel="icon" href="/Bajo-Su-Presencia/assets/images/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/Bajo-Su-Presencia/assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/Bajo-Su-Presencia/assets/images/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/Bajo-Su-Presencia/assets/images/apple-touch-icon.png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Oración del Día – Bajo Su Presencia</title>
@@ -53,7 +58,7 @@
 
     <!-- Guía de sección -->
     <div class="guia-seccion">
-      <p class="guia-seccion-label"><i class="bx bx-info-circle"></i> Guía de sección</p>
+      <p class="guia-seccion-label"><i class="bx bx-info-circle" aria-hidden="true"></i> Guía de sección</p>
       <p class="guia-seccion-texto">Publica la oración del día que verá la comunidad en la página principal. Agrega el texto, un versículo bíblico y una imagen inspiradora. El historial te permite editar o eliminar oraciones anteriores.</p>
     </div>
 
@@ -64,7 +69,7 @@
         <!-- Campo: texto de la oración -->
         <div class="form-group">
           <label for="prayerText">
-            <i class="bx bx-church" style="color:var(--primary);"></i>
+            <i class="bx bx-church" style="color:var(--primary);" aria-hidden="true"></i>
             Texto de la Oración
           </label>
           <textarea
@@ -82,7 +87,7 @@
         <!-- Campo: versículo o frase final -->
         <div class="form-group">
           <label for="prayerVerse">
-            <i class="bx bx-book-open" style="color:var(--primary);"></i>
+            <i class="bx bx-book-open" style="color:var(--primary);" aria-hidden="true"></i>
             Versículo o Frase Final
           </label>
           <input
@@ -97,7 +102,7 @@
         <!-- Campo: imagen opcional -->
         <div class="form-group">
           <label for="prayerImage">
-            <i class="bx bx-image" style="color:var(--primary);"></i>
+            <i class="bx bx-image" style="color:var(--primary);" aria-hidden="true"></i>
             Imagen Inspiradora (Opcional)
           </label>
           <input
@@ -137,7 +142,7 @@
 
         <!-- Botón cancelar edición (solo visible en modo editar) -->
         <button type="button" class="btn-cancelar-edicion" id="btn-cancelar-edicion">
-          <i class="bx bx-x-circle"></i>
+          <i class="bx bx-x-circle" aria-hidden="true"></i>
           Cancelar edición
         </button>
 
@@ -147,7 +152,7 @@
     <!-- ══ HISTORIAL DE ORACIONES ══════════════════════════════════════════ -->
     <div class="or-historial-section">
       <h3 class="or-historial-titulo">
-        <i class="bx bx-history"></i>
+        <i class="bx bx-history" aria-hidden="true"></i>
         Historial de Oraciones
       </h3>
       <!-- Las tarjetas se generan dinámicamente por el controller -->
@@ -168,13 +173,13 @@
       <h3>Oración del Día</h3>
       <!-- Fecha de la oración que se está viendo -->
       <p class="modal-or-fecha-badge">
-        <i class="bx bx-calendar"></i>
+        <i class="bx bx-calendar" aria-hidden="true"></i>
         <span id="modal-oracion-fecha">—</span>
       </p>
     </div>
     <!-- Botón cerrar modal -->
     <button class="btn-cerrar-modal-or" id="btn-cerrar-modal-oracion" aria-label="Cerrar">
-      <i class="bx bx-x"></i>
+      <i class="bx bx-x" aria-hidden="true"></i>
     </button>
   </div>
 
@@ -193,19 +198,19 @@
 
 <!-- ══ SCRIPTS ════════════════════════════════════════════════════════════ -->
 <!-- Sidebar del admin (inyecta el nav y carga el usuario logueado) -->
-  <script src="../../../controllers/validators.helper.js"></script>
+  <script src="../../../helpers/validators.helper.js"></script>
   <script src="../../../controllers/sidebar.controller.js"></script>
 <!-- Supabase: SDK + cliente (ANTES del modelo) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8" integrity="sha384-Tve8O+C6PBzsIMK/IRCwHbi8fyEzXIlIs6OfVBZHubplwYhaQF/4Mzxqgg+pp/oy" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="../../../controllers/supabase.client.js"></script>
-<script src="../../../controllers/api.config.js"></script>
-<script src="../../../controllers/db.client.js"></script>
+<script src="../../../services/supabase.client.js"></script>
+<script src="../../../config/api.config.js"></script>
+<script src="../../../services/db.client.js"></script>
 <!-- Modelo de oraciones -->
 <script src="../../../models/oracion.model.js"></script>
 <!-- Motor DataTable -->
-<script src="../../../controllers/datatable.helper.js"></script>
+<script src="../../../helpers/datatable.helper.js"></script>
 <!-- Alertify Helper -->
-<script src="../../../controllers/alertify.helper.js"></script>
+<script src="../../../helpers/alertify.helper.js"></script>
 <!-- Controlador: formulario, historial, editar, eliminar y modal -->
   <script src="../../../controllers/oracion.controller.js"></script>
 

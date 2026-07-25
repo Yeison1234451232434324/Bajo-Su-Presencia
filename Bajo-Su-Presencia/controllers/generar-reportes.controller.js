@@ -7,7 +7,13 @@
  * ============================================================
  */
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+
+  // Control de acceso verificado contra el SERVIDOR (rol tomado del JWT).
+  // Unifica el criterio con el resto del panel: antes esta vista solo
+  // dependía de localStorage, que el usuario puede editar.
+  const sesion = await window.BSPSession.exigir(['Administrador']);
+  if (!sesion) return;
 
   let tipoSeleccionado = 'eventos';
   const historial = JSON.parse(localStorage.getItem('bsp_historial_reportes') || '[]');
@@ -39,13 +45,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const div = document.createElement('div');
       div.className = 'gr-reciente-item';
       div.innerHTML = `
-        <div class="gr-reciente-icon"><i class="bx bx-file"></i></div>
+        <div class="gr-reciente-icon"><i class="bx bx-file" aria-hidden="true"></i></div>
         <div class="gr-reciente-info">
           <div class="gr-reciente-nombre">${item.nombre}</div>
           <div class="gr-reciente-fecha">Generado: ${item.fecha}</div>
         </div>
         <button class="gr-reciente-dl" title="Descargar" onclick="descargarHistorial(${historial.length - 1 - idx})">
-          <i class="bx bx-download"></i>
+          <i class="bx bx-download" aria-hidden="true"></i>
         </button>`;
       listaRecientes.appendChild(div);
     });

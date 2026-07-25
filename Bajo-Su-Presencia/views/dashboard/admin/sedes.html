@@ -16,6 +16,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- Favicon oficial (logo de Bajo Su Presencia) — rutas absolutas: mismas en toda vista -->
+  <link rel="icon" href="/Bajo-Su-Presencia/assets/images/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/Bajo-Su-Presencia/assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/Bajo-Su-Presencia/assets/images/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/Bajo-Su-Presencia/assets/images/apple-touch-icon.png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gestión de Sedes – Bajo Su Presencia</title>
@@ -34,20 +39,20 @@
     <!-- ── Barra superior: encabezado + botón Agregar Sede ─────────────── -->
     <div class="sed-topbar">
       <div class="sed-header-left">
-        <div class="sed-header-icon"><i class="bx bx-buildings"></i></div>
+        <div class="sed-header-icon"><i class="bx bx-buildings" aria-hidden="true"></i></div>
         <div class="sed-header-text">
           <h2>Gestión de Múltiples Sedes</h2>
           <p>Administre contenido para diferentes ubicaciones</p>
         </div>
       </div>
       <button class="sed-btn-agregar" onclick="abrirModalSede()">
-        <i class="bx bx-plus"></i> Agregar Sede
+        <i class="bx bx-plus" aria-hidden="true"></i> Agregar Sede
       </button>
     </div>
 
     <!-- Guía de sección -->
     <div class="guia-seccion">
-      <p class="guia-seccion-label"><i class="bx bx-info-circle"></i> Guía de sección</p>
+      <p class="guia-seccion-label"><i class="bx bx-info-circle" aria-hidden="true"></i> Guía de sección</p>
       <p class="guia-seccion-texto">Gestiona las sedes y sucursales de la iglesia. Agrega nuevas sedes con su dirección, teléfono y encargado. Esta información está disponible para toda la organización.</p>
     </div>
 
@@ -123,18 +128,18 @@
 </div>
 
 <!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
-  <script src="../../../controllers/validators.helper.js"></script>
+  <script src="../../../helpers/validators.helper.js"></script>
   <script src="../../../controllers/sidebar.controller.js"></script>
 <!-- Supabase: SDK + cliente compartido (ANTES del modelo, que usa window.sb) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8" integrity="sha384-Tve8O+C6PBzsIMK/IRCwHbi8fyEzXIlIs6OfVBZHubplwYhaQF/4Mzxqgg+pp/oy" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="../../../controllers/supabase.client.js"></script>
-<script src="../../../controllers/api.config.js"></script>
-<script src="../../../controllers/db.client.js"></script>
+<script src="../../../services/supabase.client.js"></script>
+<script src="../../../config/api.config.js"></script>
+<script src="../../../services/db.client.js"></script>
 <script src="../../../models/sedes.model.js"></script>
 <!-- Motor DataTable -->
-<script src="../../../controllers/datatable.helper.js"></script>
+<script src="../../../helpers/datatable.helper.js"></script>
 <!-- Alertify Helper -->
-<script src="../../../controllers/alertify.helper.js"></script>
+<script src="../../../helpers/alertify.helper.js"></script>
   <script src="../../../controllers/sedes.controller.js"></script>
 
   <script src="../../../controllers/ayuda.controller.js"></script>

@@ -12,7 +12,7 @@
  *   en la auditoría); se devuelve 0 para no romper vistas antiguas.
  *   el resto coincide: nombre, ciudad, direccion, telefono
  *
- * Requiere window.sb (controllers/supabase.client.js) cargado antes.
+ * Requiere window.sb (services/supabase.client.js) cargado antes.
  * ============================================================
  */
 
@@ -34,12 +34,8 @@ const SedesModel = (() => {
   }
 
   // Traduce errores de Supabase a mensajes para el usuario
-  function _msg(error) {
-    if (error?.code === '42501' || /row-level security/i.test(error?.message || '')) {
-      return 'No tienes permisos para realizar esta acción.';
-    }
-    return error?.message || 'Ocurrió un error al procesar la solicitud.';
-  }
+  // Traducción de errores centralizada en db.client.js (window.DB.mensajeError).
+  function _msg(error) { return DB.mensajeError(error); }
 
   /** Devuelve todas las sedes (ordenadas por nombre) */
   async function getAll() {
@@ -56,7 +52,7 @@ const SedesModel = (() => {
   }
 
   /** Crea una sede */
-  async function agregar(data) {
+  async function crear(data) {
     if (!data.nombre?.trim())    return { ok: false, error: 'El nombre es obligatorio.' };
     if (!data.ciudad?.trim())    return { ok: false, error: 'La ciudad es obligatoria.' };
     if (!data.direccion?.trim()) return { ok: false, error: 'La dirección es obligatoria.' };
@@ -81,6 +77,6 @@ const SedesModel = (() => {
     return { ok: true };
   }
 
-  return { getAll, getById, agregar, eliminar };
+  return { getAll, getById, crear, eliminar };
 
 })();

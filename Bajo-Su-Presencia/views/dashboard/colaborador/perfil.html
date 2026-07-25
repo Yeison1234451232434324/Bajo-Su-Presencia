@@ -23,6 +23,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- Favicon oficial (logo de Bajo Su Presencia) — rutas absolutas: mismas en toda vista -->
+  <link rel="icon" href="/Bajo-Su-Presencia/assets/images/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/Bajo-Su-Presencia/assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/Bajo-Su-Presencia/assets/images/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/Bajo-Su-Presencia/assets/images/apple-touch-icon.png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mi Perfil – Bajo Su Presencia</title>
@@ -46,13 +51,13 @@
 
     <!-- Guía de sección -->
     <div class="guia-seccion">
-      <p class="guia-seccion-label"><i class="bx bx-info-circle"></i> Guía de sección</p>
+      <p class="guia-seccion-label"><i class="bx bx-info-circle" aria-hidden="true"></i> Guía de sección</p>
       <p class="guia-seccion-texto">Aquí puedes actualizar tus datos personales. Si escribes tu especialidad (por ejemplo, el área en la que puedes servir), podrás ser escogido para los eventos que la requieran.</p>
     </div>
 
     <!-- Aviso si no se encuentra el perfil -->
     <div class="perfil-sin-datos" id="perfil-sin-datos">
-      <i class="bx bx-error-circle"></i>
+      <i class="bx bx-error-circle" aria-hidden="true"></i>
       No se encontró tu perfil. Vuelve a iniciar sesión e intenta de nuevo.
     </div>
 
@@ -76,14 +81,14 @@
             <span id="perfil-foto-inicial">C</span>
           </div>
           <div class="perfil-foto-acciones">
-            <p class="perfil-foto-titulo"><i class="bx bx-image"></i> Foto de perfil <span class="perfil-foto-opcional">(opcional)</span></p>
+            <p class="perfil-foto-titulo"><i class="bx bx-image" aria-hidden="true"></i> Foto de perfil <span class="perfil-foto-opcional">(opcional)</span></p>
             <div class="perfil-foto-botones">
               <label for="perfil-foto-input" class="perfil-foto-btn">
-                <i class="bx bx-upload"></i> Subir foto
+                <i class="bx bx-upload" aria-hidden="true"></i> Subir foto
               </label>
               <input type="file" id="perfil-foto-input" accept="image/png, image/jpeg, image/webp" hidden />
               <button type="button" id="perfil-foto-quitar" class="perfil-foto-quitar" style="display:none;">
-                <i class="bx bx-trash"></i> Quitar
+                <i class="bx bx-trash" aria-hidden="true"></i> Quitar
               </button>
             </div>
             <p class="field-hint">JPG, PNG o WEBP. Se ajusta automáticamente; si no subes ninguna, se mostrará tu inicial.</p>
@@ -94,13 +99,13 @@
         <!-- Nombre + Usuario -->
         <div class="form-row">
           <div class="form-group">
-            <label for="perfil-nombre"><i class="bx bx-user"></i> Nombre Completo</label>
+            <label for="perfil-nombre"><i class="bx bx-user" aria-hidden="true"></i> Nombre Completo</label>
             <input id="perfil-nombre" type="text" class="form-control"
               placeholder="Ej: María González" required
               oninput="this.value=this.value.replace(/[0-9]/g,'')" />
           </div>
           <div class="form-group">
-            <label for="perfil-username"><i class="bx bx-at"></i> Nombre de Usuario</label>
+            <label for="perfil-username"><i class="bx bx-at" aria-hidden="true"></i> Nombre de Usuario</label>
             <input id="perfil-username" type="text" class="form-control" readonly />
             <p class="field-hint">El nombre de usuario no se puede cambiar.</p>
           </div>
@@ -109,12 +114,12 @@
         <!-- Correo + Teléfono -->
         <div class="form-row">
           <div class="form-group">
-            <label for="perfil-email"><i class="bx bx-envelope"></i> Correo Electrónico</label>
+            <label for="perfil-email"><i class="bx bx-envelope" aria-hidden="true"></i> Correo Electrónico</label>
             <input id="perfil-email" type="email" class="form-control"
               placeholder="Ej: maria@correo.com" required />
           </div>
           <div class="form-group">
-            <label for="perfil-telefono"><i class="bx bx-phone"></i> Teléfono</label>
+            <label for="perfil-telefono"><i class="bx bx-phone" aria-hidden="true"></i> Teléfono</label>
             <input id="perfil-telefono" type="text" class="form-control"
               inputmode="numeric" maxlength="10" pattern="\d{10}"
               title="Exactamente 10 dígitos numéricos"
@@ -125,12 +130,12 @@
         <!-- Ubicación + Ocupación -->
         <div class="form-row">
           <div class="form-group">
-            <label for="perfil-ubicacion"><i class="bx bx-map"></i> Ubicación</label>
+            <label for="perfil-ubicacion"><i class="bx bx-map" aria-hidden="true"></i> Ubicación</label>
             <input id="perfil-ubicacion" type="text" class="form-control"
               placeholder="Ej: Bogotá, Colombia" />
           </div>
           <div class="form-group">
-            <label for="perfil-ocupacion"><i class="bx bx-briefcase"></i> ¿A qué te dedicas?</label>
+            <label for="perfil-ocupacion"><i class="bx bx-briefcase" aria-hidden="true"></i> ¿A qué te dedicas?</label>
             <input id="perfil-ocupacion" type="text" class="form-control"
               placeholder="Ej: Estudiante, Músico, Ingeniero..." />
           </div>
@@ -138,7 +143,7 @@
 
         <!-- Especialidad (texto libre) -->
         <div class="form-group">
-          <label for="perfil-especialidad"><i class="bx bx-star"></i> Mi Especialidad</label>
+          <label for="perfil-especialidad"><i class="bx bx-star" aria-hidden="true"></i> Mi Especialidad</label>
           <input id="perfil-especialidad" type="text" class="form-control"
             list="especialidades-sugeridas"
             placeholder="Escribe en qué te especializas (ej: Sonido, Cocina, Música...)" />
@@ -148,14 +153,14 @@
 
         <!-- Información adicional -->
         <div class="form-group">
-          <label for="perfil-bio"><i class="bx bx-note"></i> Información adicional</label>
+          <label for="perfil-bio"><i class="bx bx-note" aria-hidden="true"></i> Información adicional</label>
           <textarea id="perfil-bio" class="form-control" rows="3"
             placeholder="Cuéntanos un poco sobre ti (opcional)"></textarea>
         </div>
 
         <!-- Botón guardar -->
         <button type="submit" class="btn-submit">
-          <i class="bx bx-save"></i> Guardar Cambios
+          <i class="bx bx-save" aria-hidden="true"></i> Guardar Cambios
         </button>
 
       </form>
@@ -165,15 +170,15 @@
 </main>
 
 <!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
-<script src="../../../controllers/validators.helper.js"></script>
+<script src="../../../helpers/validators.helper.js"></script>
 <script src="../../../controllers/sidebar.colaborador.controller.js"></script>
 <!-- Supabase: SDK + cliente (ANTES del modelo) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8" integrity="sha384-Tve8O+C6PBzsIMK/IRCwHbi8fyEzXIlIs6OfVBZHubplwYhaQF/4Mzxqgg+pp/oy" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="../../../controllers/supabase.client.js"></script>
-<script src="../../../controllers/api.config.js"></script>
-<script src="../../../controllers/db.client.js"></script>
+<script src="../../../services/supabase.client.js"></script>
+<script src="../../../config/api.config.js"></script>
+<script src="../../../services/db.client.js"></script>
 <script src="../../../models/usuarios.model.js"></script>
-<script src="../../../controllers/alertify.helper.js"></script>
+<script src="../../../helpers/alertify.helper.js"></script>
 <script src="../../../controllers/perfil.controller.js"></script>
 </body>
 </html>

@@ -18,7 +18,13 @@
  * ============================================================
  */
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+
+  // Control de acceso verificado contra el SERVIDOR (rol tomado del JWT).
+  // Unifica el criterio con el resto del panel: antes esta vista solo
+  // dependía de localStorage, que el usuario puede editar.
+  const sesion = await window.BSPSession.exigir(['Administrador','Colaborador']);
+  if (!sesion) return;
 
   // ── Estado ───────────────────────────────────────────────────────────────
   let eventoActual = null;
@@ -58,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!pasados.length) {
       gridEventos.innerHTML = `
         <div class="rep-empty">
-          <i class="bx bx-calendar-x"></i>
+          <i class="bx bx-calendar-x" aria-hidden="true"></i>
           <p>No hay eventos finalizados aún.</p>
         </div>`;
       return;
@@ -78,11 +84,11 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <div class="rep-ev-body">
           <h3 class="rep-ev-titulo">${ev.titulo}</h3>
-          <p class="rep-ev-meta"><i class="bx bx-calendar"></i> ${fechaFmt}</p>
-          ${ev.horario   ? `<p class="rep-ev-meta"><i class="bx bx-time"></i> ${ev.horario}</p>` : ''}
-          ${ev.ubicacion ? `<p class="rep-ev-meta"><i class="bx bx-map-pin" style="color:#f87171;"></i> ${ev.ubicacion}</p>` : ''}
+          <p class="rep-ev-meta"><i class="bx bx-calendar" aria-hidden="true"></i> ${fechaFmt}</p>
+          ${ev.horario   ? `<p class="rep-ev-meta"><i class="bx bx-time" aria-hidden="true"></i> ${ev.horario}</p>` : ''}
+          ${ev.ubicacion ? `<p class="rep-ev-meta"><i class="bx bx-map-pin" style="color:#f87171;" aria-hidden="true"></i> ${ev.ubicacion}</p>` : ''}
           ${tieneRep
-            ? `<p class="rep-ev-cargado"><i class="bx bx-check-circle"></i> Reporte cargado</p>`
+            ? `<p class="rep-ev-cargado"><i class="bx bx-check-circle" aria-hidden="true"></i> Reporte cargado</p>`
             : ''}
         </div>`;
 
@@ -184,7 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     reporteExistente.innerHTML = `
       <div class="rep-existente-header">
-        <i class="bx bx-check-circle rep-existente-icon"></i>
+        <i class="bx bx-check-circle rep-existente-icon" aria-hidden="true"></i>
         <span class="rep-existente-titulo">Reporte Existente</span>
       </div>
       <div class="rep-existente-body">

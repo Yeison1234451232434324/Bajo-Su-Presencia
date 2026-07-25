@@ -40,6 +40,21 @@
     #peticionEnCurso = null;
 
     /**
+     * @type {string|null} Token con el que se obtuvo la identidad memorizada.
+     * Es la clave que impide que la memoria sobreviva al token: véase identidad().
+     */
+    #tokenMemorizado = null;
+
+    /** @type {string[]|null} Roles exigidos por la vista actual. */
+    #rolesExigidos = null;
+
+    /** @type {string} Ruta de login usada por la vista actual. */
+    #rutaLogin = RUTA_LOGIN;
+
+    /** @type {boolean} Evita instalar el revalidador más de una vez. */
+    #revalidacionInstalada = false;
+
+    /**
      * Obtiene la identidad verificada por el servidor.
      *
      * Se memoriza durante la carga de la página: varios controladores pueden
@@ -48,13 +63,46 @@
      * @returns {Promise<{id:string,rol:string,correo:string}|null>}
      */
     async identidad() {
-      if (this.#identidad) return this.#identidad;
-      if (this.#peticionEnCurso) return this.#peticionEnCurso;
+      const tokenActual = this.#tokenActual();
 
+      // Sin token no hay identidad posible: se descarta cualquier memoria.
+      if (!tokenActual) {
+        this.#identidad = null;
+        this.#tokenMemorizado = null;
+        return null;
+      }
+
+      // La memoria SOLO es válida para el token con el que se obtuvo.
+      //
+      // Este es el punto que causaba el fallo: la identidad se guardaba en una
+      // propiedad de instancia y el navegador, al restaurar la página con
+      // Atrás/Adelante, devolvía el contexto JavaScript intacto. La identidad
+      // memorizada sobrevivía así al cierre de sesión y al cambio de usuario,
+      // y `identidad()` la devolvía sin consultar al servidor. Medido: con el
+      // token ya borrado y el API respondiendo 401, seguía devolviendo al
+      // usuario anterior.
+      //
+      // Al vincular la memoria al token, ésta no puede sobrevivirlo: si el
+      // token cambió o desapareció, se vuelve a preguntar al servidor. No hace
+      // falta ningún evento, temporizador ni limpieza manual.
+      if (this.#identidad && this.#tokenMemorizado === tokenActual) {
+        return this.#identidad;
+      }
+      if (this.#peticionEnCurso && this.#tokenMemorizado === tokenActual) {
+        return this.#peticionEnCurso;
+      }
+
+      this.#tokenMemorizado = tokenActual;
       this.#peticionEnCurso = this.#consultarServidor();
       this.#identidad = await this.#peticionEnCurso;
       this.#peticionEnCurso = null;
       return this.#identidad;
+    }
+
+    /** Token de acceso vigente, o null si no hay ninguno. */
+    #tokenActual() {
+      try { return global.bspAuth?.getToken() || null; }
+      catch (_) { return null; }
     }
 
     /**
@@ -81,6 +129,12 @@
      * @returns {Promise<object|null>} Identidad verificada, o null si se denegó.
      */
     async exigir(rolesPermitidos, rutaLogin = RUTA_LOGIN) {
+      // Se memorizan para poder repetir la MISMA comprobación si el navegador
+      // restaura la página desde su caché de retroceso (véase instalarRevalidacion).
+      this.#rolesExigidos = rolesPermitidos;
+      this.#rutaLogin = rutaLogin;
+      this.#instalarRevalidacion();
+
       const identidad = await this.identidad();
 
       if (!identidad) {
@@ -103,6 +157,32 @@
       } catch (_) { /* almacenamiento no disponible */ }
 
       return identidad;
+    }
+
+    /**
+     * Revalida la sesión cuando el navegador restaura la página desde su
+     * caché de retroceso (Atrás / Adelante).
+     *
+     * Por qué hace falta: en esa restauración el navegador reutiliza el
+     * contexto ya cargado y NO vuelve a disparar `DOMContentLoaded`, que es
+     * donde vive el control de acceso. El resultado sería un panel completo
+     * repintado desde memoria sin comprobar nada. `pageshow` sí se dispara,
+     * y con `persisted = true` indica precisamente ese caso.
+     *
+     * Se descarta la identidad memorizada antes de repetir la comprobación:
+     * entre la salida y el regreso el token pudo expirar, o pudo iniciar
+     * sesión otro usuario en otra pestaña.
+     */
+    #instalarRevalidacion() {
+      if (this.#revalidacionInstalada) return;
+      this.#revalidacionInstalada = true;
+
+      window.addEventListener('pageshow', (evento) => {
+        if (!evento.persisted) return;          // carga normal: ya se validó
+        this.#identidad = null;                 // invalidar memoria
+        this.#peticionEnCurso = null;
+        this.exigir(this.#rolesExigidos, this.#rutaLogin);
+      });
     }
 
     /**

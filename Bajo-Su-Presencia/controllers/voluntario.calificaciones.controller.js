@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       distWrap.innerHTML += `
         <div class="dist-fila">
           <span class="dist-label">
-            ${i} <i class="bx bxs-star" style="color:#F5C215;font-size:0.85rem;"></i>
+            ${i} <i class="bx bxs-star" style="color:#F5C215;font-size:0.85rem;" aria-hidden="true"></i>
           </span>
           <div class="dist-barra-wrap">
             <div class="dist-barra" style="width:${pct}%"></div>
@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           <div class="hist-card-header">
             <div>
               <h4 class="hist-evento">${esc(c.eventoNombre)}</h4>
-              <p class="hist-fecha"><i class="bx bx-calendar"></i> ${esc(c.fecha)}</p>
+              <p class="hist-fecha"><i class="bx bx-calendar" aria-hidden="true"></i> ${esc(c.fecha)}</p>
             </div>
             <div class="hist-nota-grande" style="color:${colorBorde}">
               ${c.estrellas}<span style="font-size:1rem;">/5</span>
@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           <div class="hist-estrellas">${renderEstrellasFijas(c.estrellas)}</div>
           ${c.comentario
             ? `<div class="hist-observacion">
-                 <i class="bx bx-comment-detail hist-obs-icon"></i>
+                 <i class="bx bx-comment-detail hist-obs-icon" aria-hidden="true"></i>
                  <p>"${esc(c.comentario)}"</p>
                </div>`
             : `<p class="sin-dato" style="margin-top:0.5rem;">Sin observaciones registradas.</p>`}
@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         exportName:   'mis_calificaciones',
         exportFields: ['eventoNombre', 'fecha', 'estrellas', 'comentario'],
         exportLabels: ['Evento', 'Fecha', 'Estrellas', 'Comentario'],
-        emptyHTML:    `<div class="dt-empty"><i class="bx bx-star"></i><p>Aún no tienes calificaciones registradas.</p><small>El administrador calificará tu desempeño después de cada evento.</small></div>`
+        emptyHTML:    `<div class="dt-empty"><i class="bx bx-star" aria-hidden="true"></i><p>Aún no tienes calificaciones registradas.</p><small>El administrador calificará tu desempeño después de cada evento.</small></div>`
       });
       window.__bspDT['historial-lista'] = dtCalif;
       dtCalif.init();

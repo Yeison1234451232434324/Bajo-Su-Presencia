@@ -19,12 +19,8 @@ const ReportesModel = (() => {
 
   const TABLA = 'informes';
 
-  function _msg(error) {
-    if (error?.code === '42501' || /row-level security/i.test(error?.message || '')) {
-      return 'No tienes permisos para realizar esta acción.';
-    }
-    return error?.message || 'Ocurrió un error al procesar la solicitud.';
-  }
+  // Traducción de errores centralizada en db.client.js (window.DB.mensajeError).
+  function _msg(error) { return DB.mensajeError(error); }
 
   function _fromRow(r, nombres) {
     return {

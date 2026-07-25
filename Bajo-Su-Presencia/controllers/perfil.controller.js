@@ -24,6 +24,12 @@
 
 document.addEventListener('DOMContentLoaded', async () => {
 
+  // Control de acceso verificado contra el SERVIDOR (rol tomado del JWT).
+  // Unifica el criterio con el resto del panel: antes esta vista solo
+  // dependía de localStorage, que el usuario puede editar.
+  const sesion = await window.BSPSession.exigir(['Administrador','Colaborador','Voluntario']);
+  if (!sesion) return;
+
   // ── Referencias DOM ──────────────────────────────────────────────────────
   const form        = document.getElementById('form-perfil');
   const avatar      = document.getElementById('perfil-avatar');

@@ -26,6 +26,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- Favicon oficial (logo de Bajo Su Presencia) — rutas absolutas: mismas en toda vista -->
+  <link rel="icon" href="/Bajo-Su-Presencia/assets/images/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/Bajo-Su-Presencia/assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/Bajo-Su-Presencia/assets/images/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/Bajo-Su-Presencia/assets/images/apple-touch-icon.png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Generar Reportes – Bajo Su Presencia</title>
@@ -49,7 +54,7 @@
 
     <!-- Guía de sección -->
     <div class="guia-seccion">
-      <p class="guia-seccion-label"><i class="bx bx-info-circle"></i> Guía de sección</p>
+      <p class="guia-seccion-label"><i class="bx bx-info-circle" aria-hidden="true"></i> Guía de sección</p>
       <p class="guia-seccion-texto">Genera reportes oficiales en PDF con la plantilla de la iglesia. Elige entre reporte de Eventos, Voluntarios u Ofrendas, define el rango de fechas y descarga el documento con tablas y gráficas incluidas.</p>
     </div>
 
@@ -58,7 +63,7 @@
 
       <!-- Encabezado con ícono -->
       <div class="gr-header">
-        <div class="gr-header-icon"><i class="bx bx-file"></i></div>
+        <div class="gr-header-icon"><i class="bx bx-file" aria-hidden="true"></i></div>
         <div class="gr-header-text">
           <h3>Generador de Reportes</h3>
           <p>Genere reportes detallados del sistema</p>
@@ -70,7 +75,7 @@
       <div class="gr-tipos">
 
         <button class="gr-tipo-btn" data-tipo="eventos">
-          <div class="gr-tipo-icon"><i class="bx bx-calendar-event"></i></div>
+          <div class="gr-tipo-icon"><i class="bx bx-calendar-event" aria-hidden="true"></i></div>
           <div class="gr-tipo-info">
             <div class="gr-tipo-nombre">Reporte de Eventos</div>
             <div class="gr-tipo-desc">Resumen de eventos realizados</div>
@@ -78,7 +83,7 @@
         </button>
 
         <button class="gr-tipo-btn" data-tipo="voluntarios">
-          <div class="gr-tipo-icon"><i class="bx bx-group"></i></div>
+          <div class="gr-tipo-icon"><i class="bx bx-group" aria-hidden="true"></i></div>
           <div class="gr-tipo-info">
             <div class="gr-tipo-nombre">Reporte de Voluntarios</div>
             <div class="gr-tipo-desc">Actividad y calificaciones de voluntarios</div>
@@ -86,7 +91,7 @@
         </button>
 
         <button class="gr-tipo-btn" data-tipo="ofrendas">
-          <div class="gr-tipo-icon"><i class="bx bx-trending-up"></i></div>
+          <div class="gr-tipo-icon"><i class="bx bx-trending-up" aria-hidden="true"></i></div>
           <div class="gr-tipo-info">
             <div class="gr-tipo-nombre">Reporte de Ofrendas y Diezmo</div>
             <div class="gr-tipo-desc">Resumen de ofrendas y diezmos recibidos</div>
@@ -110,7 +115,7 @@
 
       <!-- Botón generar -->
       <button class="gr-btn-generar" onclick="generarReporte()">
-        <i class="bx bx-file-find"></i> Generar Reporte
+        <i class="bx bx-file-find" aria-hidden="true"></i> Generar Reporte
       </button>
 
     </div>
@@ -135,13 +140,13 @@
 
     <!-- Barra superior del modal -->
     <div class="gr-modal-topbar">
-      <h3><i class="bx bx-file" style="margin-right:0.4rem;color:var(--primary);"></i> Vista Previa del Reporte</h3>
+      <h3><i class="bx bx-file" style="margin-right:0.4rem;color:var(--primary);" aria-hidden="true"></i> Vista Previa del Reporte</h3>
       <div class="gr-modal-topbar-btns">
         <button class="gr-btn-descargar" onclick="descargarPDF()">
-          <i class="bx bx-download"></i> Descargar PDF
+          <i class="bx bx-download" aria-hidden="true"></i> Descargar PDF
         </button>
         <button class="gr-btn-cerrar-modal" onclick="cerrarModalReporte()" aria-label="Cerrar">
-          <i class="bx bx-x"></i>
+          <i class="bx bx-x" aria-hidden="true"></i>
         </button>
       </div>
     </div>
@@ -157,18 +162,18 @@
 </div>
 
 <!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
-  <script src="../../../controllers/validators.helper.js"></script>
+  <script src="../../../helpers/validators.helper.js"></script>
   <script src="../../../controllers/sidebar.controller.js"></script>
 <!-- Supabase: SDK + cliente (ANTES de los modelos) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8" integrity="sha384-Tve8O+C6PBzsIMK/IRCwHbi8fyEzXIlIs6OfVBZHubplwYhaQF/4Mzxqgg+pp/oy" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="../../../controllers/supabase.client.js"></script>
-<script src="../../../controllers/api.config.js"></script>
-<script src="../../../controllers/db.client.js"></script>
+<script src="../../../services/supabase.client.js"></script>
+<script src="../../../config/api.config.js"></script>
+<script src="../../../services/db.client.js"></script>
 <script src="../../../models/eventos.model.js"></script>
 <script src="../../../models/voluntarios.model.js"></script>
 <script src="../../../models/reportes.model.js"></script>
 <!-- Alertify Helper -->
-<script src="../../../controllers/alertify.helper.js"></script>
+<script src="../../../helpers/alertify.helper.js"></script>
   <script src="../../../controllers/generar-reportes.controller.js"></script>
 
   <script src="../../../controllers/ayuda.controller.js"></script>

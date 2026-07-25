@@ -23,6 +23,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- Favicon oficial (logo de Bajo Su Presencia) — rutas absolutas: mismas en toda vista -->
+  <link rel="icon" href="/Bajo-Su-Presencia/assets/images/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/Bajo-Su-Presencia/assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/Bajo-Su-Presencia/assets/images/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/Bajo-Su-Presencia/assets/images/apple-touch-icon.png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Publicar Evento – Bajo Su Presencia</title>
@@ -49,7 +54,7 @@
 
     <!-- Guía de sección -->
     <div class="guia-seccion">
-      <p class="guia-seccion-label"><i class="bx bx-info-circle"></i> Guía de sección</p>
+      <p class="guia-seccion-label"><i class="bx bx-info-circle" aria-hidden="true"></i> Guía de sección</p>
       <p class="guia-seccion-texto">Aquí puedes crear y publicar nuevos eventos para la comunidad. Asigna recursos del inventario, define el número de voluntarios necesarios y gestiona el historial completo de eventos con opciones para ver, editar o eliminar.</p>
     </div>
 
@@ -62,33 +67,33 @@
         <!-- Plantillas de eventos -->
         <div class="ev-plantillas-wrap">
           <p class="ev-plantillas-label">
-            <i class="bx bx-layer"></i>
+            <i class="bx bx-layer" aria-hidden="true"></i>
             Plantillas rápidas — selecciona o escribe tu propio título
           </p>
           <div class="ev-plantillas-grid">
             <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Culto Principal','10:00','12:00')">
-              <i class="bx bx-church"></i> Culto Principal
+              <i class="bx bx-church" aria-hidden="true"></i> Culto Principal
             </button>
             <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Estudio Bíblico','19:00','21:00')">
-              <i class="bx bx-book-open"></i> Estudio Bíblico
+              <i class="bx bx-book-open" aria-hidden="true"></i> Estudio Bíblico
             </button>
             <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Reunión de Jóvenes','18:00','20:00')">
-              <i class="bx bx-group"></i> Reunión de Jóvenes
+              <i class="bx bx-group" aria-hidden="true"></i> Reunión de Jóvenes
             </button>
             <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Oración Matutina','08:00','10:00')">
-              <i class="bx bx-sun"></i> Oración Matutina
+              <i class="bx bx-sun" aria-hidden="true"></i> Oración Matutina
             </button>
             <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Vigilia de Oración','21:00','23:00')">
-              <i class="bx bx-moon"></i> Vigilia de Oración
+              <i class="bx bx-moon" aria-hidden="true"></i> Vigilia de Oración
             </button>
             <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Conferencia','09:00','17:00')">
-              <i class="bx bx-microphone"></i> Conferencia
+              <i class="bx bx-microphone" aria-hidden="true"></i> Conferencia
             </button>
             <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Retiro Espiritual','08:00','18:00')">
-              <i class="bx bx-trip"></i> Retiro Espiritual
+              <i class="bx bx-trip" aria-hidden="true"></i> Retiro Espiritual
             </button>
             <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Celebración Especial','18:00','20:00')">
-              <i class="bx bx-star"></i> Celebración Especial
+              <i class="bx bx-star" aria-hidden="true"></i> Celebración Especial
             </button>
           </div>
         </div>
@@ -127,7 +132,7 @@
             <div class="form-row">
               <div class="form-group">
                 <label for="ev-ubicacion">
-                  <i class="bx bx-buildings" style="color:var(--primary);"></i>
+                  <i class="bx bx-buildings" style="color:var(--primary);" aria-hidden="true"></i>
                   Sede / Ubicación
                 </label>
                 <input id="ev-ubicacion" type="text" class="form-control"
@@ -163,7 +168,7 @@
             <!-- Estado del evento -->
             <div class="form-group">
               <label for="ev-estado">
-                <i class="bx bx-flag" style="color:var(--primary);"></i>
+                <i class="bx bx-flag" style="color:var(--primary);" aria-hidden="true"></i>
                 Estado del evento
               </label>
               <select id="ev-estado" class="form-control">
@@ -185,7 +190,7 @@
 
               <!-- Mensaje cuando no hay recursos disponibles en el inventario -->
               <div id="sin-recursos-msg" class="ev-sin-recursos-msg" style="display:none;">
-                <i class="bx bx-error-circle"></i>
+                <i class="bx bx-error-circle" aria-hidden="true"></i>
                 No hay recursos disponibles en el inventario.
                 <a href="recursos.html">Ir a Gestión de Recursos</a>
               </div>
@@ -198,7 +203,7 @@
             <div class="form-group">
               <div class="ev-recursos-header">
                 <label>
-                  <i class="bx bx-user-voice" style="color:var(--primary);"></i>
+                  <i class="bx bx-user-voice" style="color:var(--primary);" aria-hidden="true"></i>
                   Especialistas requeridos
                 </label>
                 <span id="contador-especialistas" class="ev-contador">
@@ -208,7 +213,7 @@
 
               <!-- Mensaje cuando no hay usuarios con especialidad -->
               <div id="sin-especialistas-msg" class="ev-sin-recursos-msg" style="display:none;">
-                <i class="bx bx-error-circle"></i>
+                <i class="bx bx-error-circle" aria-hidden="true"></i>
                 No hay usuarios con una especialidad registrada.
                 <a href="usuarios.html">Ir a Gestión de Usuarios</a>
               </div>
@@ -237,7 +242,7 @@
 
           <!-- Etiqueta -->
           <div class="ev-preview-label">
-            <i class="bx bx-show"></i>
+            <i class="bx bx-show" aria-hidden="true"></i>
             Vista previa — así se verá el evento
           </div>
 
@@ -251,7 +256,7 @@
 
               <!-- Estado vacío (se oculta al escribir) -->
               <div class="ev-preview-empty" id="ev-preview-empty">
-                <i class="bx bx-calendar-edit"></i>
+                <i class="bx bx-calendar-edit" aria-hidden="true"></i>
                 <p>Empieza a llenar el formulario para ver la previsualización</p>
               </div>
 
@@ -288,7 +293,7 @@
 
           <!-- Nota informativa -->
           <p class="ev-preview-nota">
-            <i class="bx bx-info-circle"></i>
+            <i class="bx bx-info-circle" aria-hidden="true"></i>
             La previsualización se actualiza en tiempo real mientras escribes.
           </p>
 
@@ -300,7 +305,7 @@
     <!-- ══ EVENTOS PUBLICADOS ═══════════════════════════════════════════════ -->
     <div class="ev-publicados-section">
       <h3 class="ev-publicados-titulo">
-        <i class="bx bx-calendar-check"></i>
+        <i class="bx bx-calendar-check" aria-hidden="true"></i>
         Historial de Eventos
       </h3>
       <!-- Lista generada por el controller -->
@@ -315,8 +320,8 @@
   <div class="ev-modal-box">
     <div class="ev-modal-header">
       <h3 id="modal-ver-titulo" class="ev-modal-title"></h3>
-      <button class="ev-modal-close" onclick="cerrarModalVer()">
-        <i class="bx bx-x"></i>
+      <button class="ev-modal-close" onclick="cerrarModalVer()" aria-label="Cerrar">
+        <i class="bx bx-x" aria-hidden="true"></i>
       </button>
     </div>
     <div class="ev-modal-body" id="modal-ver-body"></div>
@@ -328,10 +333,10 @@
   <div class="ev-modal-box ev-modal-box--wide">
     <div class="ev-modal-header">
       <h3 class="ev-modal-title">
-        <i class="bx bx-edit"></i> Editar Evento
+        <i class="bx bx-edit" aria-hidden="true"></i> Editar Evento
       </h3>
-      <button class="ev-modal-close" onclick="cerrarModalEditar()">
-        <i class="bx bx-x"></i>
+      <button class="ev-modal-close" onclick="cerrarModalEditar()" aria-label="Cerrar">
+        <i class="bx bx-x" aria-hidden="true"></i>
       </button>
     </div>
     <div class="ev-modal-body">
@@ -363,7 +368,7 @@
         <div class="form-row">
           <div class="form-group">
             <label for="edit-ubicacion">
-              <i class="bx bx-buildings" style="color:var(--primary);"></i>
+              <i class="bx bx-buildings" style="color:var(--primary);" aria-hidden="true"></i>
               Sede / Ubicación
             </label>
             <input id="edit-ubicacion" type="text" class="form-control"
@@ -390,7 +395,7 @@
         <!-- Estado del evento -->
         <div class="form-group">
           <label for="edit-estado">
-            <i class="bx bx-flag" style="color:var(--primary);"></i>
+            <i class="bx bx-flag" style="color:var(--primary);" aria-hidden="true"></i>
             Estado del evento
           </label>
           <select id="edit-estado" class="form-control">
@@ -409,7 +414,7 @@
             </span>
           </div>
           <div id="edit-sin-recursos-msg" class="ev-sin-recursos-msg" style="display:none;">
-            <i class="bx bx-error-circle"></i>
+            <i class="bx bx-error-circle" aria-hidden="true"></i>
             No hay recursos disponibles en el inventario.
           </div>
           <div id="edit-recursos-grid" class="ev-recursos-grid"></div>
@@ -419,7 +424,7 @@
         <div class="form-group" style="margin-top:1rem;">
           <div class="ev-recursos-header">
             <label>
-              <i class="bx bx-user-voice" style="color:var(--primary);"></i>
+              <i class="bx bx-user-voice" style="color:var(--primary);" aria-hidden="true"></i>
               Especialistas requeridos
             </label>
             <span id="edit-contador-especialistas" class="ev-contador">
@@ -427,7 +432,7 @@
             </span>
           </div>
           <div id="edit-sin-especialistas-msg" class="ev-sin-recursos-msg" style="display:none;">
-            <i class="bx bx-error-circle"></i>
+            <i class="bx bx-error-circle" aria-hidden="true"></i>
             No hay usuarios con una especialidad registrada.
           </div>
           <div id="edit-especialistas-grid" class="ev-recursos-grid"></div>
@@ -438,7 +443,7 @@
             Cancelar
           </button>
           <button type="submit" class="btn-submit" style="margin:0;">
-            <i class="bx bx-save"></i> Guardar Cambios
+            <i class="bx bx-save" aria-hidden="true"></i> Guardar Cambios
           </button>
         </div>
       </form>
@@ -448,13 +453,13 @@
 
 <!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
 <!-- Sidebar del admin -->
-  <script src="../../../controllers/validators.helper.js"></script>
+  <script src="../../../helpers/validators.helper.js"></script>
   <script src="../../../controllers/sidebar.controller.js"></script>
 <!-- Supabase: SDK + cliente (ANTES de los modelos) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8" integrity="sha384-Tve8O+C6PBzsIMK/IRCwHbi8fyEzXIlIs6OfVBZHubplwYhaQF/4Mzxqgg+pp/oy" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="../../../controllers/supabase.client.js"></script>
-<script src="../../../controllers/api.config.js"></script>
-<script src="../../../controllers/db.client.js"></script>
+<script src="../../../services/supabase.client.js"></script>
+<script src="../../../config/api.config.js"></script>
+<script src="../../../services/db.client.js"></script>
 <!-- Modelo de recursos (necesario para leer el inventario) -->
 <script src="../../../models/recursos.model.js"></script>
 <!-- Modelo de eventos (guardar y leer eventos publicados) -->
@@ -464,10 +469,12 @@
 <!-- Modelo de usuarios (para escoger especialistas requeridos) -->
 <script src="../../../models/usuarios.model.js"></script>
 <!-- Motor DataTable -->
-<script src="../../../controllers/datatable.helper.js"></script>
+<script src="../../../helpers/datatable.helper.js"></script>
 <!-- Alertify Helper (configuración global de alertas) -->
-<script src="../../../controllers/alertify.helper.js"></script>
+<script src="../../../helpers/alertify.helper.js"></script>
 <!-- Controlador de eventos -->
+  <!-- Utilidades puras de horario (BSPHorario), usadas por el controlador -->
+  <script src="../../../helpers/horario.helper.js"></script>
   <script src="../../../controllers/eventos.controller.js"></script>
 
   <script src="../../../controllers/ayuda.controller.js"></script>

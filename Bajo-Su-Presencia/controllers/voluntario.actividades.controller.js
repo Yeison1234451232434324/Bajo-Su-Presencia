@@ -8,7 +8,13 @@
  * ============================================================
  */
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+
+  // Control de acceso verificado contra el SERVIDOR (rol tomado del JWT).
+  // Unifica el criterio con el resto del panel: antes esta vista solo
+  // dependía de localStorage, que el usuario puede editar.
+  const sesion = await window.BSPSession.exigir(['Voluntario']);
+  if (!sesion) return;
 
   const contenedor  = document.getElementById('mact-contenedor');
   const barraFill   = document.getElementById('mact-barra-fill');
@@ -35,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     contenedor.innerHTML = '';
     if (!acts.length) {
-      contenedor.innerHTML = `<div class="mact-empty"><i class="bx bx-task-x"></i><p>No tienes actividades asignadas por el momento.</p></div>`;
+      contenedor.innerHTML = `<div class="mact-empty"><i class="bx bx-task-x" aria-hidden="true"></i><p>No tienes actividades asignadas por el momento.</p></div>`;
       _actualizarBarraGlobal(0, 0);
       return;
     }
@@ -78,9 +84,9 @@ document.addEventListener('DOMContentLoaded', () => {
           <span class="mact-evento-completadas${completa ? ' mact-evento-completadas--verde' : ''}" id="mact-ev-label-${eventoId}">${completadas}/${total} completadas</span>
         </div>
         <div class="mact-evento-meta">
-          ${info.fecha    ? `<span><i class="bx bx-calendar"></i> ${info.fecha}</span>` : ''}
-          ${info.horario  ? `<span><i class="bx bx-time"></i> ${info.horario}</span>` : ''}
-          ${info.ubicacion? `<span><i class="bx bx-map-pin" style="color:#f87171;"></i> ${info.ubicacion}</span>` : ''}
+          ${info.fecha    ? `<span><i class="bx bx-calendar" aria-hidden="true"></i> ${info.fecha}</span>` : ''}
+          ${info.horario  ? `<span><i class="bx bx-time" aria-hidden="true"></i> ${info.horario}</span>` : ''}
+          ${info.ubicacion? `<span><i class="bx bx-map-pin" style="color:#f87171;" aria-hidden="true"></i> ${info.ubicacion}</span>` : ''}
         </div>
       </div>
       <div class="mact-mini-barra-track">
@@ -102,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <button class="mact-check-btn" onclick="toggleActividadVoluntario('${act.id}')"
         title="${act.completada ? 'Marcar como pendiente' : 'Marcar como completada'}"
         aria-label="${act.completada ? 'Desmarcar' : 'Completar'} actividad">
-        ${act.completada ? '<i class="bx bx-check-circle mact-check-icon mact-check-icon--done"></i>' : '<i class="bx bx-circle mact-check-icon"></i>'}
+        ${act.completada ? '<i class="bx bx-check-circle mact-check-icon mact-check-icon--done" aria-hidden="true"></i>' : '<i class="bx bx-circle mact-check-icon" aria-hidden="true"></i>'}
       </button>
       <div class="mact-item-body">
         <div class="mact-item-header">

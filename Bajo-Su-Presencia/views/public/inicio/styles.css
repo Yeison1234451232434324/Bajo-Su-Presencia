@@ -360,11 +360,6 @@ a    { text-decoration: none; }
   padding: 5rem 1rem;
   background: var(--sacred-cream);
 }
-.news-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 2rem;
-}
 .news-card {
   background: white;
   border-radius: 1rem;
@@ -433,11 +428,6 @@ a    { text-decoration: none; }
   background-image: radial-gradient(circle at 20px 20px, var(--primary) 2px, transparent 0);
   background-size: 40px 40px;
   pointer-events: none;
-}
-.events-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
 }
 .event-card {
   background: white;
@@ -806,7 +796,6 @@ a    { text-decoration: none; }
   .hero-verse br { display: none; }
 
   .section-header { margin-bottom: 1.75rem; }
-  .news-grid, .events-grid { grid-template-columns: 1fr; }
 
   .prayer-card { padding: 1.5rem 1rem; }
   .prayer-corner { width: 3rem; height: 3rem; }
