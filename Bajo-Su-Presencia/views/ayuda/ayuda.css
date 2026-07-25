@@ -6,6 +6,10 @@
  *  Define su propio layout de cabecera y cuadrícula de categorías.
  * ================================================================
  */
+/* Tamaño base de fuente ligeramente mayor (16 -> 17px, +6%) para agrandar
+   de forma uniforme la letra de todos los apartados. Escala los rem. */
+html { font-size: 17px; }
+
 
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Crimson+Text:wght@400;600&display=swap');
 

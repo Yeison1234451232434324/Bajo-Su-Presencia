@@ -123,6 +123,10 @@ body {
 }
 
 /* ── Toggle mostrar/ocultar contraseña ── */
+/* Tamaño base de fuente ligeramente mayor (16 -> 17px, +6%) para agrandar
+   de forma uniforme la letra de todos los apartados. Escala los rem. */
+html { font-size: 17px; }
+
 .toggle-password {
   position: absolute;
   right: 45px;

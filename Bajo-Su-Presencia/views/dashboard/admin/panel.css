@@ -18,6 +18,10 @@
  *  su propio CSS específico (ej: eventos.css, usuarios.css).
  * ================================================================
  */
+/* Tamaño base de fuente ligeramente mayor (16 -> 17px, +6%) para agrandar
+   de forma uniforme la letra de todos los apartados. Escala los rem. */
+html { font-size: 17px; }
+
 
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Crimson+Text:wght@400;600&display=swap');
 
@@ -672,10 +676,33 @@ body {
     margin-left: 0 !important;
     padding: 3.5rem 0.875rem 1.5rem;
     width: 100%;
+    /* En escritorio .main lleva max-width: calc(100% - 80px) para no invadir el
+       sidebar colapsado. En móvil el sidebar está fuera de pantalla, así que ese
+       tope dejaba 80px vacíos a la derecha y descentraba el contenido. */
+    max-width: 100%;
     overflow-x: hidden;
   }
   .main.sidebar-open {
     margin-left: 0 !important;
+  }
+
+  /* Barra superior opaca que aloja el botón de menú flotante.
+     Sin ella, al hacer scroll el botón fijo (z-102) quedaba flotando SOBRE el
+     formulario y tapaba etiquetas (p. ej. "Sede / Ubicación"). La barra —del
+     color de fondo de la página— hace que el contenido se deslice por debajo
+     sin verse, como la barra superior de una app móvil. Es un pseudo-elemento
+     fijo: está fuera de flujo, así que no altera el layout flex de .main.
+     Altura = padding-top de .main para que el contenido empiece justo debajo. */
+  .main::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3.5rem;
+    background: var(--bg);
+    z-index: 99;          /* sobre el contenido; bajo overlay(100)/sidebar(101)/botón(102) */
+    pointer-events: none;
   }
 
   /* Botón hamburguesa flotante */
@@ -799,7 +826,9 @@ body {
 /* ── 640px: móvil grande ── */
 @media (max-width: 640px) {
   .main {
-    padding: 1rem 0.75rem;
+    /* Se conserva el padding-top que despeja el botón de menú flotante (antes
+       1rem lo eliminaba, y el botón fijo tapaba el encabezado y las etiquetas). */
+    padding: 3.5rem 0.75rem 1rem;
   }
 
   .panel-header h2 {

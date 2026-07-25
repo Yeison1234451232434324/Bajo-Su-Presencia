@@ -16,6 +16,10 @@
  *  Cada página del voluntario importa PRIMERO este archivo.
  * ================================================================
  */
+/* Tamaño base de fuente ligeramente mayor (16 -> 17px, +6%) para agrandar
+   de forma uniforme la letra de todos los apartados. Escala los rem. */
+html { font-size: 17px; }
+
 
 /* ══════════════════════════════════════════════════
    PANEL VOLUNTARIO — Estilos base
@@ -346,6 +350,21 @@ body {
     transition: none !important;
   }
   .main.sidebar-open { margin-left: 0 !important; }
+
+  /* Barra superior opaca que aloja el botón de menú flotante: impide que el
+     contenido quede visible por debajo del botón fijo (z-500) al hacer scroll.
+     Pseudo-elemento fijo, fuera de flujo (no altera el layout de .main). */
+  .main::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4.5rem;
+    background: var(--bg);
+    z-index: 98;          /* sobre el contenido; bajo overlay(399)/sidebar(400)/botón(500) */
+    pointer-events: none;
+  }
 
   .panel-header h2 { font-size: 1.8rem; }
   .panel-header p  { font-size: 1rem; }

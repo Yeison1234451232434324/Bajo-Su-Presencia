@@ -862,12 +862,18 @@
   .ev-preview-sticky {
     position: static;
   }
-  /* En móvil la previsualización va arriba del formulario */
+  /* Sin datos, la previsualización se OCULTA por completo. Antes llevaba
+     width:100% sobre la columna base y, como esa base tiene opacity:0, quedaba
+     invisible pero seguía ocupando ~262px de alto: el hueco vacío entre la
+     guía de sección y el formulario. */
   .ev-preview-col {
-    order: -1;
-    width: 100% !important;
+    display: none;
   }
+  /* Con datos (clase --visible que añade el JS al escribir en el formulario),
+     la previsualización aparece a ancho completo y encima del formulario. */
   .ev-preview-col--visible {
+    display: block;
+    order: -1;
     width: 100% !important;
   }
 }
