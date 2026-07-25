@@ -1,0 +1,133 @@
+/*
+ * ================================================================
+ *  MODO OSCURO — botón flotante + tema oscuro global
+ * ================================================================
+ *  Se carga en TODAS las vistas (helpers/theme.css) DESPUÉS del CSS de la
+ *  página, de modo que los selectores [data-theme="dark"] tengan mayor
+ *  prioridad. El atributo data-theme lo pone helpers/theme.js.
+ *
+ *  Estrategia: como la app tiene muchos colores fijos (#fff, texto oscuro),
+ *  el tema oscuro reasigna las variables de marca y, con selectores por patrón
+ *  ([class*="-card"], [class*="-box"], inputs, tablas…), repinta las
+ *  superficies elevadas y el texto. Se usa !important porque muchas reglas base
+ *  fijan el color en línea o con alta especificidad; aquí es una capa de tema.
+ * ================================================================
+ */
+
+/* ───────────────────────── Botón flotante ───────────────────────── */
+.bsp-theme-toggle {
+  position: fixed;
+  left: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 9998;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1E3A8A;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  -webkit-appearance: none;
+  appearance: none;
+  transition: transform 0.15s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+.bsp-theme-toggle:hover  { transform: scale(1.06); box-shadow: 0 6px 22px rgba(0, 0, 0, 0.32); }
+.bsp-theme-toggle:active { transform: scale(0.92); }
+.bsp-theme-toggle:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(245, 194, 21, 0.65); }
+.bsp-theme-toggle svg { width: 22px; height: 22px; display: block; }
+
+/* En oscuro el botón se aclara para destacar sobre el fondo oscuro. */
+:root[data-theme="dark"] .bsp-theme-toggle { background: #f5c215; color: #1a1a2e; }
+
+/* ═══════════════════════════ TEMA OSCURO ═══════════════════════════ */
+
+/* 1) Variables de marca reasignadas (afecta todo lo que use var(--…)). */
+:root[data-theme="dark"] {
+  --bg: #0f1523;
+  --sacred-cream: #0f1523;
+  --border: #2a3448;
+  --muted: #9aa4b2;
+  --foreground: #e6e8ee;
+  --muted-foreground: #9aa4b2;
+}
+
+/* 2) Base: fondo de página y color de texto. */
+:root[data-theme="dark"] body {
+  background: #0f1523 !important;
+  color: #e6e8ee !important;
+}
+
+/* 3) Superficies elevadas (tarjetas, cajas, contenedores, tabla, login). */
+:root[data-theme="dark"] [class*="-card"]:not([class*="img"]),
+:root[data-theme="dark"] [class*="-box"],
+:root[data-theme="dark"] [class*="-wrap"]:not(.ev-horario-wrap):not([class*="icon-wrap"]):not([class*="img"]),
+:root[data-theme="dark"] .panel,
+:root[data-theme="dark"] .toast,
+:root[data-theme="dark"] .container,
+:root[data-theme="dark"] .bsp-dt,
+:root[data-theme="dark"] .bsp-dt-body,
+:root[data-theme="dark"] .bsp-pagina-interna {
+  background: #1a2130 !important;
+  border-color: #2a3448 !important;
+  color: #e6e8ee;
+}
+
+/* 4) Campos de formulario y controles de la tabla. */
+:root[data-theme="dark"] .form-control,
+:root[data-theme="dark"] input,
+:root[data-theme="dark"] select,
+:root[data-theme="dark"] textarea,
+:root[data-theme="dark"] [class*="bsp-dt-"] {
+  background: #232c40 !important;
+  color: #e6e8ee !important;
+  border-color: #354056 !important;
+}
+:root[data-theme="dark"] input::placeholder,
+:root[data-theme="dark"] textarea::placeholder { color: #79828f; }
+
+/* 5) Encabezados y texto de marca (navy) → azul claro legible en oscuro. */
+:root[data-theme="dark"] h1,
+:root[data-theme="dark"] h2,
+:root[data-theme="dark"] h3,
+:root[data-theme="dark"] .panel-header h2,
+:root[data-theme="dark"] .section-title,
+:root[data-theme="dark"] .header-title,
+:root[data-theme="dark"] [class*="-titulo"],
+:root[data-theme="dark"] [class*="-title"] {
+  color: #cdd8f5 !important;
+}
+:root[data-theme="dark"] .panel-header p,
+:root[data-theme="dark"] .section-desc,
+:root[data-theme="dark"] .label {
+  color: #9aa4b2 !important;
+}
+/* .sub (tendencias "↑ 12 este mes") conserva su verde: legible sobre oscuro. */
+:root[data-theme="dark"] .value { color: #e6e8ee !important; }
+
+/* 6) Tablas (encabezado y filas). */
+:root[data-theme="dark"] table { color: #e6e8ee; }
+:root[data-theme="dark"] thead,
+:root[data-theme="dark"] thead th { background: #141b2b !important; color: #cdd8f5 !important; border-color: #2a3448 !important; }
+:root[data-theme="dark"] tbody tr,
+:root[data-theme="dark"] tbody td { border-color: #2a3448 !important; }
+:root[data-theme="dark"] tbody tr:hover { background: #202a3d !important; }
+
+/* 7) Sitio público: header, secciones y footer. */
+:root[data-theme="dark"] .site-header { background: rgba(15, 21, 35, 0.95) !important; border-color: #2a3448 !important; }
+:root[data-theme="dark"] .lista-menu a { color: #cdd8f5 !important; }
+:root[data-theme="dark"] .news-section,
+:root[data-theme="dark"] .events-section,
+:root[data-theme="dark"] .prayer-section,
+:root[data-theme="dark"] footer,
+:root[data-theme="dark"] .site-footer { background: #0f1523 !important; }
+:root[data-theme="dark"] .btn-outline { background: transparent !important; color: #cdd8f5 !important; }
+
+/* 8) Divisores/bordes sueltos que usan gris claro. */
+:root[data-theme="dark"] hr { border-color: #2a3448 !important; }
+
+/* La guía de sección y el sidebar ya son azul marino: se ven bien en oscuro. */
