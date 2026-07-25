@@ -312,7 +312,7 @@
   padding: 2.5rem 3rem;
   box-shadow: 0 4px 24px rgba(0,0,0,0.12);
   border-radius: 0.5rem;
-  font-family: 'Crimson Text', serif;
+  font-family: 'EB Garamond', serif;
   color: #1a1a2e;
 }
 
@@ -325,7 +325,7 @@
   margin-bottom: 1.5rem;
 }
 .gr-pdf-org {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'EB Garamond', serif;
   font-size: 1.4rem;
   font-weight: 700;
   color: #1E3A8A;
@@ -334,7 +334,7 @@
 .gr-pdf-fecha-gen { font-size: 0.8125rem; color: #6b7280; text-align: right; }
 
 .gr-pdf-titulo {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'EB Garamond', serif;
   font-size: 1.6rem;
   font-weight: 700;
   color: #1E3A8A;
@@ -346,7 +346,7 @@
   margin-bottom: 1.5rem;
 }
 .gr-pdf-seccion-titulo {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'EB Garamond', serif;
   font-size: 1.1rem;
   font-weight: 700;
   color: #1E3A8A;
@@ -387,7 +387,7 @@
   text-align: center;
 }
 .gr-pdf-stat-val {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'EB Garamond', serif;
   font-size: 1.5rem;
   font-weight: 700;
   color: #1E3A8A;
@@ -603,7 +603,7 @@
 
 /* Nombre de la iglesia */
 .bsp-portada-nombre {
-  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  font-family: 'EB Garamond', 'Georgia', serif;
   font-size: 2.6rem;
   font-weight: 700;
   color: #ffffff;
@@ -761,7 +761,7 @@
   margin-bottom: 1.75rem;
 }
 .bsp-seccion-titulo {
-  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  font-family: 'EB Garamond', 'Georgia', serif;
   font-size: 1.1rem;
   font-weight: 700;
   color: #0F1E5A;
@@ -786,7 +786,7 @@
   text-align: center;
 }
 .bsp-stat-val {
-  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  font-family: 'EB Garamond', 'Georgia', serif;
   font-size: 1.5rem;
   font-weight: 700;
   color: #0F1E5A;

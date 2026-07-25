@@ -24,7 +24,7 @@
 html { font-size: 17px; }
 
 
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Crimson+Text:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
 
 :root {
   --primary:       #1E3A8A;
@@ -34,8 +34,8 @@ html { font-size: 17px; }
   --amber:         #d97706;
   --sidebar-w:     250px;
   --sidebar-min-w: 80px;
-  --font-title:    'Cormorant Garamond', serif;
-  --font-text:     'Crimson Text', serif;
+  --font-title:    'EB Garamond', serif;
+  --font-text:     'EB Garamond', serif;
   --bg:            #faf8f3;
   --border:        #e5e1d8;
   --muted:         #6b7280;

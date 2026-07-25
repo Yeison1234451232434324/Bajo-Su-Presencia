@@ -38,8 +38,8 @@ html { font-size: 17px; }
   --accent:           #F5C215;  /* dorado */
   --sacred-cream:     #F2F6FF;
   --border:           rgba(30, 58, 138, 0.18);
-  --font-serif:       'Cormorant Garamond', serif;
-  --font-text:        'Crimson Text', serif;
+  --font-serif:       'EB Garamond', serif;
+  --font-text:        'EB Garamond', serif;
 }
 
 /* ── Reset base ── */

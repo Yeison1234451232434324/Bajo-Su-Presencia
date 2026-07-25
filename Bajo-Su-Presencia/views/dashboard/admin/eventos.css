@@ -798,7 +798,7 @@
 
 /* ── Contenido de la tarjeta ── */
 .ev-prev-titulo {
-  font-family: var(--font-title, 'Cormorant Garamond', serif);
+  font-family: var(--font-title, 'EB Garamond', serif);
   font-size: 1.2rem;
   font-weight: 700;
   color: var(--primary-dark);
