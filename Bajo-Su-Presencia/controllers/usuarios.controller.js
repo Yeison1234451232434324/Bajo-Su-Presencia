@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const map = {
       'Administrador': 'linear-gradient(135deg,#1E3A8A,#2D4FAF)',
       'Colaborador':   'linear-gradient(135deg,#d97706,#F5C215)',
-      'Voluntario':    'linear-gradient(135deg,#059669,#10b981)'
+      'Voluntario':    'linear-gradient(135deg,#64748b,#94a3b8)'
     };
     return map[rol] || '#6b7280';
   }
