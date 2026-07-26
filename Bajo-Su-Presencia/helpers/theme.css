@@ -44,6 +44,19 @@
 /* En oscuro el botón se aclara para destacar sobre el fondo oscuro. */
 :root[data-theme="dark"] .bsp-theme-toggle { background: #f5c215; color: #1a1a2e; }
 
+/* En el PANEL (existe #main) el sidebar ocupa la esquina inferior izquierda con
+   "Cerrar Sesión"; ahí el toggle tapaba ese enlace. Se mueve a la derecha,
+   apilado SOBRE el FAB de ayuda (56px, bottom 1.75rem), sin taparlo.
+   En las páginas públicas (sin #main) sigue abajo a la izquierda, que está libre. */
+:root:has(#main) .bsp-theme-toggle {
+  left: auto;
+  right: 1.75rem;
+  bottom: 6rem;
+}
+@media (max-width: 640px) {
+  :root:has(#main) .bsp-theme-toggle { right: 1.25rem; bottom: 5.25rem; }
+}
+
 /* ═══════════════════════════ TEMA OSCURO ═══════════════════════════ */
 
 /* 1) Variables de marca reasignadas (afecta todo lo que use var(--…)). */
