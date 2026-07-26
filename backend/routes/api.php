@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Controllers\AuthController;
 use App\Controllers\DataGatewayController;
+use App\Controllers\DonacionesController;
 use App\Controllers\HealthController;
 use App\Controllers\UsuariosController;
 use App\Http\Response;
@@ -36,6 +37,9 @@ $router->get('/api/usuarios/{id}', [UsuariosController::class, 'show']);
 $router->put('/api/usuarios/{id}', [UsuariosController::class, 'update']);
 $router->patch('/api/usuarios/{id}/activo', [UsuariosController::class, 'toggleActivo']);
 $router->delete('/api/usuarios/{id}', [UsuariosController::class, 'destroy']);
+
+// ── Donaciones (público, anónimo) — envía comprobante al correo ─
+$router->post('/api/donaciones', [DonacionesController::class, 'store']);
 
 // ── Data Gateway (panel autenticado) ────────────────────────────
 $router->get('/api/db/{table}', [DataGatewayController::class, 'handle']);

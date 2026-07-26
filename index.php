@@ -101,6 +101,7 @@ function tablaDeRutas(): array
         '/login'       => 'views/public/login/login.html',
         '/recuperar'   => 'views/public/login/recuperar.html',
         '/pqr'         => 'views/public/pqr/pqr.html',
+        '/donaciones'  => 'views/public/donaciones/donaciones.html',
         '/ayuda'       => 'views/ayuda/ayuda.html',
 
         // ── Panel · Administrador ────────────────────────────────

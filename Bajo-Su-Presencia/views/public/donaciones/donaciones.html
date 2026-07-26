@@ -1,0 +1,115 @@
+<!--
+  ================================================================
+  DONACIONES (público) — MAQUETA
+  ================================================================
+  Permite al público donar de forma anónima vía PSE / Nequi / Tarjeta.
+  Se pide el correo ANTES de "transferir" para enviarle el comprobante.
+  El cobro es SIMULADO (ver backend DonacionesController); el comprobante
+  por correo sí es real. Listo para conectar una pasarela (Wompi/PayU).
+  ================================================================
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- Favicon oficial -->
+  <link rel="icon" href="/Bajo-Su-Presencia/assets/images/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/Bajo-Su-Presencia/assets/images/favicon-32x32.png">
+  <link rel="apple-touch-icon" href="/Bajo-Su-Presencia/assets/images/apple-touch-icon.png">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Donaciones – Bajo Su Presencia</title>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="donaciones.css" />
+  <!-- Modo oscuro: tema + botón flotante -->
+  <link rel="stylesheet" href="/Bajo-Su-Presencia/helpers/theme.css">
+  <script src="/Bajo-Su-Presencia/helpers/theme.js"></script>
+</head>
+<body>
+
+  <!-- Encabezado simple -->
+  <header class="don-header">
+    <a class="don-brand" href="/inicio">
+      <img src="/Bajo-Su-Presencia/assets/images/logo.png" alt="Bajo Su Presencia" class="don-logo" />
+      <span>Bajo Su Presencia</span>
+    </a>
+    <a class="don-volver" href="/inicio">← Volver al inicio</a>
+  </header>
+
+  <main class="don-main">
+    <div class="don-card">
+
+      <!-- ══ FORMULARIO ══ -->
+      <section id="don-form-section">
+        <h1 class="don-titulo">💛 Haz tu donación</h1>
+        <p class="don-sub">Tu ofrenda sostiene la obra de la comunidad. La donación es anónima:
+          solo te pedimos un correo para enviarte el comprobante.</p>
+
+        <form id="don-form" novalidate>
+
+          <!-- Monto -->
+          <label class="don-label">Monto de la donación (COP)</label>
+          <div class="don-montos" id="don-montos">
+            <button type="button" class="don-monto-chip" data-monto="10000">$10.000</button>
+            <button type="button" class="don-monto-chip" data-monto="20000">$20.000</button>
+            <button type="button" class="don-monto-chip" data-monto="50000">$50.000</button>
+            <button type="button" class="don-monto-chip" data-monto="100000">$100.000</button>
+          </div>
+          <div class="don-monto-custom">
+            <span class="don-monto-signo">$</span>
+            <input type="number" id="don-monto" class="don-input" min="1000" step="1000"
+              placeholder="Otro monto" inputmode="numeric" />
+          </div>
+          <p class="don-error" id="don-error-monto"></p>
+
+          <!-- Método -->
+          <label class="don-label">Método de pago</label>
+          <div class="don-metodos" id="don-metodos">
+            <button type="button" class="don-metodo" data-metodo="PSE">
+              <span class="don-metodo-icon">🏦</span><span>PSE</span>
+            </button>
+            <button type="button" class="don-metodo" data-metodo="Nequi">
+              <span class="don-metodo-icon">📱</span><span>Nequi</span>
+            </button>
+            <button type="button" class="don-metodo" data-metodo="Tarjeta">
+              <span class="don-metodo-icon">💳</span><span>Tarjeta</span>
+            </button>
+          </div>
+          <p class="don-error" id="don-error-metodo"></p>
+
+          <!-- Correo (obligatorio) -->
+          <label class="don-label" for="don-correo">Correo electrónico <span class="don-req">*</span></label>
+          <input type="email" id="don-correo" class="don-input" placeholder="tucorreo@ejemplo.com"
+            autocomplete="email" required />
+          <p class="don-hint">📩 Aquí te enviaremos el comprobante de tu donación.</p>
+          <p class="don-error" id="don-error-correo"></p>
+
+          <!-- Nombre (opcional) -->
+          <label class="don-label" for="don-nombre">Nombre <span class="don-opt">(opcional)</span></label>
+          <input type="text" id="don-nombre" class="don-input" placeholder="Cómo quieres que te saludemos" />
+
+          <button type="submit" class="don-btn" id="don-btn">
+            <span id="don-btn-texto">Donar</span>
+          </button>
+
+          <p class="don-nota">🔒 Pago seguro · Esta es una versión de prueba: el cobro es simulado,
+            pero el comprobante sí llega a tu correo.</p>
+        </form>
+      </section>
+
+      <!-- ══ ÉXITO ══ -->
+      <section id="don-exito-section" style="display:none;">
+        <div class="don-check">✓</div>
+        <h1 class="don-titulo">¡Gracias por tu donación!</h1>
+        <p class="don-sub" id="don-exito-msg">Te enviamos el comprobante a tu correo.</p>
+        <div class="don-resumen" id="don-resumen"></div>
+        <a class="don-btn don-btn-sec" href="/inicio">Volver al inicio</a>
+        <button type="button" class="don-otra" id="don-otra">Hacer otra donación</button>
+      </section>
+
+    </div>
+  </main>
+
+  <script src="/Bajo-Su-Presencia/config/api.config.js"></script>
+  <script src="donaciones.controller.js"></script>
+</body>
+</html>

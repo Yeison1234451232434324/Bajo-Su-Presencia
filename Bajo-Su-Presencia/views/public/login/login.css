@@ -190,3 +190,7 @@ html { font-size: 17px; }
   white-space: nowrap;
   border: 0;
 }
+
+/* ── Modo oscuro: botón de acceso en dorado (coherente con el acento) ── */
+:root[data-theme="dark"] .container .boton { background: #f5c215; color: #1a1a2e; }
+:root[data-theme="dark"] .container .boton:hover { background: #ffce2e; }

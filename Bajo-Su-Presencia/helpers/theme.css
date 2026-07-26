@@ -112,10 +112,27 @@
 /* 6) Tablas (encabezado y filas). */
 :root[data-theme="dark"] table { color: #e6e8ee; }
 :root[data-theme="dark"] thead,
+:root[data-theme="dark"] thead tr,
 :root[data-theme="dark"] thead th { background: #141b2b !important; color: #cdd8f5 !important; border-color: #2a3448 !important; }
 :root[data-theme="dark"] tbody tr,
 :root[data-theme="dark"] tbody td { border-color: #2a3448 !important; }
 :root[data-theme="dark"] tbody tr:hover { background: #202a3d !important; }
+/* Filas del datatable propio (divs con background:#fff EN LÍNEA, generados por JS). */
+:root[data-theme="dark"] .bsp-dt-row-wrap > div { background: #1a2130 !important; }
+:root[data-theme="dark"] .bsp-dt-row-wrap > div:hover { background: #202a3d !important; }
+:root[data-theme="dark"] tbody tr { background: transparent !important; }
+
+/* Badges de las gráficas del dashboard y botón "ver más". */
+:root[data-theme="dark"] .chart-badge          { background: rgba(148, 163, 184, 0.20) !important; color: #cbd5e1 !important; }
+:root[data-theme="dark"] .chart-badge--blue    { background: rgba(37, 99, 235, 0.26) !important; color: #93b4ff !important; }
+:root[data-theme="dark"] .chart-badge--green   { background: rgba(5, 150, 105, 0.22) !important; color: #6ee7b7 !important; }
+:root[data-theme="dark"] .chart-badge--amber   { background: rgba(217, 119, 6, 0.22) !important; color: #fcd34d !important; }
+:root[data-theme="dark"] .chart-badge--purple  { background: rgba(100, 116, 139, 0.30) !important; color: #cbd5e1 !important; }
+:root[data-theme="dark"] .btn-ver-mas {
+  background: #232c40 !important;
+  color: #cdd8f5 !important;
+  border-color: #354056 !important;
+}
 
 /* 7) Sitio público: header, secciones y footer. */
 :root[data-theme="dark"] .site-header { background: rgba(15, 21, 35, 0.95) !important; border-color: #2a3448 !important; }
@@ -126,8 +143,35 @@
 :root[data-theme="dark"] footer,
 :root[data-theme="dark"] .site-footer { background: #0f1523 !important; }
 :root[data-theme="dark"] .btn-outline { background: transparent !important; color: #cdd8f5 !important; }
+/* Flechas del carrusel (noticias/eventos) — eran blancas sobre fondo oscuro. */
+:root[data-theme="dark"] .carousel-btn {
+  background: #1a2130 !important;
+  color: #cdd8f5 !important;
+  border-color: #2a3448 !important;
+}
+:root[data-theme="dark"] .carousel-btn:hover:not(:disabled) { background: #232c40 !important; }
 
 /* 8) Divisores/bordes sueltos que usan gris claro. */
 :root[data-theme="dark"] hr { border-color: #2a3448 !important; }
+
+/* 9) Badges: versión "nativa de oscuro" (fondo translúcido + texto del tono).
+      El genérico .badge va PRIMERO (fallback); los específicos, después, para
+      que ganen por orden de fuente ante igual especificidad. */
+:root[data-theme="dark"] .badge               { background: rgba(148, 163, 184, 0.22) !important; color: #cbd5e1 !important; }
+:root[data-theme="dark"] .badge-green         { background: rgba(5, 150, 105, 0.22) !important; color: #6ee7b7 !important; }
+:root[data-theme="dark"] .badge-amber         { background: rgba(217, 119, 6, 0.22) !important; color: #fcd34d !important; }
+:root[data-theme="dark"] .badge-blue          { background: rgba(37, 99, 235, 0.26) !important; color: #93b4ff !important; }
+:root[data-theme="dark"] .badge-red           { background: rgba(220, 38, 38, 0.22) !important; color: #fca5a5 !important; }
+:root[data-theme="dark"] .badge-purple        { background: rgba(100, 116, 139, 0.30) !important; color: #cbd5e1 !important; }
+:root[data-theme="dark"] .badge-especialidad  { background: rgba(3, 105, 161, 0.28) !important; color: #7dd3fc !important; }
+
+/* 10) Contenedores de icono con fondo claro (KPIs, contadores): fondo tenue
+       y trazo del SVG aclarado para que el icono siga siendo visible. */
+:root[data-theme="dark"] .stat-icon,
+:root[data-theme="dark"] .counter-icon {
+  background: rgba(147, 180, 255, 0.14) !important;
+}
+:root[data-theme="dark"] .stat-icon svg,
+:root[data-theme="dark"] .counter-icon svg { stroke: #93b4ff !important; }
 
 /* La guía de sección y el sidebar ya son azul marino: se ven bien en oscuro. */
