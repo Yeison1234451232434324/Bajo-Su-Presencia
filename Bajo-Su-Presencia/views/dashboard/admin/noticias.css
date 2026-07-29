@@ -244,11 +244,11 @@
 .btn-ver-nt:hover     { background: #bfdbfe; }
 
 /* Editar → ámbar */
-.btn-editar-nt  { background: #fef3c7; color: #d97706; }
+.btn-editar-nt  { background: #dbeafe; color: #1d4ed8; }
 .btn-editar-nt:hover  { background: #fde68a; }
 
 /* Eliminar → rojo */
-.btn-eliminar-nt { background: #fee2e2; color: #dc2626; }
+.btn-eliminar-nt { background: #dbeafe; color: #1d4ed8; }
 .btn-eliminar-nt:hover { background: #fecaca; }
 
 /* Resumen de la noticia */

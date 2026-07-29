@@ -416,8 +416,8 @@ body {
   border-radius: 999px;
   font-size: 0.8125rem; font-weight: 600;
 }
-.badge-green { background: #d1fae5; color: #059669; }
-.badge-amber { background: #fef3c7; color: #d97706; }
+.badge-green { background: #dbeafe; color: #1d4ed8; }
+.badge-amber { background: #dbeafe; color: #1d4ed8; }
 .badge-blue  { background: #dbeafe; color: #1d4ed8; }
 
 /* ── Formulario ── */

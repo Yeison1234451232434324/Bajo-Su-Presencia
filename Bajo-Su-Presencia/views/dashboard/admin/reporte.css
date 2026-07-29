@@ -43,11 +43,11 @@
   transform: translateY(-2px);
 }
 .rep-evento-card--con-reporte {
-  background: #f0fdf4;
-  border-color: #bbf7d0;
+  background: #c7f2fa;
+  border-color: #166fa3;
 }
 .rep-evento-card--con-reporte:hover {
-  border-color: #16a34a;
+  border-color: #166fa3;
   box-shadow: 0 6px 20px rgba(22,163,74,0.15);
 }
 

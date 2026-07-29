@@ -31,9 +31,9 @@
   border-radius: 999px;
 }
 .chart-badge--blue   { background: #dbeafe; color: #1d4ed8; }
-.chart-badge--green  { background: #d1fae5; color: #059669; }
-.chart-badge--amber  { background: #fef3c7; color: #d97706; }
-.chart-badge--purple { background: #ede9fe; color: #7c3aed; }
+.chart-badge--green  { background: #dbeafe; color: #1d4ed8; }
+.chart-badge--amber  { background: #dbeafe; color: #1d4ed8; }
+.chart-badge--purple { background: #dbeafe; color: #1d4ed8; }
 
 /* ── Gráfica de dona ──────────────────────────────────────── */
 .chart-card--donut .donut-wrap {
@@ -102,10 +102,10 @@
   margin-top: 0.3rem;
   flex-shrink: 0;
 }
-.activity-dot--green  { background: #10b981; }
-.activity-dot--blue   { background: #1E3A8A; }
-.activity-dot--amber  { background: #d97706; }
-.activity-dot--purple { background: #7c3aed; }
+.activity-dot--green  { background: #1d4ed8; }
+.activity-dot--blue   { background: #1d4ed8; }
+.activity-dot--amber  { background: #1d4ed8; }
+.activity-dot--purple { background: #1d4ed8; }
 
 .activity-body {
   display: flex;
@@ -320,7 +320,7 @@
   border: 2px solid #a7f3d0;
   border-radius: 0.5rem;
   background: #fff;
-  color: #059669;
+  color: #051b96;
   font-family: var(--font-text);
   font-size: 0.9375rem;
   font-weight: 600;

@@ -279,14 +279,14 @@
 
 /* Tipo */
 .badge-tipo-peticion { background: #dbeafe; color: #1d4ed8; }
-.badge-tipo-queja    { background: #fee2e2; color: #dc2626; }
-.badge-tipo-reclamo  { background: #ffedd5; color: #c2410c; }
+.badge-tipo-queja    { background: #dbeafe; color: #1d4ed8; }
+.badge-tipo-reclamo  { background: #dbeafe; color: #1d4ed8; }
 
 /* Estado */
-.badge-estado-pendiente  { background: #fef3c7; color: #d97706; }
+.badge-estado-pendiente  { background: #dbeafe; color: #1d4ed8; }
 .badge-estado-enproceso  { background: #dbeafe; color: #1d4ed8; }
-.badge-estado-resuelto   { background: #d1fae5; color: #059669; }
-.badge-estado-cerrado    { background: #f3f4f6; color: #6b7280; }
+.badge-estado-resuelto   { background: #dbeafe; color: #1d4ed8; }
+.badge-estado-cerrado    { background: #dbeafe; color: #1d4ed8; }
 
 /* Prioridad */
 .badge-prio-alta  { background: #fee2e2; color: #dc2626; }
@@ -321,10 +321,10 @@
 .btn-ver-pqr      { background: #dbeafe; color: #1d4ed8; }
 .btn-ver-pqr:hover { background: #bfdbfe; }
 
-.btn-estado-pqr      { background: #fef3c7; color: #d97706; }
+.btn-estado-pqr      { background: #dbeafe; color: #1d4ed8; }
 .btn-estado-pqr:hover { background: #fde68a; }
 
-.btn-eliminar-pqr      { background: #fee2e2; color: #dc2626; }
+.btn-eliminar-pqr      { background: #dbeafe; color: #1d4ed8; }
 .btn-eliminar-pqr:hover { background: #fecaca; }
 
 /* ══════════════════════════════════════════════════

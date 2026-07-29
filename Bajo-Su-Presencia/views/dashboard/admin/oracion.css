@@ -138,11 +138,11 @@
 .btn-ver-or:hover     { background: #bfdbfe; }
 
 /* Editar → ámbar */
-.btn-editar-or  { background: #fef3c7; color: #d97706; }
+.btn-editar-or  { background: #dbeafe; color: #1d4ed8; }
 .btn-editar-or:hover  { background: #fde68a; }
 
 /* Eliminar → rojo */
-.btn-eliminar-or { background: #fee2e2; color: #dc2626; }
+.btn-eliminar-or { background: #dbeafe; color: #1d4ed8; }
 .btn-eliminar-or:hover { background: #fecaca; }
 
 /* Texto de la oración (truncado a 2 líneas) */

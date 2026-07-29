@@ -219,11 +219,11 @@
 }
 /* Colores de ícono por categoría */
 .icon-mobiliario  { background: #dbeafe; color: #1d4ed8; }
-.icon-audio       { background: #fef3c7; color: #d97706; }
-.icon-iluminacion { background: #fef9c3; color: #ca8a04; }
-.icon-papeleria   { background: #d1fae5; color: #059669; }
-.icon-cocina      { background: #fce7f3; color: #db2777; }
-.icon-otros       { background: #f3f4f6; color: #6b7280; }
+.icon-audio       { background: #dbeafe; color: #d97706; }
+.icon-iluminacion { background: #dbeafe; color: #ca8a04; }
+.icon-papeleria   { background: #dbeafe; color: #059669; }
+.icon-cocina      { background: #dbeafe; color: #db2777; }
+.icon-otros       { background: #dbeafe; color: #6b7280; }
 
 .recurso-nombre { font-weight: 700; font-size: 1rem; }
 .recurso-desc   { font-size: 0.8125rem; color: var(--muted); max-width: 220px;
@@ -231,11 +231,11 @@
 
 /* ── Badges de categoría ── */
 .cat-mobiliario  { background: #dbeafe; color: #1d4ed8; }
-.cat-audio       { background: #fef3c7; color: #d97706; }
-.cat-iluminacion { background: #fef9c3; color: #ca8a04; }
-.cat-papeleria   { background: #d1fae5; color: #059669; }
-.cat-cocina      { background: #fce7f3; color: #db2777; }
-.cat-otros       { background: #f3f4f6; color: #6b7280; }
+.cat-audio       { background: #dbeafe; color: #1d4ed8; }
+.cat-iluminacion { background: #dbeafe; color: #1d4ed8; }
+.cat-papeleria   { background: #dbeafe; color: #1d4ed8; }
+.cat-cocina      { background: #dbeafe; color: #1d4ed8; }
+.cat-otros       { background: #dbeafe; color: #1d4ed8; }
 
 /* Badges reutilizados */
 .badge-red    { background: #fee2e2; color: #dc2626; }
@@ -261,16 +261,16 @@
 .btn-editar-rec   { background: #dbeafe; color: #1d4ed8; }
 .btn-editar-rec:hover   { background: #bfdbfe; }
 
-.btn-toggle-on    { background: #d1fae5; color: #059669; }
+.btn-toggle-on    { background: #dbeafe; color: #059669; }
 .btn-toggle-on:hover    { background: #a7f3d0; }
 
-.btn-toggle-off   { background: #fee2e2; color: #dc2626; }
+.btn-toggle-off   { background: #dbeafe; color: #dc2626; }
 .btn-toggle-off:hover   { background: #fecaca; }
 
-.btn-asignar      { background: #ede9fe; color: #7c3aed; }
+.btn-asignar      { background: #dbeafe; color: #7c3aed; }
 .btn-asignar:hover      { background: #ddd6fe; }
 
-.btn-eliminar-rec { background: #fee2e2; color: #dc2626; }
+.btn-eliminar-rec { background: #dbeafe; color: #dc2626; }
 .btn-eliminar-rec:hover { background: #fecaca; }
 
 /* ══════════════════════════════════════════════════
