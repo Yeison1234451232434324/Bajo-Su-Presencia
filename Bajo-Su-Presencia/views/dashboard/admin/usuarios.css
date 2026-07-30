@@ -217,7 +217,7 @@
 
 /* ── Badges ── */
 .badge-red    { background: #fee2e2; color: #dc2626; }
-.badge-purple { background: #e2e8f0; color: #475569; }
+.badge-purple { background: #dbeafe; color: #1d4ed8; }
 
 /* ── Botones de acción ── */
 .acciones-cell {
@@ -240,14 +240,14 @@
 .btn-accion:disabled { cursor: not-allowed; opacity: 0.4; }
 .btn-accion:not(:disabled):active { transform: scale(0.92); }
 
-.btn-ver      { background: #dbeafe; color: #1d4ed8; }
-.btn-ver:hover      { background: #bfdbfe; }
+.btn-ver      { background: #dbeafe; color: #0F1E5A; }
+.btn-ver:hover      { background: #ddd6fe; }
 
-.btn-editar   { background: #dbeafe; color: #1d4ed8; }
+.btn-editar   { background: #dbeafe; color: #0F1E5A; }
 .btn-editar:hover   { background: #bfdbfe; }
 
-.btn-toggle   { background: #dbeafe; color: #1d4ed8; }
-.btn-toggle:hover   { background: #bfdbfe; }
+.btn-toggle   { background: #dbeafe; color: #0F1E5A; }
+.btn-toggle:hover   { background: #a7f3d0; }
 
 /* ══════════════════════════════════════════════════
    MODAL
@@ -440,8 +440,8 @@
 
 /* Badge de especialidad (reutilizado en tabla y eventos) */
 .badge-especialidad {
-  background: #bfdbfe;
-  color: #1d4ed8;
+  background: #e0f2fe;
+  color: #0369a1;
 }
 
 /* ── Toast de error ── */
@@ -501,7 +501,7 @@
 }
 
 #usuarios-dt-container .bsp-dt-filters {
-  background: #dbeafe;
+  background: #f0f4ff;
   border-color: #c7d2fe;
 }
 
