@@ -112,10 +112,11 @@
 .ev-rec-body { flex: 1; min-width: 0; }
 
 .ev-rec-header {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 0.4rem;
+  row-gap: 0.2rem;
+  align-items: start;
   margin-bottom: 0.2rem;
 }
 
@@ -124,6 +125,9 @@
   font-size: 1.1rem;
   color: var(--primary);
   flex-shrink: 0;
+  grid-row: 1;
+  grid-column: 1;
+
 }
 
 /* Nombre del recurso (label clickeable) */
@@ -134,12 +138,37 @@
   cursor: pointer;
   flex: 1;
   min-width: 0;
+  grid-row: 1;
+  grid-column: 2;
 }
 
 /* Badge de stock disponible */
 .ev-rec-stock {
   font-size: 0.8125rem;
   white-space: nowrap;
+  grid-row: 2;
+  grid-column: 2;
+  justify-self: start;
+}
+
+/* ══════════════════════════════════════════════════
+   Alinear "Guía de sección" con el ancho del formulario
+   (panel.css la define a 80rem; aquí el formulario usa 72rem)
+══════════════════════════════════════════════════ */
+.guia-seccion {
+  max-width: 72rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ══════════════════════════════════════════════════
+   El formulario de eventos debe ocupar todo el ancho
+   de su columna (panel.css limita .form-card a 56rem,
+   pero aquí la columna disponible es más ancha)
+══════════════════════════════════════════════════ */
+.ev-form-col .form-card {
+  max-width: 100%;
+  margin: 0;
 }
 
 /* Badge de especialidad (tarjetas de especialistas) */
@@ -148,6 +177,9 @@
   color: #0369a1;
   font-size: 0.8125rem;
   white-space: nowrap;
+  grid-row: 2;
+  grid-column: 2;
+  justify-self: start;
 }
 
 /* Categoría del recurso */
@@ -192,7 +224,7 @@
 ══════════════════════════════════════════════════ */
 .ev-publicados-section {
   margin-top: 2.5rem;
-  max-width: 56rem;
+  max-width: 72rem;
   margin-left: auto;
   margin-right: auto;
   width: 100%;

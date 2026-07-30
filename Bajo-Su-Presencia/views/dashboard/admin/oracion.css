@@ -40,9 +40,9 @@
 /* ── Sección del historial ─────────────────────────────────────────────── */
 .or-historial-section {
   margin-top: 2.5rem;
-  max-width: 56rem;
-  margin-left: auto;
-  margin-right: auto;
+  max-width: 80rem;
+  margin-left: 0;
+  margin-right: 0;
   width: 100%;
 }
 
@@ -220,6 +220,14 @@
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s, transform 0.25s;
+}
+/* ══════════════════════════════════════════════════
+   El formulario de oración debe ocupar el mismo ancho
+   que "Guía de sección" (panel.css limita .form-card a 56rem)
+══════════════════════════════════════════════════ */
+.form-card {
+  max-width: 80rem;
+  margin: 0;
 }
 .modal-ver-oracion.visible {
   opacity: 1;
