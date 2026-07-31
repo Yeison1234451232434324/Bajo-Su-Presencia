@@ -86,8 +86,8 @@ body {
 }
 .dn-hero-text {
   position: relative; z-index: 2;
-  width: min(52%, 640px);
-  padding: 0 2rem 0 max(1.5rem, calc((100vw - 1180px) / 2 + 1.5rem));
+  width: min(60%, 800px);
+  padding: 0 2rem 0 clamp(1.5rem, 6vw, 5rem);
   animation: dnFadeUp 0.7s var(--ease) both;
 }
 .dn-eyebrow {
@@ -97,7 +97,7 @@ body {
 }
 .dn-hero-title {
   font-family: var(--font-serif); font-weight: 700; color: var(--azul);
-  font-size: clamp(2.6rem, 6vw, 4.4rem); line-height: 1.02; letter-spacing: -0.01em;
+  font-size: clamp(2.4rem, 5vw, 4rem); line-height: 1.05; letter-spacing: -0.01em; text-wrap: balance;
 }
 .dn-hero-title em { color: var(--oro); font-style: normal; }
 .dn-hero-sub { margin: 1.25rem 0 2rem; color: var(--muted); font-size: clamp(1rem, 2vw, 1.15rem); }
