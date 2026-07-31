@@ -93,7 +93,8 @@ body {
 .dn-eyebrow {
   display: inline-flex; align-items: center; gap: 0.5rem;
   font-size: 0.8rem; letter-spacing: 0.1em; font-weight: 700; color: var(--oro-2);
-  background: var(--oro-soft); border: 1px solid #f0e2c2; padding: 0.5rem 1rem; border-radius: 999px; margin-bottom: 1.5rem;
+  background: var(--oro-soft); border: 1px solid #f0e2c2; padding: 0.5rem 1rem; border-radius: 999px;
+  margin-top: 2.25rem; margin-bottom: 1.5rem;
 }
 .dn-hero-title {
   font-family: var(--font-serif); font-weight: 700; color: var(--azul);
@@ -115,19 +116,24 @@ body {
 }
 .dn-valores li:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.6); box-shadow: 0 22px 46px -18px rgba(15, 45, 104, 0.5); }
 
-/* Botón "Donar" con flecha animada que baja al formulario */
+/* "Donar" como flecha dinámica centrada que baja al formulario */
 .dn-scroll-donar {
-  display: inline-flex; align-items: center; gap: 0.55rem; margin-top: 1.9rem;
-  padding: 0.8rem 1.6rem; border-radius: 999px; text-decoration: none; cursor: pointer;
-  background: linear-gradient(135deg, var(--azul-2), var(--azul)); color: #fff; font-family: inherit; font-weight: 600; font-size: 1.05rem;
-  box-shadow: 0 16px 34px -12px rgba(15, 45, 104, 0.7);
-  transition: transform 0.2s var(--ease), box-shadow 0.25s var(--ease), filter 0.2s;
+  display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+  width: fit-content; margin: 2.2rem auto 0;
+  text-decoration: none; color: var(--azul); font-family: inherit; cursor: pointer;
 }
-.dn-scroll-donar .dn-heart { display: inline-flex; color: #ffd9df; }
-.dn-scroll-donar:hover { transform: translateY(-2px); box-shadow: 0 22px 44px -12px rgba(15, 45, 104, 0.85); filter: brightness(1.06); }
-.dn-scroll-donar:active { transform: translateY(0) scale(0.98); }
-.dn-scroll-arrow { animation: dnBob 1.5s ease-in-out infinite; }
-@keyframes dnBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
+.dn-scroll-label { font-weight: 700; font-size: 1.1rem; letter-spacing: 0.03em; }
+.dn-scroll-arrow {
+  display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; color: var(--azul);
+  background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 10px 24px -10px rgba(15, 45, 104, 0.45);
+  backdrop-filter: blur(8px) saturate(140%); -webkit-backdrop-filter: blur(8px) saturate(140%);
+  animation: dnBob 1.4s ease-in-out infinite;
+  transition: color 0.2s, background 0.25s, transform 0.2s var(--ease);
+}
+.dn-scroll-donar:hover .dn-scroll-arrow { color: var(--oro-2); background: rgba(255, 255, 255, 0.72); }
+.dn-scroll-donar:hover .dn-scroll-label { color: var(--oro-2); }
+@keyframes dnBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(7px); } }
 .dn-valor-ico {
   width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; color: #fff;
   background: linear-gradient(140deg, var(--azul-2), var(--azul));
