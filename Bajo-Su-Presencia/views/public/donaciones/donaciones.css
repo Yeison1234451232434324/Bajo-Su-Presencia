@@ -288,7 +288,7 @@ body {
 .lg-mc i:first-child { background: #eb001b; }
 .lg-mc i:last-child { background: #f79e1b; margin-left: -6px; mix-blend-mode: multiply; }
 .lg-amex { font-size: 0.5rem; font-weight: 800; color: #2e77bc; line-height: 1; text-align: center; letter-spacing: 0.02em; }
-.lg-img { height: 30px; width: auto; max-width: 100px; object-fit: contain; display: block; }
+.lg-img { height: 46px; width: auto; max-width: 140px; object-fit: contain; display: block; }
 
 /* Beneficios */
 .dn-benef { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; padding: clamp(1.5rem, 3vw, 2rem) clamp(1.5rem, 3vw, 2.5rem); }
