@@ -1,11 +1,11 @@
 <!--
   ================================================================
-  DONACIONES — experiencia premium guiada (maqueta)
+  DONACIONES — página única (según diseño de referencia)
   ================================================================
-  Landing emocional + wizard de 5 pasos (datos → monto → propósito →
-  resumen → método) con barra de progreso, loader, confeti y pantalla de
-  éxito. El cobro es SIMULADO; el comprobante por correo es real
-  (backend DonacionesController). Listo para conectar pasarela (Wompi/PayU).
+  Hero dividido (texto + imagen de iglesia con versículo) y una tarjeta
+  con las 5 secciones visibles a la vez: datos, monto, propósito, resumen
+  (en vivo) y método de pago. El cobro es SIMULADO; el comprobante por
+  correo es real (backend DonacionesController).
   ================================================================
 -->
 <!DOCTYPE html>
@@ -17,301 +17,259 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Donaciones — Bajo Su Presencia</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="donaciones.css" />
 </head>
 <body>
 
 <!-- ══ NAVBAR ══ -->
 <header class="dn-nav" id="dn-nav">
-  <a class="dn-nav-brand" href="/inicio">
-    <img src="/Bajo-Su-Presencia/assets/images/logo.png" alt="Bajo Su Presencia" />
-    <span>Bajo Su Presencia</span>
+  <a class="dn-brand" href="/inicio">
+    <svg class="dn-brand-cross" viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 3v18M8 8h8"/></svg>
+    <span class="dn-brand-txt"><b>Iglesia</b><small>Luz del Mundo</small></span>
   </a>
-  <nav class="dn-nav-actions">
-    <a class="dn-nav-link" href="/inicio">
-      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-      Regresar al inicio
-    </a>
-    <a class="dn-btn-donar" href="#dn-wizard">
-      <span class="dn-heart">♥</span> Donar ahora
-    </a>
+  <nav class="dn-menu">
+    <a href="/inicio">Inicio</a>
+    <a href="/nosotros">Nosotros</a>
+    <a href="/ministerios">Ministerios</a>
+    <a href="/eventos">Eventos</a>
+    <a href="/recursos">Recursos</a>
+    <a href="/contacto">Contacto</a>
   </nav>
+  <a class="dn-btn-donar" href="#dn-card">
+    <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/></svg>
+    Donar ahora
+  </a>
 </header>
 
 <!-- ══ HERO ══ -->
 <section class="dn-hero">
-  <div class="dn-hero-bg"></div>
-  <div class="dn-hero-veil"></div>
-  <div class="dn-hero-content">
-    <span class="dn-hero-eyebrow">Bajo Su Presencia · Donaciones</span>
-    <h1 class="dn-hero-title">Cada donación<br><em>transforma vidas</em></h1>
-    <p class="dn-hero-sub">
-      Cada aporte ayuda a extender el amor de Dios, apoyar familias,
-      servir a nuestra comunidad y llevar esperanza a muchas personas.
-    </p>
-    <a class="dn-hero-cta" href="#dn-wizard">
-      <span class="dn-heart">♥</span> Quiero donar
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
-    </a>
+  <div class="dn-hero-text">
+    <span class="dn-eyebrow">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/></svg>
+      DONA CON AMOR
+    </span>
+    <h1 class="dn-hero-title">Tu generosidad<br><em>transforma vidas</em></h1>
+    <p class="dn-hero-sub">Cada aporte ayuda a extender la obra de Dios<br>y apoyar a nuestra comunidad.</p>
+
+    <ul class="dn-valores">
+      <li>
+        <span class="dn-valor-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v18M8 8h8"/></svg></span>
+        <b>Edificamos<br>su Reino</b>
+      </li>
+      <li>
+        <span class="dn-valor-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M15 8a3 3 0 1 0 0-.01M3 20a6 6 0 0 1 12 0M15 14a6 6 0 0 1 6 6"/></svg></span>
+        <b>Apoyamos a<br>nuestra comunidad</b>
+      </li>
+      <li>
+        <span class="dn-valor-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/></svg></span>
+        <b>Llevamos esperanza<br>a más personas</b>
+      </li>
+    </ul>
   </div>
-  <a class="dn-scroll-hint" href="#dn-valores" aria-label="Bajar">
-    <span></span>
-  </a>
+
+  <div class="dn-hero-img">
+    <img src="https://images.unsplash.com/photo-1543968996-ee822b8176ba?auto=format&fit=crop&w=900&q=80" alt="Iglesia al atardecer" />
+    <figure class="dn-verse-card">
+      <span class="dn-quote">&ldquo;</span>
+      <blockquote>&ldquo;Dios ama al dador alegre.&rdquo;</blockquote>
+      <figcaption>2 Corintios 9:7</figcaption>
+      <span class="dn-verse-heart"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/></svg></span>
+    </figure>
+  </div>
 </section>
 
-<!-- ══ VALORES (3 tarjetas) ══ -->
-<section class="dn-valores" id="dn-valores">
-  <article class="dn-valor" style="--i:0">
-    <div class="dn-valor-ico">🏛</div>
-    <h3>Edificamos Su Reino</h3>
-    <p>Sostenemos la obra, el templo y cada ministerio que anuncia el evangelio.</p>
-  </article>
-  <article class="dn-valor" style="--i:1">
-    <div class="dn-valor-ico">❤️</div>
-    <h3>Ayudamos a la comunidad</h3>
-    <p>Acompañamos a familias y personas en necesidad con amor y dignidad.</p>
-  </article>
-  <article class="dn-valor" style="--i:2">
-    <div class="dn-valor-ico">🌎</div>
-    <h3>Llevamos esperanza</h3>
-    <p>Extendemos misiones y proyectos que alcanzan a más corazones cada día.</p>
-  </article>
-</section>
+<!-- ══ TARJETA DE DONACIÓN (todo visible) ══ -->
+<main class="dn-wrap">
+  <form class="dn-card" id="dn-card" novalidate>
 
-<!-- ══ TARJETA PRINCIPAL / WIZARD ══ -->
-<section class="dn-wrap" id="dn-wizard">
-  <div class="dn-card" id="dn-card">
-
+    <!-- Encabezado -->
     <div class="dn-card-head">
       <div class="dn-card-head-left">
-        <span class="dn-card-emoji">🙏</span>
+        <span class="dn-head-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span>
         <div>
-          <h2>Gracias por querer ser parte de esta obra.</h2>
-          <p>Tu generosidad hace la diferencia. Te guiamos en 5 pasos sencillos.</p>
+          <h2>¡Gracias por tu corazón generoso!</h2>
+          <p>Tu donación marca la diferencia.</p>
         </div>
       </div>
       <div class="dn-secure">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        <div>
-          <strong>Pago seguro y protegido</strong>
-          <span>Tus datos están 100% seguros.</span>
-        </div>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <div><strong>Pago seguro y protegido</strong><span>Tus datos están 100% seguros</span></div>
       </div>
     </div>
 
-    <!-- Barra de progreso -->
-    <div class="dn-steps" id="dn-steps">
-      <div class="dn-steps-line"><div class="dn-steps-fill" id="dn-steps-fill"></div></div>
-      <ol>
-        <li class="is-active" data-step="1"><span class="dn-dot">1</span><b>Tus datos</b></li>
-        <li data-step="2"><span class="dn-dot">2</span><b>Monto</b></li>
-        <li data-step="3"><span class="dn-dot">3</span><b>Propósito</b></li>
-        <li data-step="4"><span class="dn-dot">4</span><b>Resumen</b></li>
-        <li data-step="5"><span class="dn-dot">5</span><b>Pago</b></li>
-      </ol>
-    </div>
-
-    <form id="dn-form" class="dn-panels" novalidate>
-
-      <!-- PASO 1 · Datos -->
-      <section class="dn-panel is-active" data-panel="1">
-        <div class="dn-panel-head">
-          <h3>Tus datos</h3>
+    <!-- 1 · Tus datos -->
+    <section class="dn-sec">
+      <div class="dn-sec-head"><span class="dn-num">1</span><div><h3>Tus datos</h3><p>Ingresa tus datos para enviarte el comprobante.</p></div></div>
+      <div class="dn-datos">
+        <div class="dn-field">
+          <label for="dn-nombre">Nombre completo <span class="dn-muted">(opcional)</span></label>
+          <div class="dn-input-wrap">
+            <svg class="dn-in-ico" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+            <input type="text" id="dn-nombre" class="dn-input" placeholder="Ej. Juan Pérez" autocomplete="name">
+          </div>
+        </div>
+        <div class="dn-field">
+          <label for="dn-correo">Correo electrónico <span class="dn-req">obligatorio</span></label>
+          <div class="dn-input-wrap">
+            <svg class="dn-in-ico" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+            <input type="email" id="dn-correo" class="dn-input" placeholder="ejemplo@correo.com" autocomplete="email" required>
+          </div>
+        </div>
+        <div class="dn-anon-card">
           <label class="dn-switch">
             <input type="checkbox" id="dn-anon">
             <span class="dn-switch-track"><span class="dn-switch-thumb"></span></span>
-            <span class="dn-switch-label">
-              Donación anónima
-              <button type="button" class="dn-tip" aria-label="Más información">?
-                <span class="dn-tip-box">Tu identidad será tratada de forma confidencial.</span>
-              </button>
+            <span class="dn-switch-info">
+              <b>Donación anónima</b>
+              <small>No mostrar mi nombre</small>
             </span>
           </label>
-        </div>
-
-        <div class="dn-field">
-          <label for="dn-nombre">Nombre completo <span class="dn-muted">(opcional)</span></label>
-          <input type="text" id="dn-nombre" class="dn-input" placeholder="Juan Pérez" autocomplete="name">
-        </div>
-
-        <div class="dn-field">
-          <label for="dn-correo">Correo electrónico <span class="dn-req">obligatorio</span></label>
-          <input type="email" id="dn-correo" class="dn-input" placeholder="ejemplo@correo.com" autocomplete="email" required>
-          <p class="dn-help">📩 Te enviaremos automáticamente el comprobante de la donación.</p>
-          <p class="dn-err" id="dn-err-correo"></p>
-        </div>
-
-        <div class="dn-anon-note" id="dn-anon-note" hidden>
-          <p>✔ En el comprobante aparecerá el nombre.</p>
-          <p>✔ La iglesia conservará el nombre para control interno.</p>
-          <p>✔ El nombre <b>no</b> será publicado ni mostrado a otras personas.</p>
-        </div>
-      </section>
-
-      <!-- PASO 2 · Monto -->
-      <section class="dn-panel" data-panel="2">
-        <div class="dn-panel-head"><h3>¿Cuánto deseas donar?</h3></div>
-        <div class="dn-montos" id="dn-montos">
-          <button type="button" class="dn-monto" data-monto="20000"><span class="dn-check"></span>$20.000</button>
-          <button type="button" class="dn-monto" data-monto="50000"><span class="dn-check"></span>$50.000</button>
-          <button type="button" class="dn-monto" data-monto="100000"><span class="dn-check"></span>$100.000</button>
-          <button type="button" class="dn-monto" data-monto="200000"><span class="dn-check"></span>$200.000</button>
-          <button type="button" class="dn-monto" data-monto="500000"><span class="dn-check"></span>$500.000</button>
-          <button type="button" class="dn-monto dn-monto-otro" id="dn-monto-otro"><span class="dn-check"></span>Otro valor</button>
-        </div>
-        <div class="dn-otro-wrap" id="dn-otro-wrap" hidden>
-          <span class="dn-cop">$</span>
-          <input type="text" id="dn-otro" class="dn-input dn-otro-input" inputmode="numeric" placeholder="Escribe el monto (COP)">
-          <span class="dn-cop-suf">COP</span>
-        </div>
-        <p class="dn-err" id="dn-err-monto"></p>
-      </section>
-
-      <!-- PASO 3 · Propósito -->
-      <section class="dn-panel" data-panel="3">
-        <div class="dn-panel-head"><h3>¿Para qué es tu donación?</h3></div>
-        <div class="dn-props" id="dn-props">
-          <button type="button" class="dn-prop" data-prop="Diezmo">
-            <span class="dn-prop-ico">❤️</span>
-            <b>Diezmo</b><small>Tu diezmo fiel a la casa de Dios.</small>
-            <span class="dn-prop-arrow">›</span>
-          </button>
-          <button type="button" class="dn-prop" data-prop="Ofrenda">
-            <span class="dn-prop-ico">🙏</span>
-            <b>Ofrenda</b><small>Una ofrenda de amor y gratitud.</small>
-            <span class="dn-prop-arrow">›</span>
-          </button>
-          <button type="button" class="dn-prop" data-prop="Misiones">
-            <span class="dn-prop-ico">🌎</span>
-            <b>Misiones</b><small>Lleva el evangelio a más lugares.</small>
-            <span class="dn-prop-arrow">›</span>
-          </button>
-          <button type="button" class="dn-prop" data-prop="Ayuda Social">
-            <span class="dn-prop-ico">🤝</span>
-            <b>Ayuda Social</b><small>Apoyo a familias y personas en necesidad.</small>
-            <span class="dn-prop-arrow">›</span>
-          </button>
-          <button type="button" class="dn-prop" data-prop="Construcción del templo">
-            <span class="dn-prop-ico">🏛</span>
-            <b>Construcción del templo</b><small>Edifiquemos juntos la casa de oración.</small>
-            <span class="dn-prop-arrow">›</span>
+          <button type="button" class="dn-tip" aria-label="Más información">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+            <span class="dn-tip-box">Tu identidad será tratada de forma confidencial. Solo usamos tu correo para el comprobante.</span>
           </button>
         </div>
-        <p class="dn-err" id="dn-err-prop"></p>
-      </section>
+      </div>
+      <p class="dn-err" id="dn-err-correo"></p>
+    </section>
 
-      <!-- PASO 4 · Resumen -->
-      <section class="dn-panel" data-panel="4">
-        <div class="dn-panel-head"><h3>Resumen del aporte</h3></div>
-        <div class="dn-resumen" id="dn-resumen">
-          <div class="dn-res-row"><span>Nombre</span><b id="dn-r-nombre">—</b></div>
-          <div class="dn-res-row"><span>Correo</span><b id="dn-r-correo">—</b></div>
-          <div class="dn-res-row"><span>Tipo</span><b id="dn-r-prop">—</b></div>
-          <div class="dn-res-row"><span>Monto</span><b id="dn-r-monto">—</b></div>
-          <div class="dn-res-total"><span>Total</span><b id="dn-r-total">—</b></div>
+    <!-- 2 · Monto -->
+    <section class="dn-sec">
+      <div class="dn-sec-head"><span class="dn-num">2</span><div><h3>¿Cuánto deseas donar?</h3><p>Elige un monto o ingresa uno personalizado.</p></div></div>
+      <div class="dn-montos">
+        <button type="button" class="dn-monto" data-monto="20000"><span class="dn-check"></span><b>$20.000</b><small>COP</small></button>
+        <button type="button" class="dn-monto" data-monto="50000"><span class="dn-check"></span><b>$50.000</b><small>COP</small></button>
+        <button type="button" class="dn-monto" data-monto="100000"><span class="dn-check"></span><b>$100.000</b><small>COP</small></button>
+        <button type="button" class="dn-monto" data-monto="200000"><span class="dn-check"></span><b>$200.000</b><small>COP</small></button>
+        <div class="dn-otro" id="dn-otro-field">
+          <label for="dn-otro">Otro monto</label>
+          <div class="dn-otro-in"><span>$</span><input type="text" id="dn-otro" inputmode="numeric" placeholder="Ingresa tu monto"></div>
         </div>
-      </section>
+      </div>
+      <p class="dn-err" id="dn-err-monto"></p>
+    </section>
 
-      <!-- PASO 5 · Método de pago -->
-      <section class="dn-panel" data-panel="5">
-        <div class="dn-panel-head"><h3>Selecciona tu método de pago</h3></div>
-        <div class="dn-metodos" id="dn-metodos">
-          <button type="button" class="dn-metodo" data-metodo="Tarjeta">
-            <span class="dn-metodo-ico">💳</span>
-            <div class="dn-metodo-txt"><b>Tarjeta</b><small>Visa · Mastercard · American Express</small></div>
-            <span class="dn-metodo-arrow">›</span>
-          </button>
-          <button type="button" class="dn-metodo" data-metodo="PSE">
-            <span class="dn-metodo-ico">🏦</span>
-            <div class="dn-metodo-txt"><b>PSE</b><small>Pago seguro desde tu banco.</small></div>
-            <span class="dn-metodo-arrow">›</span>
-          </button>
-          <button type="button" class="dn-metodo" data-metodo="Nequi">
-            <span class="dn-metodo-ico">📱</span>
-            <div class="dn-metodo-txt"><b>Nequi</b><small>Paga fácilmente desde tu Nequi.</small></div>
-            <span class="dn-metodo-arrow">›</span>
-          </button>
-        </div>
-        <p class="dn-err" id="dn-err-metodo"></p>
-        <p class="dn-secure-mini">🔒 Esta es una versión de prueba: el cobro es simulado, pero el comprobante llega a tu correo.</p>
-      </section>
-
-      <!-- Navegación -->
-      <div class="dn-nav-steps">
-        <button type="button" class="dn-back" id="dn-back" hidden>
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-          Atrás
+    <!-- 3 · Propósito -->
+    <section class="dn-sec">
+      <div class="dn-sec-head"><span class="dn-num">3</span><div><h3>¿Para qué es tu donación?</h3><p>Tu aporte se destina a lo que Dios ha puesto en nuestro corazón.</p></div></div>
+      <div class="dn-props">
+        <button type="button" class="dn-prop" data-prop="Diezmo">
+          <span class="dn-check"></span>
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/></svg>
+          <b>Diezmo</b>
         </button>
-        <button type="button" class="dn-next" id="dn-next">
-          Continuar
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        <button type="button" class="dn-prop" data-prop="Ofrenda">
+          <span class="dn-check"></span>
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/><path d="M3 13h4l2-3 2 5 2-4h6"/></svg>
+          <b>Ofrenda</b>
         </button>
-        <button type="submit" class="dn-submit" id="dn-submit" hidden>
-          <span class="dn-heart">♥</span> Confirmar donación
+        <button type="button" class="dn-prop" data-prop="Misiones">
+          <span class="dn-check"></span>
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg>
+          <b>Misiones</b>
+        </button>
+        <button type="button" class="dn-prop" data-prop="Ayuda Social">
+          <span class="dn-check"></span>
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M15 8a3 3 0 1 0 0-.01M3 20a6 6 0 0 1 12 0M15 14a6 6 0 0 1 6 6"/></svg>
+          <b>Ayuda Social</b>
+        </button>
+        <button type="button" class="dn-prop" data-prop="Construcción del Templo">
+          <span class="dn-check"></span>
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M10 4h4M4 21V11l8-4 8 4v10M9 21v-5h6v5"/></svg>
+          <b>Construcción<br>del Templo</b>
         </button>
       </div>
-    </form>
-  </div>
-</section>
+      <p class="dn-err" id="dn-err-prop"></p>
+    </section>
 
-<!-- ══ BENEFICIOS ══ -->
-<section class="dn-benef">
-  <article class="dn-benef-card">
-    <div class="dn-benef-ico">🔒</div>
-    <h4>Conexión SSL</h4>
-    <p>Pago 100% seguro. Tus datos protegidos en todo momento.</p>
-  </article>
-  <article class="dn-benef-card">
-    <div class="dn-benef-ico">🛡️</div>
-    <h4>Transparencia</h4>
-    <p>Cada donación queda registrada correctamente.</p>
-  </article>
-  <article class="dn-benef-card">
-    <div class="dn-benef-ico">⚡</div>
-    <h4>Comprobante inmediato</h4>
-    <p>Recibirás automáticamente el comprobante por correo.</p>
-  </article>
-</section>
+    <!-- 4 · Resumen (en vivo) -->
+    <section class="dn-sec">
+      <div class="dn-sec-head"><span class="dn-num">4</span><div><h3>Resumen de tu aporte</h3><p>Revisa los detalles antes de continuar.</p></div></div>
+      <div class="dn-resumen">
+        <div class="dn-res-item"><span>Monto</span><b id="dn-r-monto">—</b></div>
+        <div class="dn-res-item"><span>Propósito</span><b id="dn-r-prop">—</b></div>
+        <div class="dn-res-item"><span>Donante</span><b id="dn-r-donante">—</b></div>
+        <div class="dn-res-item"><span>Correo</span><b id="dn-r-correo">—</b></div>
+        <div class="dn-res-total"><span>Total a pagar</span><b id="dn-r-total">—</b></div>
+      </div>
+    </section>
+
+    <!-- 5 · Método de pago -->
+    <section class="dn-sec">
+      <div class="dn-sec-head"><span class="dn-num">5</span><div><h3>Elige tu método de pago</h3><p>Selecciona la opción que prefieras.</p></div></div>
+      <div class="dn-metodos">
+        <button type="button" class="dn-metodo" data-metodo="Tarjeta">
+          <div class="dn-metodo-top"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="var(--azul)" stroke-width="1.6" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M2 10h20"/></svg><span class="dn-metodo-arrow">›</span></div>
+          <b>Tarjeta Débito / Crédito</b>
+          <small>Paga de forma segura con tu tarjeta</small>
+          <div class="dn-logos">
+            <span class="lg-visa">VISA</span>
+            <span class="lg-mc"><i></i><i></i></span>
+            <span class="lg-amex">AMERICAN<br>EXPRESS</span>
+          </div>
+        </button>
+        <button type="button" class="dn-metodo" data-metodo="PSE">
+          <div class="dn-metodo-top"><span class="lg-pse">pse</span><span class="dn-metodo-arrow">›</span></div>
+          <b>PSE</b>
+          <small>Pago seguro en línea<br>desde tu banco</small>
+        </button>
+        <button type="button" class="dn-metodo" data-metodo="Nequi">
+          <div class="dn-metodo-top"><span class="lg-nequi">Nequi</span><span class="dn-metodo-arrow">›</span></div>
+          <b>Nequi</b>
+          <small>Paga fácilmente<br>desde tu Nequi</small>
+        </button>
+      </div>
+      <p class="dn-err" id="dn-err-metodo"></p>
+    </section>
+
+    <!-- Beneficios -->
+    <div class="dn-benef">
+      <div class="dn-benef-item">
+        <span class="dn-benef-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+        <div><b>Conexión segura SSL</b><small>Tus datos están protegidos</small></div>
+      </div>
+      <div class="dn-benef-item">
+        <span class="dn-benef-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6z"/><path d="m9 12 2 2 4-4"/></svg></span>
+        <div><b>Pago 100% seguro</b><small>Procesamos tu donación con total seguridad</small></div>
+      </div>
+      <div class="dn-benef-item">
+        <span class="dn-benef-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></span>
+        <div><b>Transparencia</b><small>Cada donación es registrada y utilizada con responsabilidad</small></div>
+      </div>
+    </div>
+  </form>
+</main>
 
 <!-- ══ BANNER FINAL ══ -->
 <section class="dn-banner">
-  <div class="dn-banner-img"></div>
+  <span class="dn-banner-ico"><svg viewBox="0 0 24 24" width="52" height="52" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/><path d="M3 15a5 5 0 0 1 4-2M21 15a5 5 0 0 0-4-2"/></svg></span>
   <div class="dn-banner-txt">
-    <h3>Gracias por ser luz en la vida de otros.</h3>
+    <h3>Gracias por ser luz en la vida de otros</h3>
     <p>Tu generosidad genera un impacto eterno.</p>
   </div>
-  <blockquote class="dn-verse">
-    <p>"Dios ama al dador alegre."</p>
+  <blockquote class="dn-banner-verse">
+    <span class="dn-quote">&ldquo;</span>
+    <p>Cada uno dé como propuso en su corazón:<br>no con tristeza, ni por necesidad;<br>porque Dios ama al dador alegre.</p>
     <cite>2 Corintios 9:7</cite>
   </blockquote>
 </section>
 
-<footer class="dn-footer">
-  <img src="/Bajo-Su-Presencia/assets/images/logo.png" alt="" />
-  <span>Bajo Su Presencia · Donaciones seguras</span>
-</footer>
-
 <!-- ══ LOADER ══ -->
 <div class="dn-overlay" id="dn-loader" hidden>
-  <div class="dn-loader">
-    <div class="dn-loader-ring"></div>
-    <p>Procesando tu donación…</p>
-  </div>
+  <div class="dn-loader"><div class="dn-loader-ring"></div><p>Procesando tu donación…</p></div>
 </div>
 
 <!-- ══ ÉXITO ══ -->
 <div class="dn-overlay" id="dn-success" hidden>
   <div class="dn-success-card">
-    <div class="dn-success-check">
-      <svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24" fill="none"/><path fill="none" d="M14 27l8 8 16-16"/></svg>
-    </div>
+    <div class="dn-success-check"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24" fill="none"/><path fill="none" d="M14 27l8 8 16-16"/></svg></div>
     <h2>¡Gracias por tu donación!</h2>
     <p id="dn-success-msg">Enviamos el comprobante a tu correo.</p>
     <div class="dn-success-resumen" id="dn-success-resumen"></div>
     <div class="dn-success-actions">
-      <a class="dn-btn-donar" href="/inicio">Volver al inicio</a>
-      <button type="button" class="dn-back" id="dn-otra">Hacer otra donación</button>
+      <a class="dn-btn-donar dn-btn-block" href="/inicio">Volver al inicio</a>
+      <button type="button" class="dn-link" id="dn-otra">Hacer otra donación</button>
     </div>
   </div>
 </div>
