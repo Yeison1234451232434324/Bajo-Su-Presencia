@@ -28,8 +28,8 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* Misma escala base que el resto de la app (/inicio usa 17px). */
-html { font-size: 17px; }
+/* Escala base de esta página (algo mayor que /inicio para textos más grandes). */
+html { font-size: 19px; }
 
 /* El atributo `hidden` debe ganar a cualquier display de autor. */
 [hidden] { display: none !important; }
