@@ -17,6 +17,14 @@
 
   var estado = { nombre: '', correo: '', anonimo: false, monto: 0, proposito: '', metodo: '' };
 
+  // Botón "Donar" del hero → baja al formulario (evita que el <base href> del
+  // front-controller convierta el #dn-card en una navegación a un 404).
+  var donarBtn = $('.dn-scroll-donar');
+  if (donarBtn) donarBtn.addEventListener('click', function (e) {
+    e.preventDefault();
+    $('#dn-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
   // ── Errores ──────────────────────────────────────────────────────────────
   function limpiarError(k) { var e = $('#dn-err-' + k); if (e) e.textContent = ''; var i = $('#dn-' + k); if (i) i.classList.remove('error'); }
   function mostrarError(k, msg) {

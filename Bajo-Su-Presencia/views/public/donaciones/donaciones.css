@@ -102,8 +102,32 @@ body {
 .dn-hero-title em { color: var(--oro); font-style: normal; }
 .dn-hero-sub { margin: 1.25rem 0 2rem; color: var(--muted); font-size: clamp(1rem, 2vw, 1.15rem); }
 
-.dn-valores { list-style: none; display: flex; gap: clamp(1rem, 3vw, 2.2rem); flex-wrap: wrap; }
-.dn-valores li { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.6rem; }
+.dn-valores { list-style: none; display: flex; gap: clamp(0.75rem, 1.5vw, 1.1rem); flex-wrap: wrap; }
+.dn-valores li {
+  flex: 1 1 130px; min-width: 130px;
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.6rem;
+  padding: 1.15rem 0.9rem; border-radius: 18px;
+  background: rgba(255, 255, 255, 0.42);
+  backdrop-filter: blur(14px) saturate(150%); -webkit-backdrop-filter: blur(14px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 14px 32px -18px rgba(15, 45, 104, 0.4);
+  transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease), background 0.3s;
+}
+.dn-valores li:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.6); box-shadow: 0 22px 46px -18px rgba(15, 45, 104, 0.5); }
+
+/* Botón "Donar" con flecha animada que baja al formulario */
+.dn-scroll-donar {
+  display: inline-flex; align-items: center; gap: 0.55rem; margin-top: 1.9rem;
+  padding: 0.8rem 1.6rem; border-radius: 999px; text-decoration: none; cursor: pointer;
+  background: linear-gradient(135deg, var(--azul-2), var(--azul)); color: #fff; font-family: inherit; font-weight: 600; font-size: 1.05rem;
+  box-shadow: 0 16px 34px -12px rgba(15, 45, 104, 0.7);
+  transition: transform 0.2s var(--ease), box-shadow 0.25s var(--ease), filter 0.2s;
+}
+.dn-scroll-donar .dn-heart { display: inline-flex; color: #ffd9df; }
+.dn-scroll-donar:hover { transform: translateY(-2px); box-shadow: 0 22px 44px -12px rgba(15, 45, 104, 0.85); filter: brightness(1.06); }
+.dn-scroll-donar:active { transform: translateY(0) scale(0.98); }
+.dn-scroll-arrow { animation: dnBob 1.5s ease-in-out infinite; }
+@keyframes dnBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
 .dn-valor-ico {
   width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; color: #fff;
   background: linear-gradient(140deg, var(--azul-2), var(--azul));
