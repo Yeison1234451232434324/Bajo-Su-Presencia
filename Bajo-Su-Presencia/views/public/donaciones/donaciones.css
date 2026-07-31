@@ -102,11 +102,11 @@ body {
 .dn-hero-title em { color: var(--oro); font-style: normal; }
 .dn-hero-sub { margin: 1.25rem 0 2rem; color: var(--muted); font-size: clamp(1rem, 2vw, 1.15rem); }
 
-.dn-valores { list-style: none; display: flex; gap: clamp(0.75rem, 1.5vw, 1.1rem); flex-wrap: wrap; }
+.dn-valores { list-style: none; display: flex; gap: 0.7rem; flex-wrap: nowrap; }
 .dn-valores li {
-  flex: 1 1 130px; min-width: 130px;
-  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.6rem;
-  padding: 1.15rem 0.9rem; border-radius: 18px;
+  flex: 1 1 0; min-width: 0;
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.5rem;
+  padding: 1rem 0.6rem; border-radius: 16px;
   background: rgba(255, 255, 255, 0.42);
   backdrop-filter: blur(14px) saturate(150%); -webkit-backdrop-filter: blur(14px) saturate(150%);
   border: 1px solid rgba(255, 255, 255, 0.65);
@@ -129,12 +129,12 @@ body {
 .dn-scroll-arrow { animation: dnBob 1.5s ease-in-out infinite; }
 @keyframes dnBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
 .dn-valor-ico {
-  width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; color: #fff;
+  width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; color: #fff;
   background: linear-gradient(140deg, var(--azul-2), var(--azul));
   box-shadow: 0 12px 24px -12px rgba(15, 45, 104, 0.75); transition: transform 0.3s var(--ease);
 }
 .dn-valores li:hover .dn-valor-ico { transform: translateY(-4px) scale(1.05); }
-.dn-valores li b { color: var(--azul); font-size: 0.82rem; font-weight: 600; line-height: 1.3; }
+.dn-valores li b { color: var(--azul); font-size: 0.78rem; font-weight: 600; line-height: 1.25; }
 
 .dn-hero-img {
   position: absolute; inset: 0; width: 100%; z-index: 0;
