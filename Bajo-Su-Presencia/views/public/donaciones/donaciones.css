@@ -116,10 +116,10 @@ body {
 }
 .dn-valores li:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.6); box-shadow: 0 22px 46px -18px rgba(15, 45, 104, 0.5); }
 
-/* "Donar" como flecha dinámica centrada que baja al formulario */
+/* "Donar" como flecha dinámica centrada en todo el ancho del hero */
 .dn-scroll-donar {
+  position: absolute; left: 50%; bottom: clamp(1.5rem, 4vh, 3rem); transform: translateX(-50%); z-index: 3;
   display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
-  width: fit-content; margin: 2.2rem auto 0;
   text-decoration: none; color: var(--azul); font-family: inherit; cursor: pointer;
 }
 .dn-scroll-label { font-weight: 700; font-size: 1.1rem; letter-spacing: 0.03em; }
@@ -354,6 +354,7 @@ body {
   .dn-hero-img { position: static; width: 100%; height: 300px; order: -1; }
   .dn-hero-img img { height: 100%; border-radius: 0 0 24px 24px; }
   .dn-hero-text { width: 100%; padding: 2rem 1.25rem 0; }
+  .dn-scroll-donar { position: static; transform: none; margin: 1.75rem auto 0.5rem; }
   .dn-datos { grid-template-columns: 1fr; }
   .dn-anon-card { margin-top: 0; }
   .dn-montos { grid-template-columns: repeat(2, 1fr); }
