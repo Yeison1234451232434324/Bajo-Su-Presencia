@@ -190,7 +190,7 @@ body {
 .dn-sec-head p { color: var(--muted); font-size: 0.9rem; }
 
 /* Campos */
-.dn-datos { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+.dn-datos { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 .dn-field label { display: block; font-weight: 600; font-size: 0.9rem; color: var(--tinta); margin-bottom: 0.5rem; }
 .dn-req { font-size: 0.68rem; font-weight: 700; color: #b45309; background: #fdeccd; padding: 0.12rem 0.5rem; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.03em; vertical-align: middle; }
 .dn-input-wrap { position: relative; display: flex; align-items: center; }

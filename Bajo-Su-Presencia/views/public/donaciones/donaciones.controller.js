@@ -34,9 +34,13 @@
   }
 
   // ── Paso 1: datos ────────────────────────────────────────────────────────
-  $('#dn-nombre').addEventListener('input', function () { estado.nombre = this.value.trim(); pintarResumen(); });
-  $('#dn-correo').addEventListener('input', function () { estado.correo = this.value.trim(); limpiarError('correo'); pintarResumen(); });
-  $('#dn-anon').addEventListener('change', function () { estado.anonimo = this.checked; pintarResumen(); });
+  var nombreEl = $('#dn-nombre');
+  if (nombreEl) nombreEl.addEventListener('input', function () { estado.nombre = this.value.trim(); pintarResumen(); });
+  var correoEl = $('#dn-correo');
+  if (correoEl) correoEl.addEventListener('input', function () { estado.correo = this.value.trim(); limpiarError('correo'); pintarResumen(); });
+  // La donación anónima es opcional en el marcado; si no existe, se omite.
+  var anonEl = $('#dn-anon');
+  if (anonEl) anonEl.addEventListener('change', function () { estado.anonimo = this.checked; pintarResumen(); });
 
   // ── Paso 2: montos ───────────────────────────────────────────────────────
   var otroField = $('#dn-otro-field');
