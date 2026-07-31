@@ -24,6 +24,10 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* El atributo `hidden` debe ganar a cualquier display de autor (.dn-overlay,
+   .dn-otro-wrap, etc.), si no, los overlays aparecerían al cargar. */
+[hidden] { display: none !important; }
+
 body {
   font-family: 'Inter', system-ui, sans-serif;
   color: var(--tinta);
