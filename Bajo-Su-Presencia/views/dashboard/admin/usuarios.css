@@ -190,6 +190,46 @@
 /* Fila inactiva */
 .fila-inactiva td { opacity: 0.55; }
 
+/* ── Fila de la tabla en COLUMNAS ALINEADAS (grid) ──
+   Antes era flex con columnas que crecían según el contenido, y la columna de
+   especialidad (vacía en unas filas, llena en otras) desalineaba el resto: se
+   veía "en escalera". Con un grid de columnas fijas todas las filas alinean. */
+.dt-row-usuarios {
+  display: grid;
+  grid-template-columns:
+    minmax(190px, 2.4fr)   /* usuario (avatar + nombre) */
+    minmax(150px, 2fr)     /* correo */
+    128px                  /* rol */
+    140px                  /* especialidad (reserva espacio aunque esté vacía) */
+    96px                   /* estado */
+    108px                  /* fecha */
+    auto;                  /* acciones */
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1.25rem;
+  background: #fff;
+  border: 2px solid var(--border);
+  border-radius: 1rem;
+  margin-bottom: 0.5rem;
+}
+.dt-row-usuarios.inactivo { opacity: 0.65; background: #fafafa; }
+.dt-row-usuarios .dt-c-email  { font-size: 0.9rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dt-row-usuarios .dt-c-fecha  { font-size: 0.82rem; color: var(--muted); }
+.dt-row-usuarios .dt-c-rol,
+.dt-row-usuarios .dt-c-esp,
+.dt-row-usuarios .dt-c-estado { display: flex; align-items: center; }
+.dt-row-usuarios .acciones-cell { justify-content: flex-end; }
+
+/* En pantallas estrechas se apila en tarjeta (sin escalera ni scroll raro). */
+@media (max-width: 1000px) {
+  .dt-row-usuarios {
+    grid-template-columns: 1fr;
+    row-gap: 0.4rem;
+  }
+  .dt-row-usuarios .acciones-cell { justify-content: flex-start; }
+  .dt-row-usuarios .dt-c-esp:empty { display: none; }
+}
+
 /* ── Celda de usuario ── */
 .user-cell {
   display: flex;

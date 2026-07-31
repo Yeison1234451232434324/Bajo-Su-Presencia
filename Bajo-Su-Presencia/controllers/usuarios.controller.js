@@ -108,22 +108,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         ? `<div class="user-avatar-sm user-avatar-foto"><img src="${esc(u.foto)}" alt="${esc(u.nombre)}" /></div>`
         : `<div class="user-avatar-sm" style="background:${avatarColor}">${avatar}</div>`;
       return `
-        <div style="display:flex;align-items:center;gap:1rem;padding:0.875rem 1.25rem;
-          background:#fff;border:2px solid var(--border);border-radius:1rem;margin-bottom:0.5rem;
-          flex-wrap:wrap;${u.activo ? '' : 'opacity:0.65;background:#fafafa;'}">
-          <div class="user-cell" style="flex:2;min-width:180px;">
+        <div class="dt-row-usuarios${u.activo ? '' : ' inactivo'}">
+          <div class="user-cell">
             ${avatarHTML}
             <div>
               <p class="user-nombre">${esc(u.nombre)}</p>
               <p class="user-username">@${esc(u.username)}</p>
             </div>
           </div>
-          <span style="flex:2;min-width:140px;font-size:0.875rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(u.email)}</span>
-          <span style="flex-shrink:0;">${badgeRol}</span>
-          <span style="flex-shrink:0;">${u.especialidad ? `<span class="badge badge-especialidad">${esc(u.especialidad)}</span>` : ''}</span>
-          <span style="flex-shrink:0;">${badgeEstado}</span>
-          <span style="flex-shrink:0;font-size:0.82rem;color:var(--muted);">${esc(u.creado)}</span>
-          <div class="acciones-cell" style="flex-shrink:0;margin-left:auto;">
+          <span class="dt-c-email">${esc(u.email)}</span>
+          <span class="dt-c-rol">${badgeRol}</span>
+          <span class="dt-c-esp">${u.especialidad ? `<span class="badge badge-especialidad">${esc(u.especialidad)}</span>` : ''}</span>
+          <span class="dt-c-estado">${badgeEstado}</span>
+          <span class="dt-c-fecha">${esc(u.creado)}</span>
+          <div class="acciones-cell">
             <button class="btn-accion btn-ver" onclick="verPerfil('${u.id}')" title="Ver perfil"><i class="bx bx-id-card" aria-hidden="true"></i></button>
             <button class="btn-accion btn-editar" onclick="abrirEditar('${u.id}')" title="Editar usuario"><i class="bx bx-edit" aria-hidden="true"></i></button>
             ${btnToggle}
