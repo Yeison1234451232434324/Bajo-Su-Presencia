@@ -40,10 +40,11 @@ final class DonacionesController
      */
     public function store(Request $request, array $args): void
     {
-        $correo = trim((string) $request->input('correo', ''));
-        $nombre = trim((string) $request->input('nombre', ''));
-        $metodo = trim((string) $request->input('metodo', ''));
-        $monto  = (int) $request->input('monto', 0);
+        $correo    = trim((string) $request->input('correo', ''));
+        $nombre    = trim((string) $request->input('nombre', ''));
+        $metodo    = trim((string) $request->input('metodo', ''));
+        $proposito = trim((string) $request->input('proposito', ''));
+        $monto     = (int) $request->input('monto', 0);
 
         // ── Validaciones ────────────────────────────────────────────────────
         if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
@@ -78,7 +79,7 @@ final class DonacionesController
             (new Mailer())->send(
                 $correo,
                 'Comprobante de tu donación — Bajo Su Presencia',
-                $this->comprobanteHtml($nombre, $monto, $metodo, $referencia, $fecha)
+                $this->comprobanteHtml($nombre, $monto, $metodo, $proposito, $referencia, $fecha)
             );
         } catch (Throwable $e) {
             throw ApiException::validation(
@@ -92,6 +93,7 @@ final class DonacionesController
             'referencia' => $referencia,
             'monto'      => $monto,
             'metodo'     => $metodo,
+            'proposito'  => $proposito,
             'fecha'      => $fecha,
             'correo'     => $correo,
         ], 'Gracias por tu donación. Te enviamos el comprobante a tu correo.');
@@ -104,13 +106,19 @@ final class DonacionesController
         string $nombre,
         int $monto,
         string $metodo,
+        string $proposito,
         string $referencia,
         string $fecha
     ): string {
         $saludo    = $nombre !== '' ? htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8') : 'Donante';
         $montoFmt  = '$' . number_format($monto, 0, ',', '.') . ' COP';
         $metodoEsc = htmlspecialchars($metodo, ENT_QUOTES, 'UTF-8');
+        $propEsc   = htmlspecialchars($proposito, ENT_QUOTES, 'UTF-8');
         $refEsc    = htmlspecialchars($referencia, ENT_QUOTES, 'UTF-8');
+        $filaProp  = $proposito !== ''
+            ? '<tr><td style="padding:10px 0;border-bottom:1px solid #eee;color:#6b7280;">Propósito</td>'
+                . '<td style="padding:10px 0;border-bottom:1px solid #eee;text-align:right;font-weight:700;">' . $propEsc . '</td></tr>'
+            : '';
 
         return <<<HTML
 <div style="font-family:Georgia,'Times New Roman',serif;max-width:560px;margin:0 auto;color:#1a1a2e;">
@@ -130,6 +138,7 @@ final class DonacionesController
           <td style="padding:10px 0;border-bottom:1px solid #eee;text-align:right;font-weight:700;color:#047857;">{$montoFmt}</td></tr>
       <tr><td style="padding:10px 0;border-bottom:1px solid #eee;color:#6b7280;">Método</td>
           <td style="padding:10px 0;border-bottom:1px solid #eee;text-align:right;font-weight:700;">{$metodoEsc}</td></tr>
+      {$filaProp}
       <tr><td style="padding:10px 0;color:#6b7280;">Fecha</td>
           <td style="padding:10px 0;text-align:right;font-weight:700;">{$fecha}</td></tr>
     </table>
