@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   selEvento.innerHTML = eventos.map(e =>
-    `<option value="${e.id}">${e.nombre}${e.fecha ? ` — ${e.fecha}` : ''}</option>`
+    `<option value="${e.id}">${esc(e.nombre)}${e.fecha ? ` — ${esc(e.fecha)}` : ''}</option>`
   ).join('');
 
   // ── Tarjetas de resumen del evento seleccionado ──────────────────────────
@@ -106,8 +106,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       <div class="asist-calif-card">
         <div class="asist-calif-top">
           <div class="asist-calif-persona">
-            <div class="asist-avatar-sm">${inicial(a.nombre)}</div>
-            <p class="asist-calif-nombre">${a.nombre}</p>
+            <div class="asist-avatar-sm">${esc(inicial(a.nombre))}</div>
+            <p class="asist-calif-nombre">${esc(a.nombre)}</p>
           </div>
           <div class="asist-calif-head">
             ${estrellasHTML(a.calificacion)}
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           </div>
         </div>
         ${a.comentario
-          ? `<p class="asist-comentario"><i class="bx bxs-quote-alt-left" aria-hidden="true"></i> ${a.comentario}</p>`
+          ? `<p class="asist-comentario"><i class="bx bxs-quote-alt-left" aria-hidden="true"></i> ${esc(a.comentario)}</p>`
           : `<p class="asist-sin-comentario">Calificó sin dejar comentario.</p>`}
       </div>`;
   }
@@ -141,8 +141,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     detalle.innerHTML = `
       <div class="asist-evento-detalle">
         <div class="asist-evento-head">
-          <h3 class="asist-evento-titulo"><i class="bx bx-calendar-event" aria-hidden="true"></i> ${ev ? ev.nombre : 'Evento'}</h3>
-          ${ev && ev.fecha ? `<span class="asist-evento-fecha"><i class="bx bx-time-five" aria-hidden="true"></i> ${ev.fecha}</span>` : ''}
+          <h3 class="asist-evento-titulo"><i class="bx bx-calendar-event" aria-hidden="true"></i> ${esc(ev ? ev.nombre : 'Evento')}</h3>
+          ${ev && ev.fecha ? `<span class="asist-evento-fecha"><i class="bx bx-time-five" aria-hidden="true"></i> ${esc(ev.fecha)}</span>` : ''}
         </div>
 
         <section class="asist-bloque">

@@ -83,10 +83,10 @@ document.addEventListener('DOMContentLoaded', async () => {
           <i class="bx ${tieneRep ? 'bx-check' : 'bx-calendar-event'}"></i>
         </div>
         <div class="rep-ev-body">
-          <h3 class="rep-ev-titulo">${ev.titulo}</h3>
+          <h3 class="rep-ev-titulo">${esc(ev.titulo)}</h3>
           <p class="rep-ev-meta"><i class="bx bx-calendar" aria-hidden="true"></i> ${fechaFmt}</p>
-          ${ev.horario   ? `<p class="rep-ev-meta"><i class="bx bx-time" aria-hidden="true"></i> ${ev.horario}</p>` : ''}
-          ${ev.ubicacion ? `<p class="rep-ev-meta"><i class="bx bx-map-pin" style="color:#f87171;" aria-hidden="true"></i> ${ev.ubicacion}</p>` : ''}
+          ${ev.horario   ? `<p class="rep-ev-meta"><i class="bx bx-time" aria-hidden="true"></i> ${esc(ev.horario)}</p>` : ''}
+          ${ev.ubicacion ? `<p class="rep-ev-meta"><i class="bx bx-map-pin" style="color:#f87171;" aria-hidden="true"></i> ${esc(ev.ubicacion)}</p>` : ''}
           ${tieneRep
             ? `<p class="rep-ev-cargado"><i class="bx bx-check-circle" aria-hidden="true"></i> Reporte cargado</p>`
             : ''}
@@ -195,9 +195,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       </div>
       <div class="rep-existente-body">
         <p><strong>Ofrenda Recaudada:</strong> ${ofrendaFmt}</p>
-        <p><strong>Incidentes:</strong> ${reporte.incidentes || 'Ninguno'}</p>
-        <p><strong>Observaciones:</strong> ${reporte.observaciones}</p>
-        <p class="rep-existente-meta">Reportado el ${fechaFmt} por ${reporte.creadoPor}</p>
+        <p><strong>Incidentes:</strong> ${esc(reporte.incidentes || 'Ninguno')}</p>
+        <p><strong>Observaciones:</strong> ${esc(reporte.observaciones)}</p>
+        <p class="rep-existente-meta">Reportado el ${fechaFmt} por ${esc(reporte.creadoPor)}</p>
       </div>`;
   }
 

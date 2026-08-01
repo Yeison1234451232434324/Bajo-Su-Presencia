@@ -70,17 +70,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       const badgeDisp = r.disponible
         ? '<span class="badge badge-green">Disponible</span>'
         : '<span class="badge badge-red">No disponible</span>';
-      const badgeStock = r.cantidad === 0
-        ? `<span class="badge badge-red">${esc(r.cantidad)} ${esc(r.unidad)}</span>`
-        : r.cantidad <= 5
-          ? `<span class="badge badge-amber">${esc(r.cantidad)} ${esc(r.unidad)}</span>`
-          : `<span class="badge badge-green">${esc(r.cantidad)} ${esc(r.unidad)}</span>`;
-
       return `
-        <div style="display:flex;align-items:center;gap:1rem;padding:0.875rem 1.25rem;
-          background:#fff;border:2px solid var(--border);border-radius:1rem;margin-bottom:0.5rem;
-          flex-wrap:wrap;${!r.disponible ? 'opacity:0.65;background:#fafafa;' : ''}">
-          <div class="recurso-cell" style="flex:2;min-width:180px;">
+        <div class="recurso-row${!r.disponible ? ' recurso-row--inactivo' : ''}">
+          <div class="recurso-cell">
             <div class="recurso-icon ${iconoCategoria(r.categoria)}">
               <i class="bx ${iconoBx(r.categoria)}" aria-hidden="true"></i>
             </div>
@@ -89,11 +81,10 @@ document.addEventListener('DOMContentLoaded', async () => {
               <p class="recurso-desc">${esc(r.descripcion || '—')}</p>
             </div>
           </div>
-          <span style="flex-shrink:0;">${badgeCat}</span>
-          <span style="flex-shrink:0;">${badgeStock}</span>
-          <span style="flex-shrink:0;">${badgeDisp}</span>
-          <span style="flex-shrink:0;font-size:0.82rem;color:var(--muted);">${esc(r.creado)}</span>
-          <div class="acciones-cell" style="flex-shrink:0;margin-left:auto;">
+          <div class="recurso-col">${badgeCat}</div>
+          <div class="recurso-col">${badgeDisp}</div>
+          <div class="recurso-col recurso-fecha">${esc(r.creado)}</div>
+          <div class="acciones-cell">
             <button class="btn-accion btn-editar-rec" onclick="abrirEditar('${r.id}')" title="Editar recurso">
               <i class="bx bx-edit" aria-hidden="true"></i>
             </button>
@@ -125,8 +116,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderRow,
         exportable:   true,
         exportName:   'recursos',
-        exportFields: ['nombre', 'categoria', 'cantidad', 'unidad', 'estadoDisp', 'creado'],
-        exportLabels: ['Recurso', 'Categoría', 'Cantidad', 'Unidad', 'Estado', 'Registrado'],
+        exportFields: ['nombre', 'categoria', 'cantidad', 'estadoDisp', 'creado'],
+        exportLabels: ['Recurso', 'Categoría', 'Cantidad', 'Estado', 'Registrado'],
         emptyHTML: `<div class="dt-empty"><i class="bx bx-package" aria-hidden="true"></i><p>No se encontraron recursos con esos criterios.</p></div>`
       });
       window.__bspDT['dt-recursos'] = dtRecursos;
@@ -184,8 +175,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     modalTitle.textContent   = 'Nuevo Recurso';
     formRecurso.reset();
     modalError.style.display = 'none';
-    modal.classList.add('visible');
-    modalOverlay.classList.add('visible');
+    // trigger explícito: document.activeElement no es confiable en Safari/Firefox,
+    // que no enfocan un <button> al hacer clic con mouse (sí lo hace Chrome/Edge).
+    BSPModal.abrir({ overlay: modalOverlay, modal, trigger: btnNuevo });
   }
 
   /** Abre el modal en modo EDITAR con los datos del recurso pre-llenados */
@@ -199,18 +191,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('campo-nombre-rec').value      = r.nombre;
     document.getElementById('campo-categoria').value       = r.categoria;
     document.getElementById('campo-cantidad').value        = r.cantidad;
-    document.getElementById('campo-unidad').value          = r.unidad;
     document.getElementById('campo-descripcion-rec').value = r.descripcion;
 
     modalError.style.display = 'none';
-    modal.classList.add('visible');
-    modalOverlay.classList.add('visible');
+    BSPModal.abrir({ overlay: modalOverlay, modal });
   };
 
   /** Cierra el modal y limpia el formulario */
   function cerrarModal() {
-    modal.classList.remove('visible');
-    modalOverlay.classList.remove('visible');
+    BSPModal.cerrar({ overlay: modalOverlay, modal });
     formRecurso.reset();
     editandoId = null;
   }
@@ -233,11 +222,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const nombre      = BSPVal.cleanText(document.getElementById('campo-nombre-rec').value);
     const categoria   = document.getElementById('campo-categoria').value;
     const cantidadRaw = document.getElementById('campo-cantidad').value;
-    const unidad      = BSPVal.cleanText(document.getElementById('campo-unidad').value);
     const descripcion = BSPVal.cleanText(document.getElementById('campo-descripcion-rec').value);
 
     // ── Limpiar estado previo ─────────────────────────────────────────────
-    _ok('campo-nombre-rec','campo-categoria','campo-cantidad','campo-unidad','campo-descripcion-rec');
+    _ok('campo-nombre-rec','campo-categoria','campo-cantidad','campo-descripcion-rec');
     let valido = true;
     let err;
 
@@ -253,10 +241,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     err = BSPVal.num(cantidadRaw, { min: 0, max: 99999, entero: true, label: 'La cantidad' });
     if (err) { _err('campo-cantidad', err); valido = false; }
 
-    /* Unidad de medida: mínimo 1, máximo 30 */
-    err = BSPVal.txt(unidad, { min: 1, max: 30, label: 'La unidad de medida' });
-    if (err) { _err('campo-unidad', err); valido = false; }
-
     /* Descripción: opcional, pero si se escribe máximo 500 chars */
     if (descripcion.length > 0) {
       err = BSPVal.txt(descripcion, { min: 3, max: 500, label: 'La descripción' });
@@ -271,7 +255,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       nombre,
       categoria,
       cantidad:    parseInt(cantidadRaw, 10), // número, no string
-      unidad,
       descripcion
     };
 

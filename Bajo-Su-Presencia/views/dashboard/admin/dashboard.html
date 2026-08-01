@@ -191,112 +191,16 @@
       <!-- 2.7 Actividad Reciente -->
       <div class="table-card table-card--activity">
         <h3>2.7 Actividad Reciente</h3>
-        <ul class="activity-list">
-          <li class="activity-item">
-            <div class="activity-dot activity-dot--green"></div>
-            <div class="activity-body">
-              <p class="activity-text">Nueva noticia publicada: <strong>Campaña de Ayuda</strong></p>
-              <span class="activity-time">Hace 10 min</span>
-            </div>
-          </li>
-          <li class="activity-item">
-            <div class="activity-dot activity-dot--blue"></div>
-            <div class="activity-body">
-              <p class="activity-text">Evento creado: <strong>Culto Dominical</strong></p>
-              <span class="activity-time">Hace 45 min</span>
-            </div>
-          </li>
-          <li class="activity-item">
-            <div class="activity-dot activity-dot--amber"></div>
-            <div class="activity-body">
-              <p class="activity-text">Oración del día actualizada</p>
-              <span class="activity-time">Hace 2 horas</span>
-            </div>
-          </li>
-          <li class="activity-item">
-            <div class="activity-dot activity-dot--purple"></div>
-            <div class="activity-body">
-              <p class="activity-text">Nuevo voluntario registrado: <strong>Luis Herrera</strong></p>
-              <span class="activity-time">Hace 3 horas</span>
-            </div>
-          </li>
-          <li class="activity-item">
-            <div class="activity-dot activity-dot--green"></div>
-            <div class="activity-body">
-              <p class="activity-text">Noticia publicada: <strong>Nueva Sede en el Norte</strong></p>
-              <span class="activity-time">Ayer, 4:30 PM</span>
-            </div>
-          </li>
-          <li class="activity-item">
-            <div class="activity-dot activity-dot--blue"></div>
-            <div class="activity-body">
-              <p class="activity-text">Evento actualizado: <strong>Retiro Espiritual</strong></p>
-              <span class="activity-time">Ayer, 2:00 PM</span>
-            </div>
-          </li>
+        <ul class="activity-list" id="activityList">
+          <li class="activity-item"><div class="activity-body"><p class="activity-text">Cargando…</p></div></li>
         </ul>
       </div>
 
       <!-- 2.8 Voluntarios Destacados -->
       <div class="table-card">
         <h3>2.8 Voluntarios Destacados</h3>
-        <div class="volunteer-list">
-
-          <div class="volunteer-item">
-            <div class="volunteer-avatar" style="background: linear-gradient(135deg,#1E3A8A,#2D4FAF);">MG</div>
-            <div class="volunteer-info">
-              <p class="volunteer-name">María González</p>
-              <p class="volunteer-area">Área: Música y Alabanza</p>
-            </div>
-            <div class="volunteer-stats">
-              <span class="badge badge-green">12 eventos</span>
-            </div>
-          </div>
-
-          <div class="volunteer-item">
-            <div class="volunteer-avatar" style="background: linear-gradient(135deg,#d97706,#F5C215);">CL</div>
-            <div class="volunteer-info">
-              <p class="volunteer-name">Carlos López</p>
-              <p class="volunteer-area">Área: Logística</p>
-            </div>
-            <div class="volunteer-stats">
-              <span class="badge badge-amber">9 eventos</span>
-            </div>
-          </div>
-
-          <div class="volunteer-item">
-            <div class="volunteer-avatar" style="background: linear-gradient(135deg,#059669,#10b981);">JP</div>
-            <div class="volunteer-info">
-              <p class="volunteer-name">Juan Pérez</p>
-              <p class="volunteer-area">Área: Jóvenes</p>
-            </div>
-            <div class="volunteer-stats">
-              <span class="badge badge-green">8 eventos</span>
-            </div>
-          </div>
-
-          <div class="volunteer-item">
-            <div class="volunteer-avatar" style="background: linear-gradient(135deg,#7c3aed,#a78bfa);">AM</div>
-            <div class="volunteer-info">
-              <p class="volunteer-name">Ana Martínez</p>
-              <p class="volunteer-area">Área: Comunicaciones</p>
-            </div>
-            <div class="volunteer-stats">
-              <span class="badge badge-blue">7 eventos</span>
-            </div>
-          </div>
-
-          <div class="volunteer-item">
-            <div class="volunteer-avatar" style="background: linear-gradient(135deg,#db2777,#f472b6);">LH</div>
-            <div class="volunteer-info">
-              <p class="volunteer-name">Luis Herrera</p>
-              <p class="volunteer-area">Área: Recepción</p>
-            </div>
-            <div class="volunteer-stats">
-              <span class="badge badge-blue">5 eventos</span>
-            </div>
-          </div>
-
+        <div class="volunteer-list" id="volunteerList">
+          <div class="volunteer-item"><div class="volunteer-info"><p class="volunteer-name">Cargando…</p></div></div>
         </div>
       </div>
 
@@ -320,47 +224,8 @@
               <th>Estado</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td><strong>Culto Dominical</strong></td>
-              <td>Dom, 18 May 2026</td>
-              <td>10:00 AM</td>
-              <td>Sede Principal</td>
-              <td>300</td>
-              <td><span class="badge badge-green">Confirmado</span></td>
-            </tr>
-            <tr>
-              <td><strong>Grupo de Oración</strong></td>
-              <td>Mar, 20 May 2026</td>
-              <td>7:00 PM</td>
-              <td>Salón B</td>
-              <td>80</td>
-              <td><span class="badge badge-amber">En preparación</span></td>
-            </tr>
-            <tr>
-              <td><strong>Encuentro Juvenil</strong></td>
-              <td>Vie, 23 May 2026</td>
-              <td>6:00 PM</td>
-              <td>Auditorio</td>
-              <td>150</td>
-              <td><span class="badge badge-amber">En preparación</span></td>
-            </tr>
-            <tr>
-              <td><strong>Cena Comunitaria</strong></td>
-              <td>Sáb, 24 May 2026</td>
-              <td>1:00 PM</td>
-              <td>Patio Central</td>
-              <td>200</td>
-              <td><span class="badge badge-blue">Planeado</span></td>
-            </tr>
-            <tr>
-              <td><strong>Retiro Espiritual</strong></td>
-              <td>Sáb, 7 Jun 2026</td>
-              <td>8:00 AM</td>
-              <td>Casa de Retiros</td>
-              <td>60</td>
-              <td><span class="badge badge-blue">Planeado</span></td>
-            </tr>
+          <tbody id="eventsTableBody">
+            <tr><td colspan="6">Cargando…</td></tr>
           </tbody>
         </table>
       </div>
@@ -419,10 +284,141 @@
   });
   </script>
 
+  <!-- Actividad reciente, voluntarios destacados y próximos eventos: datos reales de Supabase -->
+  <script>
+  window.addEventListener('DOMContentLoaded', async () => {
+    if (typeof sb === 'undefined') return;
+
+    const tiempoRelativo = (fechaISO) => {
+      const d = new Date(fechaISO);
+      const diffMs = Date.now() - d.getTime();
+      const min = Math.floor(diffMs / 60000);
+      if (min < 1) return 'Hace un momento';
+      if (min < 60) return `Hace ${min} min`;
+      const horas = Math.floor(min / 60);
+      if (horas < 24) return `Hace ${horas} hora${horas === 1 ? '' : 's'}`;
+      const dias = Math.floor(horas / 24);
+      if (dias === 1) return 'Ayer';
+      return `Hace ${dias} días`;
+    };
+
+    // ── 2.7 Actividad Reciente: últimas noticias, eventos y voluntarios ────
+    const activityEl = document.getElementById('activityList');
+    if (activityEl) {
+      try {
+        const [noticias, eventos, voluntarios] = await Promise.all([
+          sb.from('noticias').select('titulo, publicado_en').order('publicado_en', { ascending: false }).limit(5),
+          sb.from('eventos').select('titulo, publicado_en').order('publicado_en', { ascending: false }).limit(5),
+          sb.from('usuarios').select('nombre_completo, creado_en, roles(nombre)').order('creado_en', { ascending: false }).limit(5)
+        ]);
+
+        const items = [
+          ...(noticias.data || []).map(n => ({ fecha: n.publicado_en, dot: 'green', text: `Nueva noticia publicada: <strong>${esc(n.titulo || 'Sin título')}</strong>` })),
+          ...(eventos.data || []).map(e => ({ fecha: e.publicado_en, dot: 'blue', text: `Evento creado: <strong>${esc(e.titulo || 'Sin título')}</strong>` })),
+          ...(voluntarios.data || [])
+            .filter(u => u.roles?.nombre === 'Voluntario')
+            .map(u => ({ fecha: u.creado_en, dot: 'purple', text: `Nuevo voluntario registrado: <strong>${esc(u.nombre_completo || 'Sin nombre')}</strong>` }))
+        ]
+          .filter(it => it.fecha)
+          .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+          .slice(0, 6);
+
+        activityEl.innerHTML = items.length ? items.map(it => `
+          <li class="activity-item">
+            <div class="activity-dot activity-dot--${it.dot}"></div>
+            <div class="activity-body">
+              <p class="activity-text">${it.text}</p>
+              <span class="activity-time">${tiempoRelativo(it.fecha)}</span>
+            </div>
+          </li>`).join('') : '<li class="activity-item"><div class="activity-body"><p class="activity-text">Sin actividad reciente.</p></div></li>';
+      } catch (_) {
+        activityEl.innerHTML = '<li class="activity-item"><div class="activity-body"><p class="activity-text">No se pudo cargar la actividad.</p></div></li>';
+      }
+    }
+
+    // ── 2.8 Voluntarios Destacados: ranking por participación en eventos ───
+    const volunteerEl = document.getElementById('volunteerList');
+    if (volunteerEl) {
+      try {
+        const { data } = await sb.from('voluntarios_eventos').select('usuario_id, usuarios(nombre_completo, especialidad)');
+        const conteo = {};
+        (data || []).forEach(ve => {
+          if (!ve.usuario_id) return;
+          if (!conteo[ve.usuario_id]) {
+            conteo[ve.usuario_id] = { nombre: ve.usuarios?.nombre_completo || 'Sin nombre', especialidad: ve.usuarios?.especialidad || 'Sin área', total: 0 };
+          }
+          conteo[ve.usuario_id].total++;
+        });
+        const top = Object.values(conteo).sort((a, b) => b.total - a.total).slice(0, 5);
+        const gradientes = ['linear-gradient(135deg,#1E3A8A,#2D4FAF)', 'linear-gradient(135deg,#d97706,#F5C215)', 'linear-gradient(135deg,#059669,#10b981)', 'linear-gradient(135deg,#7c3aed,#a78bfa)', 'linear-gradient(135deg,#db2777,#f472b6)'];
+        const badgeClases = ['badge-green', 'badge-amber', 'badge-green', 'badge-blue', 'badge-blue'];
+        const iniciales = (n) => n.trim().split(/\s+/).map(p => p[0]).slice(0, 2).join('').toUpperCase() || '—';
+
+        volunteerEl.innerHTML = top.length ? top.map((v, i) => `
+          <div class="volunteer-item">
+            <div class="volunteer-avatar" style="background:${gradientes[i % gradientes.length]};">${iniciales(v.nombre)}</div>
+            <div class="volunteer-info">
+              <p class="volunteer-name">${v.nombre}</p>
+              <p class="volunteer-area">Área: ${v.especialidad}</p>
+            </div>
+            <div class="volunteer-stats">
+              <span class="badge ${badgeClases[i % badgeClases.length]}">${v.total} evento${v.total === 1 ? '' : 's'}</span>
+            </div>
+          </div>`).join('') : '<div class="volunteer-item"><div class="volunteer-info"><p class="volunteer-name">Aún no hay voluntarios asignados a eventos.</p></div></div>';
+      } catch (_) {
+        volunteerEl.innerHTML = '<div class="volunteer-item"><div class="volunteer-info"><p class="volunteer-name">No se pudo cargar la lista.</p></div></div>';
+      }
+    }
+
+    // ── 2.9 Próximos Eventos: eventos futuros ordenados por fecha ──────────
+    const eventsBody = document.getElementById('eventsTableBody');
+    if (eventsBody) {
+      try {
+        const hoyISO = new Date().toISOString().slice(0, 10);
+        const { data } = await sb.from('eventos')
+          .select('id, titulo, fecha, hora, hora_fin, ubicacion, cupos_disponibles, estado')
+          .gte('fecha', hoyISO)
+          .order('fecha', { ascending: true })
+          .limit(5);
+
+        const eventoIds = (data || []).map(e => e.id);
+        let conteoAsistentes = {};
+        if (eventoIds.length) {
+          const { data: asis } = await sb.from('asistencias').select('id_de_evento').in('id_de_evento', eventoIds);
+          (asis || []).forEach(a => { conteoAsistentes[a.id_de_evento] = (conteoAsistentes[a.id_de_evento] || 0) + 1; });
+        }
+
+        const fechaFmt = (iso) => {
+          if (!iso) return '—';
+          const d = new Date(iso + 'T00:00:00');
+          return d.toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+        };
+        const horaFmt = (h) => h ? String(h).slice(0, 5) : '—';
+        const badgeEstado = (estado) => {
+          const mapa = { 'Publicado': 'badge-blue', 'En ejecución': 'badge-amber', 'Finalizado': 'badge-green', 'Cancelado': 'badge-amber' };
+          return mapa[estado] || 'badge-blue';
+        };
+
+        eventsBody.innerHTML = (data && data.length) ? data.map(e => `
+          <tr>
+            <td><strong>${esc(e.titulo || 'Sin título')}</strong></td>
+            <td>${fechaFmt(e.fecha)}</td>
+            <td>${horaFmt(e.hora)}</td>
+            <td>${esc(e.ubicacion || '—')}</td>
+            <td>${conteoAsistentes[e.id] ?? 0}</td>
+            <td><span class="badge ${badgeEstado(e.estado)}">${e.estado || 'Publicado'}</span></td>
+          </tr>`).join('') : '<tr><td colspan="6">No hay próximos eventos.</td></tr>';
+      } catch (_) {
+        eventsBody.innerHTML = '<tr><td colspan="6">No se pudo cargar la tabla.</td></tr>';
+      }
+    }
+  });
+  </script>
+
 <!--
   Gráficas del dashboard (Chart.js)
   Se inicializan cuando el DOM está listo (DOMContentLoaded).
-  Cada gráfica lee datos estáticos de ejemplo.
+  Cada gráfica lee datos reales de Supabase.
 -->
 <script>
 window.addEventListener('DOMContentLoaded', async () => {

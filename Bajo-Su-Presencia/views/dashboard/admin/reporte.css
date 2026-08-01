@@ -4,7 +4,7 @@
 
 /* ── Contenedor de eventos ───────────────────────────────────── */
 .rep-eventos-wrap {
-  background: #fff;
+  background: var(--surface);
   border-radius: 1.25rem;
   padding: 2rem;
   border: 2px solid var(--border);
@@ -33,7 +33,7 @@
   padding: 1.25rem;
   border: 2px solid var(--border);
   border-radius: 1rem;
-  background: #faf8f3;
+  background: var(--surface-2);
   cursor: pointer;
   transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
 }
@@ -43,11 +43,11 @@
   transform: translateY(-2px);
 }
 .rep-evento-card--con-reporte {
-  background: #c7f2fa;
-  border-color: #166fa3;
+  background: var(--info-bg);
+  border-color: var(--info);
 }
 .rep-evento-card--con-reporte:hover {
-  border-color: #166fa3;
+  border-color: var(--info);
   box-shadow: 0 6px 20px rgba(22,163,74,0.15);
 }
 
@@ -55,14 +55,14 @@
   width: 52px;
   height: 52px;
   border-radius: 0.875rem;
-  background: #22c55e;
+  background: var(--success);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
-.rep-ev-icon i { font-size: 1.5rem; color: #fff; }
-.rep-ev-icon--done { background: #16a34a; }
+.rep-ev-icon i { font-size: 1.5rem; color: var(--text-on-primary); }
+.rep-ev-icon--done { background: var(--success); }
 
 .rep-ev-body { flex: 1; min-width: 0; }
 .rep-ev-titulo {
@@ -84,7 +84,7 @@
 .rep-ev-cargado {
   font-size: 0.9375rem;
   font-weight: 700;
-  color: #16a34a;
+  color: var(--success);
   display: flex;
   align-items: center;
   gap: 0.3rem;
@@ -102,7 +102,7 @@
   align-items: center;
   gap: 0.4rem;
   padding: 0.6rem 1.2rem;
-  background: #f3f4f6;
+  background: var(--surface-2);
   border: 2px solid var(--border);
   border-radius: 0.75rem;
   font-family: var(--font-text);
@@ -112,15 +112,15 @@
   cursor: pointer;
   transition: background 0.2s;
 }
-.rep-btn-volver:hover { background: #e5e7eb; }
+.rep-btn-volver:hover { background: var(--border-light); }
 
 /* ── Banner del evento ───────────────────────────────────────── */
 .rep-banner {
-  background: linear-gradient(135deg, var(--primary-dark) 0%, #2d4faf 60%, var(--accent) 100%);
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-light) 60%, var(--accent) 100%);
   border-radius: 1rem;
   padding: 1.5rem 2rem;
   margin-bottom: 1.5rem;
-  color: #fff;
+  color: var(--text-on-primary);
 }
 .rep-banner-titulo {
   font-family: var(--font-title);
@@ -143,7 +143,7 @@
 
 /* ── Tarjeta del formulario ──────────────────────────────────── */
 .rep-form-card {
-  background: #fff;
+  background: var(--surface);
   border-radius: 1.25rem;
   padding: 2rem;
   border: 2px solid var(--border);
@@ -161,7 +161,7 @@
   width: 42px;
   height: 42px;
   border-radius: 0.75rem;
-  background: #e0e7ff;
+  background: var(--info-bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -184,28 +184,28 @@
   font-family: var(--font-text);
   font-size: 1rem;
   font-weight: 600;
-  color: #1a1a2e;
+  color: var(--text-primary);
   margin-bottom: 0.45rem;
 }
 .rep-field label i { font-size: 1.1rem; }
-.rep-field label i.bx-dollar       { color: #16a34a; }
-.rep-field label i.bx-error-circle { color: #d97706; }
+.rep-field label i.bx-dollar       { color: var(--success); }
+.rep-field label i.bx-error-circle { color: var(--amber); }
 .rep-field label i.bx-comment-detail { color: var(--primary); }
 
 .rep-input, .rep-textarea {
   width: 100%;
   padding: 0.875rem 1rem;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--border-light);
   border-radius: 0.875rem;
   font-family: var(--font-text);
   font-size: 1rem;
-  color: #1a1a2e;
-  background: #fff;
+  color: var(--text-primary);
+  background: var(--surface);
   outline: none;
   transition: border-color 0.2s;
 }
 .rep-input:focus, .rep-textarea:focus { border-color: var(--primary); }
-.rep-input::placeholder, .rep-textarea::placeholder { color: #9ca3af; }
+.rep-input::placeholder, .rep-textarea::placeholder { color: var(--text-muted); }
 .rep-textarea { resize: vertical; min-height: 90px; }
 
 .rep-field-hint {
@@ -228,7 +228,7 @@
   gap: 0.5rem;
   padding: 1rem;
   background: linear-gradient(135deg, var(--primary-dark) 0%, var(--accent) 100%);
-  color: #fff;
+  color: var(--text-on-primary);
   border: none;
   border-radius: 0.875rem;
   font-family: var(--font-text);
@@ -242,7 +242,7 @@
 
 .rep-btn-cancelar {
   padding: 1rem 1.75rem;
-  background: #f3f4f6;
+  background: var(--surface-2);
   color: var(--muted);
   border: 2px solid var(--border);
   border-radius: 0.875rem;
@@ -252,12 +252,12 @@
   cursor: pointer;
   transition: background 0.2s;
 }
-.rep-btn-cancelar:hover { background: #e5e7eb; }
+.rep-btn-cancelar:hover { background: var(--border-light); }
 
 /* ── Reporte existente ───────────────────────────────────────── */
 .rep-existente {
-  background: #f0fdf4;
-  border: 2px solid #bbf7d0;
+  background: var(--success-bg);
+  border: 2px solid var(--success-border);
   border-radius: 1.25rem;
   padding: 1.5rem 2rem;
 }
@@ -269,17 +269,17 @@
 }
 .rep-existente-icon {
   font-size: 1.4rem;
-  color: #16a34a;
+  color: var(--success);
 }
 .rep-existente-titulo {
   font-family: var(--font-title);
   font-size: 1.25rem;
   font-weight: 700;
-  color: #15803d;
+  color: var(--success);
 }
 .rep-existente-body p {
   font-size: 1rem;
-  color: #1a1a2e;
+  color: var(--text-primary);
   margin-bottom: 0.4rem;
   line-height: 1.5;
 }
@@ -297,7 +297,7 @@
   padding: 3rem 1rem;
   color: var(--muted);
 }
-.rep-empty i { font-size: 3rem; display: block; margin-bottom: 0.75rem; color: #d1d5db; }
+.rep-empty i { font-size: 3rem; display: block; margin-bottom: 0.75rem; color: var(--border-light); }
 .rep-empty p { font-size: 1rem; }
 
 /* ── Responsive ── */

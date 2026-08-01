@@ -21,171 +21,24 @@
    GESTIÓN DE USUARIOS — CSS específico
 ══════════════════════════════════════════════════ */
 
-/* ── Barra de herramientas ── */
-.toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
+/* .toolbar, .search-wrap, .select-filtro, .btn-nuevo:
+   componentes compartidos, ver panel.css */
+.input-buscar { width: 220px; } /* este módulo usa 220px en vez de los 240px por defecto */
 
-.toolbar-left {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  align-items: center;
-}
-
-.search-wrap {
-  position: relative;
-}
-
-.search-wrap i {
-  position: absolute;
-  left: 0.85rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #9ca3af;
-  font-size: 1.1rem;
-  pointer-events: none;
-}
-
-.input-buscar {
-  padding: 0.65rem 1rem 0.65rem 2.4rem;
-  border: 2px solid #e5e7eb;
-  border-radius: 0.75rem;
-  font-family: var(--font-text);
-  font-size: 1rem;
-  color: #1a1a2e;
-  background: #fff;
-  outline: none;
-  width: 220px;
-  transition: border-color 0.2s;
-}
-.input-buscar:focus { border-color: var(--primary); }
-
-.select-filtro {
-  padding: 0.65rem 1rem;
-  border: 2px solid #e5e7eb;
-  border-radius: 0.75rem;
-  font-family: var(--font-text);
-  font-size: 1rem;
-  color: #1a1a2e;
-  background: #fff;
-  outline: none;
-  cursor: pointer;
-  transition: border-color 0.2s;
-}
-.select-filtro:focus { border-color: var(--primary); }
-
-/* ── Botón nuevo usuario ── */
-.btn-nuevo {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.65rem 1.25rem;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--amber) 100%);
-  color: #fff;
-  border: none;
-  border-radius: 0.75rem;
-  font-family: var(--font-text);
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(30,58,138,0.25);
-  transition: transform 0.15s, box-shadow 0.15s;
-  white-space: nowrap;
-}
-.btn-nuevo:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(30,58,138,0.35); }
-.btn-nuevo:active { transform: translateY(0); }
-
-/* ── Tarjetas de contadores ── */
-.counters-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-@media (max-width: 640px) { .counters-grid { grid-template-columns: 1fr; } }
-
-.counter-card {
-  background: #fff;
-  border: 2px solid var(--border);
-  border-radius: 1rem;
-  padding: 1.25rem 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-}
-.counter-icon {
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 0.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.4rem;
-  flex-shrink: 0;
-}
-.counter-info .counter-label {
-  font-size: 0.9375rem;
-  color: var(--muted);
-  font-weight: 600;
-}
-.counter-info .counter-value {
-  font-family: var(--font-title);
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--primary-dark);
-  line-height: 1.1;
-}
+/* Tarjetas de contadores: componente compartido, ver panel.css (.counters-grid/.counter-card/.counter-icon). */
 
 /* ── Tabla de usuarios ── */
 .table-wrap {
-  background: #fff;
+  background: var(--surface);
   border: 2px solid var(--border);
   border-radius: 1.25rem;
   overflow: hidden;
   box-shadow: 0 4px 16px rgba(0,0,0,0.06);
 }
 
-.usuarios-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-family: var(--font-text);
-  font-size: 1rem;
-}
-
-.usuarios-table thead {
-  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
-}
-
-.usuarios-table thead th {
-  color: rgba(255,255,255,0.9);
-  font-weight: 700;
-  font-size: 0.9375rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 1rem 1.25rem;
-  text-align: left;
-  white-space: nowrap;
-}
-
-.usuarios-table tbody tr {
-  border-bottom: 1px solid #f3f0e8;
-  transition: background 0.15s;
-}
-.usuarios-table tbody tr:hover { background: #faf8f3; }
-.usuarios-table tbody tr:last-child { border-bottom: none; }
-
-.usuarios-table tbody td {
-  padding: 0.9rem 1.25rem;
-  color: #1a1a2e;
-  vertical-align: middle;
-}
+/* .usuarios-table (CSS de un <table> HTML tradicional) eliminado en la
+   auditoría (módulo 15): esta vista usa filas <div class="dt-row-usuarios">
+   generadas por el DataTable, nunca un <table> real. */
 
 /* Fila inactiva */
 .fila-inactiva td { opacity: 0.55; }
@@ -207,12 +60,12 @@
   align-items: center;
   gap: 1rem;
   padding: 0.875rem 1.25rem;
-  background: #fff;
+  background: var(--surface);
   border: 2px solid var(--border);
   border-radius: 1rem;
   margin-bottom: 0.5rem;
 }
-.dt-row-usuarios.inactivo { opacity: 0.65; background: #fafafa; }
+.dt-row-usuarios.inactivo { opacity: 0.65; background: var(--surface-2); }
 .dt-row-usuarios .dt-c-email  { font-size: 0.9rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dt-row-usuarios .dt-c-fecha  { font-size: 0.82rem; color: var(--muted); }
 .dt-row-usuarios .dt-c-rol,
@@ -220,8 +73,15 @@
 .dt-row-usuarios .dt-c-estado { display: flex; align-items: center; }
 .dt-row-usuarios .acciones-cell { justify-content: flex-end; }
 
-/* En pantallas estrechas se apila en tarjeta (sin escalera ni scroll raro). */
-@media (max-width: 1000px) {
+/* En pantallas estrechas se apila en tarjeta (sin escalera ni scroll raro).
+   Umbral verificado empíricamente en QA (módulo 13): con columnas fijas de
+   128+140+96+108px más los mínimos de usuario/correo (190+150px) y el
+   espaciado, la fila necesita ~1050px de ancho de contenido. Con el sidebar
+   colapsado (80px) y el padding de .main (2rem por lado), eso desborda la
+   página entre ~1000px y ~1150px de viewport (medido: 65px de overflow a
+   1024px, 2px a 1100px, 0px a 1200px). El breakpoint anterior (1000px) no
+   cubría ese rango; 1180px sí, con margen. */
+@media (max-width: 1180px) {
   .dt-row-usuarios {
     grid-template-columns: 1fr;
     row-gap: 0.4rem;
@@ -243,7 +103,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--text-on-primary);
   font-weight: 700;
   font-size: 1rem;
   flex-shrink: 0;
@@ -252,42 +112,24 @@
 .user-username { font-size: 0.8125rem; color: var(--muted); }
 
 /* Avatar con foto (fila) */
-.user-avatar-foto { overflow: hidden; background: #e5e7eb; }
+.user-avatar-foto { overflow: hidden; background: var(--border-light); }
 .user-avatar-foto img { width: 100%; height: 100%; object-fit: cover; }
 
 /* ── Badges ── */
-.badge-red    { background: #fee2e2; color: #dc2626; }
-.badge-purple { background: #dbeafe; color: #1d4ed8; }
+.badge-red    { background: var(--danger-bg); color: var(--danger); }
+.badge-purple { background: var(--info-bg); color: var(--info); }
 
-/* ── Botones de acción ── */
-.acciones-cell {
-  display: flex;
-  gap: 0.4rem;
-  align-items: center;
-}
-.btn-accion {
-  width: 34px;
-  height: 34px;
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-  transition: background 0.15s, transform 0.1s;
-}
-.btn-accion:disabled { cursor: not-allowed; opacity: 0.4; }
-.btn-accion:not(:disabled):active { transform: scale(0.92); }
+/* ── Botones de acción ──
+   .acciones-cell + .btn-accion: componentes compartidos, ver panel.css */
 
-.btn-ver      { background: #dbeafe; color: #0F1E5A; }
-.btn-ver:hover      { background: #ddd6fe; }
+.btn-ver      { background: var(--info-bg); color: var(--primary-dark); }
+.btn-ver:hover      { background: var(--info-border); }
 
-.btn-editar   { background: #dbeafe; color: #0F1E5A; }
-.btn-editar:hover   { background: #bfdbfe; }
+.btn-editar   { background: var(--info-bg); color: var(--primary-dark); }
+.btn-editar:hover   { background: var(--info-border); }
 
-.btn-toggle   { background: #dbeafe; color: #0F1E5A; }
-.btn-toggle:hover   { background: #a7f3d0; }
+.btn-toggle   { background: var(--info-bg); color: var(--primary-dark); }
+.btn-toggle:hover   { background: var(--success-border); }
 
 /* ══════════════════════════════════════════════════
    MODAL
@@ -295,8 +137,8 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 30, 90, 0.45);
-  backdrop-filter: blur(3px);
+  background: var(--modal-overlay-bg);
+  backdrop-filter: blur(var(--modal-blur));
   z-index: 500;
   opacity: 0;
   pointer-events: none;
@@ -313,11 +155,11 @@
   left: 50%;
   transform: translate(-50%, -48%) scale(0.96);
   z-index: 600;
-  background: #fff;
-  border-radius: 1.5rem;
+  background: var(--surface);
+  border-radius: var(--modal-radius);
   padding: 2rem 2.25rem;
   width: min(520px, 95vw);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+  box-shadow: var(--modal-shadow);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s, transform 0.25s;
@@ -343,7 +185,7 @@
   color: var(--primary-dark);
 }
 .btn-cerrar-modal {
-  background: #f3f4f6;
+  background: var(--surface-2);
   border: none;
   border-radius: 0.5rem;
   width: 32px;
@@ -353,15 +195,15 @@
   justify-content: center;
   cursor: pointer;
   font-size: 1.2rem;
-  color: #6b7280;
+  color: var(--text-muted);
   transition: background 0.15s;
 }
-.btn-cerrar-modal:hover { background: #e5e7eb; color: #1a1a2e; }
+.btn-cerrar-modal:hover { background: var(--border-light); color: var(--text-primary); }
 
 .modal-error {
-  background: #fee2e2;
-  color: #dc2626;
-  border: 1px solid #fecaca;
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid var(--danger-border);
   border-radius: 0.75rem;
   padding: 0.75rem 1rem;
   font-size: 0.9375rem;
@@ -388,8 +230,8 @@
 }
 .btn-cancelar {
   padding: 0.7rem 1.5rem;
-  background: #f3f4f6;
-  color: #374151;
+  background: var(--surface-2);
+  color: var(--text-secondary);
   border: none;
   border-radius: 0.75rem;
   font-family: var(--font-text);
@@ -398,12 +240,12 @@
   cursor: pointer;
   transition: background 0.15s;
 }
-.btn-cancelar:hover { background: #e5e7eb; }
+.btn-cancelar:hover { background: var(--border-light); }
 
 .btn-guardar {
   padding: 0.7rem 1.75rem;
   background: linear-gradient(135deg, var(--primary) 0%, var(--amber) 100%);
-  color: #fff;
+  color: var(--text-on-primary);
   border: none;
   border-radius: 0.75rem;
   font-family: var(--font-text);
@@ -431,7 +273,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--text-on-primary);
   font-weight: 700;
   font-size: 1.75rem;
   flex-shrink: 0;
@@ -456,7 +298,7 @@
   align-items: flex-start;
   gap: 0.75rem;
   padding: 0.7rem 0.25rem;
-  border-bottom: 1px solid #f3f0e8;
+  border-bottom: 1px solid var(--border-light);
 }
 .perfil-row:last-child { border-bottom: none; }
 .perfil-row i {
@@ -474,21 +316,21 @@
 }
 .perfil-row-valor {
   font-size: 1rem;
-  color: #1a1a2e;
+  color: var(--text-primary);
   word-break: break-word;
 }
 
 /* Badge de especialidad (reutilizado en tabla y eventos) */
 .badge-especialidad {
-  background: #e0f2fe;
-  color: #0369a1;
+  background: var(--info-bg);
+  color: var(--info);
 }
 
 /* ── Toast de error ── */
 .toast-error {
-  border-color: #fecaca !important;
+  border-color: var(--danger-border) !important;
 }
-.toast-error .toast-title { color: #dc2626 !important; }
+.toast-error .toast-title { color: var(--danger) !important; }
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
@@ -522,12 +364,12 @@
 
 /* Separador visual entre filas del DT */
 #usuarios-lista .bsp-dt-row-wrap + .bsp-dt-row-wrap .usuarios-table tbody tr td {
-  border-top: 1px solid #f3f0e8;
+  border-top: 1px solid var(--border-light);
 }
 
 /* Contenedor del DT de usuarios */
 #usuarios-dt-container {
-  background: #fff;
+  background: var(--surface);
   border: 2px solid var(--border);
   border-radius: 1.25rem;
   overflow: hidden;
@@ -541,20 +383,20 @@
 }
 
 #usuarios-dt-container .bsp-dt-filters {
-  background: #f0f4ff;
-  border-color: #c7d2fe;
+  background: var(--surface-hover);
+  border-color: var(--info-border);
 }
 
 /* ── Filtros de fecha en toolbar ── */
 #filtro-desde,
 #filtro-hasta {
   padding: 0.55rem 0.75rem;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--border-light);
   border-radius: 0.75rem;
   font-family: var(--font-text);
   font-size: 0.9375rem;
   color: var(--primary-dark);
-  background: #fff;
+  background: var(--surface);
   outline: none;
   cursor: pointer;
   transition: border-color 0.2s;
@@ -593,10 +435,10 @@
   align-items: center;
   gap: 0.35rem;
   padding: 0.55rem 0.875rem;
-  border: 2px solid #fecaca;
+  border: 2px solid var(--danger-border);
   border-radius: 0.75rem;
-  background: #fff;
-  color: #dc2626;
+  background: var(--surface);
+  color: var(--danger);
   font-family: var(--font-text);
   font-size: 0.9375rem;
   font-weight: 600;
@@ -606,7 +448,7 @@
   align-self: flex-end;
 }
 .btn-limpiar-usr:hover {
-  background: #fee2e2;
+  background: var(--danger-bg);
 }
 
 /* Ajuste del toolbar para que los grupos de fecha queden alineados */

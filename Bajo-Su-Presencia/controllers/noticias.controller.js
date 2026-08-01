@@ -295,8 +295,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('modal-noticia-contenido').textContent =
       noticia.contenido || 'Sin contenido adicional.';
 
-    document.getElementById('modal-overlay-noticia').classList.add('visible');
-    document.getElementById('modal-ver-noticia').classList.add('visible');
+    BSPModal.abrir({
+      overlay: document.getElementById('modal-overlay-noticia'),
+      modal:   document.getElementById('modal-ver-noticia')
+    });
   };
 
   // Cerrar modal
@@ -304,8 +306,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('modal-overlay-noticia').addEventListener('click', cerrarModal);
 
   function cerrarModal() {
-    document.getElementById('modal-overlay-noticia').classList.remove('visible');
-    document.getElementById('modal-ver-noticia').classList.remove('visible');
+    BSPModal.cerrar({
+      overlay: document.getElementById('modal-overlay-noticia'),
+      modal:   document.getElementById('modal-ver-noticia')
+    });
   }
 
   // ════════════════════════════════════════════════════════════════

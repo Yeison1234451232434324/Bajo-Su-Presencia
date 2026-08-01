@@ -30,10 +30,10 @@
   padding: 0.2rem 0.65rem;
   border-radius: 999px;
 }
-.chart-badge--blue   { background: #dbeafe; color: #1d4ed8; }
-.chart-badge--green  { background: #dbeafe; color: #1d4ed8; }
-.chart-badge--amber  { background: #dbeafe; color: #1d4ed8; }
-.chart-badge--purple { background: #dbeafe; color: #1d4ed8; }
+.chart-badge--blue   { background: var(--info-bg); color: var(--info); }
+.chart-badge--green  { background: var(--success-bg); color: var(--success); }
+.chart-badge--amber  { background: var(--warning-bg); color: var(--warning); }
+.chart-badge--purple { background: var(--purple-bg); color: var(--purple); }
 
 /* ── Gráfica de dona ──────────────────────────────────────── */
 .chart-card--donut .donut-wrap {
@@ -59,7 +59,7 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.9375rem;
-  color: #374151;
+  color: var(--text-secondary);
 }
 .donut-legend-dot {
   width: 10px;
@@ -90,7 +90,7 @@
   align-items: flex-start;
   gap: 0.875rem;
   padding: 0.75rem 0;
-  border-bottom: 1px solid #f3f0e8;
+  border-bottom: 1px solid var(--border-light);
 }
 .activity-item:last-child {
   border-bottom: none;
@@ -102,10 +102,10 @@
   margin-top: 0.3rem;
   flex-shrink: 0;
 }
-.activity-dot--green  { background: #1d4ed8; }
-.activity-dot--blue   { background: #1d4ed8; }
-.activity-dot--amber  { background: #1d4ed8; }
-.activity-dot--purple { background: #1d4ed8; }
+.activity-dot--green  { background: var(--success); }
+.activity-dot--blue   { background: var(--info); }
+.activity-dot--amber  { background: var(--amber); }
+.activity-dot--purple { background: var(--purple); }
 
 .activity-body {
   display: flex;
@@ -114,7 +114,7 @@
 }
 .activity-text {
   font-size: 0.9375rem;
-  color: #1a1a2e;
+  color: var(--text-primary);
   line-height: 1.4;
 }
 .activity-time {
@@ -133,7 +133,7 @@
   align-items: center;
   gap: 0.875rem;
   padding: 0.75rem 0;
-  border-bottom: 1px solid #f3f0e8;
+  border-bottom: 1px solid var(--border-light);
 }
 .volunteer-item:last-child {
   border-bottom: none;
@@ -147,7 +147,7 @@
   justify-content: center;
   font-weight: 700;
   font-size: 0.9375rem;
-  color: #fff;
+  color: var(--text-on-primary);
   flex-shrink: 0;
   box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
@@ -158,7 +158,7 @@
 .volunteer-name {
   font-size: 1rem;
   font-weight: 600;
-  color: #1a1a2e;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -175,7 +175,7 @@
 /* ── Tabla de Próximos Eventos (2.9) ──────────────────────── */
 .table-card--full {
   width: 100%;
-  margin-top: 0;
+  margin-top: 2rem;
   padding: 0;
   overflow: visible;  /* permitir que la toolbar y el contenido sean visibles */
 }
@@ -196,7 +196,7 @@
   font-size: 0.9375rem;
   font-weight: 600;
   color: var(--primary);
-  background: #dbeafe;
+  background: var(--info-bg);
   padding: 0.35rem 0.875rem;
   border-radius: 999px;
   text-decoration: none;
@@ -204,7 +204,7 @@
 }
 .btn-ver-mas:hover {
   background: var(--primary);
-  color: #fff;
+  color: var(--text-on-primary);
 }
 
 .events-table-wrap {
@@ -217,7 +217,7 @@
   font-size: 0.9375rem;
 }
 .events-table thead tr {
-  background: #f5f3ee;
+  background: var(--surface-2);
 }
 .events-table th {
   text-align: left;
@@ -231,8 +231,8 @@
 }
 .events-table td {
   padding: 1.1rem 1.75rem;
-  border-bottom: 1px solid #f3f0e8;
-  color: #374151;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-secondary);
   white-space: nowrap;
 }
 /* Separador visual entre filas usando una fila de espacio */
@@ -243,7 +243,7 @@
   border-bottom: none;
 }
 .events-table tbody tr:hover td {
-  background: #f0f4ff;
+  background: var(--surface-hover);
 }
 
 /* ── Responsive ───────────────────────────────────────────── */
@@ -278,8 +278,8 @@
   flex-wrap: wrap;
   gap: 0.75rem;
   padding: 1rem 1.75rem 0.75rem;
-  border-bottom: 1px solid #f3f0e8;
-  background: #faf8f3;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--surface-2);
   border-radius: 0 0 0 0;
 }
 
@@ -299,12 +299,12 @@
 
 .dash-dt-select {
   padding: 0.4rem 0.625rem;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--border-light);
   border-radius: 0.5rem;
   font-family: var(--font-text);
   font-size: 0.9375rem;
   color: var(--primary-dark);
-  background: #fff;
+  background: var(--surface);
   outline: none;
   cursor: pointer;
   transition: border-color 0.2s;
@@ -317,10 +317,10 @@
   align-items: center;
   gap: 0.35rem;
   padding: 0.4rem 0.75rem;
-  border: 2px solid #a7f3d0;
+  border: 2px solid var(--success-border);
   border-radius: 0.5rem;
-  background: #fff;
-  color: #051b96;
+  background: var(--surface);
+  color: var(--primary);
   font-family: var(--font-text);
   font-size: 0.9375rem;
   font-weight: 600;
@@ -328,7 +328,7 @@
   transition: background 0.15s, color 0.15s;
   white-space: nowrap;
 }
-.dash-dt-btn-csv:hover { background: #059669; color: #fff; border-color: #059669; }
+.dash-dt-btn-csv:hover { background: var(--success); color: var(--text-on-primary); border-color: var(--success); }
 
 /* Campo de búsqueda */
 .dash-dt-search-wrap {
@@ -339,17 +339,17 @@
 .dash-dt-search-icon {
   position: absolute;
   left: 0.625rem;
-  color: #9ca3af;
+  color: var(--text-muted);
   pointer-events: none;
 }
 .dash-dt-search {
   padding: 0.4rem 0.75rem 0.4rem 2rem;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--border-light);
   border-radius: 0.625rem;
   font-family: var(--font-text);
   font-size: 0.9375rem;
   color: var(--primary-dark);
-  background: #fff;
+  background: var(--surface);
   outline: none;
   width: 200px;
   transition: border-color 0.2s, width 0.3s;
@@ -358,7 +358,7 @@
   border-color: var(--primary);
   width: 240px;
 }
-.dash-dt-search::placeholder { color: #9ca3af; }
+.dash-dt-search::placeholder { color: var(--text-muted); }
 
 /* Info de registros */
 .dash-dt-info {
@@ -387,7 +387,7 @@
   display: flex;
   justify-content: flex-end;
   padding: 0.875rem 1.75rem;
-  border-top: 1px solid #f3f0e8;
+  border-top: 1px solid var(--border-light);
 }
 
 .dash-dt-pag {

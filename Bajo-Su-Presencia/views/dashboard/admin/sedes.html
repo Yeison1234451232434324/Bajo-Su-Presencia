@@ -69,10 +69,10 @@
 <div class="sed-modal-overlay" id="sed-modal-overlay"></div>
 
 <!-- ══ MODAL: NUEVA SEDE ════════════════════════════════════════════════ -->
-<div class="sed-modal" id="sed-modal">
+<div class="sed-modal" id="sed-modal" role="dialog" aria-modal="true" aria-labelledby="sed-modal-titulo">
   <div class="sed-modal-box">
 
-    <div class="sed-modal-titulo">Nueva Sede</div>
+    <div class="sed-modal-titulo" id="sed-modal-titulo">Nueva Sede</div>
 
     <form id="form-sede" novalidate>
 
@@ -132,6 +132,7 @@
 
 <!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
   <script src="../../../helpers/validators.helper.js"></script>
+  <script src="../../../helpers/modal.helper.js"></script>
   <script src="../../../controllers/sidebar.controller.js"></script>
 <!-- Supabase: SDK + cliente compartido (ANTES del modelo, que usa window.sb) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8" integrity="sha384-Tve8O+C6PBzsIMK/IRCwHbi8fyEzXIlIs6OfVBZHubplwYhaQF/4Mzxqgg+pp/oy" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

@@ -11,7 +11,7 @@
     2. Barra de herramientas: búsqueda por texto + filtros de categoría
        y disponibilidad + botón "Nuevo Recurso"
     3. Tabla de recursos con acciones: editar, activar/desactivar, eliminar
-    4. Modal de crear/editar recurso (nombre, categoría, cantidad, unidad)
+    4. Modal de crear/editar recurso (nombre, categoría, cantidad)
 
   Archivos que usa:
     - panel.css              → estilos base del panel
@@ -64,8 +64,8 @@
     <div class="stats-recursos">
 
       <div class="stat-rec-card">
-        <div class="stat-rec-icon" style="background:#dbeafe;">
-          <i class="bx bx-package" style="color:#1E3A8A;" aria-hidden="true"></i>
+        <div class="stat-rec-icon">
+          <i class="bx bx-package" aria-hidden="true"></i>
         </div>
         <div>
           <p class="stat-rec-label">Total Recursos</p>
@@ -74,8 +74,8 @@
       </div>
 
       <div class="stat-rec-card">
-        <div class="stat-rec-icon" style="background:#dbeafe;">
-          <i class="bx bx-check-circle" style="color:#059669;" aria-hidden="true"></i>
+        <div class="stat-rec-icon">
+          <i class="bx bx-check-circle" aria-hidden="true"></i>
         </div>
         <div>
           <p class="stat-rec-label">Disponibles</p>
@@ -84,8 +84,8 @@
       </div>
 
       <div class="stat-rec-card">
-        <div class="stat-rec-icon" style="background:#dbeafe;">
-          <i class="bx bx-x-circle" style="color:#dc2626;" aria-hidden="true"></i>
+        <div class="stat-rec-icon">
+          <i class="bx bx-x-circle" aria-hidden="true"></i>
         </div>
         <div>
           <p class="stat-rec-label">No Disponibles</p>
@@ -94,8 +94,8 @@
       </div>
 
       <div class="stat-rec-card">
-        <div class="stat-rec-icon" style="background:#dbeafe;">
-          <i class="bx bx-error" style="color:#d97706;" aria-hidden="true"></i>
+        <div class="stat-rec-icon">
+          <i class="bx bx-error" aria-hidden="true"></i>
         </div>
         <div>
           <p class="stat-rec-label">Sin Stock</p>
@@ -149,30 +149,17 @@
       />
     </div>
 
-    <!-- Categoría + Unidad de medida -->
-    <div class="form-row">
-      <div class="form-group">
-        <label for="campo-categoria">Categoría</label>
-        <select id="campo-categoria" class="form-control select-filtro" style="width:100%;" required>
-          <option value="Mobiliario">Mobiliario</option>
-          <option value="Audio y Video">Audio y Video</option>
-          <option value="Iluminación">Iluminación</option>
-          <option value="Papelería">Papelería</option>
-          <option value="Cocina">Cocina</option>
-          <option value="Otros">Otros</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="campo-unidad">Unidad de Medida</label>
-        <input
-          type="text"
-          id="campo-unidad"
-          class="form-control"
-          placeholder="Ej: unidades, metros, kg"
-          value="unidades"
-          required
-        />
-      </div>
+    <!-- Categoría -->
+    <div class="form-group">
+      <label for="campo-categoria">Categoría</label>
+      <select id="campo-categoria" class="form-control select-filtro" style="width:100%;" required>
+        <option value="Mobiliario">Mobiliario</option>
+        <option value="Audio y Video">Audio y Video</option>
+        <option value="Iluminación">Iluminación</option>
+        <option value="Papelería">Papelería</option>
+        <option value="Cocina">Cocina</option>
+        <option value="Otros">Otros</option>
+      </select>
     </div>
 
     <!-- Cantidad disponible -->
@@ -214,6 +201,7 @@
 <!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
 <!-- Sidebar del admin -->
   <script src="../../../helpers/validators.helper.js"></script>
+  <script src="../../../helpers/modal.helper.js"></script>
   <script src="../../../controllers/sidebar.controller.js"></script>
 <!-- Supabase: SDK + cliente (ANTES del modelo) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8" integrity="sha384-Tve8O+C6PBzsIMK/IRCwHbi8fyEzXIlIs6OfVBZHubplwYhaQF/4Mzxqgg+pp/oy" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

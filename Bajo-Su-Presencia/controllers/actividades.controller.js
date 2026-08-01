@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       card.innerHTML = `
         <div class="act-ev-icon"><i class="bx bx-calendar-event" aria-hidden="true"></i></div>
         <div class="act-ev-body">
-          <h3 class="act-ev-titulo">${ev.titulo}</h3>
+          <h3 class="act-ev-titulo">${esc(ev.titulo)}</h3>
           <p class="act-ev-meta"><i class="bx bx-calendar" aria-hidden="true"></i> ${fechaFmt}</p>
           ${ev.horario ? `<p class="act-ev-meta"><i class="bx bx-time" aria-hidden="true"></i> ${ev.horario}</p>` : ''}
           <p class="act-ev-meta"><i class="bx bx-notepad" aria-hidden="true"></i> ${resumen.total} actividad(es) - ${resumen.completadas} completada(s)</p>
@@ -120,11 +120,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         </button>
         <div class="act-item-body">
           <div class="act-item-header">
-            <span class="act-item-titulo${act.completada ? ' act-titulo--tachado' : ''}">${act.titulo}</span>
+            <span class="act-item-titulo${act.completada ? ' act-titulo--tachado' : ''}">${esc(act.titulo)}</span>
             <span class="act-prio-badge ${prioClass}">${prioLabel}</span>
           </div>
-          ${act.descripcion ? `<p class="act-item-desc">${act.descripcion}</p>` : ''}
-          <p class="act-item-asignado"><i class="bx bx-user" aria-hidden="true"></i> Asignado a: ${act.voluntarioNombre || '—'}</p>
+          ${act.descripcion ? `<p class="act-item-desc">${esc(act.descripcion)}</p>` : ''}
+          <p class="act-item-asignado"><i class="bx bx-user" aria-hidden="true"></i> Asignado a: ${esc(act.voluntarioNombre || '—')}</p>
         </div>
         <div class="act-item-acciones">
           <button class="act-btn-accion act-btn-editar" onclick="abrirEditar('${act.id}')" title="Editar"><i class="bx bx-edit" aria-hidden="true"></i></button>
@@ -258,8 +258,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ════════════════════════════════════════════════════════════════
   // 8. HELPERS MODAL + FECHA
   // ════════════════════════════════════════════════════════════════
-  function _mostrarModal() { modal.style.display = 'flex'; modalOverlay.style.display = 'block'; document.body.style.overflow = 'hidden'; }
-  function _cerrarModal()  { modal.style.display = 'none'; modalOverlay.style.display = 'none'; document.body.style.overflow = ''; formAct.reset(); }
+  function _mostrarModal() { BSPModal.abrir({ overlay: modalOverlay, modal, modoDisplay: true }); }
+  function _cerrarModal()  { BSPModal.cerrar({ overlay: modalOverlay, modal, modoDisplay: true }); formAct.reset(); }
   window.cerrarModalActividad = function() { _cerrarModal(); };
   modalOverlay.addEventListener('click', _cerrarModal);
 

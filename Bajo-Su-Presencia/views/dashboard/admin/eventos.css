@@ -42,7 +42,7 @@
 .ev-contador {
   font-size: 0.9375rem;
   font-weight: 600;
-  color: #9ca3af;
+  color: var(--text-muted);
   font-style: italic;
   transition: color 0.2s;
 }
@@ -53,13 +53,13 @@
   align-items: center;
   gap: 0.5rem;
   padding: 1rem 1.25rem;
-  background: #fef3c7;
-  border: 1px solid #fde68a;
+  background: var(--warning-bg);
+  border: 1px solid var(--warning-border);
   border-radius: 0.875rem;
   font-size: 1rem;
-  color: #92400e;
+  color: var(--warning);
 }
-.ev-sin-recursos-msg i { font-size: 1.2rem; color: #d97706; }
+.ev-sin-recursos-msg i { font-size: 1.2rem; color: var(--amber); }
 .ev-sin-recursos-msg a {
   color: var(--primary);
   font-weight: 700;
@@ -76,7 +76,7 @@
 
 /* Tarjeta individual de recurso */
 .ev-recurso-card {
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--border-light);
   border-radius: 1rem;
   padding: 0.875rem 1rem;
   display: flex;
@@ -84,7 +84,7 @@
   align-items: flex-start;
   cursor: pointer;
   transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
-  background: #fff;
+  background: var(--surface);
 }
 .ev-recurso-card:hover {
   border-color: var(--primary);
@@ -94,7 +94,7 @@
 /* Estado seleccionado: borde azul + fondo suave */
 .ev-recurso-card.ev-rec-selected {
   border-color: var(--primary);
-  background: #eff6ff;
+  background: var(--info-bg);
   box-shadow: 0 2px 12px rgba(30,58,138,0.15);
 }
 
@@ -134,7 +134,7 @@
 .ev-rec-nombre {
   font-weight: 700;
   font-size: 1rem;
-  color: #1a1a2e;
+  color: var(--text-primary);
   cursor: pointer;
   flex: 1;
   min-width: 0;
@@ -173,8 +173,8 @@
 
 /* Badge de especialidad (tarjetas de especialistas) */
 .ev-badge-especialidad {
-  background: #e0f2fe;
-  color: #0369a1;
+  background: var(--info-bg);
+  color: var(--info);
   font-size: 0.8125rem;
   white-space: nowrap;
   grid-row: 2;
@@ -200,13 +200,13 @@
 .ev-rec-qty label {
   font-size: 0.8125rem;
   font-weight: 600;
-  color: #374151;
+  color: var(--text-secondary);
   margin: 0;
 }
 .ev-qty-input {
   width: 70px;
   padding: 0.3rem 0.5rem;
-  border: 2px solid #d1d5db;
+  border: 2px solid var(--border-light);
   border-radius: 0.5rem;
   font-size: 0.9375rem;
   text-align: center;
@@ -244,7 +244,7 @@
 
 /* Tarjeta de evento publicado */
 .ev-publicado-card {
-  background: #fff;
+  background: var(--surface);
   border: 2px solid var(--border);
   border-radius: 1.25rem;
   padding: 1.25rem 1.5rem;
@@ -284,7 +284,7 @@
 /* Descripción del evento */
 .ev-pub-desc {
   font-size: 0.9375rem;
-  color: #374151;
+  color: var(--text-secondary);
   margin: 0.5rem 0 0.75rem;
   line-height: 1.5;
 }
@@ -297,7 +297,7 @@
   flex-wrap: wrap;
   margin-top: 0.75rem;
   padding-top: 0.75rem;
-  border-top: 1px solid #f3f0e8;
+  border-top: 1px solid var(--border-light);
 }
 .ev-pub-recursos-label {
   font-size: 0.8125rem;
@@ -320,8 +320,8 @@
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: var(--info-bg);
+  color: var(--info);
   border-radius: 999px;
   padding: 0.2rem 0.65rem;
   font-size: 0.8125rem;
@@ -332,28 +332,9 @@
 /* Texto cuando no hay recursos asignados */
 .ev-sin-recursos {
   font-size: 0.8125rem;
-  color: #9ca3af;
+  color: var(--text-muted);
   font-style: italic;
 }
-
-/* Botón eliminar evento */
-.btn-ev-eliminar {
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: 0.5rem;
-  background: #95baff;
-  color: #dc2626;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: background 0.15s, transform 0.1s;
-}
-.btn-ev-eliminar:hover  { background: #fecaca; }
-.btn-ev-eliminar:active { transform: scale(0.92); }
 
 /* Placeholder lista vacía */
 .ev-lista-vacia {
@@ -362,19 +343,19 @@
   align-items: center;
   gap: 0.75rem;
   padding: 2.5rem;
-  background: #fff;
+  background: var(--surface);
   border: 2px dashed var(--border);
   border-radius: 1.25rem;
-  color: #9ca3af;
+  color: var(--text-muted);
   text-align: center;
 }
-.ev-lista-vacia i { font-size: 2.5rem; color: #d1d5db; }
+.ev-lista-vacia i { font-size: 2.5rem; color: var(--border-light); }
 
 /* ══════════════════════════════════════════════════
    PLANTILLAS DE EVENTOS
 ══════════════════════════════════════════════════ */
 .ev-plantillas-wrap {
-  background: #fff;
+  background: var(--surface);
   border: 2px solid var(--border);
   border-radius: 1.25rem;
   padding: 1.25rem 1.5rem;
@@ -405,7 +386,7 @@
   min-height: 44px;              /* objetivo táctil WCAG 2.5.5 (medido: 37px antes) */
   border: 2px solid var(--border);
   border-radius: 999px;
-  background: #fff;
+  background: var(--surface);
   color: var(--primary-dark);
   font-size: 0.9375rem;
   font-weight: 600;
@@ -415,13 +396,13 @@
 }
 .ev-plantilla-btn:hover {
   border-color: var(--primary);
-  background: #eff6ff;
+  background: var(--info-bg);
   color: var(--primary);
 }
 .ev-plantilla-btn.activa {
   border-color: var(--primary);
   background: var(--primary);
-  color: #fff;
+  color: var(--text-on-primary);
 }
 .ev-plantilla-btn i { font-size: 1rem; }
 
@@ -436,7 +417,7 @@
   min-width: 0;
 }
 .ev-horario-sep {
-  color: #9ca3af;
+  color: var(--text-muted);
   font-weight: 700;
   flex-shrink: 0;
   font-size: 1rem;
@@ -477,26 +458,26 @@
   white-space: nowrap;
 }
 .ev-badge--activo {
-  background: #d1fae5;
-  color: #065f46;
+  background: var(--success-bg);
+  color: var(--success);
 }
 .ev-badge--pasado {
-  background: #f3f4f6;
-  color: #6b7280;
+  background: var(--surface-2);
+  color: var(--text-muted);
 }
 
 /* Estados del evento */
 .ev-badge--publicado {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: var(--info-bg);
+  color: var(--info);
 }
 .ev-badge--ejecucion {
-  background: #fef3c7;
-  color: #b45309;
+  background: var(--warning-bg);
+  color: var(--warning);
 }
 .ev-badge--finalizado {
-  background: #f3f4f6;
-  color: #6b7280;
+  background: var(--surface-2);
+  color: var(--text-muted);
 }
 
 /* Grupo de botones de acción */
@@ -525,29 +506,29 @@
 
 /* Ver detalle — azul */
 .btn-ev-ver {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: var(--info-bg);
+  color: var(--info);
 }
-.btn-ev-ver:hover { background: #bfdbfe; }
+.btn-ev-ver:hover { background: var(--info-border); }
 
-/* Editar — amarillo */
+/* Editar — ámbar */
 .btn-ev-editar {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: var(--warning-bg);
+  color: var(--warning);
 }
-.btn-ev-editar:hover { background: #fef08a; }
+.btn-ev-editar:hover { background: var(--warning); color: var(--text-on-primary); }
 
-/* Eliminar — rojo (reemplaza el anterior .btn-ev-eliminar) */
+/* Eliminar — rojo */
 .btn-ev-eliminar {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: var(--danger-bg);
+  color: var(--danger);
 }
-.btn-ev-eliminar:hover { background: #fecaca; }
+.btn-ev-eliminar:hover { background: var(--danger); color: var(--text-on-primary); }
 
 /* Fecha de publicación */
 .ev-pub-fecha-pub {
   font-size: 0.8125rem;
-  color: #9ca3af;
+  color: var(--text-muted);
   margin-top: 0.6rem;
   font-style: italic;
 }
@@ -560,7 +541,8 @@
 .ev-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: var(--modal-overlay-bg);
+  backdrop-filter: blur(var(--modal-blur));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -571,13 +553,13 @@
 
 /* Caja del modal */
 .ev-modal-box {
-  background: #fff;
-  border-radius: 1.25rem;
+  background: var(--surface);
+  border-radius: var(--modal-radius);
   width: 100%;
   max-width: 520px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--modal-shadow);
   animation: ev-modal-in 0.2s ease;
 }
 
@@ -614,8 +596,8 @@
   height: 32px;
   border: none;
   border-radius: 0.5rem;
-  background: #f3f4f6;
-  color: #6b7280;
+  background: var(--surface-2);
+  color: var(--text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -624,7 +606,7 @@
   flex-shrink: 0;
   transition: background 0.15s;
 }
-.ev-modal-close:hover { background: #e5e7eb; color: #111; }
+.ev-modal-close:hover { background: var(--border-light); color: var(--text-primary); }
 
 /* Cuerpo del modal */
 .ev-modal-body {
@@ -660,19 +642,19 @@
 .ev-detalle-valor {
   font-size: 1rem;
   font-weight: 600;
-  color: #1a1a2e;
+  color: var(--text-primary);
 }
 
 .ev-detalle-desc {
   margin: 0.75rem 0;
   padding: 0.75rem 1rem;
-  background: #f9fafb;
+  background: var(--surface-2);
   border-radius: 0.75rem;
   border-left: 3px solid var(--primary);
 }
 .ev-detalle-desc p {
   font-size: 0.9375rem;
-  color: #374151;
+  color: var(--text-secondary);
   margin-top: 0.4rem;
   line-height: 1.5;
 }
@@ -686,23 +668,23 @@
   gap: 0.75rem;
   margin-top: 1.25rem;
   padding-top: 1rem;
-  border-top: 1px solid #f3f0e8;
+  border-top: 1px solid var(--border-light);
 }
 
 .btn-ev-cancelar {
   padding: 0.6rem 1.25rem;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--border-light);
   border-radius: 0.75rem;
-  background: #fff;
-  color: #6b7280;
+  background: var(--surface);
+  color: var(--text-muted);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
 }
 .btn-ev-cancelar:hover {
-  background: #f9fafb;
-  border-color: #d1d5db;
+  background: var(--surface-2);
+  border-color: var(--border-light);
 }
 
 /* ── Responsive modales ── */
@@ -779,7 +761,7 @@
 
 /* ── Tarjeta de previsualización ── */
 .ev-preview-card {
-  background: #fff;
+  background: var(--surface);
   border: 2px solid var(--border);
   border-radius: 1.25rem;
   overflow: hidden;
@@ -796,7 +778,7 @@
 .ev-preview-bar {
   width: 6px;
   flex-shrink: 0;
-  background: linear-gradient(180deg, var(--primary) 0%, #2D4FAF 100%);
+  background: linear-gradient(180deg, var(--primary) 0%, var(--primary-light) 100%);
   border-radius: 0 0 0 0;
 }
 
@@ -816,12 +798,12 @@
   gap: 0.6rem;
   padding: 2rem 1rem;
   text-align: center;
-  color: #c4bfb0;
+  color: var(--text-muted);
   min-height: 160px;
 }
 .ev-preview-empty i {
   font-size: 2.5rem;
-  color: #ddd8cc;
+  color: var(--border);
 }
 .ev-preview-empty p {
   font-size: 0.9375rem;
@@ -852,7 +834,7 @@
   align-items: flex-start;
   gap: 0.5rem;
   font-size: 0.9375rem;
-  color: #374151;
+  color: var(--text-secondary);
 }
 
 .ev-prev-icon {
@@ -864,11 +846,11 @@
 /* Descripción en la previsualización */
 .ev-prev-desc {
   font-size: 0.9375rem;
-  color: #6b7280;
+  color: var(--text-muted);
   line-height: 1.5;
   margin-top: 0.5rem;
   padding-top: 0.5rem;
-  border-top: 1px solid #f3f0e8;
+  border-top: 1px solid var(--border-light);
   word-break: break-word;
 }
 
@@ -878,7 +860,7 @@
   align-items: center;
   gap: 0.35rem;
   font-size: 0.8125rem;
-  color: #9ca3af;
+  color: var(--text-muted);
   margin-top: 0.75rem;
   font-style: italic;
 }

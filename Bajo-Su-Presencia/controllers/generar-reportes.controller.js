@@ -47,8 +47,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       div.innerHTML = `
         <div class="gr-reciente-icon"><i class="bx bx-file" aria-hidden="true"></i></div>
         <div class="gr-reciente-info">
-          <div class="gr-reciente-nombre">${item.nombre}</div>
-          <div class="gr-reciente-fecha">Generado: ${item.fecha}</div>
+          <div class="gr-reciente-nombre">${esc(item.nombre)}</div>
+          <div class="gr-reciente-fecha">Generado: ${esc(item.fecha)}</div>
         </div>
         <button class="gr-reciente-dl" title="Descargar" onclick="descargarHistorial(${historial.length - 1 - idx})">
           <i class="bx bx-download" aria-hidden="true"></i>
@@ -80,9 +80,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderHistorial();
 
     pdfContenido.innerHTML = html;
-    modal.style.display        = 'flex';
-    modalOverlay.style.display = 'block';
-    document.body.style.overflow = 'hidden';
+    BSPModal.abrir({ overlay: modalOverlay, modal, modoDisplay: true });
   };
 
   window.descargarPDF = function() {
@@ -108,15 +106,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const item = historial[idx];
     if (!item) return;
     pdfContenido.innerHTML = item.html;
-    modal.style.display        = 'flex';
-    modalOverlay.style.display = 'block';
-    document.body.style.overflow = 'hidden';
+    BSPModal.abrir({ overlay: modalOverlay, modal, modoDisplay: true });
   };
 
   window.cerrarModalReporte = function() {
-    modal.style.display        = 'none';
-    modalOverlay.style.display = 'none';
-    document.body.style.overflow = '';
+    BSPModal.cerrar({ overlay: modalOverlay, modal, modoDisplay: true });
   };
   modalOverlay.addEventListener('click', cerrarModalReporte);
 

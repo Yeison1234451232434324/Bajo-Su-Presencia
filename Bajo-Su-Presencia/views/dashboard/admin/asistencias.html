@@ -68,28 +68,28 @@
     <!-- ── Tarjetas de resumen (del evento seleccionado) ─────────────────── -->
     <div class="counters-grid asist-counters">
       <div class="counter-card">
-        <div class="counter-icon" style="background:#dbeafe;"><i class="bx bx-user-plus" style="color:#1E3A8A;" aria-hidden="true"></i></div>
+        <div class="counter-icon counter-icon--info"><i class="bx bx-user-plus" aria-hidden="true"></i></div>
         <div class="counter-info">
           <p class="counter-label">Inscritos</p>
           <p class="counter-value" id="cont-inscritos">0</p>
         </div>
       </div>
       <div class="counter-card">
-        <div class="counter-icon" style="background:#d1fae5;"><i class="bx bx-qr-scan" style="color:#059669;" aria-hidden="true"></i></div>
+        <div class="counter-icon counter-icon--success"><i class="bx bx-qr-scan" aria-hidden="true"></i></div>
         <div class="counter-info">
           <p class="counter-label">Asistieron (QR)</p>
           <p class="counter-value" id="cont-asistieron">0</p>
         </div>
       </div>
       <div class="counter-card">
-        <div class="counter-icon" style="background:#ede9fe;"><i class="bx bx-pie-chart-alt-2" style="color:#7c3aed;" aria-hidden="true"></i></div>
+        <div class="counter-icon counter-icon--purple"><i class="bx bx-pie-chart-alt-2" aria-hidden="true"></i></div>
         <div class="counter-info">
           <p class="counter-label">% Asistencia</p>
           <p class="counter-value" id="cont-porcentaje">0%</p>
         </div>
       </div>
       <div class="counter-card">
-        <div class="counter-icon" style="background:#fef3c7;"><i class="bx bxs-star" style="color:#d97706;" aria-hidden="true"></i></div>
+        <div class="counter-icon counter-icon--warning"><i class="bx bxs-star" aria-hidden="true"></i></div>
         <div class="counter-info">
           <p class="counter-label">Calificación Promedio</p>
           <p class="counter-value" id="cont-promedio">—</p>
@@ -106,6 +106,7 @@
 
 <!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
 <script src="../../../helpers/validators.helper.js"></script>
+  <script src="../../../helpers/modal.helper.js"></script>
 <script src="../../../controllers/sidebar.controller.js"></script>
 <!-- Supabase: SDK + cliente (ANTES del modelo) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8" integrity="sha384-Tve8O+C6PBzsIMK/IRCwHbi8fyEzXIlIs6OfVBZHubplwYhaQF/4Mzxqgg+pp/oy" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

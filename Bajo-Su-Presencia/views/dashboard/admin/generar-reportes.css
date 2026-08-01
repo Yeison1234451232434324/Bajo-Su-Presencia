@@ -4,7 +4,7 @@
 
 /* ── Tarjeta principal ───────────────────────────────────────── */
 .gr-card {
-  background: #fff;
+  background: var(--surface);
   border-radius: 1.25rem;
   padding: 2rem;
   border: 2px solid var(--border);
@@ -30,7 +30,7 @@
   justify-content: center;
   flex-shrink: 0;
 }
-.gr-header-icon i { font-size: 1.5rem; color: #fff; }
+.gr-header-icon i { font-size: 1.5rem; color: var(--text-on-primary); }
 .gr-header-text h3 {
   font-family: var(--font-title);
   font-size: 1.6rem;
@@ -63,7 +63,7 @@
   padding: 1rem 1.25rem;
   border: 2px solid var(--border);
   border-radius: 0.875rem;
-  background: #faf8f3;
+  background: var(--surface-2);
   cursor: pointer;
   transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
   text-align: left;
@@ -71,11 +71,11 @@
 }
 .gr-tipo-btn:hover {
   border-color: var(--primary);
-  background: #eff6ff;
+  background: var(--info-bg);
 }
 .gr-tipo-btn.gr-tipo-btn--activo {
   border-color: var(--primary);
-  background: #eff6ff;
+  background: var(--info-bg);
   box-shadow: 0 0 0 3px rgba(30,58,138,0.12);
 }
 
@@ -83,7 +83,7 @@
   width: 40px;
   height: 40px;
   border-radius: 0.625rem;
-  background: #f3f4f6;
+  background: var(--surface-2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -94,9 +94,9 @@
 .gr-tipo-btn:hover .gr-tipo-icon {
   background: linear-gradient(135deg, var(--primary) 0%, var(--amber) 100%);
 }
-.gr-tipo-icon i { font-size: 1.2rem; color: #fff; }
+.gr-tipo-icon i { font-size: 1.2rem; color: var(--text-on-primary); }
 .gr-tipo-btn--activo .gr-tipo-icon i,
-.gr-tipo-btn:hover .gr-tipo-icon i { color: #fff; }
+.gr-tipo-btn:hover .gr-tipo-icon i { color: var(--text-on-primary); }
 
 .gr-tipo-info { flex: 1; }
 .gr-tipo-nombre {
@@ -126,12 +126,12 @@
 .gr-fecha-input {
   width: 100%;
   padding: 0.75rem 1rem;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--border-light);
   border-radius: 0.75rem;
   font-family: var(--font-text);
   font-size: 1rem;
-  color: #1a1a2e;
-  background: #fff;
+  color: var(--text-primary);
+  background: var(--surface);
   outline: none;
   transition: border-color 0.2s;
 }
@@ -146,7 +146,7 @@
   gap: 0.6rem;
   padding: 1rem;
   background: linear-gradient(135deg, var(--primary) 0%, var(--amber) 100%);
-  color: #fff;
+  color: var(--text-on-primary);
   border: none;
   border-radius: 0.875rem;
   font-family: var(--font-text);
@@ -174,12 +174,12 @@
   gap: 1rem;
   padding: 0.875rem 1rem;
   border-radius: 0.75rem;
-  background: #faf8f3;
+  background: var(--surface-2);
   border: 1px solid var(--border);
   margin-bottom: 0.625rem;
   transition: background 0.2s;
 }
-.gr-reciente-item:hover { background: #eff6ff; }
+.gr-reciente-item:hover { background: var(--info-bg); }
 
 .gr-reciente-icon {
   width: 38px;
@@ -191,7 +191,7 @@
   justify-content: center;
   flex-shrink: 0;
 }
-.gr-reciente-icon i { font-size: 1.1rem; color: #fff; }
+.gr-reciente-icon i { font-size: 1.1rem; color: var(--text-on-primary); }
 
 .gr-reciente-info { flex: 1; }
 .gr-reciente-nombre {
@@ -211,7 +211,7 @@
   border-radius: 0.4rem;
   transition: color 0.2s, background 0.2s;
 }
-.gr-reciente-dl:hover { color: var(--primary); background: #f3f4f6; }
+.gr-reciente-dl:hover { color: var(--primary); background: var(--surface-2); }
 
 /* ════════════════════════════════════════════════════════════════
    MODAL DE PREVISUALIZACIÓN PDF
@@ -220,7 +220,8 @@
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: var(--modal-overlay-bg);
+  backdrop-filter: blur(var(--modal-blur));
   z-index: 300;
 }
 .gr-modal {
@@ -233,14 +234,14 @@
   padding: 1rem;
 }
 .gr-modal-box {
-  background: #fff;
-  border-radius: 1.25rem;
+  background: var(--surface);
+  border-radius: var(--modal-radius);
   width: 100%;
   max-width: 780px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 24px 64px rgba(0,0,0,0.25);
+  box-shadow: var(--modal-shadow);
   animation: grModalIn 0.25s ease;
   overflow: hidden;
 }
@@ -271,7 +272,7 @@
   gap: 0.4rem;
   padding: 0.55rem 1.1rem;
   background: linear-gradient(135deg, var(--primary-dark) 0%, var(--amber) 100%);
-  color: #fff;
+  color: var(--text-on-primary);
   border: none;
   border-radius: 0.625rem;
   font-family: var(--font-text);
@@ -293,15 +294,26 @@
   transition: background 0.2s;
   line-height: 1;
 }
-.gr-btn-cerrar-modal:hover { background: #f3f4f6; color: #1a1a2e; }
+.gr-btn-cerrar-modal:hover { background: var(--surface-2); color: var(--text-primary); }
 
 /* ── Contenido del PDF dentro del modal ──────────────────────── */
 .gr-modal-content {
   overflow-y: auto;
   flex: 1;
   padding: 2rem;
-  background: #f3f4f6;
+  background: var(--surface-2);
 }
+
+/* ════════════════════════════════════════════════════════════════
+   EXCEPCIÓN INTENCIONAL — de aquí al final del archivo NO usar tokens.
+   Todo lo que sigue (.gr-pdf-*, @media print, .bsp-page/.bsp-portada/
+   .bsp-tabla/.bsp-grafica...) es la simulación en pantalla de un
+   documento PDF exportable/imprimible. Sus colores deben permanecer
+   FIJOS (papel blanco, azul marino de marca, dorado) sin importar el
+   tema activo de la interfaz — un PDF no debe "verse oscuro" solo
+   porque el admin tiene el modo oscuro encendido. No migrar a
+   var(--surface)/var(--text-primary)/etc en futuras auditorías.
+   ════════════════════════════════════════════════════════════════ */
 
 /* ── Hoja del documento PDF ──────────────────────────────────── */
 .gr-pdf-page {

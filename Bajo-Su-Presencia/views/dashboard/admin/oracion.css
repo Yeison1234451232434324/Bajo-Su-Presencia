@@ -24,9 +24,9 @@
   gap: 0.5rem;
   width: 100%;
   padding: 0.75rem 2rem;
-  background: #f3f4f6;
-  color: #374151;
-  border: 2px solid #e5e7eb;
+  background: var(--surface-2);
+  color: var(--text-secondary);
+  border: 2px solid var(--border-light);
   border-radius: 0.875rem;
   font-family: var(--font-text);
   font-size: 1rem;
@@ -35,7 +35,7 @@
   margin-top: 0.5rem;
   transition: background 0.15s;
 }
-.btn-cancelar-edicion:hover { background: #e5e7eb; }
+.btn-cancelar-edicion:hover { background: var(--border-light); }
 
 /* ── Sección del historial ─────────────────────────────────────────────── */
 .or-historial-section {
@@ -61,7 +61,7 @@
 
 /* ── Tarjeta de oración ────────────────────────────────────────────────── */
 .or-card {
-  background: #fff;
+  background: var(--surface);
   border: 2px solid var(--border);
   border-radius: 1.25rem;
   margin-bottom: 1rem;
@@ -134,22 +134,22 @@
 .btn-accion-or:active { transform: scale(0.92); }
 
 /* Ver → azul claro */
-.btn-ver-or     { background: #dbeafe; color: #1d4ed8; }
-.btn-ver-or:hover     { background: #bfdbfe; }
+.btn-ver-or     { background: var(--info-bg); color: var(--info); }
+.btn-ver-or:hover     { background: var(--info-border); }
 
 /* Editar → ámbar */
-.btn-editar-or  { background: #dbeafe; color: #1d4ed8; }
-.btn-editar-or:hover  { background: #fde68a; }
+.btn-editar-or  { background: var(--info-bg); color: var(--info); }
+.btn-editar-or:hover  { background: var(--warning-border); }
 
 /* Eliminar → rojo */
-.btn-eliminar-or { background: #dbeafe; color: #1d4ed8; }
-.btn-eliminar-or:hover { background: #fecaca; }
+.btn-eliminar-or { background: var(--info-bg); color: var(--info); }
+.btn-eliminar-or:hover { background: var(--danger-border); }
 
 /* Texto de la oración (truncado a 2 líneas) */
 .or-card-texto {
   font-family: var(--font-text);
   font-size: 1rem;
-  color: #374151;
+  color: var(--text-secondary);
   line-height: 1.65;
   font-style: italic;
   margin-bottom: 0.6rem;
@@ -178,13 +178,13 @@
   align-items: center;
   gap: 0.75rem;
   padding: 2.5rem;
-  background: #fff;
+  background: var(--surface);
   border: 2px dashed var(--border);
   border-radius: 1.25rem;
-  color: #9ca3af;
+  color: var(--text-muted);
   text-align: center;
 }
-.or-lista-vacia i    { font-size: 2.5rem; color: #d1d5db; }
+.or-lista-vacia i    { font-size: 2.5rem; color: var(--border-light); }
 .or-lista-vacia p    { font-size: 1rem; font-weight: 600; }
 .or-lista-vacia small { font-size: 0.9375rem; }
 
@@ -192,8 +192,8 @@
 .modal-overlay-oracion {
   position: fixed;
   inset: 0;
-  background: rgba(15, 30, 90, 0.50);
-  backdrop-filter: blur(3px);
+  background: var(--modal-overlay-bg);
+  backdrop-filter: blur(var(--modal-blur));
   z-index: 500;
   opacity: 0;
   pointer-events: none;
@@ -210,13 +210,13 @@
   left: 50%;
   transform: translate(-50%, -48%) scale(0.96);
   z-index: 600;
-  background: #fff;
-  border-radius: 1.5rem;
+  background: var(--surface);
+  border-radius: var(--modal-radius);
   padding: 2rem 2.25rem;
   width: min(560px, 95vw);
   max-height: 85vh;
   overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+  box-shadow: var(--modal-shadow);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s, transform 0.25s;
@@ -279,7 +279,7 @@
   font-family: var(--font-text);
   font-size: 1.1rem;
   line-height: 1.8;
-  color: #1a1a2e;
+  color: var(--text-primary);
   font-style: italic;
   text-align: center;
   margin-bottom: 1.25rem;
@@ -301,7 +301,7 @@
 
 /* Botón cerrar modal */
 .btn-cerrar-modal-or {
-  background: #f3f4f6;
+  background: var(--surface-2);
   border: none;
   border-radius: 0.5rem;
   width: 32px;
@@ -311,11 +311,11 @@
   justify-content: center;
   cursor: pointer;
   font-size: 1.2rem;
-  color: #6b7280;
+  color: var(--text-muted);
   transition: background 0.15s;
   flex-shrink: 0;
 }
-.btn-cerrar-modal-or:hover { background: #e5e7eb; color: #1a1a2e; }
+.btn-cerrar-modal-or:hover { background: var(--border-light); color: var(--text-primary); }
 
 /* ── Responsive ────────────────────────────────────────────────────────── */
 @media (max-width: 640px) {

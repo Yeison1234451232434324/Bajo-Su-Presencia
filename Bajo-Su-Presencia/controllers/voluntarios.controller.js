@@ -155,11 +155,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         </button>`;
 
       return `
-        <div style="display:flex;align-items:center;gap:1rem;padding:0.875rem 1.25rem;
-          background:#fff;border:2px solid var(--border);border-radius:1rem;margin-bottom:0.5rem;
-          flex-wrap:wrap;">
+        <div class="vol-row">
           <div class="user-cell" style="flex:2;min-width:160px;">
-            <div class="user-avatar-sm" style="background:linear-gradient(135deg,#1E3A8A,#2D4FAF)">
+            <div class="user-avatar-sm user-avatar-sm--vol">
               ${avatar}
             </div>
             <div>
@@ -245,8 +243,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Renderizar las estrellas interactivas del modal
     renderEstrellaModal(califEstrellas);
 
-    modal.classList.add('visible');
-    modalOverlay.classList.add('visible');
+    BSPModal.abrir({ overlay: modalOverlay, modal });
   };
 
   /**
@@ -362,8 +359,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   /** Cierra el modal de calificación */
   function cerrarModal() {
-    modal.classList.remove('visible');
-    modalOverlay.classList.remove('visible');
+    BSPModal.cerrar({ overlay: modalOverlay, modal });
     califVolId     = null;
     califEstrellas = 0;
   }
@@ -386,7 +382,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (historial.length === 0) {
       historialLista.innerHTML = `
         <div class="panel-vacio">
-          <i class="bx bx-history" style="font-size:2.5rem;color:#d1d5db;" aria-hidden="true"></i>
+          <i class="bx bx-history" style="font-size:2.5rem;color:var(--border-light);" aria-hidden="true"></i>
           <p>Este voluntario aún no tiene calificaciones registradas.</p>
         </div>`;
     } else {
@@ -395,12 +391,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         historialLista.innerHTML += `
           <div class="historial-item">
             <div class="historial-header">
-              <span class="historial-evento">${c.eventoNombre}</span>
-              <span class="historial-fecha">${c.fecha}</span>
+              <span class="historial-evento">${esc(c.eventoNombre)}</span>
+              <span class="historial-fecha">${esc(c.fecha)}</span>
             </div>
             <div class="historial-estrellas">${renderEstrellasFijas(c.estrellas)}</div>
             ${c.comentario
-              ? `<p class="historial-comentario">"${c.comentario}"</p>`
+              ? `<p class="historial-comentario">"${esc(c.comentario)}"</p>`
               : '<p class="historial-comentario sin-calif">Sin comentario.</p>'}
           </div>`;
       });

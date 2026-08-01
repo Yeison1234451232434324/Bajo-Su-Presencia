@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!contadorRecursos) return;
     const total = Object.keys(seleccionados).length;
     contadorRecursos.textContent = total > 0 ? `${total} recurso(s) seleccionado(s)` : 'Ningún recurso seleccionado (opcional)';
-    contadorRecursos.style.color = total > 0 ? '#059669' : '#9ca3af';
+    contadorRecursos.style.color = total > 0 ? 'var(--success)' : 'var(--text-muted)';
   }
 
   // ════════════════════════════════════════════════════════════════
@@ -534,14 +534,14 @@ document.addEventListener('DOMContentLoaded', async () => {
           ? ev.especialistas.map(e => `<span class="ev-chip-recurso"><i class="bx bx-user" aria-hidden="true"></i> ${e.nombre} — ${e.especialidad}</span>`).join('')
           : '<span class="ev-sin-recursos">Sin especialistas asignados</span>'
       }</div></div>`;
-    document.getElementById('modal-ver-evento').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
+    const modalVer = document.getElementById('modal-ver-evento');
+    BSPModal.abrir({ overlay: modalVer, modal: modalVer, modoDisplay: true });
   };
 
   window.cerrarModalVer = function(e) {
-    if (e && e.target !== document.getElementById('modal-ver-evento')) return;
-    document.getElementById('modal-ver-evento').style.display = 'none';
-    document.body.style.overflow = '';
+    const modalVer = document.getElementById('modal-ver-evento');
+    if (e && e.target !== modalVer) return;
+    BSPModal.cerrar({ overlay: modalVer, modal: modalVer, modoDisplay: true });
   };
 
   // ════════════════════════════════════════════════════════════════
@@ -571,8 +571,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     await cargarEspecialistasEdicion(ev.especialistas || []);
     await cargarSedes();
 
-    document.getElementById('modal-editar-evento').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
+    const modalEditar = document.getElementById('modal-editar-evento');
+    BSPModal.abrir({ overlay: modalEditar, modal: modalEditar, modoDisplay: true });
   };
 
   window.guardarEdicion = async function(e) {
@@ -635,9 +635,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
 
   window.cerrarModalEditar = function(e) {
-    if (e && e.target !== document.getElementById('modal-editar-evento')) return;
-    document.getElementById('modal-editar-evento').style.display = 'none';
-    document.body.style.overflow = '';
+    const modalEditar = document.getElementById('modal-editar-evento');
+    if (e && e.target !== modalEditar) return;
+    BSPModal.cerrar({ overlay: modalEditar, modal: modalEditar, modoDisplay: true });
   };
 
   // ════════════════════════════════════════════════════════════════

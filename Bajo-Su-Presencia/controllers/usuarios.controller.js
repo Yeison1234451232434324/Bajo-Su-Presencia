@@ -164,8 +164,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     passHint.style.display = 'none';
     document.getElementById('campo-password').required = true;
     modalError.style.display = 'none';
-    modal.classList.add('visible');
-    modalOverlay.classList.add('visible');
+    BSPModal.abrir({ overlay: modalOverlay, modal, trigger: btnNuevo });
   }
 
   // ── Modal EDITAR ─────────────────────────────────────────────────────────
@@ -188,13 +187,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('campo-password').required = false;
     passHint.style.display = 'block';
     modalError.style.display = 'none';
-    modal.classList.add('visible');
-    modalOverlay.classList.add('visible');
+    BSPModal.abrir({ overlay: modalOverlay, modal });
   };
 
   function cerrarModal() {
-    modal.classList.remove('visible');
-    modalOverlay.classList.remove('visible');
+    BSPModal.cerrar({ overlay: modalOverlay, modal });
     formUsuario.reset();
     editandoId = null;
   }
@@ -378,13 +375,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       _filaPerfil('bx-note',      'Información adicional', u.bio) +
       _filaPerfil('bx-calendar',  'Registrado',    u.creado);
 
-    modalPerfil.classList.add('visible');
-    modalOverlay.classList.add('visible');
+    BSPModal.abrir({ overlay: modalOverlay, modal: modalPerfil });
   };
 
   function cerrarPerfil() {
-    modalPerfil.classList.remove('visible');
-    modalOverlay.classList.remove('visible');
+    BSPModal.cerrar({ overlay: modalOverlay, modal: modalPerfil });
     perfilViendoId = null;
   }
 

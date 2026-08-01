@@ -78,16 +78,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ── Abrir modal ──────────────────────────────────────────────────────────
   window.abrirModalSede = function() {
     form.reset();
-    modal.style.display        = 'flex';
-    modalOverlay.style.display = 'block';
-    document.body.style.overflow = 'hidden';
+    BSPModal.abrir({ overlay: modalOverlay, modal, modoDisplay: true });
   };
 
   // ── Cerrar modal ─────────────────────────────────────────────────────────
   window.cerrarModalSede = function() {
-    modal.style.display        = 'none';
-    modalOverlay.style.display = 'none';
-    document.body.style.overflow = '';
+    BSPModal.cerrar({ overlay: modalOverlay, modal, modoDisplay: true });
   };
   modalOverlay.addEventListener('click', cerrarModalSede);
 

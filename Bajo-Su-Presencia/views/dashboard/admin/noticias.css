@@ -25,7 +25,7 @@
   border: 2px solid var(--border);
   border-radius: 1.25rem;
   overflow: hidden;
-  background: #fff;
+  background: var(--surface);
   box-shadow: 0 4px 16px rgba(0,0,0,0.06);
 }
 
@@ -77,7 +77,7 @@
 .prev-resumen {
   font-family: var(--font-text);
   font-size: 1rem;
-  color: #374151;
+  color: var(--text-secondary);
   line-height: 1.6;
   margin-bottom: 0.875rem;
 }
@@ -99,9 +99,9 @@
   gap: 0.5rem;
   width: 100%;
   padding: 0.75rem 2rem;
-  background: #f3f4f6;
-  color: #374151;
-  border: 2px solid #e5e7eb;
+  background: var(--surface-2);
+  color: var(--text-secondary);
+  border: 2px solid var(--border-light);
   border-radius: 0.875rem;
   font-family: var(--font-text);
   font-size: 1rem;
@@ -110,7 +110,7 @@
   margin-top: 0.5rem;
   transition: background 0.15s;
 }
-.btn-cancelar-noticia:hover { background: #e5e7eb; }
+.btn-cancelar-noticia:hover { background: var(--border-light); }
 
 /* ── Sección del historial ─────────────────────────────────────────────── */
 .nt-historial-section {
@@ -143,7 +143,7 @@
 
 /* ── Tarjeta de noticia ────────────────────────────────────────────────── */
 .nt-card {
-  background: #fff;
+  background: var(--surface);
   border: 2px solid var(--border);
   border-radius: 1.25rem;
   overflow: hidden;
@@ -179,14 +179,14 @@
 /* Placeholder cuando no hay imagen */
 .nt-card-img-placeholder {
   height: 100px;
-  background: linear-gradient(135deg, #f0f4ff, #e8edf8);
+  background: linear-gradient(135deg, var(--surface-hover), var(--info-bg));
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .nt-card-img-placeholder i {
   font-size: 2.5rem;
-  color: #c7d2fe;
+  color: var(--info-border);
 }
 
 /* Cuerpo de la tarjeta */
@@ -240,22 +240,22 @@
 .btn-accion-nt:active { transform: scale(0.90); }
 
 /* Ver → azul */
-.btn-ver-nt     { background: #dbeafe; color: #1d4ed8; }
-.btn-ver-nt:hover     { background: #bfdbfe; }
+.btn-ver-nt     { background: var(--info-bg); color: var(--info); }
+.btn-ver-nt:hover     { background: var(--info-border); }
 
 /* Editar → ámbar */
-.btn-editar-nt  { background: #dbeafe; color: #1d4ed8; }
-.btn-editar-nt:hover  { background: #fde68a; }
+.btn-editar-nt  { background: var(--info-bg); color: var(--info); }
+.btn-editar-nt:hover  { background: var(--warning-border); }
 
 /* Eliminar → rojo */
-.btn-eliminar-nt { background: #dbeafe; color: #1d4ed8; }
-.btn-eliminar-nt:hover { background: #fecaca; }
+.btn-eliminar-nt { background: var(--info-bg); color: var(--info); }
+.btn-eliminar-nt:hover { background: var(--danger-border); }
 
 /* Resumen de la noticia */
 .nt-card-resumen {
   font-family: var(--font-text);
   font-size: 0.9375rem;
-  color: #374151;
+  color: var(--text-secondary);
   line-height: 1.55;
   flex: 1;
 }
@@ -266,7 +266,7 @@
   gap: 0.875rem;
   font-size: 0.8125rem;
   color: var(--muted);
-  border-top: 1px solid #f3f0e8;
+  border-top: 1px solid var(--border-light);
   padding-top: 0.6rem;
   flex-wrap: wrap;
 }
@@ -295,14 +295,14 @@
   align-items: center;
   gap: 0.75rem;
   padding: 2.5rem;
-  background: #fff;
+  background: var(--surface);
   border: 2px dashed var(--border);
   border-radius: 1.25rem;
-  color: #9ca3af;
+  color: var(--text-muted);
   text-align: center;
   grid-column: 1 / -1; /* ocupa todo el ancho de la grilla */
 }
-.nt-lista-vacia i     { font-size: 2.5rem; color: #d1d5db; }
+.nt-lista-vacia i     { font-size: 2.5rem; color: var(--border-light); }
 .nt-lista-vacia p     { font-size: 1rem; font-weight: 600; }
 .nt-lista-vacia small { font-size: 0.9375rem; }
 
@@ -310,8 +310,8 @@
 .modal-overlay-noticia {
   position: fixed;
   inset: 0;
-  background: rgba(15, 30, 90, 0.50);
-  backdrop-filter: blur(3px);
+  background: var(--modal-overlay-bg);
+  backdrop-filter: blur(var(--modal-blur));
   z-index: 500;
   opacity: 0;
   pointer-events: none;
@@ -328,13 +328,13 @@
   left: 50%;
   transform: translate(-50%, -48%) scale(0.96);
   z-index: 600;
-  background: #fff;
-  border-radius: 1.5rem;
+  background: var(--surface);
+  border-radius: var(--modal-radius);
   padding: 0;
   width: min(620px, 95vw);
   max-height: 88vh;
   overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.20);
+  box-shadow: var(--modal-shadow);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s, transform 0.25s;
@@ -399,12 +399,12 @@
 .modal-nt-resumen {
   font-family: var(--font-text);
   font-size: 1.1rem;
-  color: #374151;
+  color: var(--text-secondary);
   font-style: italic;
   line-height: 1.7;
   margin-bottom: 1.25rem;
   padding: 1rem 1.25rem;
-  background: #faf8f3;
+  background: var(--surface-2);
   border-left: 4px solid var(--primary);
   border-radius: 0 0.75rem 0.75rem 0;
 }
@@ -413,14 +413,14 @@
 .modal-nt-contenido {
   font-family: var(--font-text);
   font-size: 1.05rem;
-  color: #1a1a2e;
+  color: var(--text-primary);
   line-height: 1.8;
   white-space: pre-wrap;
 }
 
 /* Botón cerrar modal */
 .btn-cerrar-modal-nt {
-  background: #f3f4f6;
+  background: var(--surface-2);
   border: none;
   border-radius: 0.5rem;
   width: 34px;
@@ -430,11 +430,11 @@
   justify-content: center;
   cursor: pointer;
   font-size: 1.25rem;
-  color: #6b7280;
+  color: var(--text-muted);
   transition: background 0.15s;
   flex-shrink: 0;
 }
-.btn-cerrar-modal-nt:hover { background: #e5e7eb; color: #1a1a2e; }
+.btn-cerrar-modal-nt:hover { background: var(--border-light); color: var(--text-primary); }
 
 /* ── Responsive ────────────────────────────────────────────────────────── */
 @media (max-width: 640px) {

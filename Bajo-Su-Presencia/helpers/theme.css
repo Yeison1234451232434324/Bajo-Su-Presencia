@@ -1,16 +1,28 @@
 /*
  * ================================================================
- *  MODO OSCURO — botón flotante + tema oscuro global
+ *  MODO OSCURO — Design Tokens + botón flotante
  * ================================================================
- *  Se carga en TODAS las vistas (helpers/theme.css) DESPUÉS del CSS de la
- *  página, de modo que los selectores [data-theme="dark"] tengan mayor
- *  prioridad. El atributo data-theme lo pone helpers/theme.js.
+ *  Arquitectura (migración en curso, ver informe de auditoría):
  *
- *  Estrategia: como la app tiene muchos colores fijos (#fff, texto oscuro),
- *  el tema oscuro reasigna las variables de marca y, con selectores por patrón
- *  ([class*="-card"], [class*="-box"], inputs, tablas…), repinta las
- *  superficies elevadas y el texto. Se usa !important porque muchas reglas base
- *  fijan el color en línea o con alta especificidad; aquí es una capa de tema.
+ *  1) TOKENS: panel.css define el set completo de variables de
+ *     diseño en :root (--background, --surface, --text-primary,
+ *     --success, --danger, etc). Aquí abajo, bajo
+ *     [data-theme="dark"], se REDEFINEN esos mismos nombres con
+ *     sus valores oscuros. Cualquier componente que use var(--x)
+ *     cambia de tema automáticamente, SIN !important y sin que
+ *     este archivo conozca ese componente.
+ *
+ *     Módulos ya migrados a tokens (no requieren overrides aquí):
+ *       panel.css (base compartida) · dashboard.css · recursos.css
+ *
+ *  2) CAPA DE COMPATIBILIDAD (sección "LEGACY"): el resto de los
+ *     módulos (eventos, usuarios, noticias, oración, PQR, sedes,
+ *     reportes, voluntarios, colaborador, público, etc.) todavía
+ *     tienen colores hardcodeados (#fff, #1a1a2e...) en su propio
+ *     CSS en vez de variables. Para esos, sí se necesita repintar
+ *     por selector con !important — es deuda técnica explícita,
+ *     no la arquitectura final. Se debe eliminar módulo por módulo
+ *     a medida que cada uno migre a los tokens de panel.css.
  * ================================================================
  */
 
@@ -57,25 +69,67 @@
   :root:has(#main) .bsp-theme-toggle { right: 1.25rem; bottom: 5.25rem; }
 }
 
-/* ═══════════════════════════ TEMA OSCURO ═══════════════════════════ */
-
-/* 1) Variables de marca reasignadas (afecta todo lo que use var(--…)). */
+/* ═══════════════════ 1) DESIGN TOKENS — Dark ═══════════════════════
+   Mismos nombres que :root en panel.css, valores oscuros elegantes
+   (sin negro absoluto). Cualquier componente migrado a var(--...)
+   cambia de tema con solo esto — cero !important, cero selectores
+   por componente. */
 :root[data-theme="dark"] {
-  --bg: #0f1523;
-  --sacred-cream: #0f1523;
-  --border: #2a3448;
-  --muted: #9aa4b2;
-  --foreground: #e6e8ee;
-  --muted-foreground: #9aa4b2;
+  --background:      #0f1523;
+  --surface:          #1a2130;
+  --surface-2:        #141b2b;
+  --surface-hover:     #202a3d;
+  --border:            #2a3448;
+  --border-light:      #2a3448;
+  --text-primary:      #e6e8ee;
+  --text-secondary:    #cbd5e1;
+  --text-muted:        #9aa4b2;
+  --text-on-primary:   #ffffff;
+  --success:           #6ee7b7;
+  --success-bg:        rgba(5, 150, 105, 0.22);
+  --success-border:    rgba(5, 150, 105, 0.4);
+  --warning:           #fcd34d;
+  --warning-bg:        rgba(217, 119, 6, 0.22);
+  --warning-border:    rgba(217, 119, 6, 0.4);
+  --danger:            #fca5a5;
+  --danger-bg:         rgba(220, 38, 38, 0.22);
+  --danger-border:     rgba(220, 38, 38, 0.4);
+  --info:              #93b4ff;
+  --info-bg:           rgba(37, 99, 235, 0.26);
+  --info-border:       rgba(37, 99, 235, 0.4);
+  --purple:            #cbd5e1;
+  --purple-bg:         rgba(100, 116, 139, 0.30);
+
+  /* Alias retrocompatible (igual que en panel.css). */
+  --bg:    var(--background);
+  --muted: var(--text-muted);
 }
 
-/* 2) Base: fondo de página y color de texto. */
+/* Fondo/color base de página — no depende de que cada elemento use tokens. */
 :root[data-theme="dark"] body {
-  background: #0f1523 !important;
-  color: #e6e8ee !important;
+  background: var(--background);
+  color: var(--text-primary);
 }
 
-/* 3) Superficies elevadas (tarjetas, cajas, contenedores, tabla, login). */
+/* Encabezados de marca (navy fijo en panel.css) → legible en oscuro.
+   No son tokens porque su valor claro es intencionalmente el navy de marca;
+   solo en oscuro necesitan aclararse. */
+:root[data-theme="dark"] .panel-header h2,
+:root[data-theme="dark"] .chart-card h3,
+:root[data-theme="dark"] .table-card h3,
+:root[data-theme="dark"] .toast-title,
+:root[data-theme="dark"] .events-table th,
+:root[data-theme="dark"] .stat-rec-value,
+:root[data-theme="dark"] .stat-card .value {
+  color: #cdd8f5;
+}
+
+/* ═══════════════════ 2) LEGACY — módulos sin migrar ═════════════════
+   Overlay por selector con !important. Se retira módulo por módulo
+   a medida que cada CSS pasa a usar var(--surface)/var(--text-primary)/etc.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Superficies elevadas (tarjetas, cajas, contenedores, tabla, login). */
 :root[data-theme="dark"] [class*="-card"]:not([class*="img"]),
 :root[data-theme="dark"] [class*="-box"],
 :root[data-theme="dark"] [class*="-wrap"]:not(.ev-horario-wrap):not([class*="icon-wrap"]):not([class*="img"]),
@@ -85,29 +139,28 @@
 :root[data-theme="dark"] .bsp-dt,
 :root[data-theme="dark"] .bsp-dt-body,
 :root[data-theme="dark"] .bsp-pagina-interna {
-  background: #1a2130 !important;
-  border-color: #2a3448 !important;
-  color: #e6e8ee;
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary);
 }
 
-/* 4) Campos de formulario y controles de la tabla. */
+/* Campos de formulario y controles de la tabla. */
 :root[data-theme="dark"] .form-control,
 :root[data-theme="dark"] input,
 :root[data-theme="dark"] select,
 :root[data-theme="dark"] textarea,
 :root[data-theme="dark"] [class*="bsp-dt-"] {
   background: #232c40 !important;
-  color: #e6e8ee !important;
+  color: var(--text-primary) !important;
   border-color: #354056 !important;
 }
 :root[data-theme="dark"] input::placeholder,
-:root[data-theme="dark"] textarea::placeholder { color: #79828f; }
+:root[data-theme="dark"] textarea::placeholder { color: var(--text-muted); }
 
-/* 5) Encabezados y texto de marca (navy) → azul claro legible en oscuro. */
+/* Encabezados y texto de marca (navy) → azul claro legible en oscuro. */
 :root[data-theme="dark"] h1,
 :root[data-theme="dark"] h2,
 :root[data-theme="dark"] h3,
-:root[data-theme="dark"] .panel-header h2,
 :root[data-theme="dark"] .section-title,
 :root[data-theme="dark"] .header-title,
 :root[data-theme="dark"] [class*="-titulo"],
@@ -117,69 +170,63 @@
 :root[data-theme="dark"] .panel-header p,
 :root[data-theme="dark"] .section-desc,
 :root[data-theme="dark"] .label {
-  color: #9aa4b2 !important;
+  color: var(--text-muted) !important;
 }
-/* .sub (tendencias "↑ 12 este mes") conserva su verde: legible sobre oscuro. */
-:root[data-theme="dark"] .value { color: #e6e8ee !important; }
 
-/* 6) Tablas (encabezado y filas). */
-:root[data-theme="dark"] table { color: #e6e8ee; }
+/* Tablas (encabezado y filas) de módulos no migrados. */
+:root[data-theme="dark"] table { color: var(--text-primary); }
 :root[data-theme="dark"] thead,
 :root[data-theme="dark"] thead tr,
-:root[data-theme="dark"] thead th { background: #141b2b !important; color: #cdd8f5 !important; border-color: #2a3448 !important; }
+:root[data-theme="dark"] thead th { background: var(--surface-2) !important; color: #cdd8f5 !important; border-color: var(--border) !important; }
 :root[data-theme="dark"] tbody tr,
-:root[data-theme="dark"] tbody td { border-color: #2a3448 !important; }
-:root[data-theme="dark"] tbody tr:hover { background: #202a3d !important; }
-/* Filas del datatable propio (divs con background:#fff EN LÍNEA, generados por JS). */
-:root[data-theme="dark"] .bsp-dt-row-wrap > div { background: #1a2130 !important; }
-:root[data-theme="dark"] .bsp-dt-row-wrap > div:hover { background: #202a3d !important; }
+:root[data-theme="dark"] tbody td { border-color: var(--border) !important; }
+:root[data-theme="dark"] tbody tr:hover { background: var(--surface-hover) !important; }
+/* Filas del datatable propio (divs con background inline generado por JS:
+   BSPDataTable no lee variables CSS al construir el string HTML, así que
+   esto SÍ requiere !important — es el único caso legítimo de esta capa). */
+:root[data-theme="dark"] .bsp-dt-row-wrap > div { background: var(--surface) !important; }
+:root[data-theme="dark"] .bsp-dt-row-wrap > div:hover { background: var(--surface-hover) !important; }
 :root[data-theme="dark"] tbody tr { background: transparent !important; }
 
-/* Badges de las gráficas del dashboard y botón "ver más". */
-:root[data-theme="dark"] .chart-badge          { background: rgba(148, 163, 184, 0.20) !important; color: #cbd5e1 !important; }
-:root[data-theme="dark"] .chart-badge--blue    { background: rgba(37, 99, 235, 0.26) !important; color: #93b4ff !important; }
-:root[data-theme="dark"] .chart-badge--green   { background: rgba(5, 150, 105, 0.22) !important; color: #6ee7b7 !important; }
-:root[data-theme="dark"] .chart-badge--amber   { background: rgba(217, 119, 6, 0.22) !important; color: #fcd34d !important; }
-:root[data-theme="dark"] .chart-badge--purple  { background: rgba(100, 116, 139, 0.30) !important; color: #cbd5e1 !important; }
-:root[data-theme="dark"] .btn-ver-mas {
-  background: #232c40 !important;
-  color: #cdd8f5 !important;
-  border-color: #354056 !important;
-}
-
-/* 7) Sitio público: header, secciones y footer. */
-:root[data-theme="dark"] .site-header { background: rgba(15, 21, 35, 0.95) !important; border-color: #2a3448 !important; }
+/* Sitio público: header, secciones y footer. */
+:root[data-theme="dark"] .site-header { background: rgba(15, 21, 35, 0.95) !important; border-color: var(--border) !important; }
 :root[data-theme="dark"] .lista-menu a { color: #cdd8f5 !important; }
 :root[data-theme="dark"] .news-section,
 :root[data-theme="dark"] .events-section,
 :root[data-theme="dark"] .prayer-section,
 :root[data-theme="dark"] footer,
-:root[data-theme="dark"] .site-footer { background: #0f1523 !important; }
+:root[data-theme="dark"] .site-footer { background: var(--background) !important; }
 :root[data-theme="dark"] .btn-outline { background: transparent !important; color: #cdd8f5 !important; }
 /* Flechas del carrusel (noticias/eventos) — eran blancas sobre fondo oscuro. */
 :root[data-theme="dark"] .carousel-btn {
-  background: #1a2130 !important;
+  background: var(--surface) !important;
   color: #cdd8f5 !important;
-  border-color: #2a3448 !important;
+  border-color: var(--border) !important;
 }
 :root[data-theme="dark"] .carousel-btn:hover:not(:disabled) { background: #232c40 !important; }
 
-/* 8) Divisores/bordes sueltos que usan gris claro. */
-:root[data-theme="dark"] hr { border-color: #2a3448 !important; }
+/* Divisores/bordes sueltos que usan gris claro. */
+:root[data-theme="dark"] hr { border-color: var(--border) !important; }
 
-/* 9) Badges: versión "nativa de oscuro" (fondo translúcido + texto del tono).
-      El genérico .badge va PRIMERO (fallback); los específicos, después, para
-      que ganen por orden de fuente ante igual especificidad. */
-:root[data-theme="dark"] .badge               { background: rgba(148, 163, 184, 0.22) !important; color: #cbd5e1 !important; }
-:root[data-theme="dark"] .badge-green         { background: rgba(5, 150, 105, 0.22) !important; color: #6ee7b7 !important; }
-:root[data-theme="dark"] .badge-amber         { background: rgba(217, 119, 6, 0.22) !important; color: #fcd34d !important; }
-:root[data-theme="dark"] .badge-blue          { background: rgba(37, 99, 235, 0.26) !important; color: #93b4ff !important; }
-:root[data-theme="dark"] .badge-red           { background: rgba(220, 38, 38, 0.22) !important; color: #fca5a5 !important; }
-:root[data-theme="dark"] .badge-purple        { background: rgba(100, 116, 139, 0.30) !important; color: #cbd5e1 !important; }
+/* Badges de módulos no migrados: versión translúcida por tono.
+   OJO: NO hay una regla genérica ".badge" aquí a propósito — la había,
+   y por especificidad CSS (":root[data-theme=dark] .badge" es más
+   específico que una sola clase ".badge-tipo-queja") le ganaba a TODOS
+   los badges con clase modificadora propia de cada módulo (badge-tipo-*,
+   badge-estado-*, badge-prio-*, etc. en pqr-admin.css, eventos.css,
+   asistencias.css...), aplanándolos todos al mismo gris translúcido
+   aunque sus clases específicas ya resolvían el color correcto vía
+   tokens. Bug real encontrado en QA visual (PQR: "Queja"/"Pendiente"
+   se veían grises en vez de rojo/ámbar) — corregido eliminando esta regla. */
+:root[data-theme="dark"] .badge-green         { background: var(--success-bg) !important; color: var(--success) !important; }
+:root[data-theme="dark"] .badge-amber         { background: var(--warning-bg) !important; color: var(--warning) !important; }
+:root[data-theme="dark"] .badge-blue          { background: var(--info-bg) !important; color: var(--info) !important; }
+:root[data-theme="dark"] .badge-red           { background: var(--danger-bg) !important; color: var(--danger) !important; }
+:root[data-theme="dark"] .badge-purple        { background: var(--purple-bg) !important; color: #cbd5e1 !important; }
 :root[data-theme="dark"] .badge-especialidad  { background: rgba(3, 105, 161, 0.28) !important; color: #7dd3fc !important; }
 
-/* 10) Contenedores de icono con fondo claro (KPIs, contadores): fondo tenue
-       y trazo del SVG aclarado para que el icono siga siendo visible. */
+/* Contenedores de icono con fondo claro (KPIs, contadores) en módulos
+   no migrados: fondo tenue y trazo del SVG aclarado. */
 :root[data-theme="dark"] .stat-icon,
 :root[data-theme="dark"] .counter-icon {
   background: rgba(147, 180, 255, 0.14) !important;

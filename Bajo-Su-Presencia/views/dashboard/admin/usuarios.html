@@ -64,8 +64,8 @@
       <!-- Contadores -->
       <div class="counters-grid">
         <div class="counter-card">
-          <div class="counter-icon" style="background:#dbeafe;">
-            <i class="bx bx-group" style="color:#1E3A8A;" aria-hidden="true"></i>
+          <div class="counter-icon counter-icon--info">
+            <i class="bx bx-group" aria-hidden="true"></i>
           </div>
           <div class="counter-info">
             <p class="counter-label">Total Usuarios</p>
@@ -73,8 +73,8 @@
           </div>
         </div>
         <div class="counter-card">
-          <div class="counter-icon" style="background:#dbeafe;">
-            <i class="bx bx-user-check" style="color:#059669;" aria-hidden="true"></i>
+          <div class="counter-icon counter-icon--success">
+            <i class="bx bx-user-check" aria-hidden="true"></i>
           </div>
           <div class="counter-info">
             <p class="counter-label">Activos</p>
@@ -82,8 +82,8 @@
           </div>
         </div>
         <div class="counter-card">
-          <div class="counter-icon" style="background:#dbeafe;">
-            <i class="bx bx-user-x" style="color:#dc2626;" aria-hidden="true"></i>
+          <div class="counter-icon counter-icon--danger">
+            <i class="bx bx-user-x" aria-hidden="true"></i>
           </div>
           <div class="counter-info">
             <p class="counter-label">Inactivos</p>
@@ -304,6 +304,7 @@
   <!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
   <!-- Sidebar del admin (inyecta el nav con el nuevo ítem) -->
     <script src="../../../helpers/validators.helper.js"></script>
+  <script src="../../../helpers/modal.helper.js"></script>
   <script src="../../../controllers/sidebar.controller.js"></script>
   <!-- Supabase: SDK + cliente compartido (ANTES del modelo, que usa window.sb) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8" integrity="sha384-Tve8O+C6PBzsIMK/IRCwHbi8fyEzXIlIs6OfVBZHubplwYhaQF/4Mzxqgg+pp/oy" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

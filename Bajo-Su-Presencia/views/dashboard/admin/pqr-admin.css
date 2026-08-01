@@ -48,7 +48,7 @@
 
 .pqr-header-icon i {
   font-size: 1.75rem;
-  color: #fff;
+  color: var(--text-on-primary);
 }
 
 .pqr-header-text h2 {
@@ -79,7 +79,7 @@
 @media (max-width: 480px)  { .stats-pqr { grid-template-columns: 1fr; } }
 
 .stat-pqr-card {
-  background: #fff;
+  background: var(--surface);
   border: 2px solid var(--border);
   border-radius: 1rem;
   padding: 1.1rem 1.25rem;
@@ -103,7 +103,12 @@
   justify-content: center;
   font-size: 1.3rem;
   flex-shrink: 0;
+  background: var(--info-bg);
+  color: var(--primary);
 }
+.stat-pqr-icon--warning { color: var(--warning); }
+.stat-pqr-icon--info    { color: var(--info); }
+.stat-pqr-icon--success { color: var(--success); }
 
 .stat-pqr-label {
   font-size: 0.8125rem;
@@ -150,19 +155,19 @@
   left: 0.85rem;
   top: 50%;
   transform: translateY(-50%);
-  color: #9ca3af;
+  color: var(--text-muted);
   font-size: 1.1rem;
   pointer-events: none;
 }
 
 .pqr-input-buscar {
   padding: 0.65rem 1rem 0.65rem 2.4rem;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--border-light);
   border-radius: 0.75rem;
   font-family: var(--font-text);
   font-size: 1rem;
-  color: #1a1a2e;
-  background: #fff;
+  color: var(--text-primary);
+  background: var(--surface);
   outline: none;
   width: 240px;
   transition: border-color 0.2s;
@@ -175,12 +180,12 @@
 /* Selects de filtro */
 .pqr-select-filtro {
   padding: 0.65rem 1rem;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--border-light);
   border-radius: 0.75rem;
   font-family: var(--font-text);
   font-size: 1rem;
-  color: #1a1a2e;
-  background: #fff;
+  color: var(--text-primary);
+  background: var(--surface);
   outline: none;
   cursor: pointer;
   transition: border-color 0.2s;
@@ -193,56 +198,9 @@
 /* ══════════════════════════════════════════════════
    TABLA DE PQR
 ══════════════════════════════════════════════════ */
-.pqr-table-wrap {
-  background: #fff;
-  border: 2px solid var(--border);
-  border-radius: 1.25rem;
-  overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-  overflow-x: auto;
-}
-
-.pqr-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-family: var(--font-text);
-  font-size: 1rem;
-  min-width: 800px;
-}
-
-.pqr-table thead {
-  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
-}
-
-.pqr-table thead th {
-  color: rgba(255, 255, 255, 0.9);
-  font-weight: 700;
-  font-size: 0.9375rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 1rem 1.25rem;
-  text-align: left;
-  white-space: nowrap;
-}
-
-.pqr-table tbody tr {
-  border-bottom: 1px solid #f3f0e8;
-  transition: background 0.15s;
-}
-
-.pqr-table tbody tr:hover {
-  background: #faf8f3;
-}
-
-.pqr-table tbody tr:last-child {
-  border-bottom: none;
-}
-
-.pqr-table tbody td {
-  padding: 0.9rem 1.25rem;
-  color: #1a1a2e;
-  vertical-align: middle;
-}
+/* .pqr-table-wrap/.pqr-table (CSS de un <table> HTML tradicional)
+   eliminados en la auditoría (módulo 15): esta vista usa filas
+   <div class="pqr-row"> generadas por el DataTable, nunca un <table> real. */
 
 /* Celda de nombre/email */
 .pqr-nombre-cell {
@@ -254,7 +212,7 @@
 .pqr-nombre {
   font-weight: 700;
   font-size: 1rem;
-  color: #1a1a2e;
+  color: var(--text-primary);
 }
 
 .pqr-email {
@@ -265,7 +223,7 @@
 /* Celda de asunto */
 .pqr-asunto-text {
   font-size: 1rem;
-  color: #1a1a2e;
+  color: var(--text-primary);
   max-width: 200px;
   white-space: nowrap;
   overflow: hidden;
@@ -278,20 +236,29 @@
 ══════════════════════════════════════════════════ */
 
 /* Tipo */
-.badge-tipo-peticion { background: #dbeafe; color: #1d4ed8; }
-.badge-tipo-queja    { background: #dbeafe; color: #1d4ed8; }
-.badge-tipo-reclamo  { background: #dbeafe; color: #1d4ed8; }
+.badge-tipo-peticion { background: var(--info-bg); color: var(--info); }
+.badge-tipo-queja    { background: var(--danger-bg); color: var(--danger); }
+.badge-tipo-reclamo  { background: var(--warning-bg); color: var(--amber); }
 
 /* Estado */
-.badge-estado-pendiente  { background: #dbeafe; color: #1d4ed8; }
-.badge-estado-enproceso  { background: #dbeafe; color: #1d4ed8; }
-.badge-estado-resuelto   { background: #dbeafe; color: #1d4ed8; }
-.badge-estado-cerrado    { background: #dbeafe; color: #1d4ed8; }
+.badge-estado-pendiente  { background: var(--warning-bg); color: var(--amber); }
+.badge-estado-enproceso  { background: var(--info-bg); color: var(--info); }
+.badge-estado-resuelto   { background: var(--success-bg); color: var(--success); }
+.badge-estado-cerrado    { background: var(--surface-2); color: var(--text-muted); }
 
 /* Prioridad */
-.badge-prio-alta  { background: #fee2e2; color: #dc2626; }
-.badge-prio-media { background: #fef3c7; color: #d97706; }
-.badge-prio-baja  { background: #d1fae5; color: #059669; }
+.badge-prio-alta  { background: var(--danger-bg); color: var(--danger); }
+.badge-prio-media { background: var(--warning-bg); color: var(--amber); }
+.badge-prio-baja  { background: var(--success-bg); color: var(--success); }
+
+/* Fila de PQR generada por JS (reemplaza el background:#fff inline). */
+.pqr-row {
+  padding: 1rem 1.25rem;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 1rem;
+  margin-bottom: 0.5rem;
+}
 
 /* ── Botones de acción ── */
 .pqr-acciones-cell {
@@ -318,14 +285,14 @@
   transform: scale(0.92);
 }
 
-.btn-ver-pqr      { background: #dbeafe; color: #1d4ed8; }
-.btn-ver-pqr:hover { background: #bfdbfe; }
+.btn-ver-pqr      { background: var(--info-bg); color: var(--info); }
+.btn-ver-pqr:hover { background: var(--info-border); }
 
-.btn-estado-pqr      { background: #dbeafe; color: #1d4ed8; }
-.btn-estado-pqr:hover { background: #fde68a; }
+.btn-estado-pqr      { background: var(--info-bg); color: var(--info); }
+.btn-estado-pqr:hover { background: var(--warning-border); }
 
-.btn-eliminar-pqr      { background: #dbeafe; color: #1d4ed8; }
-.btn-eliminar-pqr:hover { background: #fecaca; }
+.btn-eliminar-pqr      { background: var(--info-bg); color: var(--info); }
+.btn-eliminar-pqr:hover { background: var(--danger-border); }
 
 /* ══════════════════════════════════════════════════
    MODAL DE DETALLE / RESPUESTA
@@ -333,8 +300,8 @@
 .pqr-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 30, 90, 0.5);
-  backdrop-filter: blur(4px);
+  background: var(--modal-overlay-bg);
+  backdrop-filter: blur(var(--modal-blur));
   z-index: 500;
   opacity: 0;
   pointer-events: none;
@@ -352,13 +319,13 @@
   left: 50%;
   transform: translate(-50%, -48%) scale(0.96);
   z-index: 600;
-  background: #fff;
-  border-radius: 1.5rem;
+  background: var(--surface);
+  border-radius: var(--modal-radius);
   padding: 0;
   width: min(680px, 95vw);
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--modal-shadow);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s, transform 0.25s;
@@ -396,7 +363,7 @@
   font-family: var(--font-title);
   font-size: 1.5rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-on-primary);
 }
 
 .pqr-modal-close {
@@ -410,7 +377,7 @@
   justify-content: center;
   cursor: pointer;
   font-size: 1.2rem;
-  color: #fff;
+  color: var(--text-on-primary);
   transition: background 0.15s;
 }
 
@@ -432,7 +399,7 @@
 }
 
 .pqr-meta-item {
-  background: #faf8f3;
+  background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: 0.875rem;
   padding: 0.875rem 1rem;
@@ -451,7 +418,7 @@
   font-family: var(--font-text);
   font-size: 1rem;
   font-weight: 600;
-  color: #1a1a2e;
+  color: var(--text-primary);
 }
 
 /* Sección de descripción */
@@ -479,9 +446,9 @@
 .pqr-descripcion-text {
   font-family: var(--font-text);
   font-size: 1rem;
-  color: #374151;
+  color: var(--text-secondary);
   line-height: 1.7;
-  background: #faf8f3;
+  background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: 0.875rem;
   padding: 1rem 1.25rem;
@@ -489,8 +456,8 @@
 
 /* Respuesta existente */
 .pqr-respuesta-existente {
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
+  background: var(--success-bg);
+  border: 1px solid var(--success-border);
   border-radius: 0.875rem;
   padding: 1rem 1.25rem;
   margin-bottom: 1rem;
@@ -499,13 +466,13 @@
 .pqr-respuesta-existente p {
   font-family: var(--font-text);
   font-size: 1rem;
-  color: #166534;
+  color: var(--success);
   line-height: 1.6;
 }
 
 .pqr-respuesta-meta {
   font-size: 0.8125rem;
-  color: #4ade80;
+  color: var(--success);
   margin-top: 0.5rem;
   font-weight: 600;
 }
@@ -521,7 +488,7 @@
   font-family: var(--font-text);
   font-size: 1rem;
   font-weight: 600;
-  color: #1a1a2e;
+  color: var(--text-primary);
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -534,12 +501,12 @@
 .pqr-textarea-respuesta {
   width: 100%;
   padding: 0.875rem 1rem;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--border-light);
   border-radius: 0.875rem;
   font-family: var(--font-text);
   font-size: 1rem;
-  color: #1a1a2e;
-  background: #fff;
+  color: var(--text-primary);
+  background: var(--surface);
   outline: none;
   resize: vertical;
   min-height: 110px;
@@ -552,12 +519,12 @@
 
 .pqr-select-estado-modal {
   padding: 0.75rem 1rem;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--border-light);
   border-radius: 0.875rem;
   font-family: var(--font-text);
   font-size: 1rem;
-  color: #1a1a2e;
-  background: #fff;
+  color: var(--text-primary);
+  background: var(--surface);
   outline: none;
   cursor: pointer;
   transition: border-color 0.2s;
@@ -570,9 +537,9 @@
 
 /* Error del modal */
 .pqr-modal-error {
-  background: #fee2e2;
-  color: #dc2626;
-  border: 1px solid #fecaca;
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid var(--danger-border);
   border-radius: 0.75rem;
   padding: 0.75rem 1rem;
   font-size: 0.9375rem;
@@ -587,14 +554,14 @@
   justify-content: flex-end;
   padding: 1.25rem 2rem;
   border-top: 2px solid var(--border);
-  background: #faf8f3;
+  background: var(--surface-2);
   border-radius: 0 0 1.5rem 1.5rem;
 }
 
 .pqr-btn-cancelar-modal {
   padding: 0.7rem 1.5rem;
-  background: #f3f4f6;
-  color: #374151;
+  background: var(--surface-2);
+  color: var(--text-secondary);
   border: none;
   border-radius: 0.75rem;
   font-family: var(--font-text);
@@ -605,7 +572,7 @@
 }
 
 .pqr-btn-cancelar-modal:hover {
-  background: #e5e7eb;
+  background: var(--border-light);
 }
 
 .pqr-btn-guardar-respuesta {
@@ -614,7 +581,7 @@
   gap: 0.4rem;
   padding: 0.7rem 1.75rem;
   background: linear-gradient(135deg, var(--primary) 0%, var(--amber) 100%);
-  color: #fff;
+  color: var(--text-on-primary);
   border: none;
   border-radius: 0.75rem;
   font-family: var(--font-text);
@@ -632,11 +599,11 @@
 
 /* ── Toast de error ── */
 .toast-error {
-  border-color: #fecaca !important;
+  border-color: var(--danger-border) !important;
 }
 
 .toast-error .toast-title {
-  color: #dc2626 !important;
+  color: var(--danger) !important;
 }
 
 /* ══════════════════════════════════════════════════

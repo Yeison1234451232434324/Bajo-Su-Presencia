@@ -26,7 +26,7 @@
 
 /* ── Selector de evento ── */
 .evento-selector-card {
-  background: #fff;
+  background: var(--surface);
   border: 2px solid var(--border);
   border-radius: 1.25rem;
   padding: 1.5rem 2rem;
@@ -50,12 +50,12 @@
   flex: 1;
   min-width: 220px;
   padding: 0.75rem 1rem;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--border-light);
   border-radius: 0.875rem;
   font-family: var(--font-text);
   font-size: 1rem;
-  color: #1a1a2e;
-  background: #fff;
+  color: var(--text-primary);
+  background: var(--surface);
   outline: none;
   cursor: pointer;
   transition: border-color 0.2s;
@@ -82,7 +82,7 @@
   font-size: 1rem;
 }
 .evento-info-item i { font-size: 1.1rem; color: var(--accent); }
-.evento-info-item strong { color: #fff; }
+.evento-info-item strong { color: var(--text-on-primary); }
 
 /* ── Placeholder cuando no hay evento seleccionado ── */
 .sin-evento {
@@ -92,13 +92,13 @@
   justify-content: center;
   gap: 0.75rem;
   padding: 3rem;
-  background: #fff;
+  background: var(--surface);
   border: 2px dashed var(--border);
   border-radius: 1.25rem;
-  color: #9ca3af;
+  color: var(--text-muted);
   text-align: center;
 }
-.sin-evento i { font-size: 3rem; color: #d1d5db; }
+.sin-evento i { font-size: 3rem; color: var(--border-light); }
 .sin-evento p { font-size: 1rem; }
 
 /* ── Layout principal: tabla + paneles laterales ── */
@@ -121,47 +121,16 @@
 /* ── Tabla de voluntarios ── */
 .table-wrap {
   display: none; /* se muestra por JS */
-  background: #fff;
+  background: var(--surface);
   border: 2px solid var(--border);
   border-radius: 1.25rem;
   overflow: hidden;
   box-shadow: 0 4px 16px rgba(0,0,0,0.06);
 }
 
-.voluntarios-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-family: var(--font-text);
-  font-size: 1rem;
-}
-
-.voluntarios-table thead {
-  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
-}
-
-.voluntarios-table thead th {
-  color: rgba(255,255,255,0.9);
-  font-weight: 700;
-  font-size: 0.9375rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 1rem 1.25rem;
-  text-align: left;
-  white-space: nowrap;
-}
-
-.voluntarios-table tbody tr {
-  border-bottom: 1px solid #f3f0e8;
-  transition: background 0.15s;
-}
-.voluntarios-table tbody tr:hover { background: #faf8f3; }
-.voluntarios-table tbody tr:last-child { border-bottom: none; }
-
-.voluntarios-table tbody td {
-  padding: 0.9rem 1.25rem;
-  color: #1a1a2e;
-  vertical-align: middle;
-}
+/* .voluntarios-table (CSS de un <table> HTML tradicional) eliminado en la
+   auditoría (módulo 15): esta vista usa filas <div class="vol-row">
+   generadas por el DataTable, nunca un <table> real. */
 
 /* ── Celda de usuario (avatar + nombre) ── */
 .user-cell {
@@ -173,15 +142,29 @@
   width: 36px; height: 36px;
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  color: #fff; font-weight: 700; font-size: 1rem;
+  color: var(--text-on-primary); font-weight: 700; font-size: 1rem;
   flex-shrink: 0;
 }
+.user-avatar-sm--vol { background: linear-gradient(135deg, var(--primary), var(--primary-light)); }
 .user-nombre   { font-weight: 600; font-size: 1rem; }
 .user-username { font-size: 0.8125rem; color: var(--muted); }
 
+/* Fila de voluntario generada por JS (reemplaza el background:#fff inline). */
+.vol-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1.25rem;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 1rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
 /* ── Badges ── */
-.badge-red    { background: #fee2e2; color: #dc2626; }
-.badge-purple { background: #e2e8f0; color: #475569; }
+.badge-red    { background: var(--danger-bg); color: var(--danger); }
+.badge-purple { background: var(--purple-bg); color: var(--purple); }
 
 /* ── Estrellas fijas (solo lectura) ── */
 .estrellas-fijas {
@@ -189,8 +172,8 @@
   align-items: center;
   gap: 2px;
 }
-.star-on  { color: #F5C215; }
-.star-off { color: #d1d5db; }
+.star-on  { color: var(--accent); }
+.star-off { color: var(--border-light); }
 .estrella-num {
   font-size: 0.82rem;
   color: var(--muted);
@@ -199,7 +182,7 @@
 }
 
 /* ── Texto sin calificación ── */
-.sin-calif { color: #9ca3af; font-size: 0.9375rem; font-style: italic; }
+.sin-calif { color: var(--text-muted); font-size: 0.9375rem; font-style: italic; }
 
 /* ── Comentario preview en tabla ── */
 .comentario-cell { max-width: 200px; }
@@ -209,58 +192,46 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   font-size: 0.9375rem;
-  color: #374151;
+  color: var(--text-secondary);
   cursor: help;
 }
 
-/* ── Botones de acción ── */
-.acciones-cell {
-  display: flex;
-  gap: 0.4rem;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.btn-accion {
-  width: 34px; height: 34px;
-  border: none; border-radius: 0.5rem;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.1rem;
-  transition: background 0.15s, transform 0.1s;
-}
-.btn-accion:active { transform: scale(0.92); }
+/* ── Botones de acción ──
+   .acciones-cell base + .btn-accion: componentes compartidos, ver panel.css */
+.acciones-cell { flex-wrap: wrap; }
+/* .btn-accion: componente compartido, ver panel.css */
 
 /* Disponibilidad ON (verde) */
-.btn-disp-on  { background: #d1fae5; color: #059669; }
-.btn-disp-on:hover  { background: #a7f3d0; }
+.btn-disp-on  { background: var(--success-bg); color: var(--success); }
+.btn-disp-on:hover  { background: var(--success-border); }
 
 /* Disponibilidad OFF (rojo) */
-.btn-disp-off { background: #fee2e2; color: #dc2626; }
-.btn-disp-off:hover { background: #fecaca; }
+.btn-disp-off { background: var(--danger-bg); color: var(--danger); }
+.btn-disp-off:hover { background: var(--danger-border); }
 
 /* Calificar (amarillo) */
-.btn-calificar { background: #fef3c7; color: #d97706; }
-.btn-calificar:hover { background: #fde68a; }
+.btn-calificar { background: var(--warning-bg); color: var(--amber); }
+.btn-calificar:hover { filter: brightness(0.94); }
 
 /* Editar calificación (azul) */
-.btn-editar-calif { background: #dbeafe; color: #1d4ed8; }
-.btn-editar-calif:hover { background: #bfdbfe; }
+.btn-editar-calif { background: var(--info-bg); color: var(--info); }
+.btn-editar-calif:hover { filter: brightness(0.94); }
 
 /* Historial (morado) */
-.btn-historial { background: #ede9fe; color: #7c3aed; }
-.btn-historial:hover { background: #ddd6fe; }
+.btn-historial { background: var(--purple-bg); color: var(--purple); }
+.btn-historial:hover { filter: brightness(0.94); }
 
 /* Resumen estadístico (índigo) */
-.btn-resumen { background: #e0e7ff; color: #4338ca; }
-.btn-resumen:hover { background: #c7d2fe; }
+.btn-resumen { background: var(--purple-bg); color: var(--purple); }
+.btn-resumen:hover { filter: brightness(0.94); }
 
 /* ══════════════════════════════════════════════════
    MODAL DE CALIFICACIÓN
 ══════════════════════════════════════════════════ */
 .modal-overlay-vol {
   position: fixed; inset: 0;
-  background: rgba(15,30,90,0.45);
-  backdrop-filter: blur(3px);
+  background: var(--modal-overlay-bg);
+  backdrop-filter: blur(var(--modal-blur));
   z-index: 500;
   opacity: 0; pointer-events: none;
   transition: opacity 0.25s;
@@ -272,11 +243,11 @@
   top: 50%; left: 50%;
   transform: translate(-50%, -48%) scale(0.96);
   z-index: 600;
-  background: #fff;
-  border-radius: 1.5rem;
+  background: var(--surface);
+  border-radius: var(--modal-radius);
   padding: 2rem 2.25rem;
   width: min(500px, 95vw);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+  box-shadow: var(--modal-shadow);
   opacity: 0; pointer-events: none;
   transition: opacity 0.25s, transform 0.25s;
 }
@@ -297,23 +268,23 @@
   color: var(--primary-dark);
 }
 .btn-cerrar-modal {
-  background: #f3f4f6; border: none; border-radius: 0.5rem;
+  background: var(--surface-2); border: none; border-radius: 0.5rem;
   width: 32px; height: 32px;
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer; font-size: 1.2rem; color: #6b7280;
+  cursor: pointer; font-size: 1.2rem; color: var(--text-muted);
   transition: background 0.15s;
 }
-.btn-cerrar-modal:hover { background: #e5e7eb; color: #1a1a2e; }
+.btn-cerrar-modal:hover { background: var(--border-light); color: var(--text-primary); }
 
 /* Info del voluntario dentro del modal */
 .modal-vol-info {
-  background: #f8f7f2;
+  background: var(--surface-2);
   border-radius: 0.875rem;
   padding: 0.875rem 1rem;
   margin-bottom: 1.25rem;
   display: flex; gap: 0.5rem; flex-direction: column;
 }
-.modal-vol-info p { font-size: 1rem; color: #374151; }
+.modal-vol-info p { font-size: 1rem; color: var(--text-secondary); }
 .modal-vol-info strong { color: var(--primary-dark); }
 
 /* Sección de estrellas interactivas */
@@ -324,7 +295,7 @@
 .estrellas-section label {
   display: block;
   font-weight: 700; font-size: 1rem;
-  color: #1a1a2e; margin-bottom: 0.75rem;
+  color: var(--text-primary); margin-bottom: 0.75rem;
 }
 .estrellas-interactivas {
   display: flex; justify-content: center; gap: 0.5rem;
@@ -336,8 +307,8 @@
   transition: transform 0.1s, color 0.1s;
 }
 .estrella-modal:hover { transform: scale(1.2); }
-.estrella-modal.star-on  { color: #F5C215; }
-.estrella-modal.star-off { color: #d1d5db; }
+.estrella-modal.star-on  { color: var(--accent); }
+.estrella-modal.star-off { color: var(--border-light); }
 
 #texto-estrellas {
   font-size: 0.95rem; font-weight: 600;
@@ -346,8 +317,8 @@
 
 /* Error del modal */
 .modal-error {
-  background: #fee2e2; color: #dc2626;
-  border: 1px solid #fecaca; border-radius: 0.75rem;
+  background: var(--danger-bg); color: var(--danger);
+  border: 1px solid var(--danger-border); border-radius: 0.75rem;
   padding: 0.75rem 1rem; font-size: 0.9375rem; font-weight: 600;
   margin-bottom: 1rem; display: none;
 }
@@ -360,16 +331,16 @@
 }
 .btn-cancelar {
   padding: 0.7rem 1.5rem;
-  background: #f3f4f6; color: #374151;
+  background: var(--surface-2); color: var(--text-secondary);
   border: none; border-radius: 0.75rem;
   font-family: var(--font-text); font-size: 1rem; font-weight: 600;
   cursor: pointer; transition: background 0.15s;
 }
-.btn-cancelar:hover { background: #e5e7eb; }
+.btn-cancelar:hover { background: var(--border-light); }
 .btn-guardar {
   padding: 0.7rem 1.75rem;
   background: linear-gradient(135deg, var(--primary) 0%, var(--amber) 100%);
-  color: #fff; border: none; border-radius: 0.75rem;
+  color: var(--text-on-primary); border: none; border-radius: 0.75rem;
   font-family: var(--font-text); font-size: 1rem; font-weight: 600;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(30,58,138,0.25);
@@ -381,7 +352,7 @@
    PANELES LATERALES (Historial y Resumen)
 ══════════════════════════════════════════════════ */
 .panel-lateral {
-  background: #fff;
+  background: var(--surface);
   border: 2px solid var(--border);
   border-radius: 1.25rem;
   padding: 1.5rem;
@@ -403,13 +374,13 @@
   font-size: 0.9375rem; color: var(--muted); margin-top: 0.15rem;
 }
 .btn-cerrar-panel {
-  background: #f3f4f6; border: none; border-radius: 0.5rem;
+  background: var(--surface-2); border: none; border-radius: 0.5rem;
   width: 30px; height: 30px;
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer; font-size: 1.1rem; color: #6b7280;
+  cursor: pointer; font-size: 1.1rem; color: var(--text-muted);
   transition: background 0.15s; flex-shrink: 0;
 }
-.btn-cerrar-panel:hover { background: #e5e7eb; }
+.btn-cerrar-panel:hover { background: var(--border-light); }
 
 /* ── Historial: lista de calificaciones ── */
 .historial-lista {
@@ -418,10 +389,10 @@
   padding-right: 0.25rem;
 }
 .historial-lista::-webkit-scrollbar { width: 4px; }
-.historial-lista::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+.historial-lista::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 4px; }
 
 .historial-item {
-  background: #faf8f3;
+  background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: 0.875rem;
   padding: 0.875rem 1rem;
@@ -434,14 +405,14 @@
 .historial-fecha  { font-size: 0.8125rem; color: var(--muted); }
 .historial-estrellas { margin-bottom: 0.35rem; }
 .historial-comentario {
-  font-size: 0.9375rem; color: #374151;
+  font-size: 0.9375rem; color: var(--text-secondary);
   font-style: italic; line-height: 1.5;
 }
 
 /* Placeholder vacío */
 .panel-vacio {
   display: flex; flex-direction: column; align-items: center;
-  gap: 0.75rem; padding: 2rem; text-align: center; color: #9ca3af;
+  gap: 0.75rem; padding: 2rem; text-align: center; color: var(--text-muted);
 }
 
 /* ── Resumen estadístico ── */
@@ -450,7 +421,7 @@
   gap: 0.875rem; margin-bottom: 1.25rem;
 }
 .resumen-card {
-  background: #faf8f3;
+  background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: 0.875rem;
   padding: 0.875rem 1rem;
@@ -472,7 +443,7 @@
 
 /* Tarjeta de mejor/peor calificación */
 .resumen-card-full {
-  background: #faf8f3;
+  background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: 0.875rem;
   padding: 0.875rem 1rem;
@@ -498,11 +469,11 @@
 }
 .dist-label {
   width: 2.5rem; font-size: 0.9375rem; font-weight: 600;
-  color: #374151; text-align: right; flex-shrink: 0;
+  color: var(--text-secondary); text-align: right; flex-shrink: 0;
   display: flex; align-items: center; gap: 2px; justify-content: flex-end;
 }
 .dist-barra-wrap {
-  flex: 1; background: #f3f0e8; border-radius: 999px; height: 10px; overflow: hidden;
+  flex: 1; background: var(--border-light); border-radius: 999px; height: 10px; overflow: hidden;
 }
 .dist-barra {
   height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent));
@@ -515,8 +486,8 @@
 }
 
 /* ── Toast de error ── */
-.toast-error { border-color: #fecaca !important; }
-.toast-error .toast-title { color: #dc2626 !important; }
+.toast-error { border-color: var(--danger-border) !important; }
+.toast-error .toast-title { color: var(--danger) !important; }
 
 /* ── Responsive ── */
 @media (max-width: 768px) {

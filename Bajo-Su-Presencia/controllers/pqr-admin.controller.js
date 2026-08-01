@@ -72,8 +72,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const fecha          = formatFecha(p.creadoEn);
 
       return `
-        <div style="padding:1rem 1.25rem;background:#fff;border:2px solid var(--border);
-          border-radius:1rem;margin-bottom:0.5rem;">
+        <div class="pqr-row">
           <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
             ${badgeTipo}
             ${badgePrioridad}
@@ -234,25 +233,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     modalError.textContent   = '';
 
     // Mostrar modal
-    modal.classList.add('visible');
-    modalOverlay.classList.add('visible');
-    document.body.style.overflow = 'hidden';
+    BSPModal.abrir({ overlay: modalOverlay, modal });
   };
 
   /** Cierra el modal */
   function cerrarModal() {
-    modal.classList.remove('visible');
-    modalOverlay.classList.remove('visible');
-    document.body.style.overflow = '';
+    BSPModal.cerrar({ overlay: modalOverlay, modal });
     pqrActualId = null;
   }
 
   modalClose.addEventListener('click', cerrarModal);
   btnCancelarModal.addEventListener('click', cerrarModal);
   modalOverlay.addEventListener('click', cerrarModal);
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') cerrarModal();
-  });
 
   // ════════════════════════════════════════════════════════════════
   // 4. GUARDAR RESPUESTA

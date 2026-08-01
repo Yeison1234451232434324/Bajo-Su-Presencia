@@ -4,7 +4,7 @@
 
 /* ── Grid de eventos ─────────────────────────────────────────── */
 .act-eventos-wrap {
-  background: #fff;
+  background: var(--surface);
   border-radius: 1.25rem;
   padding: 2rem;
   border: 2px solid var(--border);
@@ -33,7 +33,7 @@
   padding: 1.25rem;
   border: 2px solid var(--border);
   border-radius: 1rem;
-  background: #faf8f3;
+  background: var(--surface-2);
   cursor: pointer;
   transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
 }
@@ -55,7 +55,7 @@
 }
 .act-ev-icon i {
   font-size: 1.5rem;
-  color: #fff;
+  color: var(--text-on-primary);
 }
 
 .act-ev-body { flex: 1; min-width: 0; }
@@ -78,10 +78,10 @@
   margin-bottom: 0.2rem;
 }
 .act-ev-meta i { font-size: 0.95rem; color: var(--primary); }
-.act-ev-vol { color: #059669 !important; }
-.act-ev-vol i { color: #059669 !important; }
-.act-ev-inscritos { color: #1d4ed8 !important; font-weight: 600; }
-.act-ev-inscritos i { color: #1d4ed8 !important; }
+.act-ev-vol { color: var(--success); }
+.act-ev-vol i { color: var(--success); }
+.act-ev-inscritos { color: var(--info); font-weight: 600; }
+.act-ev-inscritos i { color: var(--info); }
 
 /* ── Barra superior de la vista de actividades ───────────────── */
 .act-topbar {
@@ -98,7 +98,7 @@
   align-items: center;
   gap: 0.4rem;
   padding: 0.6rem 1.2rem;
-  background: #f3f4f6;
+  background: var(--surface-2);
   border: 2px solid var(--border);
   border-radius: 0.75rem;
   font-family: var(--font-text);
@@ -108,7 +108,7 @@
   cursor: pointer;
   transition: background 0.2s;
 }
-.btn-volver:hover { background: #e5e7eb; }
+.btn-volver:hover { background: var(--border-light); }
 
 .btn-nueva-actividad {
   display: flex;
@@ -121,7 +121,7 @@
   font-family: var(--font-text);
   font-size: 1rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-on-primary);
   cursor: pointer;
   box-shadow: 0 4px 14px rgba(30,58,138,0.3);
   transition: transform 0.15s, box-shadow 0.15s;
@@ -133,11 +133,11 @@
 
 /* ── Banner del evento seleccionado ─────────────────────────── */
 .act-banner {
-  background: linear-gradient(135deg, var(--primary-dark) 0%, #2d4faf 60%, var(--accent) 100%);
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-light) 60%, var(--accent) 100%);
   border-radius: 1rem;
   padding: 1.5rem 2rem;
   margin-bottom: 1.5rem;
-  color: #fff;
+  color: var(--text-on-primary);
 }
 .act-banner-titulo {
   font-family: var(--font-title);
@@ -161,7 +161,7 @@
 
 /* ── Sección de actividades ──────────────────────────────────── */
 .act-section {
-  background: #fff;
+  background: var(--surface);
   border-radius: 1.25rem;
   padding: 1.75rem;
   border: 2px solid var(--border);
@@ -195,12 +195,12 @@
   border: 2px solid var(--border);
   border-radius: 0.875rem;
   margin-bottom: 0.875rem;
-  background: #fff;
+  background: var(--surface);
   transition: background 0.2s, border-color 0.2s;
 }
 .act-item--completada {
-  background: #f0fdf4;
-  border-color: #bbf7d0;
+  background: var(--success-bg);
+  border-color: var(--success-border);
 }
 
 .act-check-btn {
@@ -214,10 +214,10 @@
 }
 .act-check-icon {
   font-size: 1.5rem;
-  color: #d1d5db;
+  color: var(--border-light);
   transition: color 0.2s;
 }
-.act-check-icon--done { color: #16a34a; }
+.act-check-icon--done { color: var(--success); }
 .act-check-btn:hover .act-check-icon:not(.act-check-icon--done) { color: var(--primary); }
 
 .act-item-body { flex: 1; min-width: 0; }
@@ -239,7 +239,7 @@
 }
 .act-titulo--tachado {
   text-decoration: line-through;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .act-item-desc {
@@ -267,9 +267,9 @@
   white-space: nowrap;
   flex-shrink: 0;
 }
-.act-prio--alta  { background: #fee2e2; color: #dc2626; }
-.act-prio--media { background: #fef3c7; color: #d97706; }
-.act-prio--baja  { background: #dbeafe; color: #1d4ed8; }
+.act-prio--alta  { background: var(--danger-bg); color: var(--danger); }
+.act-prio--media { background: var(--warning-bg); color: var(--amber); }
+.act-prio--baja  { background: var(--info-bg); color: var(--info); }
 
 /* ── Botones de acción del item ──────────────────────────────── */
 .act-item-acciones {
@@ -294,10 +294,10 @@
 }
 .act-btn-accion:active { transform: scale(0.93); }
 
-.act-btn-editar  { background: #dbeafe; color: #1d4ed8; }
-.act-btn-editar:hover  { background: #bfdbfe; }
-.act-btn-eliminar { background: #fee2e2; color: #dc2626; }
-.act-btn-eliminar:hover { background: #fecaca; }
+.act-btn-editar  { background: var(--info-bg); color: var(--info); }
+.act-btn-editar:hover  { background: var(--info-border); }
+.act-btn-eliminar { background: var(--danger-bg); color: var(--danger); }
+.act-btn-eliminar:hover { background: var(--danger-border); }
 
 /* ── Estado vacío ────────────────────────────────────────────── */
 .act-empty {
@@ -309,7 +309,7 @@
   font-size: 3rem;
   margin-bottom: 0.75rem;
   display: block;
-  color: #d1d5db;
+  color: var(--border-light);
 }
 .act-empty p { font-size: 1rem; }
 
@@ -318,7 +318,8 @@
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.45);
+  background: var(--modal-overlay-bg);
+  backdrop-filter: blur(var(--modal-blur));
   z-index: 200;
 }
 
@@ -333,12 +334,12 @@
 }
 
 .act-modal-box {
-  background: #fff;
-  border-radius: 1.25rem;
+  background: var(--surface);
+  border-radius: var(--modal-radius);
   padding: 2rem;
   width: 100%;
   max-width: 600px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  box-shadow: var(--modal-shadow);
   animation: actModalIn 0.25s ease;
   max-height: 90vh;
   overflow-y: auto;
@@ -372,7 +373,7 @@
   border-radius: 0.4rem;
   transition: background 0.2s;
 }
-.act-modal-close:hover { background: #f3f4f6; color: #1a1a2e; }
+.act-modal-close:hover { background: var(--surface-2); color: var(--text-primary); }
 
 .act-form-row {
   display: grid;
@@ -391,7 +392,7 @@
   flex: 1;
   padding: 0.875rem;
   background: linear-gradient(135deg, var(--primary-dark) 0%, var(--accent) 100%);
-  color: #fff;
+  color: var(--text-on-primary);
   border: none;
   border-radius: 0.875rem;
   font-family: var(--font-text);
@@ -404,7 +405,7 @@
 
 .btn-act-cancelar {
   padding: 0.875rem 1.5rem;
-  background: #f3f4f6;
+  background: var(--surface-2);
   color: var(--muted);
   border: 2px solid var(--border);
   border-radius: 0.875rem;
@@ -414,7 +415,7 @@
   cursor: pointer;
   transition: background 0.2s;
 }
-.btn-act-cancelar:hover { background: #e5e7eb; }
+.btn-act-cancelar:hover { background: var(--border-light); }
 
 /* ── Responsive ── */
 @media (max-width: 768px) {

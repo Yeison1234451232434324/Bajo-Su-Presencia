@@ -235,8 +235,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       imgWrap.style.display = 'none';
     }
 
-    document.getElementById('modal-overlay-oracion').classList.add('visible');
-    document.getElementById('modal-ver-oracion').classList.add('visible');
+    BSPModal.abrir({
+      overlay: document.getElementById('modal-overlay-oracion'),
+      modal:   document.getElementById('modal-ver-oracion')
+    });
   };
 
   // Cerrar modal de vista
@@ -244,8 +246,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('modal-overlay-oracion').addEventListener('click', cerrarModalVer);
 
   function cerrarModalVer() {
-    document.getElementById('modal-overlay-oracion').classList.remove('visible');
-    document.getElementById('modal-ver-oracion').classList.remove('visible');
+    BSPModal.cerrar({
+      overlay: document.getElementById('modal-overlay-oracion'),
+      modal:   document.getElementById('modal-ver-oracion')
+    });
   }
 
   // ════════════════════════════════════════════════════════════════
