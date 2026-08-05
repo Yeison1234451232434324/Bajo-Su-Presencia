@@ -61,6 +61,7 @@ class BSPDataTable {
     this._xlsxLoaded   = false;
     this.tableMode     = opts.tableMode || false;     // true = renderRow devuelve <tr>
     this.tableClass    = opts.tableClass || '';       // clase CSS de la tabla
+    this.headerHTML    = opts.headerHTML || '';       // fila de títulos de columna, opcional
   }
 
   // ── Inicializar ──────────────────────────────────────────────────────────
@@ -140,6 +141,9 @@ class BSPDataTable {
 
       <!-- Resumen de filtros activos -->
       <div class="bsp-dt-active-filters" id="${this.containerId}-af" style="display:none;"></div>
+
+      <!-- Fila de títulos de columna, opcional -->
+      ${this.headerHTML ? `<div class="bsp-dt-header-row" id="${this.containerId}-header">${this.headerHTML}</div>` : ''}
 
       <!-- Cuerpo -->
       <div class="bsp-dt-body" id="${this.containerId}-body"></div>

@@ -143,6 +143,15 @@ document.addEventListener('DOMContentLoaded', async () => {
           { key: 'creado', label: 'Hasta', type: 'date-to'   },
         ],
         renderRow,
+        headerHTML: `
+          <span>Usuario</span>
+          <span>Correo</span>
+          <span>Rol</span>
+          <span>Especialidad</span>
+          <span>Estado</span>
+          <span>Fecha</span>
+          <span class="acciones-cell">Acciones</span>
+        `,
         exportable:   true,
         exportName:   'usuarios',
         exportFields: ['nombre', 'username', 'email', 'rol', 'especialidad', 'ocupacion', 'ubicacion', 'telefono', 'estadoTexto', 'creado'],

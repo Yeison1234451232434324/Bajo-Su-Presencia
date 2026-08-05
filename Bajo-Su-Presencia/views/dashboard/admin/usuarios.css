@@ -65,6 +65,28 @@
   border-radius: 1rem;
   margin-bottom: 0.5rem;
 }
+/* ── Encabezados de columna (mismo grid que .dt-row-usuarios), inyectados
+   por BSPDataTable justo antes de las filas, debajo de los filtros ── */
+.bsp-dt-header-row {
+  display: grid;
+  grid-template-columns:
+    minmax(190px, 2.4fr)
+    minmax(150px, 2fr)
+    128px
+    140px
+    96px
+    108px
+    auto;
+  gap: 1rem;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.bsp-dt-header-row .acciones-cell { text-align: right; }
+
 .dt-row-usuarios.inactivo { opacity: 0.65; background: var(--surface-2); }
 .dt-row-usuarios .dt-c-email  { font-size: 0.9rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dt-row-usuarios .dt-c-fecha  { font-size: 0.82rem; color: var(--muted); }
@@ -82,6 +104,7 @@
    1024px, 2px a 1100px, 0px a 1200px). El breakpoint anterior (1000px) no
    cubría ese rango; 1180px sí, con margen. */
 @media (max-width: 1180px) {
+  .bsp-dt-header-row { display: none; }
   .dt-row-usuarios {
     grid-template-columns: 1fr;
     row-gap: 0.4rem;
@@ -159,6 +182,8 @@
   border-radius: var(--modal-radius);
   padding: 2rem 2.25rem;
   width: min(520px, 95vw);
+  max-height: 90vh;
+  overflow-y: auto;
   box-shadow: var(--modal-shadow);
   opacity: 0;
   pointer-events: none;
