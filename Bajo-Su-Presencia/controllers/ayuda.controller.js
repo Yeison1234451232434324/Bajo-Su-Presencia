@@ -191,7 +191,7 @@ const BSP_AYUDA_DATA = [
       {
         id: 'q-12',
         pregunta: '¿Qué información muestra el Dashboard?',
-        respuesta: 'El Dashboard muestra métricas clave: miembros activos, eventos del mes, noticias, oraciones, voluntarios, asistencia promedio y <strong>gráficas de crecimiento</strong> de los últimos 6 meses.',
+        respuesta: 'El Dashboard muestra métricas clave: miembros activos, eventos del mes, noticias, oraciones, voluntarios y <strong>gráficas de crecimiento</strong> de los últimos 6 meses.',
         roles: ['Administrador']
       }
     ]

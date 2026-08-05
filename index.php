@@ -113,7 +113,6 @@ function tablaDeRutas(): array
         '/sedes'                  => 'views/dashboard/admin/sedes.html',
         '/voluntarios'            => 'views/dashboard/admin/voluntarios.html',
         '/actividades'            => 'views/dashboard/admin/actividades.html',
-        '/asistencias'            => 'views/dashboard/admin/asistencias.html',
         '/oracion'                => 'views/dashboard/admin/oracion.html',
         '/pqr-admin'              => 'views/dashboard/admin/pqr.html',
         '/reportes'               => 'views/dashboard/admin/reporte.html',

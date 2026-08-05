@@ -44,7 +44,6 @@ final class DataGatewayController
         'evento_recursos'        => ['write' => ['Administrador', 'Colaborador']],
         'actividades'            => ['write' => ['Administrador', 'Colaborador', 'Voluntario']],
         'informes'               => ['write' => ['Administrador', 'Colaborador']],
-        'asistencias'            => ['write' => ['Administrador', 'Colaborador']],
         'calificaciones_eventos' => ['write' => ['Administrador', 'Colaborador']],
         'evaluaciones'           => ['write' => ['Administrador', 'Colaborador']],
         'voluntarios_eventos'    => ['write' => ['Administrador', 'Colaborador', 'Voluntario']],

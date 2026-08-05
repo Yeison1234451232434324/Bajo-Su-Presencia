@@ -127,17 +127,6 @@
         <div class="sub">↑ 5 este mes</div>
       </div>
 
-      <div class="stat-card">
-        <div class="stat-icon" style="background:#e8eefb;">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1E3A8A" stroke-width="2">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-          </svg>
-        </div>
-        <div class="label">Asistencias Confirmadas</div>
-        <div class="value" id="kpi-asistencia">—</div>
-        <div class="sub">↑ 8% vs mes anterior</div>
-      </div>
-
     </div>
 
     <!-- ══ 2.3 GRÁFICA CRECIMIENTO DE USUARIOS  +  2.4 CONTENIDO PUBLICADO ═ -->
@@ -220,12 +209,11 @@
               <th>Fecha</th>
               <th>Hora</th>
               <th>Lugar</th>
-              <th>Asistentes</th>
               <th>Estado</th>
             </tr>
           </thead>
           <tbody id="eventsTableBody">
-            <tr><td colspan="6">Cargando…</td></tr>
+            <tr><td colspan="5">Cargando…</td></tr>
           </tbody>
         </table>
       </div>
@@ -278,8 +266,6 @@
       set('kpi-noticias', not.count ?? 0);
       const ora = await sb.from('oraciones').select('id', { count:'exact', head:true });
       set('kpi-oraciones', ora.count ?? 0);
-      const asi = await sb.from('asistencias').select('id', { count:'exact', head:true }).eq('asistió', true);
-      set('kpi-asistencia', asi.count ?? 0);
     } catch (_) {}
   });
   </script>
@@ -381,13 +367,6 @@
           .order('fecha', { ascending: true })
           .limit(5);
 
-        const eventoIds = (data || []).map(e => e.id);
-        let conteoAsistentes = {};
-        if (eventoIds.length) {
-          const { data: asis } = await sb.from('asistencias').select('id_de_evento').in('id_de_evento', eventoIds);
-          (asis || []).forEach(a => { conteoAsistentes[a.id_de_evento] = (conteoAsistentes[a.id_de_evento] || 0) + 1; });
-        }
-
         const fechaFmt = (iso) => {
           if (!iso) return '—';
           const d = new Date(iso + 'T00:00:00');
@@ -405,9 +384,8 @@
             <td>${fechaFmt(e.fecha)}</td>
             <td>${horaFmt(e.hora)}</td>
             <td>${esc(e.ubicacion || '—')}</td>
-            <td>${conteoAsistentes[e.id] ?? 0}</td>
             <td><span class="badge ${badgeEstado(e.estado)}">${e.estado || 'Publicado'}</span></td>
-          </tr>`).join('') : '<tr><td colspan="6">No hay próximos eventos.</td></tr>';
+          </tr>`).join('') : '<tr><td colspan="5">No hay próximos eventos.</td></tr>';
       } catch (_) {
         eventsBody.innerHTML = '<tr><td colspan="6">No se pudo cargar la tabla.</td></tr>';
       }

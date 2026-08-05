@@ -79,13 +79,6 @@ document.addEventListener("DOMContentLoaded", () => {
         </a>
         <span class="tooltip">Calificar Voluntarios</span>
       </li>
-      <li id="li-asistencias" style="display:none;">
-        <a href="asistencias.html" id="nav-asistencias">
-          <i class="bx bx-qr-scan" aria-hidden="true"></i>
-          <span class="nav-item">Asistencias</span>
-        </a>
-        <span class="tooltip">Asistencias</span>
-      </li>
       <li id="li-recursos" style="display:none;">
         <a href="recursos.html" id="nav-recursos">
           <i class="bx bx-package" aria-hidden="true"></i>
@@ -206,7 +199,6 @@ document.addEventListener("DOMContentLoaded", () => {
   else if (path.includes("oracion.html"))    document.getElementById("nav-oracion")?.parentElement.classList.add("active-item");
   else if (path.includes("noticias.html"))   document.getElementById("nav-noticias")?.parentElement.classList.add("active-item");
   else if (path.includes("usuarios.html"))   document.getElementById("nav-usuarios")?.parentElement.classList.add("active-item");
-  else if (path.includes("asistencias.html")) document.getElementById("nav-asistencias")?.parentElement.classList.add("active-item");
   else if (path.includes("voluntarios.html")) document.getElementById("nav-voluntarios")?.parentElement.classList.add("active-item");
   else if (path.includes("recursos.html"))    document.getElementById("nav-recursos")?.parentElement.classList.add("active-item");
   else if (path.includes("actividades.html")) document.getElementById("nav-actividades")?.parentElement.classList.add("active-item");
@@ -239,7 +231,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Secciones exclusivas del Administrador. Es solo cosmética: cada vista
     // vuelve a exigir el rol contra el servidor al abrirse.
     if (identidad.rol === 'Administrador') {
-      ['li-usuarios', 'li-voluntarios', 'li-asistencias', 'li-recursos',
+      ['li-usuarios', 'li-voluntarios', 'li-recursos',
        'li-actividades', 'li-reporte', 'li-generar-reportes', 'li-sedes', 'li-pqr']
         .forEach((id) => {
           const el = document.getElementById(id);
