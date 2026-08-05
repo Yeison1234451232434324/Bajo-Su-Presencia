@@ -48,8 +48,21 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
+    // Una sola consulta acotada a los eventos visibles (WHERE evento_id IN (...))
+    // en vez de una por evento (antes: getResumenEvento(ev.id) dentro del bucle)
+    // y en vez de traer la tabla completa con getAll().
+    let todasActividades = [];
+    try { todasActividades = await ActividadesModel.getByEventos(eventos.map(ev => ev.id)); }
+    catch (e) { window.BSPLog?.error('actividades.cargarResumen', e); }
+    const resumenPorEvento = {};
+    for (const a of todasActividades) {
+      const r = resumenPorEvento[a.eventoId] || (resumenPorEvento[a.eventoId] = { total: 0, completadas: 0 });
+      r.total++;
+      if (a.completada) r.completadas++;
+    }
+
     for (const ev of eventos) {
-      const resumen = await ActividadesModel.getResumenEvento(ev.id);
+      const resumen = resumenPorEvento[ev.id] || { total: 0, completadas: 0, pendientes: 0 };
       const volDisp = ev.voluntariosNecesarios || 0;
       const volInscritos = (ev.especialistas || []).length;   // inscritos en voluntarios_eventos
       const fechaFmt = _formatFecha(ev.fecha);

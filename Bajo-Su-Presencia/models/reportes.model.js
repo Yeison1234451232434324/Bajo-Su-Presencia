@@ -58,6 +58,17 @@ const ReportesModel = (() => {
     return _fromRow(data, nombres);
   }
 
+  // Informes de varios eventos en una sola consulta (WHERE evento_id IN (...)),
+  // acotada a los ids pedidos en vez de traer toda la tabla como getAll().
+  async function getByEventos(eventoIds) {
+    const uniq = [...new Set((eventoIds || []).filter(Boolean))];
+    if (!uniq.length) return [];
+    const { data, error } = await DB.from(TABLA).select('*, eventos(titulo)').in('evento_id', uniq);
+    if (error) { (window.BSPLog ? window.BSPLog.error('ReportesModel.getByEventos', error) : console.error('ReportesModel.getByEventos')); return []; }
+    const nombres = await _nombres((data || []).map(r => r.creado_por));
+    return (data || []).map(r => _fromRow(r, nombres));
+  }
+
   async function guardar(data) {
     if (!data.eventoId) return { ok: false, error: 'El evento es obligatorio.' };
     if (data.ofrenda === '' || data.ofrenda === null || isNaN(Number(data.ofrenda)))
@@ -87,6 +98,6 @@ const ReportesModel = (() => {
     return { ok: true };
   }
 
-  return { getAll, getByEvento, guardar, eliminar };
+  return { getAll, getByEvento, getByEventos, guardar, eliminar };
 
 })();

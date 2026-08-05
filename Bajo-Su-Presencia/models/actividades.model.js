@@ -59,6 +59,17 @@ const ActividadesModel = (() => {
     return (data || []).map(a => _fromRow(a, nombres));
   }
 
+  // Actividades de varios eventos en una sola consulta (WHERE evento_id IN (...)),
+  // acotada a los ids pedidos en vez de traer toda la tabla como getAll().
+  async function getByEventos(eventoIds) {
+    const uniq = [...new Set((eventoIds || []).filter(Boolean))];
+    if (!uniq.length) return [];
+    const { data, error } = await DB.from(TABLA).select('*').in('evento_id', uniq);
+    if (error) { (window.BSPLog ? window.BSPLog.error('ActividadesModel.getByEventos', error) : console.error('ActividadesModel.getByEventos')); return []; }
+    const nombres = await _nombres((data || []).map(a => a.voluntario_id));
+    return (data || []).map(a => _fromRow(a, nombres));
+  }
+
   async function getById(id) {
     const { data, error } = await DB.from(TABLA).select('*').eq('id', id).single();
     if (error || !data) return null;
@@ -119,6 +130,6 @@ const ActividadesModel = (() => {
     return { total: acts.length, completadas, pendientes: acts.length - completadas };
   }
 
-  return { getAll, getByEvento, getById, crear, actualizar, toggleCompletada, eliminar, getResumenEvento };
+  return { getAll, getByEvento, getByEventos, getById, crear, actualizar, toggleCompletada, eliminar, getResumenEvento };
 
 })();

@@ -70,8 +70,17 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
+    // Una sola consulta acotada a los eventos pasados (WHERE evento_id IN (...))
+    // en vez de una por evento (antes: getByEvento(ev.id) dentro del bucle) y en
+    // vez de traer toda la tabla de informes con getAll().
+    let reportesPorEvento = {};
+    try {
+      const informesPasados = await ReportesModel.getByEventos(pasados.map(ev => ev.id));
+      reportesPorEvento = Object.fromEntries(informesPasados.map(r => [String(r.eventoId), r]));
+    } catch (e) { window.BSPLog?.error('reporte.informes', e); }
+
     for (const ev of pasados) {
-      const reporte    = await ReportesModel.getByEvento(ev.id);
+      const reporte    = reportesPorEvento[String(ev.id)] || null;
       const tieneRep   = !!reporte;
       const fechaFmt   = _formatFecha(ev.fecha);
 

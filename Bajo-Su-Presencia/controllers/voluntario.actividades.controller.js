@@ -49,12 +49,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     _actualizarBarraGlobal(acts.filter(a => a.completada).length, acts.length);
 
     const grupos = _agruparPorEvento(acts);
+
+    // Una sola consulta acotada a los eventos de este voluntario (WHERE id IN (...))
+    // en vez de una por grupo (antes: getById(eventoId) dentro del bucle) y en vez
+    // de traer toda la tabla de eventos con getAll().
+    let eventosPorId = {};
+    try {
+      const eventosDelVoluntario = await EventosModel.getByIds(Object.keys(grupos));
+      eventosPorId = Object.fromEntries(eventosDelVoluntario.map(ev => [String(ev.id), ev]));
+    } catch (e) { window.BSPLog?.error('voluntarioActividades.eventos', e); }
+
     for (const [eventoId, actsEvento] of Object.entries(grupos)) {
       let info = { titulo: 'Evento', fecha: '', horario: '', ubicacion: '' };
-      try {
-        const ev = await EventosModel.getById(eventoId);
-        if (ev) info = { titulo: ev.titulo, fecha: _formatFecha(ev.fecha), horario: ev.horario || '', ubicacion: ev.ubicacion || '' };
-      } catch (e) { window.BSPLog?.error('voluntarioActividades.evento', e); }
+      const ev = eventosPorId[String(eventoId)];
+      if (ev) info = { titulo: ev.titulo, fecha: _formatFecha(ev.fecha), horario: ev.horario || '', ubicacion: ev.ubicacion || '' };
       contenedor.appendChild(_crearSeccionEvento(eventoId, actsEvento, info));
     }
   }

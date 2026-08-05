@@ -81,6 +81,16 @@ const EventosModel = (() => {
     return _fromRow(data);
   }
 
+  // Varios eventos por id en una sola consulta (WHERE id IN (...)), acotada
+  // a los ids pedidos en vez de traer toda la tabla como getAll().
+  async function getByIds(ids) {
+    const uniq = [...new Set((ids || []).filter(Boolean))];
+    if (!uniq.length) return [];
+    const { data, error } = await DB.from(TABLA).select(SEL).in('id', uniq);
+    if (error) { (window.BSPLog ? window.BSPLog.error('EventosModel.getByIds', error) : console.error('EventosModel.getByIds')); return []; }
+    return (data || []).map(_fromRow);
+  }
+
   // El formulario web no captura sede; usamos la primera disponible como default
   // (por si eventos.sede_id sigue siendo NOT NULL). Idealmente correr el ALTER
   // de supabase_ajustes_eventos_recursos.sql para hacerla opcional.
@@ -133,7 +143,7 @@ const EventosModel = (() => {
 
     await _syncRecursos(ins.id, data.recursos);
     await _syncEspecialistas(ins.id, data.especialistas);
-    return { ok: true, evento: await getById(ins.id) };
+    return { ok: true };
   }
 
   async function actualizar(id, data) {
@@ -145,7 +155,7 @@ const EventosModel = (() => {
 
     await _syncRecursos(id, data.recursos);
     await _syncEspecialistas(id, data.especialistas);
-    return { ok: true, evento: await getById(id) };
+    return { ok: true };
   }
 
   async function eliminar(id) {
@@ -179,6 +189,6 @@ const EventosModel = (() => {
     return { ok: true };
   }
 
-  return { getAll, getById, crear, actualizar, eliminar, inscribir, cancelarInscripcion, ESTADOS };
+  return { getAll, getById, getByIds, crear, actualizar, eliminar, inscribir, cancelarInscripcion, ESTADOS };
 
 })();
