@@ -22,8 +22,8 @@ document.addEventListener("DOMContentLoaded", () => {
   <div class="top">
 
     <div class="logo">
-      <i class="bx bx-church" aria-hidden="true"></i>
-      <span>Bajo Su Presencia</span>
+      <img src="/Bajo-Su-Presencia/assets/images/logo.png" alt="" aria-hidden="true">
+      <span>Bajo Su Presencia B.S.P</span>
     </div>
 
     <button id="btn" class="sidebar-toggle" type="button" aria-label="Expandir menú" aria-expanded="false" aria-controls="sidebar"><svg class="sidebar-toggle-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg></button>
@@ -121,6 +121,13 @@ document.addEventListener("DOMContentLoaded", () => {
         </a>
         <span class="tooltip">PQR</span>
       </li>
+      <li id="li-donaciones" style="display:none;">
+        <a href="donaciones.html" id="nav-donaciones">
+          <i class="bx bx-donate-heart" aria-hidden="true"></i>
+          <span class="nav-item">Donaciones</span>
+        </a>
+        <span class="tooltip">Donaciones</span>
+      </li>
       <li class="logout-li">
         <a href="../../public/login/login.html" id="nav-logout">
           <i class="bx bx-log-out" aria-hidden="true"></i>
@@ -206,6 +213,7 @@ document.addEventListener("DOMContentLoaded", () => {
   else if (path.includes("generar-reportes.html")) document.getElementById("nav-generar-reportes")?.parentElement.classList.add("active-item");
   else if (path.includes("sedes.html"))            document.getElementById("nav-sedes")?.parentElement.classList.add("active-item");
   else if (path.includes("pqr.html"))              document.getElementById("nav-pqr")?.parentElement.classList.add("active-item");
+  else if (path.includes("donaciones.html"))       document.getElementById("nav-donaciones")?.parentElement.classList.add("active-item");
 
   // ── Identidad y menú: SIEMPRE según el servidor ──────────────────────────
   // Antes esto se resolvía leyendo `usuarioLogueado` de localStorage de forma
@@ -224,7 +232,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!identidad) return;   // sin sesión válida el guard ya expulsa al login
 
     const nombre = identidad.nombre || identidad.correo || '';
-    if (nombreEl) nombreEl.textContent = nombre;
+    // title: para correos largos, recortados con "…" por CSS, el usuario
+    // puede ver el valor completo dejando el mouse encima (tooltip nativo).
+    if (nombreEl) { nombreEl.textContent = nombre; nombreEl.title = nombre; }
     if (rolEl)    rolEl.textContent    = identidad.rol || '';
     if (avatarEl) avatarEl.textContent = nombre.charAt(0).toUpperCase();
 
@@ -232,7 +242,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // vuelve a exigir el rol contra el servidor al abrirse.
     if (identidad.rol === 'Administrador') {
       ['li-usuarios', 'li-voluntarios', 'li-recursos',
-       'li-actividades', 'li-reporte', 'li-generar-reportes', 'li-sedes', 'li-pqr']
+       'li-actividades', 'li-reporte', 'li-generar-reportes', 'li-sedes', 'li-pqr', 'li-donaciones']
         .forEach((id) => {
           const el = document.getElementById(id);
           if (el) el.style.display = '';

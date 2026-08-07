@@ -57,6 +57,9 @@ final class DataGatewayController
         // Solo lectura desde el panel:
         'usuarios'               => ['write' => []],
         'roles'                  => ['write' => []],
+        // Historial de donaciones: el backend inserta al procesar el pago
+        // (DonacionesController); el panel admin solo lee y elimina.
+        'donaciones'             => ['write' => ['Administrador']],
     ];
 
     private readonly SupabaseClient $sb;

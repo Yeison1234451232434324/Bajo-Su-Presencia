@@ -115,6 +115,7 @@ function tablaDeRutas(): array
         '/actividades'            => 'views/dashboard/admin/actividades.html',
         '/oracion'                => 'views/dashboard/admin/oracion.html',
         '/pqr-admin'              => 'views/dashboard/admin/pqr.html',
+        '/donaciones-admin'       => 'views/dashboard/admin/donaciones.html',
         '/reportes'               => 'views/dashboard/admin/reporte.html',
         '/generar-reportes'       => 'views/dashboard/admin/generar-reportes.html',
 

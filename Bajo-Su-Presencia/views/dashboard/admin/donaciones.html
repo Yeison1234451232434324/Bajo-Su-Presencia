@@ -1,0 +1,134 @@
+<!--
+  ================================================================
+  DONACIONES ADMIN — Historial de transacciones
+  ================================================================
+  ¿Qué hace esta página?
+  Muestra el historial completo de donaciones procesadas por el
+  sitio público, con filtros, búsqueda, exportación, eliminación
+  y una factura profesional imprimible por transacción.
+
+  Secciones:
+    1. Tarjetas de contadores (recaudado, transacciones, promedio)
+    2. Tabla de donaciones con filtros por método, estado y fecha
+    3. Modal de factura profesional (imprimible / "Guardar PDF")
+
+  Archivos que usa:
+    - panel.css               → estilos base del panel
+    - donaciones.css          → estilos específicos del módulo
+    - sidebar.controller.js   → sidebar del admin
+    - donaciones.model.js     → lectura/eliminación en Supabase
+    - donaciones.controller.js → lógica de tabla, filtros y factura
+  ================================================================
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" href="/Bajo-Su-Presencia/assets/images/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/Bajo-Su-Presencia/assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/Bajo-Su-Presencia/assets/images/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/Bajo-Su-Presencia/assets/images/apple-touch-icon.png">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Donaciones – Bajo Su Presencia B.S.P</title>
+  <link rel="stylesheet" href="panel.css" />
+  <link rel="stylesheet" href="donaciones.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js" integrity="sha384-3kOl9EzcOjFxTuc9knN784SI3NaWSFtoc4bHR9P8rsADaAZx9PC++m1OimQhoCCb" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link rel="stylesheet" href="/Bajo-Su-Presencia/helpers/theme.css">
+  <script src="/Bajo-Su-Presencia/helpers/theme.js"></script>
+</head>
+<body>
+
+  <main class="main" id="main">
+    <section class="panel active" style="display:block;">
+
+      <div class="panel-header">
+        <h2>Donaciones</h2>
+        <p>Historial de transacciones, filtros y facturación</p>
+      </div>
+
+      <div class="guia-seccion">
+        <p class="guia-seccion-label"><i class="bx bx-info-circle" aria-hidden="true"></i> Guía de sección</p>
+        <p class="guia-seccion-texto">Consulta todas las donaciones recibidas a través del sitio público. Puedes filtrar por método de pago, estado y fecha, exportar el historial, ver la factura de cada transacción y eliminar registros.</p>
+      </div>
+
+      <!-- Contadores -->
+      <div class="counters-grid dn-counters-grid">
+        <div class="counter-card dn-counter-highlight">
+          <div class="counter-icon counter-icon--success">
+            <i class="bx bx-donate-heart" aria-hidden="true"></i>
+          </div>
+          <div class="counter-info">
+            <p class="counter-label">Total Recaudado</p>
+            <p class="counter-value" id="cont-total-recaudado">$0</p>
+          </div>
+        </div>
+        <div class="counter-card">
+          <div class="counter-icon counter-icon--info">
+            <i class="bx bx-receipt" aria-hidden="true"></i>
+          </div>
+          <div class="counter-info">
+            <p class="counter-label">Transacciones</p>
+            <p class="counter-value" id="cont-transacciones">0</p>
+          </div>
+        </div>
+        <div class="counter-card">
+          <div class="counter-icon counter-icon--warning">
+            <i class="bx bx-trending-up" aria-hidden="true"></i>
+          </div>
+          <div class="counter-info">
+            <p class="counter-label">Donación Promedio</p>
+            <p class="counter-value" id="cont-promedio">$0</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- DataTable de donaciones -->
+      <div id="dt-donaciones"></div>
+
+    </section>
+  </main>
+
+  <!-- ══ OVERLAY DEL MODAL ════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-overlay"></div>
+
+  <!-- ══ MODAL FACTURA ════════════════════════════════════════════════════ -->
+  <div class="modal dn-modal-factura" id="modal-factura" role="dialog" aria-modal="true" aria-labelledby="factura-titulo">
+    <div class="modal-header dn-no-print">
+      <h3 id="factura-titulo">Factura</h3>
+      <button class="btn-cerrar-modal" id="btn-cerrar-factura" aria-label="Cerrar factura">
+        <i class="bx bx-x" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <div class="dn-factura" id="dn-factura-contenido">
+      <!-- Contenido inyectado por el controller -->
+    </div>
+
+    <div class="modal-footer dn-no-print">
+      <button type="button" class="btn-cancelar" id="btn-factura-cerrar">Cerrar</button>
+      <button type="button" class="btn-guardar" id="btn-factura-imprimir">
+        <i class="bx bx-printer" style="margin-right:0.35rem;" aria-hidden="true"></i>
+        Imprimir / Guardar PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
+  <script src="../../../helpers/validators.helper.js"></script>
+  <script src="../../../helpers/modal.helper.js"></script>
+  <script src="../../../controllers/sidebar.controller.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8" integrity="sha384-Tve8O+C6PBzsIMK/IRCwHbi8fyEzXIlIs6OfVBZHubplwYhaQF/4Mzxqgg+pp/oy" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="../../../services/supabase.client.js"></script>
+  <script src="../../../config/api.config.js"></script>
+  <script src="../../../core/session.manager.js"></script>
+  <script src="../../../services/db.client.js"></script>
+  <script src="../../../models/donaciones.model.js"></script>
+  <script src="../../../helpers/datatable.helper.js"></script>
+  <script src="../../../helpers/alertify.helper.js"></script>
+  <script src="../../../controllers/donaciones.controller.js"></script>
+
+  <script src="../../../controllers/ayuda.controller.js"></script>
+</body>
+</html>

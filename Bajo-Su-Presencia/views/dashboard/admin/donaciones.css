@@ -1,0 +1,337 @@
+/*
+ * ================================================================
+ *  DONACIONES ADMIN — Estilos del módulo de historial de donaciones
+ * ================================================================
+ *  ¿Qué hace este archivo?
+ *  Estiliza el historial de transacciones (tabla en grid, igual
+ *  patrón que usuarios.css) y la factura profesional imprimible.
+ *
+ *  ¿Cómo se usa?
+ *  Se carga DESPUÉS de panel.css en donaciones.html del admin.
+ * ================================================================
+ */
+
+/* ── Contador destacado (Total Recaudado) ── */
+.dn-counter-highlight {
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+  border-color: var(--primary-dark);
+}
+.dn-counter-highlight .counter-label { color: rgba(255,255,255,0.75); }
+.dn-counter-highlight .counter-value { color: #fff; }
+.dn-counter-highlight .counter-icon--success { background: rgba(245,194,21,0.18); color: var(--accent); }
+
+/* ── Fila de la tabla en columnas alineadas (mismo patrón que .dt-row-usuarios) ── */
+.dt-row-donaciones {
+  display: grid;
+  grid-template-columns:
+    minmax(170px, 1.6fr)   /* referencia + fecha */
+    minmax(170px, 2fr)     /* donante */
+    100px                  /* método */
+    130px                  /* monto */
+    minmax(120px, 1.2fr)   /* propósito */
+    110px                  /* estado */
+    auto;                  /* acciones */
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1.25rem;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 1rem;
+  margin-bottom: 0.5rem;
+}
+.bsp-dt-header-row {
+  display: grid;
+  grid-template-columns:
+    minmax(170px, 1.6fr)
+    minmax(170px, 2fr)
+    100px
+    130px
+    minmax(120px, 1.2fr)
+    110px
+    auto;
+  gap: 1rem;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.bsp-dt-header-row .acciones-cell { text-align: right; }
+.dt-row-donaciones .acciones-cell { justify-content: flex-end; }
+
+@media (max-width: 1180px) {
+  .bsp-dt-header-row { display: none; }
+  .dt-row-donaciones {
+    grid-template-columns: 1fr;
+    row-gap: 0.4rem;
+  }
+  .dt-row-donaciones .acciones-cell { justify-content: flex-start; }
+}
+
+.dn-cell-ref .dn-referencia   { font-weight: 700; font-size: 0.9375rem; color: var(--primary-dark); }
+.dn-cell-ref .dn-fecha-sub    { font-size: 0.8125rem; color: var(--muted); }
+.dn-cell-donante .dn-donante-nombre { font-weight: 600; font-size: 0.9375rem; }
+.dn-cell-donante .dn-donante-correo { font-size: 0.8125rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dn-monto { font-weight: 700; color: var(--success); }
+.dt-c-proposito { font-size: 0.875rem; color: var(--text-secondary); }
+
+/* ── Modal de factura (componente compartido, igual que usuarios.css:
+   este módulo no incluye usuarios.css, así que se define aquí para que
+   el overlay difumine el historial detrás y la factura quede centrada
+   y en primer plano, en vez de renderizarse en el flujo normal de la
+   página como <div> suelto) ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--modal-overlay-bg);
+  backdrop-filter: blur(var(--modal-blur));
+  z-index: 500;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+.modal-overlay.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -48%) scale(0.96);
+  z-index: 600;
+  background: var(--surface);
+  border-radius: var(--modal-radius);
+  padding: 2rem 2.25rem;
+  width: min(520px, 95vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--modal-shadow);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s, transform 0.25s;
+}
+.modal.visible {
+  opacity: 1;
+  pointer-events: all;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border);
+}
+.modal-header h3 {
+  font-family: var(--font-title);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+.btn-cerrar-modal {
+  background: var(--surface-2);
+  border: none;
+  border-radius: 0.5rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  transition: background 0.15s;
+}
+.btn-cerrar-modal:hover { background: var(--border-light); color: var(--text-primary); }
+
+.modal-footer {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 2px solid var(--border);
+}
+.btn-cancelar {
+  padding: 0.7rem 1.5rem;
+  background: var(--surface-2);
+  color: var(--text-secondary);
+  border: none;
+  border-radius: 0.75rem;
+  font-family: var(--font-text);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-cancelar:hover { background: var(--border-light); }
+
+.btn-guardar {
+  padding: 0.7rem 1.75rem;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--amber) 100%);
+  color: var(--text-on-primary);
+  border: none;
+  border-radius: 0.75rem;
+  font-family: var(--font-text);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(30,58,138,0.25);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.btn-guardar:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(30,58,138,0.35); }
+
+/* La factura es más ancha que el modal genérico (520px): tiene una
+   tabla de línea de concepto que necesita más aire. */
+.dn-modal-factura { width: min(600px, 95vw); }
+
+.dn-factura {
+  padding: 1.5rem;
+  background: var(--surface);
+  font-family: var(--font-text);
+}
+
+.dn-factura-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 2px solid var(--primary-dark);
+}
+.dn-factura-marca { display: flex; align-items: center; gap: 0.75rem; }
+.dn-factura-logo {
+  width: 3rem; height: 3rem;
+  border-radius: 0.75rem;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.dn-factura-org     { font-family: var(--font-title); font-size: 1.25rem; font-weight: 700; color: var(--primary-dark); }
+.dn-factura-org-sub { font-size: 0.8125rem; color: var(--muted); }
+.dn-factura-num       { text-align: right; }
+.dn-factura-num-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.dn-factura-num-valor { font-weight: 700; font-size: 1.0625rem; color: var(--primary-dark); }
+.dn-factura-anio {
+  display: inline-block;
+  margin-top: 0.25rem;
+  padding: 0.1rem 0.5rem;
+  background: var(--primary-dark);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.75rem;
+  border-radius: 0.4rem;
+}
+
+.dn-factura-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.dn-factura-meta-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; }
+.dn-factura-meta-valor { font-size: 0.9375rem; margin-bottom: 0.15rem; }
+
+/* Dentro de la factura los badges no usan la paleta ámbar/dorada de la
+   tabla del panel (Nequi/Pendiente en .badge-amber): una factura formal
+   se mantiene en la paleta corporativa (azul/gris), sin colores de estado
+   "semáforo" salvo el verde de Aprobada. */
+.dn-factura .badge { background: var(--surface-2); color: var(--text-secondary); }
+.dn-factura .badge-green { background: var(--success-bg); color: var(--success); }
+.dn-factura .badge-red   { background: var(--danger-bg);  color: var(--danger); }
+
+.dn-factura-tabla { width: 100%; border-collapse: collapse; margin-bottom: 1.25rem; }
+.dn-factura-tabla th {
+  text-align: left;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+  padding: 0.5rem 0;
+  border-bottom: 2px solid var(--border);
+}
+.dn-factura-tabla th:last-child, .dn-factura-tabla td:last-child { text-align: right; }
+.dn-factura-tabla td { padding: 0.75rem 0; border-bottom: 1px solid var(--border-light); font-size: 0.9375rem; }
+.dn-factura-tabla tfoot td {
+  font-weight: 700;
+  font-size: 1.0625rem;
+  color: var(--primary-dark);
+  border-top: 2px solid var(--border);
+  border-bottom: none;
+  padding-top: 1rem;
+}
+
+.dn-factura-legal {
+  font-size: 0.8125rem;
+  color: var(--muted);
+  line-height: 1.6;
+  border-top: 1px dashed var(--border);
+  padding-top: 1rem;
+}
+
+/* ── Factura en móvil ──
+   Verificado con medición real de layout (no a ojo): en 375px de ancho,
+   el padding del modal genérico (heredado de usuarios.css: 2rem 2.25rem,
+   fijo en todos los tamaños) deja muy poco ancho de contenido, y dentro
+   de eso el header (logo+nombre a la izquierda, N.° de factura a la
+   derecha, en una sola fila sin wrap) desbordaba ~17px fuera del modal.
+   La grilla de "Facturado a / Fecha" (1fr 1fr) también se desbalanceaba
+   cuando el correo del donante era largo: el navegador respeta el
+   contenido mínimo de esa celda y aplastaba la columna vecina a ~80px.
+   Se corrige apilando ambos en una sola columna por debajo de 480px. */
+@media (max-width: 480px) {
+  .dn-modal-factura { padding: 1.25rem 1.25rem; }
+  .dn-factura { padding: 0; }
+  .dn-factura-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.85rem;
+  }
+  .dn-factura-num { text-align: left; }
+  .dn-factura-meta { grid-template-columns: 1fr; gap: 1.25rem; }
+  .dn-factura-tabla th, .dn-factura-tabla td { font-size: 0.875rem; }
+}
+
+/* ── Impresión: solo la factura ──
+   Primer intento: ocultar todo con `visibility:hidden` y solo la factura
+   con `visibility:visible`. Falló porque visibility NO saca los elementos
+   del flujo del documento — el <main> (sidebar, contadores, tabla) seguía
+   reservando su espacio aunque invisible, y al poner la factura en flujo
+   normal (position:static) quedaba empujada muchas páginas más abajo de
+   ese hueco vacío: la página 1 (y varias más) salían en blanco.
+   Ahora se ocultan con `display:none` los hermanos directos del body
+   (<main> y el overlay), que si saca del flujo por completo: la factura
+   queda como único contenido, arranca en la esquina superior de la
+   página 1 y no genera páginas extra. */
+@media print {
+  @page { size: auto; margin: 1.4cm; }
+
+  body > *:not(.dn-modal-factura) { display: none !important; }
+
+  .dn-modal-factura {
+    display: block !important;
+    position: static !important;
+    inset: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .dn-factura { padding: 0; }
+
+  /* Los badges (método/estado) pierden su color de fondo al imprimir por
+     defecto en la mayoría de navegadores; se fuerza a conservarlo. */
+  .dn-factura * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  .dn-no-print { display: none !important; }
+}
