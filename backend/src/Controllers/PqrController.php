@@ -235,7 +235,10 @@ final class PqrController
         }
     }
 
-    /** Cuerpo HTML del correo de confirmación al radicar la PQR. */
+    /**
+     * Cuerpo HTML del correo de confirmación al radicar la PQR.
+     * @param array<string,mixed> $pqr
+     */
     private function confirmacionHtml(array $pqr): string
     {
         $nombre  = htmlspecialchars((string) ($pqr['nombre'] ?? ''), ENT_QUOTES, 'UTF-8') ?: 'Estimado(a)';
@@ -281,7 +284,10 @@ final class PqrController
 HTML;
     }
 
-    /** Cuerpo HTML del correo de notificación de cambio de estado. */
+    /**
+     * Cuerpo HTML del correo de notificación de cambio de estado.
+     * @param array<string,mixed> $pqr
+     */
     private function cambioEstadoHtml(array $pqr, string $nuevoEstado): string
     {
         $nombre  = htmlspecialchars((string) ($pqr['nombre'] ?? ''), ENT_QUOTES, 'UTF-8') ?: 'Estimado(a)';
@@ -326,6 +332,7 @@ HTML;
 HTML;
     }
 
+    /** @param array<string,mixed> $pqr */
     private function respuestaHtml(array $pqr, string $respuesta): string
     {
         $nombre      = htmlspecialchars((string) ($pqr['nombre'] ?? ''), ENT_QUOTES, 'UTF-8') ?: 'Estimado(a)';
