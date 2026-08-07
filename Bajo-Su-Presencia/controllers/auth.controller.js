@@ -38,6 +38,21 @@ const RUTAS_POR_ROL = {
  */
 let enviandoLogin = false;
 
+// ── "Recordar" — precarga usuario y correo (NUNCA la contraseña) ───────────
+// Solo son identificadores, no credenciales: guardarlos en localStorage no
+// expone nada que el usuario no tipee visiblemente en el propio formulario.
+const RECORDAR_KEY = 'bspRecordarLogin';
+
+(function precargarRecordado() {
+  try {
+    const guardado = JSON.parse(localStorage.getItem(RECORDAR_KEY) || 'null');
+    if (!guardado) return;
+    document.getElementById('username').value = guardado.usuario || '';
+    document.getElementById('email').value    = guardado.correo  || '';
+    document.getElementById('recordar').checked = true;
+  } catch (_) { /* dato corrupto: se ignora, no rompe el login */ }
+})();
+
 document.getElementById('loginForm').addEventListener('submit', async function (e) {
   e.preventDefault();
 
@@ -126,6 +141,15 @@ document.getElementById('loginForm').addEventListener('submit', async function (
   // ── 3. Guardar datos para el sidebar ────────────────────────────────────
   const rol = user?.rol || 'Usuario';
   localStorage.setItem('usuarioLogueado', JSON.stringify({ nombre: user?.nombre, rol }));
+
+  // ── 3b. "Recordar" — guarda o borra usuario/correo según el checkbox ────
+  try {
+    if (document.getElementById('recordar').checked) {
+      localStorage.setItem(RECORDAR_KEY, JSON.stringify({ usuario: userVal, correo: emailVal }));
+    } else {
+      localStorage.removeItem(RECORDAR_KEY);
+    }
+  } catch (_) { /* almacenamiento no disponible: no afecta el login */ }
 
   // ── 4. Redirigir según el rol ───────────────────────────────────────────
   const url = RUTAS_POR_ROL[rol];

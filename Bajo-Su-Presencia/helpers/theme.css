@@ -259,13 +259,18 @@
 :root[data-theme="dark"] .badge-especialidad  { background: rgba(3, 105, 161, 0.28) !important; color: #7dd3fc !important; }
 
 /* Contenedores de icono con fondo claro (KPIs, contadores) en módulos
-   no migrados: fondo tenue y trazo del SVG aclarado. */
-:root[data-theme="dark"] .stat-icon,
-:root[data-theme="dark"] .counter-icon {
+   no migrados: fondo tenue y trazo del SVG aclarado.
+   Se excluyen las variantes con color propio (.stat-icon--info, etc.):
+   sin el :not(), este selector (más específico que una sola clase
+   modificadora) les ganaba y aplanaba TODOS los iconos al mismo azul,
+   perdiendo el código de color por tipo — mismo bug ya visto y corregido
+   antes en los badges de PQR. */
+:root[data-theme="dark"] .stat-icon:not([class*="stat-icon--"]),
+:root[data-theme="dark"] .counter-icon:not([class*="counter-icon--"]) {
   background: rgba(147, 180, 255, 0.14) !important;
 }
-:root[data-theme="dark"] .stat-icon svg,
-:root[data-theme="dark"] .counter-icon svg { stroke: #93b4ff !important; }
+:root[data-theme="dark"] .stat-icon:not([class*="stat-icon--"]) svg,
+:root[data-theme="dark"] .counter-icon:not([class*="counter-icon--"]) svg { stroke: #93b4ff !important; }
 
 /* Chips de prioridad/estado con clase modificadora propia (no ".badge-*",
    por eso el bloque de arriba no los alcanza): actividades (colaborador y

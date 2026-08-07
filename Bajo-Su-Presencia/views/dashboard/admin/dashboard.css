@@ -3,6 +3,127 @@
    Complementa panel.css con los estilos propios de este módulo
 ══════════════════════════════════════════════════════════════ */
 
+/* ── Encabezado ───────────────────────────────────────────── */
+.panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.panel-header-fecha {
+  font-size: 0.875rem;
+  color: var(--muted);
+  white-space: nowrap;
+  padding-top: 0.35rem;
+}
+
+/* ── Iconos de las tarjetas de métricas: color por tipo (mismo patrón
+   token-based que .counter-icon--* en panel.css). El SVG usa
+   stroke="currentColor" para heredar el color del contenedor. ── */
+.stat-icon--info    { background: var(--info-bg);    color: var(--info); }
+.stat-icon--success { background: var(--success-bg); color: var(--success); }
+.stat-icon--warning { background: var(--warning-bg); color: var(--warning); }
+.stat-icon--purple   { background: var(--purple-bg);  color: var(--purple); }
+.stat-icon--danger  { background: var(--danger-bg);  color: var(--danger); }
+
+/* Avatares de "Voluntarios Destacados": fondo SÓLIDO (no el tinte pálido
+   de --*-bg, que dejaría el texto blanco del avatar ilegible). */
+.volunteer-avatar--0 { background: var(--primary); }
+.volunteer-avatar--1 { background: var(--warning); }
+.volunteer-avatar--2 { background: var(--success); }
+.volunteer-avatar--3 { background: var(--purple); }
+.volunteer-avatar--4 { background: var(--danger); }
+
+/* Subtítulo de contexto real bajo cada valor (reemplaza los porcentajes
+   inventados que había antes: aquí solo texto neutro con datos reales). */
+.stat-card .sub { color: var(--muted); }
+
+/* ── Acciones rápidas ─────────────────────────────────────── */
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.quick-action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.25rem 0.75rem;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 1rem;
+  text-decoration: none;
+  color: var(--text-primary);
+  text-align: center;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+.quick-action-btn:hover {
+  border-color: var(--primary);
+  box-shadow: 0 6px 20px rgba(30,58,138,0.12);
+  transform: translateY(-2px);
+}
+.quick-action-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--info-bg);
+  color: var(--info);
+}
+.quick-action-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* ── Alertas / pendientes ─────────────────────────────────── */
+.alerts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.alert-card {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 1rem 1.25rem;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-left: 4px solid var(--border);
+  border-radius: 0.875rem;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.alert-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
+.alert-card--warning { border-left-color: var(--warning); }
+.alert-card--info    { border-left-color: var(--info); }
+.alert-card--danger  { border-left-color: var(--danger); }
+.alert-card--success { border-left-color: var(--success); }
+.alert-card-icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.625rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.1rem;
+}
+.alert-card--warning .alert-card-icon { background: var(--warning-bg); color: var(--warning); }
+.alert-card--info    .alert-card-icon { background: var(--info-bg);    color: var(--info); }
+.alert-card--danger  .alert-card-icon { background: var(--danger-bg);  color: var(--danger); }
+.alert-card--success .alert-card-icon { background: var(--success-bg); color: var(--success); }
+.alert-card-body { min-width: 0; }
+.alert-card-value { font-size: 1.25rem; font-weight: 700; color: var(--text-primary); line-height: 1.2; }
+.alert-card-label { font-size: 0.8125rem; color: var(--muted); }
+
 /* ── Alturas fijas de canvas ──────────────────────────────── */
 /* Evita que Chart.js estire las gráficas verticalmente */
 .chart-card canvas {

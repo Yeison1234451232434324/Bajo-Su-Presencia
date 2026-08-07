@@ -51,22 +51,25 @@
 
     <!-- ══ ENCABEZADO ══════════════════════════════════════════════════════ -->
     <div class="panel-header">
-      <h2>Panel</h2>
-      <p>Bienvenido al Panel de Administración. Aquí está el resumen de la comunidad.</p>
+      <div>
+        <h2>Panel de Administración</h2>
+        <p>Resumen general de la comunidad y sus operaciones.</p>
+      </div>
+      <span class="panel-header-fecha" id="panel-fecha-hoy"></span>
     </div>
 
     <!-- Guía de sección -->
     <div class="guia-seccion">
       <p class="guia-seccion-label"><i class="bx bx-info-circle" aria-hidden="true"></i> Guía de sección</p>
-      <p class="guia-seccion-texto">Este es tu centro de operaciones. Desde aquí puedes ver el resumen general de la comunidad: métricas de miembros, eventos del mes, noticias publicadas, voluntarios activos y las gráficas de crecimiento. Úsalo para tomar decisiones rápidas.</p>
+      <p class="guia-seccion-texto">Este es tu centro de operaciones. Desde aquí ves el estado real de la comunidad: miembros, eventos, contenido publicado, voluntarios, PQR y donaciones — con acciones rápidas hacia cada módulo. Úsalo para tomar decisiones sin tener que entrar a cada sección por separado.</p>
     </div>
 
-    <!-- ══ 2.2 TARJETAS DE MÉTRICAS GENERALES ═════════════════════════════ -->
+    <!-- ══ TARJETAS DE MÉTRICAS GENERALES (datos reales de Supabase) ═════ -->
     <div class="stats-grid">
 
       <div class="stat-card">
-        <div class="stat-icon" style="background:#e8eefb;">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1E3A8A" stroke-width="2">
+        <div class="stat-icon stat-icon--info">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
             <circle cx="9" cy="7" r="4"/>
             <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
@@ -75,12 +78,12 @@
         </div>
         <div class="label">Miembros Activos</div>
         <div class="value" id="kpi-miembros">—</div>
-        <div class="sub">↑ 12 este mes</div>
+        <div class="sub" id="kpi-miembros-sub">—</div>
       </div>
 
       <div class="stat-card">
-        <div class="stat-icon" style="background:#e8eefb;">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1E3A8A" stroke-width="2">
+        <div class="stat-icon stat-icon--info">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="4" width="18" height="18" rx="2"/>
             <line x1="16" y1="2" x2="16" y2="6"/>
             <line x1="8" y1="2" x2="8" y2="6"/>
@@ -89,52 +92,118 @@
         </div>
         <div class="label">Eventos este Mes</div>
         <div class="value" id="kpi-eventos">—</div>
-        <div class="sub">↑ 2 vs mes anterior</div>
+        <div class="sub" id="kpi-eventos-sub">—</div>
       </div>
 
       <div class="stat-card">
-        <div class="stat-icon" style="background:#e8eefb;">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1E3A8A" stroke-width="2">
+        <div class="stat-icon stat-icon--success">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2z"/>
             <path d="M4 6H2v14a2 2 0 0 0 2 2z"/>
           </svg>
         </div>
         <div class="label">Noticias Publicadas</div>
         <div class="value" id="kpi-noticias">—</div>
-        <div class="sub">↑ 3 esta semana</div>
+        <div class="sub" id="kpi-noticias-sub">—</div>
       </div>
 
       <div class="stat-card">
-        <div class="stat-icon" style="background:#e8eefb;">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1E3A8A" stroke-width="2">
+        <div class="stat-icon stat-icon--warning">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
             <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
           </svg>
         </div>
         <div class="label">Oraciones Publicadas</div>
         <div class="value" id="kpi-oraciones">—</div>
-        <div class="sub">1 por día</div>
+        <div class="sub" id="kpi-oraciones-sub">—</div>
       </div>
 
       <div class="stat-card">
-        <div class="stat-icon" style="background:#e8eefb;">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1E3A8A" stroke-width="2">
+        <div class="stat-icon stat-icon--purple">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
           </svg>
         </div>
         <div class="label">Voluntarios Activos</div>
         <div class="value" id="kpi-voluntarios">—</div>
-        <div class="sub">↑ 5 este mes</div>
+        <div class="sub" id="kpi-voluntarios-sub">—</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon stat-icon--danger">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
+        <div class="label">PQR Pendientes</div>
+        <div class="value" id="kpi-pqr">—</div>
+        <div class="sub" id="kpi-pqr-sub">—</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon stat-icon--success">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+        </div>
+        <div class="label">Donaciones Registradas</div>
+        <div class="value" id="kpi-donaciones">—</div>
+        <div class="sub" id="kpi-donaciones-sub">—</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon stat-icon--warning">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 11l3 3L22 4"/>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+          </svg>
+        </div>
+        <div class="label">Actividades Pendientes</div>
+        <div class="value" id="kpi-actividades">—</div>
+        <div class="sub" id="kpi-actividades-sub">—</div>
       </div>
 
     </div>
+
+    <!-- ══ ACCIONES RÁPIDAS (enlaces a módulos reales) ═══════════════════ -->
+    <div class="guia-seccion-label-standalone" style="margin-bottom:0.75rem;font-weight:700;color:var(--text-primary);">Acciones rápidas</div>
+    <div class="quick-actions-grid">
+      <a class="quick-action-btn" href="eventos.html">
+        <span class="quick-action-icon"><i class="bx bx-calendar-plus" aria-hidden="true"></i></span>
+        <span class="quick-action-label">Crear Evento</span>
+      </a>
+      <a class="quick-action-btn" href="noticias.html">
+        <span class="quick-action-icon"><i class="bx bx-news" aria-hidden="true"></i></span>
+        <span class="quick-action-label">Publicar Noticia</span>
+      </a>
+      <a class="quick-action-btn" href="oracion.html">
+        <span class="quick-action-icon"><i class="bx bx-heart" aria-hidden="true"></i></span>
+        <span class="quick-action-label">Oración del Día</span>
+      </a>
+      <a class="quick-action-btn" href="voluntarios.html">
+        <span class="quick-action-icon"><i class="bx bx-group" aria-hidden="true"></i></span>
+        <span class="quick-action-label">Voluntarios</span>
+      </a>
+      <a class="quick-action-btn" href="pqr.html">
+        <span class="quick-action-icon"><i class="bx bx-message-detail" aria-hidden="true"></i></span>
+        <span class="quick-action-label">Revisar PQR</span>
+      </a>
+      <a class="quick-action-btn" href="donaciones.html">
+        <span class="quick-action-icon"><i class="bx bx-donate-heart" aria-hidden="true"></i></span>
+        <span class="quick-action-label">Donaciones</span>
+      </a>
+    </div>
+
+    <!-- ══ ALERTAS / PENDIENTES (solo si hay algo real que atender) ══════ -->
+    <div class="alerts-grid" id="alertsGrid" style="display:none;"></div>
 
     <!-- ══ 2.3 GRÁFICA CRECIMIENTO DE USUARIOS  +  2.4 CONTENIDO PUBLICADO ═ -->
     <div class="charts-grid">
 
       <div class="chart-card">
         <div class="chart-card-header">
-          <h3>2.3 Crecimiento de Usuarios</h3>
+          <h3>Crecimiento de Usuarios</h3>
           <span class="chart-badge chart-badge--blue">Últimos 6 meses</span>
         </div>
         <canvas id="userGrowthChart" height="200"></canvas>
@@ -142,7 +211,7 @@
 
       <div class="chart-card">
         <div class="chart-card-header">
-          <h3>2.4 Contenido Publicado</h3>
+          <h3>Contenido Publicado</h3>
           <span class="chart-badge chart-badge--green">Por tipo</span>
         </div>
         <canvas id="contentChart" height="200"></canvas>
@@ -155,7 +224,7 @@
 
       <div class="chart-card">
         <div class="chart-card-header">
-          <h3>2.5 Eventos y Actividades por Mes</h3>
+          <h3>Eventos por Mes</h3>
           <span class="chart-badge chart-badge--amber">Comparativa</span>
         </div>
         <canvas id="eventsMonthChart" height="200"></canvas>
@@ -163,7 +232,7 @@
 
       <div class="chart-card chart-card--donut">
         <div class="chart-card-header">
-          <h3>2.6 Distribución de Voluntarios</h3>
+          <h3>Distribución de Voluntarios</h3>
           <span class="chart-badge chart-badge--purple">Por área</span>
         </div>
         <div class="donut-wrap">
@@ -179,7 +248,7 @@
 
       <!-- 2.7 Actividad Reciente -->
       <div class="table-card table-card--activity">
-        <h3>2.7 Actividad Reciente</h3>
+        <h3>Actividad Reciente</h3>
         <ul class="activity-list" id="activityList">
           <li class="activity-item"><div class="activity-body"><p class="activity-text">Cargando…</p></div></li>
         </ul>
@@ -187,7 +256,7 @@
 
       <!-- 2.8 Voluntarios Destacados -->
       <div class="table-card">
-        <h3>2.8 Voluntarios Destacados</h3>
+        <h3>Voluntarios Destacados</h3>
         <div class="volunteer-list" id="volunteerList">
           <div class="volunteer-item"><div class="volunteer-info"><p class="volunteer-name">Cargando…</p></div></div>
         </div>
@@ -198,7 +267,7 @@
     <!-- ══ 2.9 PRÓXIMOS EVENTOS ════════════════════════════════════════════ -->
     <div class="table-card table-card--full">
       <div class="table-card-header">
-        <h3>2.9 Próximos Eventos</h3>
+        <h3>Próximos Eventos</h3>
         <a href="eventos.html" class="btn-ver-mas">+ Crear evento</a>
       </div>
       <div class="events-table-wrap">
@@ -213,7 +282,7 @@
             </tr>
           </thead>
           <tbody id="eventsTableBody">
-            <tr><td colspan="5">Cargando…</td></tr>
+            <tr><td colspan="6">Cargando…</td></tr>
           </tbody>
         </table>
       </div>
@@ -245,36 +314,138 @@
     if (window.BSPSession) { window.BSPSession.exigir(['Administrador']); }
   </script>
 
-  <!-- KPIs en vivo desde la BD (las gráficas de tendencia son ilustrativas) -->
+  <!-- Modelos con getEstadisticas() propio: se reutilizan en vez de reimplementar
+       el conteo de PQR/donaciones/actividades a mano (services/db.client.js →
+       Data Gateway PHP, igual que el resto del panel). -->
+  <script src="../../../services/db.client.js"></script>
+  <script src="../../../models/pqr.model.js"></script>
+  <script src="../../../models/donaciones.model.js"></script>
+  <script src="../../../models/actividades.model.js"></script>
+
+  <!-- Carga única y en paralelo de todos los datos del dashboard.
+       Antes había 3 bloques de script independientes que repetían consultas
+       a las mismas tablas (usuarios x2, eventos x3, noticias x2, oraciones x2)
+       — ahora cada tabla se lee una sola vez y el resultado se reutiliza en
+       KPIs, gráficas, actividad reciente, voluntarios destacados y próximos
+       eventos. -->
   <script>
   window.addEventListener('DOMContentLoaded', async () => {
     const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-    if (typeof sb === 'undefined') return;
-    try {
-      const { data: usuarios } = await sb.from('usuarios').select('activo, roles(nombre)');
-      const activos = (usuarios || []).filter(u => u.activo !== false);
-      set('kpi-miembros',    activos.length);
-      set('kpi-voluntarios', activos.filter(u => u.roles?.nombre === 'Voluntario').length);
+    const fmtCOP = (n) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n || 0);
 
-      const hoy = new Date();
-      const ini = new Date(hoy.getFullYear(), hoy.getMonth(), 1).toISOString().slice(0, 10);
-      const fin = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0).toISOString().slice(0, 10);
-      const ev  = await sb.from('eventos').select('id', { count:'exact', head:true }).gte('fecha', ini).lte('fecha', fin);
-      set('kpi-eventos', ev.count ?? 0);
+    // Fecha en formato YYYY-MM-DD a partir de los componentes LOCALES del
+    // Date, sin pasar por toISOString() (que convierte a UTC y por eso
+    // corría la fecha un día hacia atrás/adelante según la hora y el huso
+    // horario del navegador — bug real, no solo de noche: para Colombia
+    // (UTC-5) cualquier fecha local se desplazaba al convertir a UTC).
+    const fechaLocal = (d) => {
+      const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    };
 
-      const not = await sb.from('noticias').select('id', { count:'exact', head:true });
-      set('kpi-noticias', not.count ?? 0);
-      const ora = await sb.from('oraciones').select('id', { count:'exact', head:true });
-      set('kpi-oraciones', ora.count ?? 0);
-    } catch (_) {}
-  });
-  </script>
+    const hoyDate = new Date();
+    document.getElementById('panel-fecha-hoy').textContent =
+      hoyDate.toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
-  <!-- Actividad reciente, voluntarios destacados y próximos eventos: datos reales de Supabase -->
-  <script>
-  window.addEventListener('DOMContentLoaded', async () => {
     if (typeof sb === 'undefined') return;
 
+    // ── Una sola consulta por tabla, en paralelo ────────────────────────────
+    const [usuariosRes, eventosRes, noticiasRes, oracionesRes, volEventosRes, pqrStats, donStats, actividades] =
+      await Promise.all([
+        sb.from('usuarios').select('nombre_completo, activo, especialidad, creado_en, roles(nombre)'),
+        sb.from('eventos').select('id, titulo, fecha, hora, hora_fin, ubicacion, estado, publicado_en'),
+        sb.from('noticias').select('titulo, publicado_en'),
+        sb.from('oraciones').select('titulo, publicado_en'),
+        sb.from('voluntarios_eventos').select('usuario_id, usuarios(nombre_completo, especialidad)'),
+        (typeof PQRModel !== 'undefined' ? PQRModel.getEstadisticas() : Promise.resolve(null)).catch(() => null),
+        (typeof DonacionesModel !== 'undefined' ? DonacionesModel.getEstadisticas() : Promise.resolve(null)).catch(() => null),
+        (typeof ActividadesModel !== 'undefined' ? ActividadesModel.getAll() : Promise.resolve([])).catch(() => [])
+      ]);
+
+    const usuarios  = usuariosRes.data  || [];
+    const eventos   = eventosRes.data   || [];
+    const noticias  = noticiasRes.data  || [];
+    const oraciones = oracionesRes.data || [];
+
+    const activos     = usuarios.filter(u => u.activo !== false);
+    const voluntarios = usuarios.filter(u => u.roles?.nombre === 'Voluntario');
+    const volActivos  = activos.filter(u => u.roles?.nombre === 'Voluntario');
+
+    const iniMes    = fechaLocal(new Date(hoyDate.getFullYear(), hoyDate.getMonth(), 1));
+    const finMes    = fechaLocal(new Date(hoyDate.getFullYear(), hoyDate.getMonth() + 1, 0));
+    const iniMesAnt = fechaLocal(new Date(hoyDate.getFullYear(), hoyDate.getMonth() - 1, 1));
+    const finMesAnt = fechaLocal(new Date(hoyDate.getFullYear(), hoyDate.getMonth(), 0));
+    const eventosEsteMes = eventos.filter(e => e.fecha >= iniMes && e.fecha <= finMes);
+    const eventosMesAnt  = eventos.filter(e => e.fecha >= iniMesAnt && e.fecha <= finMesAnt);
+    const noticiasEsteMes  = noticias.filter(n => (n.publicado_en || '') >= iniMes);
+    const oracionesEsteMes = oraciones.filter(o => (o.publicado_en || '') >= iniMes);
+
+    // ── Tarjetas de métricas (todo el texto de contexto es un dato real,
+    //    no un porcentaje inventado) ──────────────────────────────────────
+    set('kpi-miembros', activos.length);
+    set('kpi-miembros-sub', `de ${usuarios.length} registrados`);
+
+    set('kpi-eventos', eventosEsteMes.length);
+    const deltaEventos = eventosEsteMes.length - eventosMesAnt.length;
+    set('kpi-eventos-sub', deltaEventos === 0
+      ? `Igual que el mes anterior (${eventosMesAnt.length})`
+      : `${deltaEventos > 0 ? '↑' : '↓'} ${Math.abs(deltaEventos)} vs. mes anterior (${eventosMesAnt.length})`);
+
+    set('kpi-noticias', noticias.length);
+    set('kpi-noticias-sub', `${noticiasEsteMes.length} publicada${noticiasEsteMes.length === 1 ? '' : 's'} este mes`);
+
+    set('kpi-oraciones', oraciones.length);
+    set('kpi-oraciones-sub', `${oracionesEsteMes.length} publicada${oracionesEsteMes.length === 1 ? '' : 's'} este mes`);
+
+    set('kpi-voluntarios', volActivos.length);
+    set('kpi-voluntarios-sub', `de ${voluntarios.length} registrados`);
+
+    if (pqrStats) {
+      set('kpi-pqr', pqrStats.pendientes);
+      set('kpi-pqr-sub', `de ${pqrStats.total} recibidas`);
+    } else { set('kpi-pqr', '—'); set('kpi-pqr-sub', 'No disponible'); }
+
+    if (donStats) {
+      set('kpi-donaciones', fmtCOP(donStats.total));
+      set('kpi-donaciones-sub', `${donStats.cantidad} registro${donStats.cantidad === 1 ? '' : 's'}`);
+    } else { set('kpi-donaciones', '—'); set('kpi-donaciones-sub', 'No disponible'); }
+
+    const actPendientes  = (actividades || []).filter(a => !a.completada).length;
+    const actCompletadas = (actividades || []).length - actPendientes;
+    set('kpi-actividades', actPendientes);
+    set('kpi-actividades-sub', `${actCompletadas} de ${(actividades || []).length} completadas`);
+
+    // ── Alertas / pendientes: solo se muestran si hay algo real que atender ─
+    const alertsGrid = document.getElementById('alertsGrid');
+    const eventosProx7 = eventos.filter(e => e.fecha >= fechaLocal(hoyDate)
+      && e.fecha <= fechaLocal(new Date(hoyDate.getTime() + 7 * 86400000)));
+    const alertas = [];
+    if (pqrStats && pqrStats.pendientes > 0) {
+      alertas.push({ tipo: 'danger', icono: 'bx-error-circle', valor: pqrStats.pendientes,
+        label: `PQR pendiente${pqrStats.pendientes === 1 ? '' : 's'} de responder`, href: 'pqr.html' });
+    }
+    if (actPendientes > 0) {
+      alertas.push({ tipo: 'warning', icono: 'bx-task', valor: actPendientes,
+        label: `Actividad${actPendientes === 1 ? '' : 'es'} pendiente${actPendientes === 1 ? '' : 's'}`, href: 'actividades.html' });
+    }
+    if (eventosProx7.length > 0) {
+      alertas.push({ tipo: 'info', icono: 'bx-calendar-event', valor: eventosProx7.length,
+        label: `Evento${eventosProx7.length === 1 ? '' : 's'} en los próximos 7 días`, href: 'eventos.html' });
+    }
+    if (alertas.length) {
+      alertsGrid.style.display = 'grid';
+      alertsGrid.innerHTML = alertas.map(a => `
+        <a class="alert-card alert-card--${a.tipo}" href="${a.href}">
+          <span class="alert-card-icon"><i class="bx ${a.icono}" aria-hidden="true"></i></span>
+          <span class="alert-card-body">
+            <span class="alert-card-value">${a.valor}</span>
+            <span class="alert-card-label">${a.label}</span>
+          </span>
+        </a>`).join('');
+    }
+
+    // ── Actividad reciente: noticias, eventos, voluntarios nuevos, PQR y
+    //    donaciones — todo con fecha real, ordenado y recortado a 6 ──────────
     const tiempoRelativo = (fechaISO) => {
       const d = new Date(fechaISO);
       const diffMs = Date.now() - d.getTime();
@@ -287,231 +458,192 @@
       if (dias === 1) return 'Ayer';
       return `Hace ${dias} días`;
     };
-
-    // ── 2.7 Actividad Reciente: últimas noticias, eventos y voluntarios ────
     const activityEl = document.getElementById('activityList');
     if (activityEl) {
-      try {
-        const [noticias, eventos, voluntarios] = await Promise.all([
-          sb.from('noticias').select('titulo, publicado_en').order('publicado_en', { ascending: false }).limit(5),
-          sb.from('eventos').select('titulo, publicado_en').order('publicado_en', { ascending: false }).limit(5),
-          sb.from('usuarios').select('nombre_completo, creado_en, roles(nombre)').order('creado_en', { ascending: false }).limit(5)
-        ]);
+      let pqrRecientes = [], donRecientes = [];
+      try { pqrRecientes = typeof PQRModel !== 'undefined' ? await PQRModel.getAll() : []; } catch (_) {}
+      try { donRecientes = typeof DonacionesModel !== 'undefined' ? await DonacionesModel.getAll() : []; } catch (_) {}
 
-        const items = [
-          ...(noticias.data || []).map(n => ({ fecha: n.publicado_en, dot: 'green', text: `Nueva noticia publicada: <strong>${esc(n.titulo || 'Sin título')}</strong>` })),
-          ...(eventos.data || []).map(e => ({ fecha: e.publicado_en, dot: 'blue', text: `Evento creado: <strong>${esc(e.titulo || 'Sin título')}</strong>` })),
-          ...(voluntarios.data || [])
-            .filter(u => u.roles?.nombre === 'Voluntario')
-            .map(u => ({ fecha: u.creado_en, dot: 'purple', text: `Nuevo voluntario registrado: <strong>${esc(u.nombre_completo || 'Sin nombre')}</strong>` }))
-        ]
-          .filter(it => it.fecha)
-          .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
-          .slice(0, 6);
+      const items = [
+        ...noticias.slice(0, 5).map(n => ({ fecha: n.publicado_en, dot: 'green', text: `Nueva noticia publicada: <strong>${esc(n.titulo || 'Sin título')}</strong>` })),
+        ...eventos.slice(0, 5).map(e => ({ fecha: e.publicado_en, dot: 'blue', text: `Evento creado: <strong>${esc(e.titulo || 'Sin título')}</strong>` })),
+        ...usuarios.filter(u => u.roles?.nombre === 'Voluntario').slice(0, 5)
+          .map(u => ({ fecha: u.creado_en, dot: 'purple', text: `Nuevo voluntario registrado: <strong>${esc(u.nombre_completo || 'Sin nombre')}</strong>` })),
+        ...pqrRecientes.slice(0, 5).map(p => ({ fecha: p.creadoEn, dot: 'amber', text: `PQR recibida: <strong>${esc(p.asunto || 'Sin asunto')}</strong>` })),
+        ...donRecientes.slice(0, 5).map(d => ({ fecha: d.creadoEn, dot: 'green', text: `Donación registrada: <strong>${esc(d.nombre || 'Donante anónimo')}</strong>` }))
+      ]
+        .filter(it => it.fecha)
+        .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+        .slice(0, 6);
 
-        activityEl.innerHTML = items.length ? items.map(it => `
-          <li class="activity-item">
-            <div class="activity-dot activity-dot--${it.dot}"></div>
-            <div class="activity-body">
-              <p class="activity-text">${it.text}</p>
-              <span class="activity-time">${tiempoRelativo(it.fecha)}</span>
-            </div>
-          </li>`).join('') : '<li class="activity-item"><div class="activity-body"><p class="activity-text">Sin actividad reciente.</p></div></li>';
-      } catch (_) {
-        activityEl.innerHTML = '<li class="activity-item"><div class="activity-body"><p class="activity-text">No se pudo cargar la actividad.</p></div></li>';
-      }
+      activityEl.innerHTML = items.length ? items.map(it => `
+        <li class="activity-item">
+          <div class="activity-dot activity-dot--${it.dot}"></div>
+          <div class="activity-body">
+            <p class="activity-text">${it.text}</p>
+            <span class="activity-time">${tiempoRelativo(it.fecha)}</span>
+          </div>
+        </li>`).join('') : '<li class="activity-item"><div class="activity-body"><p class="activity-text">Sin actividad reciente.</p></div></li>';
     }
 
-    // ── 2.8 Voluntarios Destacados: ranking por participación en eventos ───
+    // ── Voluntarios destacados: ranking por participación en eventos ───────
     const volunteerEl = document.getElementById('volunteerList');
     if (volunteerEl) {
-      try {
-        const { data } = await sb.from('voluntarios_eventos').select('usuario_id, usuarios(nombre_completo, especialidad)');
-        const conteo = {};
-        (data || []).forEach(ve => {
-          if (!ve.usuario_id) return;
-          if (!conteo[ve.usuario_id]) {
-            conteo[ve.usuario_id] = { nombre: ve.usuarios?.nombre_completo || 'Sin nombre', especialidad: ve.usuarios?.especialidad || 'Sin área', total: 0 };
-          }
-          conteo[ve.usuario_id].total++;
-        });
-        const top = Object.values(conteo).sort((a, b) => b.total - a.total).slice(0, 5);
-        const gradientes = ['linear-gradient(135deg,#1E3A8A,#2D4FAF)', 'linear-gradient(135deg,#d97706,#F5C215)', 'linear-gradient(135deg,#059669,#10b981)', 'linear-gradient(135deg,#7c3aed,#a78bfa)', 'linear-gradient(135deg,#db2777,#f472b6)'];
-        const badgeClases = ['badge-green', 'badge-amber', 'badge-green', 'badge-blue', 'badge-blue'];
-        const iniciales = (n) => n.trim().split(/\s+/).map(p => p[0]).slice(0, 2).join('').toUpperCase() || '—';
+      const conteo = {};
+      (volEventosRes.data || []).forEach(ve => {
+        if (!ve.usuario_id) return;
+        if (!conteo[ve.usuario_id]) {
+          conteo[ve.usuario_id] = { nombre: ve.usuarios?.nombre_completo || 'Sin nombre', especialidad: ve.usuarios?.especialidad || 'Sin área', total: 0 };
+        }
+        conteo[ve.usuario_id].total++;
+      });
+      const top = Object.values(conteo).sort((a, b) => b.total - a.total).slice(0, 5);
+      const avatarClases = ['volunteer-avatar--0', 'volunteer-avatar--1', 'volunteer-avatar--2', 'volunteer-avatar--3', 'volunteer-avatar--4'];
+      const badgeClases  = ['badge-blue', 'badge-amber', 'badge-green', 'badge-purple', 'badge-red'];
+      const iniciales = (n) => n.trim().split(/\s+/).map(p => p[0]).slice(0, 2).join('').toUpperCase() || '—';
 
-        volunteerEl.innerHTML = top.length ? top.map((v, i) => `
-          <div class="volunteer-item">
-            <div class="volunteer-avatar" style="background:${gradientes[i % gradientes.length]};">${iniciales(v.nombre)}</div>
-            <div class="volunteer-info">
-              <p class="volunteer-name">${v.nombre}</p>
-              <p class="volunteer-area">Área: ${v.especialidad}</p>
-            </div>
-            <div class="volunteer-stats">
-              <span class="badge ${badgeClases[i % badgeClases.length]}">${v.total} evento${v.total === 1 ? '' : 's'}</span>
-            </div>
-          </div>`).join('') : '<div class="volunteer-item"><div class="volunteer-info"><p class="volunteer-name">Aún no hay voluntarios asignados a eventos.</p></div></div>';
-      } catch (_) {
-        volunteerEl.innerHTML = '<div class="volunteer-item"><div class="volunteer-info"><p class="volunteer-name">No se pudo cargar la lista.</p></div></div>';
-      }
+      volunteerEl.innerHTML = top.length ? top.map((v, i) => `
+        <div class="volunteer-item">
+          <div class="volunteer-avatar ${avatarClases[i % avatarClases.length]}">${esc(iniciales(v.nombre))}</div>
+          <div class="volunteer-info">
+            <p class="volunteer-name">${esc(v.nombre)}</p>
+            <p class="volunteer-area">Área: ${esc(v.especialidad)}</p>
+          </div>
+          <div class="volunteer-stats">
+            <span class="badge ${badgeClases[i % badgeClases.length]}">${v.total} evento${v.total === 1 ? '' : 's'}</span>
+          </div>
+        </div>`).join('') : '<div class="volunteer-item"><div class="volunteer-info"><p class="volunteer-name">Aún no hay voluntarios asignados a eventos.</p></div></div>';
     }
 
-    // ── 2.9 Próximos Eventos: eventos futuros ordenados por fecha ──────────
+    // ── Próximos eventos: se reutiliza el mismo array `eventos` ya cargado ──
     const eventsBody = document.getElementById('eventsTableBody');
     if (eventsBody) {
-      try {
-        const hoyISO = new Date().toISOString().slice(0, 10);
-        const { data } = await sb.from('eventos')
-          .select('id, titulo, fecha, hora, hora_fin, ubicacion, cupos_disponibles, estado')
-          .gte('fecha', hoyISO)
-          .order('fecha', { ascending: true })
-          .limit(5);
+      const hoyISO = fechaLocal(hoyDate);
+      const proximos = eventos.filter(e => e.fecha >= hoyISO).sort((a, b) => a.fecha < b.fecha ? -1 : 1).slice(0, 5);
 
-        const fechaFmt = (iso) => {
-          if (!iso) return '—';
-          const d = new Date(iso + 'T00:00:00');
-          return d.toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
-        };
-        const horaFmt = (h) => h ? String(h).slice(0, 5) : '—';
-        const badgeEstado = (estado) => {
-          const mapa = { 'Publicado': 'badge-blue', 'En ejecución': 'badge-amber', 'Finalizado': 'badge-green', 'Cancelado': 'badge-amber' };
-          return mapa[estado] || 'badge-blue';
-        };
+      const fechaFmt = (iso) => {
+        if (!iso) return '—';
+        const d = new Date(iso + 'T00:00:00');
+        return d.toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+      };
+      const horaFmt = (h) => h ? String(h).slice(0, 5) : '—';
+      const badgeEstado = (estado) => {
+        const mapa = { 'Publicado': 'badge-blue', 'En ejecución': 'badge-amber', 'Finalizado': 'badge-green', 'Cancelado': 'badge-amber' };
+        return mapa[estado] || 'badge-blue';
+      };
 
-        eventsBody.innerHTML = (data && data.length) ? data.map(e => `
-          <tr>
-            <td><strong>${esc(e.titulo || 'Sin título')}</strong></td>
-            <td>${fechaFmt(e.fecha)}</td>
-            <td>${horaFmt(e.hora)}</td>
-            <td>${esc(e.ubicacion || '—')}</td>
-            <td><span class="badge ${badgeEstado(e.estado)}">${e.estado || 'Publicado'}</span></td>
-          </tr>`).join('') : '<tr><td colspan="5">No hay próximos eventos.</td></tr>';
-      } catch (_) {
-        eventsBody.innerHTML = '<tr><td colspan="6">No se pudo cargar la tabla.</td></tr>';
-      }
+      eventsBody.innerHTML = proximos.length ? proximos.map(e => `
+        <tr>
+          <td><strong>${esc(e.titulo || 'Sin título')}</strong></td>
+          <td>${fechaFmt(e.fecha)}</td>
+          <td>${horaFmt(e.hora)}</td>
+          <td>${esc(e.ubicacion || '—')}</td>
+          <td><span class="badge ${badgeEstado(e.estado)}">${e.estado || 'Publicado'}</span></td>
+        </tr>`).join('') : '<tr><td colspan="6">No hay próximos eventos.</td></tr>';
+    }
+
+    // ── Gráficas (Chart.js) ─────────────────────────────────────────────────
+    // Los colores se leen de las variables CSS reales del tema activo (claro/
+    // oscuro), no de hex fijos: Chart.js pinta en <canvas>, así que no puede
+    // heredar var(--...) solo — hay que resolverlas con getComputedStyle.
+    const cs = getComputedStyle(document.documentElement);
+    const token = (name, fallback) => (cs.getPropertyValue(name) || '').trim() || fallback;
+    const cPrimary   = token('--primary', '#1E3A8A');
+    const cAccent    = token('--accent', '#F5C215');
+    const cSuccess   = token('--success', '#059669');
+    const cInfo      = token('--info', '#2563eb');
+    const cWarning   = token('--warning', '#d97706');
+    const cPurple    = token('--purple', '#7c3aed');
+    const cDanger    = token('--danger', '#dc2626');
+    const cSurface   = token('--surface', '#ffffff');
+    const gridColor  = token('--border-light', '#e5e1d8');
+    const fontColor  = token('--muted', '#6b7280');
+    const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+    const months = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(hoyDate.getFullYear(), hoyDate.getMonth() - i, 1);
+      months.push({ y: d.getFullYear(), m: d.getMonth(),
+        key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`, label: meses[d.getMonth()] });
+    }
+    const labels = months.map(x => x.label);
+
+    const _fechaUsuario = (u) => new Date(u.creado_en || hoyDate);
+    const countByMonth = (rows, field) =>
+      months.map(mo => rows.filter(r => (r[field] || '').toString().startsWith(mo.key)).length);
+
+    const cumMiembros = months.map(mo => {
+      const fin = new Date(mo.y, mo.m + 1, 0, 23, 59, 59);
+      return usuarios.filter(u => _fechaUsuario(u) <= fin).length;
+    });
+    const cumVols = months.map(mo => {
+      const fin = new Date(mo.y, mo.m + 1, 0, 23, 59, 59);
+      return usuarios.filter(u => u.roles?.nombre === 'Voluntario' && _fechaUsuario(u) <= fin).length;
+    });
+    const noticiasMes  = countByMonth(noticias, 'publicado_en');
+    const oracionesMes = countByMonth(oraciones, 'publicado_en');
+    const eventosMes   = countByMonth(eventos, 'fecha');
+
+    const distMap = {};
+    voluntarios.forEach(u => {
+      const k = (u.especialidad && u.especialidad.trim()) ? u.especialidad : 'Sin especialidad';
+      distMap[k] = (distMap[k] || 0) + 1;
+    });
+    let volLabels = Object.keys(distMap);
+    let volData   = volLabels.map(k => distMap[k]);
+    if (volLabels.length === 0) { volLabels = ['Sin voluntarios']; volData = [0]; }
+    const palette = [cPrimary, cAccent, cSuccess, cPurple, cDanger, cInfo, cWarning];
+    const volColors = volLabels.map((_, i) => palette[i % palette.length]);
+
+    Chart.defaults.font.family = getComputedStyle(document.body).fontFamily || 'inherit';
+
+    new Chart(document.getElementById('userGrowthChart').getContext('2d'), {
+      type: 'line',
+      data: { labels, datasets: [
+        { label: 'Miembros', data: cumMiembros, fill: true, backgroundColor: cPrimary + '1a', borderColor: cPrimary, tension: 0.4, pointBackgroundColor: cPrimary, pointRadius: 5, pointHoverRadius: 7 },
+        { label: 'Voluntarios', data: cumVols, fill: true, backgroundColor: cAccent + '1a', borderColor: cAccent, tension: 0.4, pointBackgroundColor: cAccent, pointRadius: 5, pointHoverRadius: 7 }
+      ]},
+      options: { responsive: true, plugins: { legend: { position: 'top', labels: { color: fontColor, font: { size: 12 } } } },
+        scales: { y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: fontColor } }, x: { grid: { display: false }, ticks: { color: fontColor } } } }
+    });
+
+    new Chart(document.getElementById('contentChart').getContext('2d'), {
+      type: 'bar',
+      data: { labels, datasets: [
+        { label: 'Noticias', data: noticiasMes, backgroundColor: cPrimary, borderRadius: 6 },
+        { label: 'Oraciones', data: oracionesMes, backgroundColor: cAccent, borderRadius: 6 }
+      ]},
+      options: { responsive: true, plugins: { legend: { position: 'top', labels: { color: fontColor, font: { size: 12 } } } },
+        scales: { y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: fontColor } }, x: { grid: { display: false }, ticks: { color: fontColor } } } }
+    });
+
+    new Chart(document.getElementById('eventsMonthChart').getContext('2d'), {
+      type: 'bar',
+      data: { labels, datasets: [
+        { label: 'Eventos', data: eventosMes, backgroundColor: cPrimary, borderRadius: 6 }
+      ]},
+      options: { responsive: true, maintainAspectRatio: true, aspectRatio: 2,
+        plugins: { legend: { position: 'top', labels: { color: fontColor, font: { size: 12 } } } },
+        scales: { y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: fontColor } }, x: { grid: { display: false }, ticks: { color: fontColor } } } }
+    });
+
+    new Chart(document.getElementById('volunteersChart').getContext('2d'), {
+      type: 'doughnut',
+      data: { labels: volLabels, datasets: [{ data: volData, backgroundColor: volColors, borderWidth: 2, borderColor: cSurface, hoverOffset: 8 }] },
+      options: { responsive: true, maintainAspectRatio: true, aspectRatio: 1, cutout: '65%', plugins: { legend: { display: false } } }
+    });
+
+    const legendEl = document.getElementById('volunteersLegend');
+    if (legendEl) {
+      legendEl.innerHTML = volLabels.map((label, i) => `
+        <div class="donut-legend-item">
+          <span class="donut-legend-dot" style="background:${volColors[i]}"></span>
+          <span class="donut-legend-label">${esc(label)}</span>
+          <span class="donut-legend-val">${volData[i]}</span>
+        </div>`).join('');
     }
   });
   </script>
-
-<!--
-  Gráficas del dashboard (Chart.js)
-  Se inicializan cuando el DOM está listo (DOMContentLoaded).
-  Cada gráfica lee datos reales de Supabase.
--->
-<script>
-window.addEventListener('DOMContentLoaded', async () => {
-
-  // Colores de ejes/rejilla adaptables al tema (Chart.js pinta en canvas, no CSS).
-  const _oscuro   = document.documentElement.getAttribute('data-theme') === 'dark';
-  const gridColor = _oscuro ? 'rgba(148,163,184,0.18)' : '#f0ece0';
-  const fontColor = _oscuro ? '#9aa4b2' : '#6b7280';
-  const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-
-  // Últimos 6 meses
-  const now = new Date();
-  const months = [];
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    months.push({ y: d.getFullYear(), m: d.getMonth(),
-      key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`, label: meses[d.getMonth()] });
-  }
-  const labels = months.map(x => x.label);
-
-  // ── Traer datos reales de Supabase ───────────────────────────────────────
-  let usuarios = [], noticias = [], oraciones = [], eventos = [];
-  if (typeof sb !== 'undefined') {
-    try { usuarios  = (await sb.from('usuarios').select('especialidad, creado_en, roles(nombre)')).data || []; } catch (_) {}
-    try { noticias  = (await sb.from('noticias').select('publicado_en')).data || []; } catch (_) {}
-    try { oraciones = (await sb.from('oraciones').select('publicado_en')).data || []; } catch (_) {}
-    try { eventos   = (await sb.from('eventos').select('fecha')).data || []; } catch (_) {}
-  }
-
-  const _fechaUsuario = (u) => new Date(u.creado_en || now);
-  const countByMonth = (rows, field) =>
-    months.map(mo => rows.filter(r => (r[field] || '').toString().startsWith(mo.key)).length);
-
-  // Crecimiento de usuarios (acumulado por fin de mes)
-  const cumMiembros = months.map(mo => {
-    const fin = new Date(mo.y, mo.m + 1, 0, 23, 59, 59);
-    return usuarios.filter(u => _fechaUsuario(u) <= fin).length;
-  });
-  const cumVols = months.map(mo => {
-    const fin = new Date(mo.y, mo.m + 1, 0, 23, 59, 59);
-    return usuarios.filter(u => u.roles && u.roles.nombre === 'Voluntario' && _fechaUsuario(u) <= fin).length;
-  });
-
-  const noticiasMes  = countByMonth(noticias, 'publicado_en');
-  const oracionesMes = countByMonth(oraciones, 'publicado_en');
-  const eventosMes   = countByMonth(eventos, 'fecha');
-
-  // Distribución de voluntarios por especialidad
-  const vols = usuarios.filter(u => u.roles && u.roles.nombre === 'Voluntario');
-  const distMap = {};
-  vols.forEach(u => {
-    const k = (u.especialidad && u.especialidad.trim()) ? u.especialidad : 'Sin especialidad';
-    distMap[k] = (distMap[k] || 0) + 1;
-  });
-  let volLabels = Object.keys(distMap);
-  let volData   = volLabels.map(k => distMap[k]);
-  if (volLabels.length === 0) { volLabels = ['Sin voluntarios']; volData = [0]; }
-  const palette = ['#1E3A8A','#d97706','#059669','#7c3aed','#db2777','#F5C215','#0891b2','#ef4444'];
-  const volColors = volLabels.map((_, i) => palette[i % palette.length]);
-
-  // ── 2.3 Crecimiento de Usuarios ──────────────────────────────────────────
-  new Chart(document.getElementById('userGrowthChart').getContext('2d'), {
-    type: 'line',
-    data: { labels, datasets: [
-      { label: 'Miembros', data: cumMiembros, fill: true, backgroundColor: 'rgba(30,58,138,0.10)', borderColor: '#1E3A8A', tension: 0.4, pointBackgroundColor: '#1E3A8A', pointRadius: 5, pointHoverRadius: 7 },
-      { label: 'Voluntarios', data: cumVols, fill: true, backgroundColor: 'rgba(245,194,21,0.10)', borderColor: '#F5C215', tension: 0.4, pointBackgroundColor: '#F5C215', pointRadius: 5, pointHoverRadius: 7 }
-    ]},
-    options: { responsive: true, plugins: { legend: { position: 'top', labels: { color: fontColor, font: { size: 12 } } } },
-      scales: { y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: fontColor } }, x: { grid: { display: false }, ticks: { color: fontColor } } } }
-  });
-
-  // ── 2.4 Contenido Publicado ───────────────────────────────────────────────
-  new Chart(document.getElementById('contentChart').getContext('2d'), {
-    type: 'bar',
-    data: { labels, datasets: [
-      { label: 'Noticias', data: noticiasMes, backgroundColor: '#1E3A8A', borderRadius: 6 },
-      { label: 'Oraciones', data: oracionesMes, backgroundColor: '#F5C215', borderRadius: 6 }
-    ]},
-    options: { responsive: true, plugins: { legend: { position: 'top', labels: { color: fontColor, font: { size: 12 } } } },
-      scales: { y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: fontColor } }, x: { grid: { display: false }, ticks: { color: fontColor } } } }
-  });
-
-  // ── 2.5 Eventos por Mes ──────────────────────────────────────────────────
-  new Chart(document.getElementById('eventsMonthChart').getContext('2d'), {
-    type: 'bar',
-    data: { labels, datasets: [
-      { label: 'Eventos', data: eventosMes, backgroundColor: '#1E3A8A', borderRadius: 6 }
-    ]},
-    options: { responsive: true, maintainAspectRatio: true, aspectRatio: 2,
-      plugins: { legend: { position: 'top', labels: { color: fontColor, font: { size: 12 } } } },
-      scales: { y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: fontColor } }, x: { grid: { display: false }, ticks: { color: fontColor } } } }
-  });
-
-  // ── 2.6 Distribución de Voluntarios (por especialidad) ───────────────────
-  new Chart(document.getElementById('volunteersChart').getContext('2d'), {
-    type: 'doughnut',
-    data: { labels: volLabels, datasets: [{ data: volData, backgroundColor: volColors, borderWidth: 2, borderColor: '#faf8f3', hoverOffset: 8 }] },
-    options: { responsive: true, maintainAspectRatio: true, aspectRatio: 1, cutout: '65%', plugins: { legend: { display: false } } }
-  });
-
-  const legendEl = document.getElementById('volunteersLegend');
-  if (legendEl) {
-    legendEl.innerHTML = '';
-    volLabels.forEach((label, i) => {
-      legendEl.innerHTML += `
-        <div class="donut-legend-item">
-          <span class="donut-legend-dot" style="background:${volColors[i]}"></span>
-          <span class="donut-legend-label">${label}</span>
-          <span class="donut-legend-val">${volData[i]}</span>
-        </div>`;
-    });
-  }
-
-});
-</script>
 
   <script src="../../../controllers/ayuda.controller.js"></script>
 </body>
