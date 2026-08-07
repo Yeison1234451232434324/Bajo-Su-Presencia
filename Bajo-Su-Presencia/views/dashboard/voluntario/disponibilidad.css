@@ -104,7 +104,7 @@
   margin-bottom: 0.2rem;
 }
 .disp-evento-meta i { font-size: 0.95rem; color: var(--primary); }
-.disp-evento-meta strong { color: #1a1a2e; }
+.disp-evento-meta strong { color: var(--text-primary); }
 
 .disp-card-estado { flex-shrink: 0; }
 

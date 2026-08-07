@@ -61,8 +61,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (a.completada) r.completadas++;
     }
 
-    for (const ev of eventos) {
-      const resumen = resumenPorEvento[ev.id] || { total: 0, completadas: 0, pendientes: 0 };
+    function _crearCardEvento(ev) {
+      const resumen = resumenPorEvento[ev.id] || { total: 0, completadas: 0 };
       const volDisp = ev.voluntariosNecesarios || 0;
       const volInscritos = (ev.especialistas || []).length;   // inscritos en voluntarios_eventos
       const fechaFmt = _formatFecha(ev.fecha);
@@ -80,7 +80,47 @@ document.addEventListener('DOMContentLoaded', async () => {
           <p class="act-ev-meta act-ev-inscritos"><i class="bx bx-user-check" aria-hidden="true"></i> ${volInscritos} voluntario(s) inscrito(s)</p>
         </div>`;
       card.addEventListener('click', () => seleccionarEvento(ev));
-      gridEventos.appendChild(card);
+      return card;
+    }
+
+    function _crearSubgrupo(titulo, iconoClase, modificador, lista) {
+      const wrap = document.createElement('div');
+      wrap.className = 'act-subgrupo';
+
+      const label = document.createElement('p');
+      label.className = `act-subgrupo-titulo${modificador ? ` ${modificador}` : ''}`;
+      label.innerHTML = `<i class="bx ${iconoClase}" aria-hidden="true"></i> ${titulo} (${lista.length})`;
+      wrap.appendChild(label);
+
+      const grid = document.createElement('div');
+      grid.className = 'act-grid-eventos';
+      lista.forEach(ev => grid.appendChild(_crearCardEvento(ev)));
+      wrap.appendChild(grid);
+
+      return wrap;
+    }
+
+    // Tres grupos: sin ninguna actividad asignada, con actividades pero
+    // aún no todas completadas, y con el 100% de sus actividades completadas.
+    const sinAsignar  = [];
+    const pendientes  = [];
+    const completados = [];
+    for (const ev of eventos) {
+      const r = resumenPorEvento[ev.id] || { total: 0, completadas: 0 };
+      if (r.total === 0) sinAsignar.push(ev);
+      else if (r.completadas < r.total) pendientes.push(ev);
+      else completados.push(ev);
+    }
+
+    gridEventos.classList.add('act-grid-eventos--agrupado');
+    if (sinAsignar.length) {
+      gridEventos.appendChild(_crearSubgrupo('Sin actividades asignadas', 'bx-error-circle', 'act-subgrupo-titulo--alerta', sinAsignar));
+    }
+    if (pendientes.length) {
+      gridEventos.appendChild(_crearSubgrupo('Actividades pendientes', 'bx-time-five', null, pendientes));
+    }
+    if (completados.length) {
+      gridEventos.appendChild(_crearSubgrupo('Actividades completadas', 'bx-check-circle', 'act-subgrupo-titulo--ok', completados));
     }
   }
 

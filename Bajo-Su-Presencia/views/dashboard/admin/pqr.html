@@ -203,6 +203,12 @@
       <!-- Error del modal -->
       <div class="pqr-modal-error" id="pqr-modal-error" role="alert"></div>
 
+      <!-- Nota: PQR ya resuelta, de solo lectura -->
+      <div class="pqr-modal-lock-note" id="pqr-modal-resuelto-nota" style="display:none;">
+        <i class="bx bx-lock-alt" aria-hidden="true"></i>
+        Esta PQR ya fue marcada como <b>Resuelto</b>: no se puede responder ni cambiar su estado. Solo puede eliminarse.
+      </div>
+
       <div class="pqr-form-respuesta">
 
         <div>
@@ -242,8 +248,8 @@
       Cancelar
     </button>
     <button type="button" class="pqr-btn-guardar-respuesta" id="pqr-btn-guardar-respuesta">
-      <i class="bx bx-save" aria-hidden="true"></i>
-      Guardar respuesta
+      <i class="bx bx-send" aria-hidden="true"></i>
+      Enviar mensaje
     </button>
   </div>
 

@@ -293,6 +293,10 @@ function _bspInjectStyles() {
       --bsp-bg:            var(--bg,            #faf8f3);
       --bsp-border:        var(--border,        #e5e1d8);
       --bsp-muted:         var(--muted,         #6b7280);
+      --bsp-surface:       var(--surface,       #fff);
+      --bsp-surface-hover: var(--surface-hover, #f0f4ff);
+      --bsp-text:          var(--text-primary,  #1a1a2e);
+      --bsp-text-secondary: var(--text-secondary, #374151);
       --bsp-font-title:    var(--font-title,    'Cormorant Garamond', serif);
       --bsp-font-text:     var(--font-text,     'Crimson Text', serif);
       --bsp-shadow:        0 8px 32px rgba(15,30,90,0.18);
@@ -403,8 +407,8 @@ function _bspInjectStyles() {
     .bsp-search-input {
       width: 100%; padding: 0.65rem 0.9rem 0.65rem 2.4rem;
       border: 2px solid var(--bsp-border); border-radius: 2rem;
-      background: #fff; font-family: var(--bsp-font-text); font-size: 1rem;
-      color: #1a1a2e; transition: border-color 0.2s; outline: none;
+      background: var(--bsp-surface); font-family: var(--bsp-font-text); font-size: 1rem;
+      color: var(--bsp-text); transition: border-color 0.2s; outline: none;
     }
     .bsp-search-input:focus { border-color: var(--bsp-primary-light); }
     .bsp-search-input::placeholder { color: var(--bsp-muted); }
@@ -434,7 +438,7 @@ function _bspInjectStyles() {
     .bsp-accordion { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.4rem; }
     .bsp-acc-item {
       border: 1.5px solid var(--bsp-border); border-radius: 0.65rem;
-      background: #fff; overflow: hidden; transition: border-color 0.2s;
+      background: var(--bsp-surface); overflow: hidden; transition: border-color 0.2s;
     }
     .bsp-acc-item:hover { border-color: #c7d2e8; }
     .bsp-acc-item.is-open { border-color: var(--bsp-primary-light); }
@@ -443,7 +447,7 @@ function _bspInjectStyles() {
       text-align: left; cursor: pointer;
       display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
       font-family: var(--bsp-font-text); font-size: 0.97rem; font-weight: 600;
-      color: #1a1a2e; line-height: 1.35;
+      color: var(--bsp-text); line-height: 1.35;
     }
     .bsp-acc-trigger:focus-visible { outline: 2px solid var(--bsp-primary-light); outline-offset: -2px; }
     .bsp-acc-chevron { flex-shrink: 0; font-size: 1.1rem; color: var(--bsp-muted); transition: transform 0.25s ease; }
@@ -452,7 +456,7 @@ function _bspInjectStyles() {
     .bsp-acc-item.is-open .bsp-acc-panel { grid-template-rows: 1fr; }
     .bsp-acc-inner { overflow: hidden; padding: 0 1rem; }
     .bsp-acc-item.is-open .bsp-acc-inner { padding-bottom: 0.85rem; }
-    .bsp-acc-inner p { font-family: var(--bsp-font-text); font-size: 0.95rem; color: #374151; line-height: 1.6; margin: 0; }
+    .bsp-acc-inner p { font-family: var(--bsp-font-text); font-size: 0.95rem; color: var(--bsp-text-secondary); line-height: 1.6; margin: 0; }
 
     /* Sin resultados */
     .bsp-no-results {
@@ -484,10 +488,10 @@ function _bspInjectStyles() {
       display: flex; align-items: center; justify-content: center; gap: 0.4rem;
       padding: 0.55rem 1rem; border: 1.5px solid var(--bsp-border); border-radius: 0.65rem;
       font-family: var(--bsp-font-text); font-size: 0.95rem; font-weight: 600;
-      color: var(--bsp-primary); text-decoration: none; background: #fff;
+      color: var(--bsp-primary); text-decoration: none; background: var(--bsp-surface);
       transition: background 0.2s, border-color 0.2s;
     }
-    .bsp-helpcenter-link:hover { background: #f0f4ff; border-color: var(--bsp-primary-light); }
+    .bsp-helpcenter-link:hover { background: var(--bsp-surface-hover); border-color: var(--bsp-primary-light); }
 
     /* Formulario */
     .bsp-form-header {
@@ -500,7 +504,7 @@ function _bspInjectStyles() {
       font-weight: 600; color: var(--bsp-primary); cursor: pointer;
       display: flex; align-items: center; gap: 0.3rem; transition: background 0.2s; flex-shrink: 0;
     }
-    .bsp-back-btn:hover { background: #f0f4ff; }
+    .bsp-back-btn:hover { background: var(--bsp-surface-hover); }
     .bsp-back-btn:focus-visible { outline: 3px solid var(--bsp-primary-light); outline-offset: 2px; }
     .bsp-form-title {
       font-family: var(--bsp-font-title); font-size: 1.15rem; font-weight: 700;
@@ -511,15 +515,15 @@ function _bspInjectStyles() {
       display: flex; flex-direction: column; gap: 1rem; overflow-y: auto;
     }
     .bsp-field { display: flex; flex-direction: column; gap: 0.35rem; }
-    .bsp-field label { font-family: var(--bsp-font-text); font-size: 0.9rem; font-weight: 600; color: #374151; }
+    .bsp-field label { font-family: var(--bsp-font-text); font-size: 0.9rem; font-weight: 600; color: var(--bsp-text-secondary); }
     .bsp-field label .bsp-required { color: #ef4444; margin-left: 2px; }
     .bsp-field input,
     .bsp-field select,
     .bsp-field textarea {
       width: 100%; padding: 0.6rem 0.85rem;
       border: 2px solid var(--bsp-border); border-radius: 0.65rem;
-      background: #fff; font-family: var(--bsp-font-text); font-size: 1rem;
-      color: #1a1a2e; transition: border-color 0.2s; outline: none;
+      background: var(--bsp-surface); font-family: var(--bsp-font-text); font-size: 1rem;
+      color: var(--bsp-text); transition: border-color 0.2s; outline: none;
     }
     .bsp-field input:focus,
     .bsp-field select:focus,
@@ -567,7 +571,7 @@ function _bspInjectStyles() {
       font-family: var(--bsp-font-text); font-size: 0.95rem; font-weight: 600;
       color: var(--bsp-primary); cursor: pointer; transition: background 0.2s;
     }
-    .bsp-success-back-btn:hover { background: #e8edf8; }
+    .bsp-success-back-btn:hover { background: var(--bsp-surface-hover); }
 
     /* Responsive: móvil */
     @media (max-width: 480px) {

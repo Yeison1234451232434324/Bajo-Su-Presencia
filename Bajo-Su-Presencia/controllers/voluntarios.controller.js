@@ -23,10 +23,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!sesion) return;
 
   // ── Referencias DOM principales ──────────────────────────────────────────
-  const selectEvento     = document.getElementById('select-evento');
-  const eventoInfo       = document.getElementById('evento-info');
-  const sinEvento        = document.getElementById('sin-evento');
-  const tablaWrap        = document.getElementById('tabla-wrap');
+  const vistaEventosVol   = document.getElementById('vista-eventos-vol');
+  const vistaCalificarVol = document.getElementById('vista-calificar-vol');
+  const gridEventosVol    = document.getElementById('grid-eventos-vol');
+  const eventoInfo        = document.getElementById('evento-info');
+  const tablaWrap         = document.getElementById('tabla-wrap');
 
   // Modal de calificación
   const modal            = document.getElementById('modal-calif');
@@ -57,36 +58,102 @@ document.addEventListener('DOMContentLoaded', async () => {
   let califEstrellas    = 0;    // Estrellas seleccionadas en el modal
 
   // ════════════════════════════════════════════════════════════════
-  // 1. SELECTOR DE EVENTO
+  // 1. GRID DE EVENTOS (mismo patrón que "Subir Reporte" y "Actividades":
+  //    tarjetas agrupadas por si ya se calificó a todos los voluntarios)
   // ════════════════════════════════════════════════════════════════
 
-  /** Llena el <select> con los eventos disponibles */
-  async function cargarSelectEventos() {
+  async function renderGridEventosVol() {
     const eventos = await VoluntariosModel.getEventos();
-    selectEvento.innerHTML = '<option value="">— Selecciona un evento —</option>';
-    eventos.forEach(ev => {
-      const opt = document.createElement('option');
-      opt.value       = ev.id;
-      opt.textContent = `${ev.nombre} (${ev.fecha})`;
-      selectEvento.appendChild(opt);
-    });
-  }
 
-  /** Al cambiar el evento seleccionado, actualiza la tabla */
-  selectEvento.addEventListener('change', () => {
-    const id = selectEvento.value;
-    if (!id) {
-      eventoActualId = null;
-      sinEvento.style.display  = 'flex';
-      tablaWrap.style.display  = 'none';
-      eventoInfo.style.display = 'none';
-      ocultarPaneles();
+    gridEventosVol.innerHTML = '';
+    if (!eventos.length) {
+      gridEventosVol.innerHTML = `<div class="act-empty"><i class="bx bx-calendar-x" aria-hidden="true"></i><p>No hay eventos publicados aún.</p></div>`;
       return;
     }
-    eventoActualId = id;
-    renderTablaVoluntarios();
+
+    let calificaciones = [];
+    try { calificaciones = await VoluntariosModel.getCalificaciones(); }
+    catch (e) { window.BSPLog?.error('voluntarios.calificaciones', e); }
+    const califPorEvento = {};
+    calificaciones.forEach(c => {
+      const s = califPorEvento[c.eventoId] || (califPorEvento[c.eventoId] = new Set());
+      s.add(c.voluntarioId);
+    });
+
+    function _crearCardEvento(ev) {
+      const calificados = califPorEvento[ev.id] ? califPorEvento[ev.id].size : 0;
+      const total        = ev.voluntarios.length;
+      const fechaFmt      = _formatFecha(ev.fecha);
+
+      const card = document.createElement('div');
+      card.className = 'vol-evento-card';
+      card.innerHTML = `
+        <div class="act-ev-icon"><i class="bx bx-calendar-event" aria-hidden="true"></i></div>
+        <div class="act-ev-body">
+          <h3 class="act-ev-titulo">${esc(ev.nombre)}</h3>
+          <p class="act-ev-meta"><i class="bx bx-calendar" aria-hidden="true"></i> ${fechaFmt}</p>
+          ${ev.lugar ? `<p class="act-ev-meta"><i class="bx bx-map-pin" style="color:#f87171;" aria-hidden="true"></i> ${esc(ev.lugar)}</p>` : ''}
+          <p class="act-ev-meta"><i class="bx bx-group" aria-hidden="true"></i> ${total} voluntario(s)</p>
+          <p class="act-ev-meta act-ev-inscritos"><i class="bx bx-star" aria-hidden="true"></i> ${calificados} de ${total} calificado(s)</p>
+        </div>`;
+      card.addEventListener('click', () => seleccionarEventoVol(ev));
+      return card;
+    }
+
+    function _crearSubgrupo(titulo, iconoClase, modificador, lista) {
+      const wrap = document.createElement('div');
+      wrap.className = 'vol-subgrupo';
+
+      const label = document.createElement('p');
+      label.className = `act-subgrupo-titulo${modificador ? ` ${modificador}` : ''}`;
+      label.innerHTML = `<i class="bx ${iconoClase}" aria-hidden="true"></i> ${titulo} (${lista.length})`;
+      wrap.appendChild(label);
+
+      const grid = document.createElement('div');
+      grid.className = 'vol-grid-eventos';
+      lista.forEach(ev => grid.appendChild(_crearCardEvento(ev)));
+      wrap.appendChild(grid);
+
+      return wrap;
+    }
+
+    // Dos grupos: eventos con voluntarios aún sin calificar, y eventos donde
+    // ya se calificó a todos (o que no tienen voluntarios asignados, así que
+    // no hay nada pendiente por calificar).
+    const pendientes  = [];
+    const completados = [];
+    for (const ev of eventos) {
+      const calificados = califPorEvento[ev.id] ? califPorEvento[ev.id].size : 0;
+      if (ev.voluntarios.length > 0 && calificados < ev.voluntarios.length) pendientes.push(ev);
+      else completados.push(ev);
+    }
+
+    gridEventosVol.classList.add('vol-grid-eventos--agrupado');
+    if (pendientes.length) {
+      gridEventosVol.appendChild(_crearSubgrupo('Con voluntarios sin calificar', 'bx-time-five', null, pendientes));
+    }
+    if (completados.length) {
+      gridEventosVol.appendChild(_crearSubgrupo('Todos calificados', 'bx-check-circle', 'act-subgrupo-titulo--ok', completados));
+    }
+  }
+
+  /** Selecciona un evento desde el grid y pasa a la vista de calificación */
+  function seleccionarEventoVol(ev) {
+    eventoActualId = ev.id;
+    vistaEventosVol.style.display   = 'none';
+    vistaCalificarVol.style.display = 'block';
     ocultarPaneles();
-  });
+    renderTablaVoluntarios();
+  }
+
+  /** Vuelve al grid de eventos desde la vista de calificación */
+  window.volverAEventosVol = function() {
+    eventoActualId = null;
+    vistaCalificarVol.style.display = 'none';
+    vistaEventosVol.style.display   = 'block';
+    ocultarPaneles();
+    renderGridEventosVol();
+  };
 
   // ════════════════════════════════════════════════════════════════
   // 2. TABLA DE VOLUNTARIOS
@@ -111,9 +178,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('info-fecha').textContent  = evento.fecha;
     document.getElementById('info-lugar').textContent  = evento.lugar;
     document.getElementById('info-total').textContent  = `${evento.voluntarios.length} voluntario(s)`;
-
-    sinEvento.style.display = 'none';
-    tablaWrap.style.display = 'block';
 
     const data = evento.voluntarios.map(vol => {
       const calif        = califMap[vol.id] || null;
@@ -478,5 +542,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   // y no llegó a llamarse desde ninguna parte del controlador (código muerto).
 
   // ── Inicialización ───────────────────────────────────────────────────────
-  cargarSelectEventos();
+  function _formatFecha(fechaStr) {
+    if (!fechaStr) return '—';
+    try {
+      const [y, m, d] = fechaStr.split('-');
+      const dias  = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+      const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+      const fecha = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+      return `${dias[fecha.getDay()]} ${parseInt(d)} ${meses[parseInt(m) - 1]}`;
+    } catch (_) { return fechaStr; }
+  }
+
+  renderGridEventosVol();
 });

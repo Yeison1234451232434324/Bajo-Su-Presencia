@@ -36,13 +36,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     return `${Number(m[3])} ${MESES[Number(m[2]) - 1] || ''} ${m[1]}`;
   }
 
+  /**
+   * Estado del evento para mostrar: se calcula por fecha (igual que en el
+   * panel de admin/colaborador), no se elige manualmente ni queda guardado
+   * en BD — así nunca se desactualiza. "Cancelado" es la única excepción
+   * que sigue viniendo del campo `estado` de la BD.
+   */
+  function _estadoMostrar(evento) {
+    if (evento.estado === 'Cancelado') return 'Cancelado';
+    const hoy = new Date().toISOString().split('T')[0];
+    return evento.fecha && evento.fecha < hoy ? 'Finalizado' : 'Publicado';
+  }
+
   /** Clase de badge según el estado del evento. */
   function _badgeEstado(estado) {
     switch (estado) {
-      case 'En ejecución': return 'badge-amber';
-      case 'Finalizado':   return 'badge-muted';
-      case 'Cancelado':    return 'badge-red';
-      default:             return 'badge-blue';   // Publicado
+      case 'Finalizado': return 'badge-muted';
+      case 'Cancelado':  return 'badge-red';
+      default:            return 'badge-blue';   // Publicado
     }
   }
 
@@ -118,9 +129,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const h3 = document.createElement('h3');
     h3.className = 'vev-card-titulo';
     h3.textContent = evento.titulo || 'Evento sin título';
+    const estadoMostrar = _estadoMostrar(evento);
     const badge = document.createElement('span');
-    badge.className = 'badge ' + _badgeEstado(evento.estado);
-    badge.textContent = evento.estado || 'Publicado';
+    badge.className = 'badge ' + _badgeEstado(estadoMostrar);
+    badge.textContent = estadoMostrar;
     titRow.append(h3, badge);
     top.appendChild(titRow);
     if (evento.descripcion) {

@@ -87,7 +87,7 @@
 }
 
 .ev-rec-icon { font-size: 1.1rem; color: var(--primary); flex-shrink: 0; }
-.ev-rec-nombre { font-weight: 700; font-size: 1rem; color: #1a1a2e; cursor: pointer; flex: 1; min-width: 0; }
+.ev-rec-nombre { font-weight: 700; font-size: 1rem; color: var(--text-primary); cursor: pointer; flex: 1; min-width: 0; }
 .ev-rec-stock  { font-size: 0.8125rem; white-space: nowrap; }
 .ev-rec-cat    { font-size: 0.8125rem; color: var(--muted); margin-bottom: 0.5rem; }
 
@@ -385,7 +385,7 @@
   gap: 0.3rem;
 }
 .ev-detalle-label i { font-size: 0.9rem; }
-.ev-detalle-valor { font-size: 1rem; font-weight: 600; color: #1a1a2e; }
+.ev-detalle-valor { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
 .ev-detalle-desc {
   margin: 0.75rem 0;
   padding: 0.75rem 1rem;

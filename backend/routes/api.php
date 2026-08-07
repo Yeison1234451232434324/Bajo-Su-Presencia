@@ -6,6 +6,7 @@ use App\Controllers\AuthController;
 use App\Controllers\DataGatewayController;
 use App\Controllers\DonacionesController;
 use App\Controllers\HealthController;
+use App\Controllers\PqrController;
 use App\Controllers\UsuariosController;
 use App\Http\Response;
 use App\Http\Router;
@@ -40,6 +41,13 @@ $router->delete('/api/usuarios/{id}', [UsuariosController::class, 'destroy']);
 
 // ── Donaciones (público, anónimo) — envía comprobante al correo ─
 $router->post('/api/donaciones', [DonacionesController::class, 'store']);
+
+// ── PQR ───────────────────────────────────────────────────────────
+// Crear: público (radicación anónima) — envía confirmación al correo.
+$router->post('/api/pqr', [PqrController::class, 'crear']);
+// Responder / cambiar estado: panel autenticado — envían correo al solicitante.
+$router->patch('/api/pqr/{id}/responder', [PqrController::class, 'responder']);
+$router->patch('/api/pqr/{id}/estado', [PqrController::class, 'cambiarEstado']);
 
 // ── Data Gateway (panel autenticado) ────────────────────────────
 $router->get('/api/db/{table}', [DataGatewayController::class, 'handle']);

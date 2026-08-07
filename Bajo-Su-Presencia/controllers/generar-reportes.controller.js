@@ -71,6 +71,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else if (tipoSeleccionado === 'ofrendas') {
       html = await _generarReporteOfrendas(desde, hasta);
       nombreReporte = 'Reporte de Ofrendas y Diezmo';
+    } else if (tipoSeleccionado === 'donaciones') {
+      html = await _generarReporteDonaciones(desde, hasta);
+      nombreReporte = 'Reporte de Donaciones';
     }
 
     const hoy = new Date().toLocaleDateString('es-CO');
@@ -429,6 +432,64 @@ document.addEventListener('DOMContentLoaded', async () => {
       + _sec('Detalle de Ofrendas', _tabla(
           ['Evento','Fecha Reporte','Ofrenda (COP)','Reportado por'],
           filas, `Total recaudado: ${_fmt(total)}`
+        ))
+      + _cerrarPagina();
+  }
+
+  // ── 4. Reporte de Donaciones ───────────────────────────────────────────
+  async function _generarReporteDonaciones(desde, hasta) {
+    let donaciones = [];
+    try { donaciones = await DonacionesModel.getAll(); }
+    catch (e) { window.BSPLog?.error('generarReportes.donaciones', e); }
+    donaciones = _filtrar(donaciones, desde, hasta, 'fecha');
+
+    const periodo   = desde && hasta ? `${desde} al ${hasta}` : 'Todos los registros';
+    const aprobadas = donaciones.filter(d => d.estado === 'Aprobada');
+    const total     = aprobadas.reduce((s,d) => s + d.monto, 0);
+    const prom      = aprobadas.length ? Math.round(total / aprobadas.length) : 0;
+    const mayor     = aprobadas.length ? Math.max(...aprobadas.map(d => d.monto)) : 0;
+
+    // Recaudado por método de pago (solo aprobadas: es dinero efectivamente recibido)
+    const porMetodo = {};
+    (DonacionesModel.METODOS || []).forEach(m => { porMetodo[m] = 0; });
+    aprobadas.forEach(d => { porMetodo[d.metodo] = (porMetodo[d.metodo]||0) + d.monto; });
+    const datosBar = Object.entries(porMetodo)
+      .filter(([,v]) => v > 0)
+      .map(([l,v]) => ({ l, v }));
+
+    // Distribución por propósito (monto recaudado)
+    const porProposito = {};
+    aprobadas.forEach(d => { porProposito[d.proposito] = (porProposito[d.proposito]||0) + d.monto; });
+    const datosDona = Object.entries(porProposito)
+      .sort((a,b) => b[1]-a[1])
+      .map(([l,v]) => ({ l: `${l} (${_fmt(v)})`, v }));
+
+    // Desglose por estado (Aprobada/Pendiente/Rechazada) — visibilidad de todo lo radicado, no solo lo cobrado
+    const porEstado = {};
+    donaciones.forEach(d => { porEstado[d.estado] = (porEstado[d.estado]||0) + 1; });
+
+    const filas = donaciones.map(d => [
+      d.referencia || '—', d.nombre, d.metodo || '—', _fmt(d.monto),
+      d.proposito || '—', d.estado, d.fecha || '—'
+    ]);
+    if (aprobadas.length) filas.push(['', '', '', `<strong>${_fmt(total)}</strong>`, '', '<strong>TOTAL APROBADO</strong>', '']);
+
+    return _portada('Reporte de Donaciones', _getUsuario(), 'Finanzas / Tesorería', periodo)
+      + _abrirPagina(2)
+      + _sec('Resumen Ejecutivo', _stats([
+          { v: donaciones.length, l: 'Donaciones Radicadas' },
+          { v: _fmt(total),       l: 'Total Recaudado (Aprobadas)' },
+          { v: _fmt(prom),        l: 'Promedio por Donación' },
+          { v: _fmt(mayor),       l: 'Mayor Donación' }
+        ]))
+      + _sec('Recaudo por Método de Pago', _barras('Total recaudado por método (COP)', datosBar, C_DORADO))
+      + (datosDona.length ? _sec('Distribución por Propósito', _dona('Recaudo por propósito', datosDona)) : '')
+      + _sec('Estado de las Solicitudes', _stats(
+          Object.entries(porEstado).map(([l,v]) => ({ v, l }))
+        ))
+      + _sec('Detalle de Donaciones', _tabla(
+          ['Referencia','Donante','Método','Monto','Propósito','Estado','Fecha'],
+          filas, `Total: ${donaciones.length} donación(es) en el período · Recaudado: ${_fmt(total)}`
         ))
       + _cerrarPagina();
   }

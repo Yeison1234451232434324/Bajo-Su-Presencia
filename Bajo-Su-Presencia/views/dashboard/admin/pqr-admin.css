@@ -235,10 +235,20 @@
    BADGES
 ══════════════════════════════════════════════════ */
 
-/* Tipo */
-.badge-tipo-peticion { background: var(--info-bg); color: var(--info); }
-.badge-tipo-queja    { background: var(--danger-bg); color: var(--danger); }
-.badge-tipo-reclamo  { background: var(--warning-bg); color: var(--amber); }
+/* Tipo y Prioridad: solo el ESTADO lleva píldora de color sólido (es la
+   señal principal); Tipo y Prioridad usan un estilo "fantasma" —borde fino,
+   sin relleno— para no competir con ella y evitar el efecto "confeti" de
+   3 píldoras de colores distintos una junto a otra. */
+.badge-tipo-peticion,
+.badge-tipo-queja,
+.badge-tipo-reclamo,
+.badge-prio-alta,
+.badge-prio-media,
+.badge-prio-baja {
+  background: transparent;
+  border: 1.5px solid var(--border);
+  color: var(--text-secondary);
+}
 
 /* Estado */
 .badge-estado-pendiente  { background: var(--warning-bg); color: var(--amber); }
@@ -246,10 +256,9 @@
 .badge-estado-resuelto   { background: var(--success-bg); color: var(--success); }
 .badge-estado-cerrado    { background: var(--surface-2); color: var(--text-muted); }
 
-/* Prioridad */
-.badge-prio-alta  { background: var(--danger-bg); color: var(--danger); }
-.badge-prio-media { background: var(--warning-bg); color: var(--amber); }
-.badge-prio-baja  { background: var(--success-bg); color: var(--success); }
+/* Prioridad Alta: única excepción con color —una urgencia real debe
+   destacar—, pero en tono de texto/borde, no relleno sólido. */
+.badge-prio-alta { border-color: var(--danger-border); color: var(--danger); }
 
 /* Fila de PQR generada por JS (reemplaza el background:#fff inline). */
 .pqr-row {
@@ -545,6 +554,21 @@
   font-size: 0.9375rem;
   font-weight: 600;
   display: none;
+}
+
+/* Nota: PQR ya resuelta, formulario de solo lectura */
+.pqr-modal-lock-note {
+  background: var(--info-bg);
+  color: var(--info);
+  border: 1px solid var(--info-border);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 /* Footer del modal */

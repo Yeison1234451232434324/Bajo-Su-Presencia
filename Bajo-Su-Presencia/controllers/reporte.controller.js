@@ -79,10 +79,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       reportesPorEvento = Object.fromEntries(informesPasados.map(r => [String(r.eventoId), r]));
     } catch (e) { window.BSPLog?.error('reporte.informes', e); }
 
-    for (const ev of pasados) {
-      const reporte    = reportesPorEvento[String(ev.id)] || null;
-      const tieneRep   = !!reporte;
-      const fechaFmt   = _formatFecha(ev.fecha);
+    // Separados en dos grupos: primero los pendientes (lo que hay que hacer),
+    // luego los que ya tienen reporte — en vez de una sola lista mezclada.
+    const sinReporte = pasados.filter(ev => !reportesPorEvento[String(ev.id)]);
+    const conReporte = pasados.filter(ev => reportesPorEvento[String(ev.id)]);
+
+    function _crearCard(ev, reporte) {
+      const tieneRep = !!reporte;
+      const fechaFmt = _formatFecha(ev.fecha);
 
       const card = document.createElement('div');
       card.className = `rep-evento-card${tieneRep ? ' rep-evento-card--con-reporte' : ''}`;
@@ -102,7 +106,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         </div>`;
 
       card.addEventListener('click', () => seleccionarEvento(ev));
-      gridEventos.appendChild(card);
+      return card;
+    }
+
+    function _crearSubgrupo(titulo, iconoClase, modificador, lista) {
+      const wrap = document.createElement('div');
+      wrap.className = 'rep-subgrupo';
+
+      const label = document.createElement('p');
+      label.className = `rep-subgrupo-titulo${modificador ? ` ${modificador}` : ''}`;
+      label.innerHTML = `<i class="bx ${iconoClase}" aria-hidden="true"></i> ${titulo} (${lista.length})`;
+      wrap.appendChild(label);
+
+      const grid = document.createElement('div');
+      grid.className = 'rep-grid-eventos';
+      lista.forEach(ev => grid.appendChild(_crearCard(ev, reportesPorEvento[String(ev.id)] || null)));
+      wrap.appendChild(grid);
+
+      return wrap;
+    }
+
+    gridEventos.classList.add('rep-grid-eventos--agrupado');
+    if (sinReporte.length) {
+      gridEventos.appendChild(_crearSubgrupo('Pendientes de reporte', 'bx-time-five', null, sinReporte));
+    }
+    if (conReporte.length) {
+      gridEventos.appendChild(_crearSubgrupo('Reporte ya cargado', 'bx-check-circle', 'rep-subgrupo-titulo--ok', conReporte));
     }
   }
 

@@ -57,48 +57,73 @@ const PQRModel = (() => {
     return _fromRow(data);
   }
 
+  // Pasa por el backend PHP (no por el Data Gateway) porque, además de
+  // insertar la fila, envía la confirmación de recepción al correo indicado
+  // (requiere Mailer/SMTP, solo disponible en el servidor). Es la única
+  // escritura pública en `pqr`, así que no exige JWT (auth:false).
   async function crear(data) {
     if (!data.nombre?.trim())      return { ok: false, error: 'El nombre es obligatorio.' };
     if (!data.email?.trim())       return { ok: false, error: 'El correo electrónico es obligatorio.' };
     if (!data.asunto?.trim())      return { ok: false, error: 'El asunto es obligatorio.' };
     if (!data.descripcion?.trim()) return { ok: false, error: 'La descripción es obligatoria.' };
 
-    const fila = {
-      tipo:        TIPOS.includes(data.tipo) ? data.tipo : 'Petición',
-      nombre:      data.nombre.trim(),
-      correo:      data.email.trim().toLowerCase(),
-      telefono:    data.telefono?.trim() || null,
-      asunto:      data.asunto.trim(),
-      descripcion: data.descripcion.trim(),
-      estado:      'Pendiente',
-      prioridad:   ['Baja','Media','Alta'].includes(data.prioridad) ? data.prioridad : 'Media'
-    };
-    const { data: ins, error } = await DB.from(TABLA).insert(fila).select(SEL).single();
-    if (error) return { ok: false, error: _msg(error) };
-    return { ok: true, pqr: _fromRow(ins) };
+    try {
+      const creada = await window.apiFetch('/api/pqr', {
+        method: 'POST',
+        auth: false,
+        body: {
+          tipo:        TIPOS.includes(data.tipo) ? data.tipo : 'Petición',
+          nombre:      data.nombre.trim(),
+          correo:      data.email.trim().toLowerCase(),
+          telefono:    data.telefono?.trim() || null,
+          asunto:      data.asunto.trim(),
+          descripcion: data.descripcion.trim()
+        }
+      });
+      return { ok: true, pqr: _fromRow(creada) };
+    } catch (e) {
+      return { ok: false, error: e.message || 'Ocurrió un error al procesar la solicitud.' };
+    }
   }
 
+  // Pasa por el backend PHP (no por el Data Gateway) porque, además de
+  // actualizar la fila, notifica el cambio de estado al correo del
+  // solicitante — y el gateway genérico no tiene acceso a Mailer. El
+  // backend rechaza el cambio si la PQR ya está "Resuelto" (solo lectura,
+  // salvo eliminar).
   async function cambiarEstado(id, nuevoEstado) {
     if (!ESTADOS.includes(nuevoEstado)) return { ok: false, error: 'Estado no válido.' };
-    const { data, error } = await DB.from(TABLA).update({ estado: nuevoEstado }).eq('id', id).select(SEL).single();
-    if (error) return { ok: false, error: _msg(error) };
-    return { ok: true, pqr: _fromRow(data) };
+    try {
+      const data = await window.apiFetch(`/api/pqr/${encodeURIComponent(id)}/estado`, {
+        method: 'PATCH',
+        body: { estado: nuevoEstado }
+      });
+      return { ok: true, pqr: _fromRow(data) };
+    } catch (e) {
+      return { ok: false, error: e.message || 'Ocurrió un error al procesar la solicitud.' };
+    }
   }
 
-  // El 4º parámetro (nombre del respondedor) queda ignorado: ahora se guarda
-  // la FK respondido_por_id del usuario logueado (no un texto editable).
+  // El 4º parámetro (nombre del respondedor) queda ignorado: el backend guarda
+  // la FK respondido_por_id a partir del JWT del usuario logueado.
+  //
+  // Pasa por el backend PHP (no por el Data Gateway) porque, además de
+  // actualizar la fila, envía la respuesta al correo que la persona registró
+  // al radicar la PQR (requiere Mailer/SMTP, solo disponible en el servidor).
   async function responder(id, respuesta, nuevoEstado, _respondidoPor) {
     if (!respuesta || !respuesta.trim()) return { ok: false, error: 'La respuesta no puede estar vacía.' };
-    const respondidoPorId = (typeof window.miUsuarioId === 'function') ? await window.miUsuarioId() : null;
-    const fila = {
-      respuesta:          respuesta.trim(),
-      respondido_en:      new Date().toISOString(),
-      respondido_por_id:  respondidoPorId
-    };
-    if (ESTADOS.includes(nuevoEstado)) fila.estado = nuevoEstado;
-    const { data, error } = await DB.from(TABLA).update(fila).eq('id', id).select(SEL).single();
-    if (error) return { ok: false, error: _msg(error) };
-    return { ok: true, pqr: _fromRow(data) };
+    try {
+      const data = await window.apiFetch(`/api/pqr/${encodeURIComponent(id)}/responder`, {
+        method: 'PATCH',
+        body: {
+          respuesta: respuesta.trim(),
+          estado: ESTADOS.includes(nuevoEstado) ? nuevoEstado : undefined
+        }
+      });
+      return { ok: true, pqr: _fromRow(data) };
+    } catch (e) {
+      return { ok: false, error: e.message || 'Ocurrió un error al procesar la solicitud.' };
+    }
   }
 
   async function eliminar(id) {

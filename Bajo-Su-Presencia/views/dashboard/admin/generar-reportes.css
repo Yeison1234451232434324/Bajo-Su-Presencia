@@ -94,7 +94,7 @@
 .gr-tipo-btn:hover .gr-tipo-icon {
   background: linear-gradient(135deg, var(--primary) 0%, var(--amber) 100%);
 }
-.gr-tipo-icon i { font-size: 1.2rem; color: var(--text-on-primary); }
+.gr-tipo-icon i { font-size: 1.2rem; color: var(--primary); }
 .gr-tipo-btn--activo .gr-tipo-icon i,
 .gr-tipo-btn:hover .gr-tipo-icon i { color: var(--text-on-primary); }
 

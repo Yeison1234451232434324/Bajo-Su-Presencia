@@ -218,22 +218,22 @@ final class AuthService
     /** Plantilla HTML del correo con el código OTP (solo el código, sin enlaces). */
     private function otpEmailHtml(string $nombre, string $otp, int $minutos): string
     {
-        $saludo = $nombre !== '' ? htmlspecialchars($nombre, ENT_QUOTES) : 'Hola';
-        $code   = htmlspecialchars($otp, ENT_QUOTES);
+        $saludo  = $nombre !== '' ? htmlspecialchars($nombre, ENT_QUOTES) : 'Hola';
+        $code    = htmlspecialchars($otp, ENT_QUOTES);
+        $logoUrl = Mailer::logoUrl();
         return <<<HTML
-        <div style="margin:0;padding:24px;background:#eef2f8;font-family:Segoe UI,Arial,sans-serif">
+        <div style="margin:0;padding:24px;background:#eef2f8;font-family:Georgia,'Times New Roman',serif">
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
             <tr><td align="center">
-              <table role="presentation" width="520" cellpadding="0" cellspacing="0"
-                     style="background:#fff;border-radius:14px;overflow:hidden;
+              <table role="presentation" width="560" cellpadding="0" cellspacing="0"
+                     style="width:100%;max-width:560px;background:#fff;border-radius:14px;overflow:hidden;
                             box-shadow:0 8px 30px rgba(15,30,90,.12)">
-                <tr><td style="background:linear-gradient(135deg,#1E3A8A,#0F1E5A);
-                               padding:26px;text-align:center">
-                  <img src="cid:logo" alt="Bajo Su Presencia" width="64"
-                       style="display:block;margin:0 auto 10px;border-radius:10px">
-                  <div style="color:#fff;font-size:20px;font-weight:700;letter-spacing:.5px">
+                <tr><td style="background:#0F1E5A;padding:28px 24px;text-align:center">
+                  <img src="{$logoUrl}" alt="Bajo Su Presencia" width="56" height="56"
+                       style="display:block;margin:0 auto 12px;border-radius:12px;width:56px;height:56px">
+                  <div style="color:#fff;font-size:22px;font-weight:700">
                     Bajo Su Presencia</div>
-                  <div style="color:#F5C215;font-size:13px;margin-top:2px">
+                  <div style="color:#cbd5e1;font-size:14px;margin-top:6px;letter-spacing:.02em">
                     Código de verificación</div>
                 </td></tr>
                 <tr><td style="padding:30px 34px;color:#1f2937;font-size:15px;line-height:1.6">
@@ -247,14 +247,14 @@ final class AuthService
                   <p style="margin:0;color:#6b7280;font-size:13px">
                      No compartas este código con nadie. Nuestro equipo nunca te lo pedirá.</p>
                 </td></tr>
-                <tr><td style="padding:18px 34px;background:#f8fafc;border-top:1px solid #e5e7eb;
-                               color:#94a3b8;font-size:12px;line-height:1.5">
+                <tr><td style="padding:14px 34px;color:#9ca3af;font-size:13px;line-height:1.6;
+                               border-top:1px dashed #e5e1d8">
                   ⏱ El código caduca en {$minutos} minutos.<br>
                   Si no solicitaste este cambio, ignora este correo: tu contraseña seguirá igual.
                 </td></tr>
               </table>
               <p style="color:#94a3b8;font-size:11px;margin:16px 0 0">
-                © Bajo Su Presencia — Sistema de Gestión Eclesiástica</p>
+                © Bajo Su Presencia B.S.P — Sistema de Gestión Eclesiástica</p>
             </td></tr>
           </table>
         </div>

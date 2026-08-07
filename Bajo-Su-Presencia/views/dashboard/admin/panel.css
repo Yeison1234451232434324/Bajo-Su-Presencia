@@ -509,7 +509,7 @@ body {
   background: var(--info-bg);
   color: var(--primary);
 }
-.counter-icon--info    { background: var(--info-bg);    color: var(--primary); }
+.counter-icon--info    { background: var(--info-bg);    color: var(--info); }
 .counter-icon--success { background: var(--success-bg); color: var(--success); }
 .counter-icon--danger  { background: var(--danger-bg);  color: var(--danger); }
 .counter-icon--warning { background: var(--warning-bg); color: var(--warning); }

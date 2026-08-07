@@ -241,7 +241,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!counter) return;
     const total = Object.keys(seleccionadosEdicion).length;
     counter.textContent = total > 0 ? `${total} recurso(s) seleccionado(s)` : 'Ningún recurso seleccionado (opcional)';
-    counter.style.color = total > 0 ? '#059669' : '#9ca3af';
+    counter.style.color = total > 0 ? 'var(--success)' : 'var(--text-muted)';
   }
 
   // ════════════════════════════════════════════════════════════════
@@ -341,14 +341,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!c) return;
     const total = Object.keys(especialistasSel).length;
     c.textContent = total > 0 ? `${total} especialista(s) seleccionado(s)` : 'Ningún especialista seleccionado (opcional)';
-    c.style.color = total > 0 ? '#059669' : '#9ca3af';
+    c.style.color = total > 0 ? 'var(--success)' : 'var(--text-muted)';
   }
   function actualizarContadorEspecialistasEdicion() {
     const c = document.getElementById('edit-contador-especialistas');
     if (!c) return;
     const total = Object.keys(especialistasSelEdicion).length;
     c.textContent = total > 0 ? `${total} especialista(s) seleccionado(s)` : 'Ningún especialista seleccionado (opcional)';
-    c.style.color = total > 0 ? '#059669' : '#9ca3af';
+    c.style.color = total > 0 ? 'var(--success)' : 'var(--text-muted)';
   }
 
   // ════════════════════════════════════════════════════════════════
@@ -373,8 +373,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     err = BSPVal.txt(titulo, { min: 3, max: 150, label: 'El título', iniciaLetra: true });
     if (err) { _err('ev-titulo', err); valido = false; }
 
-    const estadoCrear = document.getElementById('ev-estado')?.value || 'Publicado';
-    err = BSPVal.fecha(fechaVal, estadoCrear === 'Publicado' ? { minDate: hoy, label: 'La fecha del evento' } : { label: 'La fecha del evento' });
+    err = BSPVal.fecha(fechaVal, { minDate: hoy, label: 'La fecha del evento' });
     if (err) { _err('ev-fecha', err); valido = false; }
 
     if (!horaInicio) { _err('ev-hora-inicio', 'La hora de inicio es obligatoria.'); valido = false; }
@@ -410,7 +409,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       titulo, fecha: fechaVal, horario: BSPHorario.combinar(horaInicio, horaFin), ubicacion,
       asistentes: asistentesRaw.trim() !== '' ? parseInt(asistentesRaw, 10) : '',
       voluntariosNecesarios: parseInt(voluntariosRaw, 10), descripcion,
-      estado: estadoCrear, recursos: recursosSeleccionados,
+      recursos: recursosSeleccionados,
       especialistas: Object.values(especialistasSel)
     };
 
@@ -436,7 +435,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ════════════════════════════════════════════════════════════════
   // 5. HISTORIAL DE EVENTOS
   // ════════════════════════════════════════════════════════════════
-  const ESTADO_CLASE = { 'Publicado':'ev-badge--publicado','En ejecución':'ev-badge--ejecucion','Finalizado':'ev-badge--finalizado' };
+  // El estado ya no se elige manualmente al crear/editar: se calcula
+  // automáticamente comparando la fecha del evento con la fecha de hoy.
+  const ESTADO_CLASE = { 'Publicado':'ev-badge--publicado','Finalizado':'ev-badge--finalizado' };
+  function _estadoAuto(ev) {
+    const hoy = new Date().toISOString().split('T')[0];
+    return ev.fecha && ev.fecha < hoy ? 'Finalizado' : 'Publicado';
+  }
   function badgeEstado(estado) {
     const est = estado || 'Publicado';
     return `<span class="ev-badge ${ESTADO_CLASE[est] || 'ev-badge--publicado'}">${est}</span>`;
@@ -452,11 +457,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       const chipsRecursos = ev.recursos && ev.recursos.length > 0
         ? ev.recursos.map(r => `<span class="ev-chip-recurso"><i class="bx bx-package" aria-hidden="true"></i> ${esc(r.recursoNombre)} × ${esc(r.cantidad)}</span>`).join('')
         : '<span class="ev-sin-recursos">Sin recursos asignados</span>';
+      const finalizado = ev.estadoAuto === 'Finalizado';
+      const btnEditar = finalizado
+        ? ''
+        : `<button class="btn-ev-accion btn-ev-editar" onclick="abrirEditar('${ev.id}')" title="Editar evento"><i class="bx bx-edit" aria-hidden="true"></i></button>`;
       return `
         <div class="ev-publicado-card" id="ev-card-${ev.id}">
           <div class="ev-pub-header">
             <div class="ev-pub-header-info">
-              <div class="ev-pub-titulo-row"><h4 class="ev-pub-titulo">${esc(ev.titulo)}</h4>${badgeEstado(ev.estado)}</div>
+              <div class="ev-pub-titulo-row"><h4 class="ev-pub-titulo">${esc(ev.titulo)}</h4>${badgeEstado(ev.estadoAuto)}</div>
               <p class="ev-pub-meta">
                 <i class="bx bx-calendar" aria-hidden="true"></i> ${esc(ev.fecha)} &nbsp;·&nbsp;
                 <i class="bx bx-time" aria-hidden="true"></i> ${esc(ev.horario)} &nbsp;·&nbsp;
@@ -466,7 +475,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>
             <div class="ev-pub-acciones">
               <button class="btn-ev-accion btn-ev-ver" onclick="verEvento('${ev.id}')" title="Ver detalle"><i class="bx bx-show" aria-hidden="true"></i></button>
-              <button class="btn-ev-accion btn-ev-editar" onclick="abrirEditar('${ev.id}')" title="Editar evento"><i class="bx bx-edit" aria-hidden="true"></i></button>
+              ${btnEditar}
               ${!_esColaborador ? `<button class="btn-ev-accion btn-ev-eliminar" onclick="eliminarEvento('${ev.id}')" title="Eliminar evento"><i class="bx bx-trash" aria-hidden="true"></i></button>` : ''}
             </div>
           </div>
@@ -484,19 +493,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         </div>`;
     }
 
-    const ordenados = [...eventos].reverse();
+    const ordenados = [...eventos].reverse().map(ev => ({ ...ev, estadoAuto: _estadoAuto(ev) }));
     if (!dtEventos) {
       dtEventos = new BSPDataTable({
         containerId: 'lista-eventos-publicados', data: ordenados, pageSize: 5,
-        searchFields: ['titulo','fecha','horario','ubicacion','descripcion','estado'],
+        searchFields: ['titulo','fecha','horario','ubicacion','descripcion','estadoAuto'],
         filters: [
-          { key:'estado', label:'Estado', type:'select', options: EventosModel.ESTADOS },
+          { key:'estadoAuto', label:'Estado', type:'select', options: ['Publicado','Finalizado'] },
           { key:'ubicacion', label:'Ubicación', type:'select', options: ubicaciones },
           { key:'fecha', label:'Desde', type:'date-from' },
           { key:'fecha', label:'Hasta', type:'date-to' },
         ],
         renderRow: renderCard, exportable: true, exportName: 'eventos',
-        exportFields: ['titulo','fecha','horario','ubicacion','estado','asistentes','descripcion','publicado'],
+        exportFields: ['titulo','fecha','horario','ubicacion','estadoAuto','asistentes','descripcion','publicado'],
         exportLabels: ['Título','Fecha','Horario','Ubicación','Estado','Asistentes','Descripción','Publicado'],
         emptyHTML: `<div class="dt-empty"><i class="bx bx-calendar-x" aria-hidden="true"></i><p>Aún no hay eventos publicados.</p></div>`
       });
@@ -513,7 +522,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.verEvento = async function(id) {
     const ev = await EventosModel.getById(id);
     if (!ev) return;
-    document.getElementById('modal-ver-titulo').innerHTML = `${esc(ev.titulo)} ${badgeEstado(ev.estado)}`;
+    document.getElementById('modal-ver-titulo').innerHTML = `${esc(ev.titulo)} ${badgeEstado(_estadoAuto(ev))}`;
     const chipsRecursos = ev.recursos && ev.recursos.length > 0
       ? ev.recursos.map(r => `<span class="ev-chip-recurso"><i class="bx bx-package" aria-hidden="true"></i> ${r.recursoNombre} × ${r.cantidad} ${r.unidad || ''}</span>`).join('')
       : '<span class="ev-sin-recursos">Sin recursos asignados</span>';
@@ -525,7 +534,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-user" aria-hidden="true"></i> Asistentes</span><span class="ev-detalle-valor">${ev.asistentes || '—'}</span></div>
         <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-group" aria-hidden="true"></i> Voluntarios necesarios</span><span class="ev-detalle-valor">${ev.voluntariosNecesarios || 0}</span></div>
         <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-calendar-plus" aria-hidden="true"></i> Publicado</span><span class="ev-detalle-valor">${ev.publicado || '—'}</span></div>
-        <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-flag" aria-hidden="true"></i> Estado</span><span class="ev-detalle-valor">${badgeEstado(ev.estado)}</span></div>
+        <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-flag" aria-hidden="true"></i> Estado</span><span class="ev-detalle-valor">${badgeEstado(_estadoAuto(ev))}</span></div>
       </div>
       ${ev.descripcion ? `<div class="ev-detalle-desc"><span class="ev-detalle-label"><i class="bx bx-note" aria-hidden="true"></i> Descripción</span><p>${ev.descripcion}</p></div>` : ''}
       <div class="ev-detalle-recursos"><span class="ev-detalle-label"><i class="bx bx-package" aria-hidden="true"></i> Recursos asignados</span><div class="ev-chips-wrap" style="margin-top:0.5rem;">${chipsRecursos}</div></div>
@@ -550,18 +559,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.abrirEditar = async function(id) {
     const ev = await EventosModel.getById(id);
     if (!ev) return;
+    if (_estadoAuto(ev) === 'Finalizado') {
+      showAlertError('Este evento ya finalizó: no se puede editar.');
+      return;
+    }
     document.getElementById('edit-id').value     = ev.id;
     document.getElementById('edit-titulo').value = ev.titulo;
     const _editFecha = document.getElementById('edit-fecha');
-    if ((ev.estado || 'Publicado') === 'Publicado') _editFecha.min = new Date().toISOString().split('T')[0];
-    else _editFecha.removeAttribute('min');
+    _editFecha.min = new Date().toISOString().split('T')[0];
     _editFecha.value = ev.fecha;
     document.getElementById('edit-ubicacion').value   = ev.ubicacion;
     document.getElementById('edit-asistentes').value  = ev.asistentes !== '—' ? ev.asistentes : '';
     document.getElementById('edit-voluntarios').value = ev.voluntariosNecesarios || 1;
     document.getElementById('edit-descripcion').value = ev.descripcion || '';
-    const _editEstado = document.getElementById('edit-estado');
-    if (_editEstado) _editEstado.value = ev.estado || 'Publicado';
 
     const { inicio, fin } = BSPHorario.parse(ev.horario);
     document.getElementById('edit-hora-inicio').value = inicio;
@@ -594,8 +604,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     else if (titulo.length > 150) { _err('edit-titulo', 'El título no puede superar 150 caracteres.'); valido = false; }
 
     const hoy = new Date().toISOString().split('T')[0];
-    const estadoEditar = document.getElementById('edit-estado')?.value || 'Publicado';
-    const errFecha = BSPVal.fecha(fecha, estadoEditar === 'Publicado' ? { minDate: hoy, label: 'La fecha del evento' } : { label: 'La fecha del evento' });
+    const errFecha = BSPVal.fecha(fecha, { minDate: hoy, label: 'La fecha del evento' });
     if (errFecha) { _err('edit-fecha', errFecha); valido = false; }
     if (!horaIni) { _err('edit-hora-inicio', 'La hora de inicio es obligatoria.'); valido = false; }
     else if (horaIni < H_MIN || horaIni > H_MAX) { _err('edit-hora-inicio', 'Debe estar entre 6:00 AM y 9:00 PM.'); valido = false; }
@@ -619,7 +628,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       asistentes: document.getElementById('edit-asistentes')?.value || '',
       voluntariosNecesarios: voluntarios,
       descripcion: document.getElementById('edit-descripcion')?.value || '',
-      estado: estadoEditar,
       recursos: recursosSeleccionados,
       especialistas: Object.values(especialistasSelEdicion)
     };
@@ -695,18 +703,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const _hoy = new Date().toISOString().split('T')[0];
   const _fechaInput = document.getElementById('ev-fecha');
   if (_fechaInput) _fechaInput.min = _hoy;
-
-  function _sincronizarMinFecha(idEstado, idFecha) {
-    const selEstado = document.getElementById(idEstado);
-    const inpFecha  = document.getElementById(idFecha);
-    if (!selEstado || !inpFecha) return;
-    selEstado.addEventListener('change', () => {
-      if (selEstado.value === 'Publicado') inpFecha.min = new Date().toISOString().split('T')[0];
-      else inpFecha.removeAttribute('min');
-    });
-  }
-  _sincronizarMinFecha('ev-estado',   'ev-fecha');
-  _sincronizarMinFecha('edit-estado', 'edit-fecha');
 
   [['ev-titulo', 150], ['ev-ubicacion', 150], ['ev-asistentes', 50]].forEach(([id, max]) => {
     const el = document.getElementById(id); if (el) el.maxLength = max;

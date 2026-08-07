@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
-use App\Config\Env;
 use App\Exceptions\ApiException;
 use App\Http\Request;
 use App\Http\Response;
@@ -105,6 +104,10 @@ final class DonacionesController
                 $this->comprobanteHtml($nombre, $monto, $metodo, $proposito, $referencia, $fecha)
             );
         } catch (Throwable $e) {
+            (new Logger())->error('No se pudo enviar el comprobante de donación', [
+                'referencia' => $referencia,
+                'error'      => $e->getMessage(),
+            ]);
             throw ApiException::validation(
                 ['correo' => 'No se pudo enviar el comprobante.'],
                 'La donación se registró pero no pudimos enviar el comprobante a ese correo. '
@@ -139,60 +142,52 @@ final class DonacionesController
         $propEsc   = htmlspecialchars($proposito, ENT_QUOTES, 'UTF-8') ?: 'Ofrenda general';
         $refEsc    = htmlspecialchars($referencia, ENT_QUOTES, 'UTF-8');
         $fechaEsc  = htmlspecialchars($fecha, ENT_QUOTES, 'UTF-8');
-        $logoUrl   = $this->logoUrl();
+        $logoUrl   = Mailer::logoUrl();
 
         // Mismo criterio "sin colores de estado" que la factura del panel
         // admin: un comprobante formal se mantiene en la paleta corporativa
         // (azul marino / grises), sin el dorado usado en otras piezas del sitio.
         return <<<HTML
-<div style="font-family:Georgia,'Times New Roman',serif;max-width:560px;margin:0 auto;color:#1a1a2e;background:#ffffff;">
-  <div style="background:#0F1E5A;padding:28px 24px;border-radius:12px 12px 0 0;text-align:center;">
-    <img src="{$logoUrl}" alt="Bajo Su Presencia" width="56" height="56"
-      style="width:56px;height:56px;border-radius:12px;display:block;margin:0 auto 12px;">
-    <h1 style="color:#fff;margin:0;font-size:22px;font-weight:700;">Bajo Su Presencia</h1>
-    <p style="color:#cbd5e1;margin:6px 0 0;font-size:14px;letter-spacing:0.02em;">Comprobante de donación</p>
-  </div>
-  <div style="border:1px solid #e5e1d8;border-top:none;border-radius:0 0 12px 12px;padding:24px;">
-    <p style="font-size:16px;">Hola <b>{$saludo}</b>,</p>
-    <p style="font-size:15px;line-height:1.6;color:#374151;">
-      ¡Gracias por tu generosidad! Hemos recibido tu donación. Este es el comprobante:
-    </p>
-    <table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:15px;">
-      <tr><td style="padding:10px 0;border-bottom:1px solid #eee;color:#6b7280;">Referencia</td>
-          <td style="padding:10px 0;border-bottom:1px solid #eee;text-align:right;font-weight:700;">{$refEsc}</td></tr>
-      <tr><td style="padding:10px 0;border-bottom:1px solid #eee;color:#6b7280;">Monto</td>
-          <td style="padding:10px 0;border-bottom:1px solid #eee;text-align:right;font-weight:700;color:#047857;">{$montoFmt}</td></tr>
-      <tr><td style="padding:10px 0;border-bottom:1px solid #eee;color:#6b7280;">Método</td>
-          <td style="padding:10px 0;border-bottom:1px solid #eee;text-align:right;font-weight:700;">{$metodoEsc}</td></tr>
-      <tr><td style="padding:10px 0;border-bottom:1px solid #eee;color:#6b7280;">Propósito</td>
-          <td style="padding:10px 0;border-bottom:1px solid #eee;text-align:right;font-weight:700;">{$propEsc}</td></tr>
-      <tr><td style="padding:10px 0;color:#6b7280;">Fecha</td>
-          <td style="padding:10px 0;text-align:right;font-weight:700;">{$fechaEsc}</td></tr>
-    </table>
-    <p style="font-size:13px;color:#9ca3af;line-height:1.6;border-top:1px dashed #e5e1d8;padding-top:14px;">
-      Esta donación fue realizada de forma voluntaria y no constituye la compra de bienes o servicios.
-      Documento generado automáticamente como constancia de la transacción. Que Dios multiplique tu ofrenda.
-    </p>
-  </div>
+<div style="margin:0;padding:24px;background:#eef2f8;font-family:Georgia,'Times New Roman',serif">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+    <tr><td align="center">
+      <table role="presentation" width="560" cellpadding="0" cellspacing="0"
+             style="width:100%;max-width:560px;background:#ffffff;border-radius:14px;overflow:hidden;
+                    box-shadow:0 8px 30px rgba(15,30,90,.12)">
+        <tr><td style="background:#0F1E5A;padding:28px 24px;text-align:center;">
+          <img src="{$logoUrl}" alt="Bajo Su Presencia" width="56" height="56"
+            style="width:56px;height:56px;border-radius:12px;display:block;margin:0 auto 12px;">
+          <div style="color:#fff;font-size:22px;font-weight:700;">Bajo Su Presencia B.S.P</div>
+          <div style="color:#cbd5e1;font-size:14px;margin-top:6px;letter-spacing:0.02em;">Comprobante de donación</div>
+        </td></tr>
+        <tr><td style="padding:24px;color:#1a1a2e;">
+          <p style="font-size:16px;margin:0 0 12px;">Hola <b>{$saludo}</b>,</p>
+          <p style="font-size:15px;line-height:1.6;color:#374151;margin:0 0 16px;">
+            ¡Gracias por tu generosidad! Hemos recibido tu donación. Este es el comprobante:
+          </p>
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 16px;font-size:15px;">
+            <tr><td style="padding:10px 0;border-bottom:1px solid #eee;color:#6b7280;">Referencia</td>
+                <td style="padding:10px 0;border-bottom:1px solid #eee;text-align:right;font-weight:700;">{$refEsc}</td></tr>
+            <tr><td style="padding:10px 0;border-bottom:1px solid #eee;color:#6b7280;">Monto</td>
+                <td style="padding:10px 0;border-bottom:1px solid #eee;text-align:right;font-weight:700;color:#047857;">{$montoFmt}</td></tr>
+            <tr><td style="padding:10px 0;border-bottom:1px solid #eee;color:#6b7280;">Método</td>
+                <td style="padding:10px 0;border-bottom:1px solid #eee;text-align:right;font-weight:700;">{$metodoEsc}</td></tr>
+            <tr><td style="padding:10px 0;border-bottom:1px solid #eee;color:#6b7280;">Propósito</td>
+                <td style="padding:10px 0;border-bottom:1px solid #eee;text-align:right;font-weight:700;">{$propEsc}</td></tr>
+            <tr><td style="padding:10px 0;color:#6b7280;">Fecha</td>
+                <td style="padding:10px 0;text-align:right;font-weight:700;">{$fechaEsc}</td></tr>
+          </table>
+          <p style="font-size:13px;color:#9ca3af;line-height:1.6;border-top:1px dashed #e5e1d8;padding-top:14px;margin:0;">
+            Esta donación fue realizada de forma voluntaria y no constituye la compra de bienes o servicios.
+            Documento generado automáticamente como constancia de la transacción. Que Dios multiplique tu ofrenda.
+          </p>
+        </td></tr>
+      </table>
+      <p style="color:#94a3b8;font-size:11px;margin:16px 0 0;font-family:Georgia,'Times New Roman',serif;">
+        © Bajo Su Presencia B.S.P — Sistema de Gestión Eclesiástica</p>
+    </td></tr>
+  </table>
 </div>
 HTML;
-    }
-
-    /**
-     * URL absoluta y públicamente accesible del logo, para incrustar en el
-     * correo (los clientes de correo no pueden resolver rutas relativas ni
-     * `file://`; necesitan una URL http(s) real).
-     *
-     * Se deriva de RESET_URL_BASE (mismo host que ya usa el correo de
-     * recuperación de contraseña) en lugar de fijar 'localhost': en
-     * producción esa variable ya apunta al dominio real desplegado.
-     */
-    private function logoUrl(): string
-    {
-        $base  = (string) Env::get('RESET_URL_BASE', 'http://localhost:5500');
-        $partes = parse_url($base);
-        $origen = ($partes['scheme'] ?? 'http') . '://' . ($partes['host'] ?? 'localhost')
-            . (isset($partes['port']) ? ':' . $partes['port'] : '');
-        return $origen . '/Bajo-Su-Presencia/assets/images/logo.png';
     }
 }

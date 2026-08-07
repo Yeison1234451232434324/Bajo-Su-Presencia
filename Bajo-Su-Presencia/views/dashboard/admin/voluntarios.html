@@ -64,114 +64,118 @@
       <p class="guia-seccion-texto">Evalúa el desempeño de los voluntarios en cada evento. Selecciona un evento, califica a cada voluntario con estrellas del 1 al 5, agrega observaciones y consulta el historial y resumen estadístico de cada uno.</p>
     </div>
 
-    <!-- ── Selector de evento ─────────────────────────────────────────── -->
-    <div class="evento-selector-card">
-      <label for="select-evento">
-        <i class="bx bx-calendar-event" style="color:var(--primary);font-size:1.2rem;" aria-hidden="true"></i>
-        Seleccionar Evento:
-      </label>
-      <select id="select-evento" class="select-evento">
-        <option value="">— Selecciona un evento —</option>
-        <!-- Opciones generadas por el controller -->
-      </select>
-    </div>
-
-    <!-- ── Barra de info del evento seleccionado ─────────────────────── -->
-    <div class="evento-info-bar" id="evento-info">
-      <div class="evento-info-item">
-        <i class="bx bx-calendar" aria-hidden="true"></i>
-        <span>Fecha: <strong id="info-fecha">—</strong></span>
-      </div>
-      <div class="evento-info-item">
-        <i class="bx bx-map-pin" aria-hidden="true"></i>
-        <span>Lugar: <strong id="info-lugar">—</strong></span>
-      </div>
-      <div class="evento-info-item">
-        <i class="bx bx-group" aria-hidden="true"></i>
-        <span>Evento: <strong id="info-nombre">—</strong></span>
-      </div>
-      <div class="evento-info-item">
-        <i class="bx bx-user" aria-hidden="true"></i>
-        <span><strong id="info-total">—</strong></span>
+    <!-- ══ VISTA 1: GRID DE EVENTOS ═══════════════════════════════════ -->
+    <div id="vista-eventos-vol">
+      <div class="vol-eventos-wrap">
+        <h3>Selecciona un Evento</h3>
+        <div class="vol-grid-eventos" id="grid-eventos-vol">
+          <!-- Tarjetas generadas por el controller -->
+        </div>
       </div>
     </div>
 
-    <!-- ── Layout: tabla + paneles laterales ─────────────────────────── -->
-    <div class="content-layout" id="content-layout">
+    <!-- ══ VISTA 2: CALIFICAR VOLUNTARIOS DEL EVENTO ══════════════════ -->
+    <div id="vista-calificar-vol" style="display:none;">
 
-      <!-- Placeholder cuando no hay evento seleccionado -->
-      <div class="sin-evento" id="sin-evento">
-        <i class="bx bx-calendar-x" aria-hidden="true"></i>
-        <p>Selecciona un evento para ver y calificar a sus voluntarios.</p>
+      <!-- Barra superior: Volver -->
+      <div class="vol-topbar">
+        <button class="btn-volver" onclick="volverAEventosVol()">
+          <i class="bx bx-chevron-left" aria-hidden="true"></i> Volver a Eventos
+        </button>
       </div>
 
-      <!-- DataTable de voluntarios (oculta hasta seleccionar evento) -->
-      <div class="table-wrap" id="tabla-wrap" style="display:none;">
-        <div id="dt-voluntarios"></div>
+      <!-- ── Barra de info del evento seleccionado ─────────────────────── -->
+      <div class="evento-info-bar" id="evento-info">
+        <div class="evento-info-item">
+          <i class="bx bx-calendar" aria-hidden="true"></i>
+          <span>Fecha: <strong id="info-fecha">—</strong></span>
+        </div>
+        <div class="evento-info-item">
+          <i class="bx bx-map-pin" aria-hidden="true"></i>
+          <span>Lugar: <strong id="info-lugar">—</strong></span>
+        </div>
+        <div class="evento-info-item">
+          <i class="bx bx-group" aria-hidden="true"></i>
+          <span>Evento: <strong id="info-nombre">—</strong></span>
+        </div>
+        <div class="evento-info-item">
+          <i class="bx bx-user" aria-hidden="true"></i>
+          <span><strong id="info-total">—</strong></span>
+        </div>
       </div>
 
-      <!-- ── Panel lateral: Historial de calificaciones ── -->
-      <div class="panel-lateral" id="panel-historial">
-        <div class="panel-lateral-header">
-          <div>
-            <h3>Historial</h3>
-            <p id="historial-nombre">—</p>
+      <!-- ── Layout: tabla + paneles laterales ─────────────────────────── -->
+      <div class="content-layout" id="content-layout">
+
+        <!-- DataTable de voluntarios -->
+        <div class="table-wrap" id="tabla-wrap">
+          <div id="dt-voluntarios"></div>
+        </div>
+
+        <!-- ── Panel lateral: Historial de calificaciones ── -->
+        <div class="panel-lateral" id="panel-historial">
+          <div class="panel-lateral-header">
+            <div>
+              <h3>Historial</h3>
+              <p id="historial-nombre">—</p>
+            </div>
+            <button class="btn-cerrar-panel" id="btn-cerrar-historial" title="Cerrar">
+              <i class="bx bx-x" aria-hidden="true"></i>
+            </button>
           </div>
-          <button class="btn-cerrar-panel" id="btn-cerrar-historial" title="Cerrar">
-            <i class="bx bx-x" aria-hidden="true"></i>
-          </button>
+          <!-- Lista de calificaciones pasadas, generada por el controller -->
+          <div class="historial-lista" id="historial-lista"></div>
         </div>
-        <!-- Lista de calificaciones pasadas, generada por el controller -->
-        <div class="historial-lista" id="historial-lista"></div>
-      </div>
 
-      <!-- ── Panel lateral: Resumen estadístico personal ── -->
-      <div class="panel-lateral" id="panel-resumen">
-        <div class="panel-lateral-header">
-          <div>
-            <h3>Resumen Estadístico</h3>
-            <p id="resumen-nombre">—</p>
+        <!-- ── Panel lateral: Resumen estadístico personal ── -->
+        <div class="panel-lateral" id="panel-resumen">
+          <div class="panel-lateral-header">
+            <div>
+              <h3>Resumen Estadístico</h3>
+              <p id="resumen-nombre">—</p>
+            </div>
+            <button class="btn-cerrar-panel" id="btn-cerrar-resumen" title="Cerrar">
+              <i class="bx bx-x" aria-hidden="true"></i>
+            </button>
           </div>
-          <button class="btn-cerrar-panel" id="btn-cerrar-resumen" title="Cerrar">
-            <i class="bx bx-x" aria-hidden="true"></i>
-          </button>
-        </div>
 
-        <!-- Tarjetas: promedio y total de eventos -->
-        <div class="resumen-grid">
-          <div class="resumen-card">
-            <p class="res-label">Promedio</p>
-            <p class="res-valor" id="res-promedio-num">—</p>
-            <div class="res-sub" id="res-promedio-stars"></div>
+          <!-- Tarjetas: promedio y total de eventos -->
+          <div class="resumen-grid">
+            <div class="resumen-card">
+              <p class="res-label">Promedio</p>
+              <p class="res-valor" id="res-promedio-num">—</p>
+              <div class="res-sub" id="res-promedio-stars"></div>
+            </div>
+            <div class="resumen-card">
+              <p class="res-label">Eventos</p>
+              <p class="res-valor" id="res-total">—</p>
+              <p style="font-size:0.78rem;color:var(--muted);margin-top:0.2rem;">calificados</p>
+            </div>
           </div>
-          <div class="resumen-card">
-            <p class="res-label">Eventos</p>
-            <p class="res-valor" id="res-total">—</p>
-            <p style="font-size:0.78rem;color:var(--muted);margin-top:0.2rem;">calificados</p>
+
+          <!-- Mejor calificación -->
+          <div class="resumen-card-full">
+            <p class="res-label">🏆 Mejor Calificación</p>
+            <div id="res-mejor"></div>
           </div>
-        </div>
 
-        <!-- Mejor calificación -->
-        <div class="resumen-card-full">
-          <p class="res-label">🏆 Mejor Calificación</p>
-          <div id="res-mejor"></div>
-        </div>
+          <!-- Peor calificación -->
+          <div class="resumen-card-full">
+            <p class="res-label">📉 Calificación más baja</p>
+            <div id="res-peor"></div>
+          </div>
 
-        <!-- Peor calificación -->
-        <div class="resumen-card-full">
-          <p class="res-label">📉 Calificación más baja</p>
-          <div id="res-peor"></div>
-        </div>
+          <!-- Distribución de estrellas -->
+          <p class="dist-titulo">Distribución de Calificaciones</p>
+          <div id="res-distribucion">
+            <!-- Barras generadas por el controller -->
+          </div>
 
-        <!-- Distribución de estrellas -->
-        <p class="dist-titulo">Distribución de Calificaciones</p>
-        <div id="res-distribucion">
-          <!-- Barras generadas por el controller -->
-        </div>
+        </div><!-- /panel-resumen -->
 
-      </div><!-- /panel-resumen -->
+      </div><!-- /content-layout -->
 
-    </div><!-- /content-layout -->
+    </div><!-- /vista-calificar-vol -->
 
   </section>
 </main>

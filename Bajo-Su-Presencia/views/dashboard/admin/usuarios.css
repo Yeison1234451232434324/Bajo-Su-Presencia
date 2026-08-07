@@ -351,6 +351,22 @@
   color: var(--info);
 }
 
+/* Rol y Especialidad en la tabla de usuarios: estilo "fantasma" (sin
+   relleno) igual que Tipo/Prioridad en PQR — son etiquetas de identidad,
+   no un estado, así que no deben competir en color con el badge de Estado
+   (Activo/Inactivo), que es el único que se queda con píldora sólida.
+   Sin tocar .badge-blue/.badge-amber/.badge-purple globales: en otros
+   módulos (donaciones, cupos de eventos) esas mismas clases sí representan
+   un estado real y deben seguir con su color. */
+#dt-usuarios-bsp-dt .badge-blue,
+#dt-usuarios-bsp-dt .badge-amber,
+#dt-usuarios-bsp-dt .badge-purple,
+#dt-usuarios-bsp-dt .badge-especialidad {
+  background: transparent;
+  border: 1.5px solid var(--border);
+  color: var(--text-secondary);
+}
+
 /* ── Toast de error ── */
 .toast-error {
   border-color: var(--danger-border) !important;

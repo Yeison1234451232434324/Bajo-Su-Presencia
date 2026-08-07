@@ -42,6 +42,33 @@ html { font-size: 17px; }
   --font-text:        'EB Garamond', serif;
 }
 
+/* ── Modo oscuro (ver Bajo-Su-Presencia/helpers/theme.css) ──────────
+   Página con paleta local propia (arriba) en vez de los tokens de
+   panel.css: se redefine aquí para no duplicar valores entre archivos.
+   --primary NO se redefine (se usa como fondo/borde de botones que
+   deben seguir en navy de marca); solo se corrigen sus usos como texto,
+   uno por uno abajo. */
+:root[data-theme="dark"] {
+  --foreground:       #e6e8ee;
+  --muted-foreground: #9aa4b2;
+}
+:root[data-theme="dark"] .prayer-verse-ref,
+:root[data-theme="dark"] .event-icon,
+:root[data-theme="dark"] .card-leer-mas,
+:root[data-theme="dark"] .mobile-lista-menu a:hover {
+  color: #93b4ff;
+}
+:root[data-theme="dark"] .modal-flotante { background: #1a2130; }
+:root[data-theme="dark"] .modal-flotante-close {
+  background: rgba(255,255,255,0.10); color: #e6e8ee;
+}
+:root[data-theme="dark"] .modal-flotante-close:hover { background: rgba(255,255,255,0.18); }
+:root[data-theme="dark"] .mf-texto,
+:root[data-theme="dark"] .mf-contenido,
+:root[data-theme="dark"] .mf-ev-item { color: #cbd5e1; }
+:root[data-theme="dark"] .mf-contenido,
+:root[data-theme="dark"] .mf-ev-grid { background: #202a3d; }
+
 /* ── Reset base ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: var(--sacred-cream); font-family: var(--font-text); }

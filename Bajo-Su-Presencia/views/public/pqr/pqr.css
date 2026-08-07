@@ -26,6 +26,30 @@
   --font-text:     'EB Garamond', serif;
 }
 
+/* ── Modo oscuro (ver Bajo-Su-Presencia/helpers/theme.css) ──────────
+   Página con paleta local propia (arriba) en vez de los tokens de
+   panel.css: se redefine aquí para no duplicar valores entre archivos. */
+:root[data-theme="dark"] {
+  --bg:     #0f1523;
+  --border: #2a3448;
+  --muted:  #9aa4b2;
+}
+/* Nota: .pqr-card (matchea "-card") y .pqr-input/.pqr-select/.pqr-textarea
+   (son <input>/<select>/<textarea>) ya quedan cubiertos por la capa legacy
+   genérica de theme.css (fondo, texto, borde y placeholder) — confirmado
+   en navegador, por eso no se repiten aquí. Solo lo que esa capa no
+   alcanza (el <label>, que no es card/box/wrap, y los mensajes de estado
+   con su propio color de fondo). */
+:root[data-theme="dark"] .pqr-form-group label { color: #e6e8ee; }
+:root[data-theme="dark"] .pqr-error-msg {
+  background: rgba(220, 38, 38, 0.22); color: #fca5a5; border-color: rgba(220, 38, 38, 0.4);
+}
+:root[data-theme="dark"] .pqr-info-note {
+  background: rgba(37, 99, 235, 0.2); border-color: rgba(37, 99, 235, 0.4);
+}
+:root[data-theme="dark"] .pqr-info-note p { color: #93b4ff; }
+:root[data-theme="dark"] .campo-invalido { background-color: rgba(225, 29, 72, 0.16) !important; }
+
 /* ── Sección principal ── */
 .pqr-section {
   min-height: calc(100vh - 80px);

@@ -46,7 +46,7 @@ html { font-size: 17px; }
 body {
   font-family: var(--font-text);
   background: var(--bg);
-  color: #1a1a2e;
+  color: var(--text-primary);
   min-height: 100vh;
 }
 
@@ -415,7 +415,7 @@ body {
   display: flex; align-items: center; gap: 0.5rem;
   font-family: var(--font-text);
   font-size: 1.05rem; font-weight: 600;
-  color: #1a1a2e;
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
 .form-control {
@@ -425,7 +425,7 @@ body {
   border-radius: 0.875rem;
   font-family: var(--font-text);
   font-size: 1rem;
-  color: #1a1a2e;
+  color: var(--text-primary);
   background: #fff;
   outline: none;
   transition: border-color 0.2s;
@@ -475,7 +475,7 @@ body {
 .preview-text {
   font-family: var(--font-text);
   font-size: 1.1rem; line-height: 1.75;
-  color: #1a1a2e; text-align: center; font-style: italic;
+  color: var(--text-primary); text-align: center; font-style: italic;
   margin-bottom: 0.75rem;
 }
 .preview-verse {

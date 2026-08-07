@@ -20,6 +20,23 @@
 .dn-counter-highlight .counter-value { color: #fff; }
 .dn-counter-highlight .counter-icon--success { background: rgba(245,194,21,0.18); color: var(--accent); }
 
+/* Método (PSE/Tarjeta/Nequi): estilo "fantasma", igual criterio que Rol en
+   usuarios y Tipo/Prioridad en PQR — es una etiqueta de identidad, no un
+   estado, y no debe competir en color con el badge de Estado (Aprobada/
+   Pendiente/Rechazada), que es el único que se queda con píldora sólida.
+   Se escoge por la celda (.dt-c-metodo), no por el color del badge: el
+   método reutiliza las mismas clases badge-blue/badge-amber que el estado
+   (p. ej. Nequi y "Pendiente" comparten .badge-amber), así que ghostear
+   por color afectaría también al badge de Estado.
+   De paso corrige una inconsistencia real: "Tarjeta" usa .badge-especialidad,
+   una clase que ni siquiera está definida en este módulo (solo en
+   usuarios.css) y por eso se veía como texto plano sin píldora. */
+.dt-c-metodo .badge {
+  background: transparent;
+  border: 1.5px solid var(--border);
+  color: var(--text-secondary);
+}
+
 /* ── Fila de la tabla en columnas alineadas (mismo patrón que .dt-row-usuarios) ── */
 .dt-row-donaciones {
   display: grid;

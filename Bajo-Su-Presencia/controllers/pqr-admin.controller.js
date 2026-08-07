@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const btnCancelarModal = document.getElementById('pqr-btn-cancelar-modal');
   const btnGuardar       = document.getElementById('pqr-btn-guardar-respuesta');
   const modalError       = document.getElementById('pqr-modal-error');
+  const modalLockNote    = document.getElementById('pqr-modal-resuelto-nota');
 
   // Estado interno
   let pqrActualId = null; // ID del PQR abierto en el modal
@@ -70,6 +71,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const badgeEstado    = estadoBadge(p.estado);
       const badgePrioridad = prioridadBadge(p.prioridad);
       const fecha          = formatFecha(p.creadoEn);
+      const resuelto       = p.estado === 'Resuelto';
 
       return `
         <div class="pqr-row">
@@ -83,11 +85,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             </span>
             <span style="flex-shrink:0;font-size:0.82rem;color:var(--muted);">${fecha}</span>
             <div class="pqr-acciones-cell" style="flex-shrink:0;">
-              <button class="pqr-btn-accion btn-ver-pqr" onclick="abrirModal('${p.id}')" title="Ver detalle y responder">
+              <button class="pqr-btn-accion btn-ver-pqr" onclick="abrirModal('${p.id}')" title="Ver detalle${resuelto ? '' : ' y responder'}">
                 <i class="bx bx-show" aria-hidden="true"></i>
               </button>
               <button class="pqr-btn-accion btn-estado-pqr" onclick="ciclarEstado('${p.id}')"
-                title="Cambiar estado: ${siguienteEstado(p.estado)}">
+                ${resuelto ? 'disabled title="Resuelto: solo se puede eliminar"' : `title="Cambiar estado: ${siguienteEstado(p.estado)}"`}>
                 <i class="bx bx-transfer-alt" aria-hidden="true"></i>
               </button>
               <button class="pqr-btn-accion btn-eliminar-pqr" onclick="eliminarPQR('${p.id}')" title="Eliminar PQR">
@@ -228,6 +230,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('modal-campo-respuesta').value = p.respuesta || '';
     document.getElementById('modal-campo-estado').value    = p.estado;
 
+    // Una PQR "Resuelto" queda de solo lectura: no se puede responder ni
+    // cambiar su estado (el backend también lo rechaza), solo eliminar.
+    const resuelto = p.estado === 'Resuelto';
+    document.getElementById('modal-campo-respuesta').disabled = resuelto;
+    document.getElementById('modal-campo-estado').disabled    = resuelto;
+    btnGuardar.disabled    = resuelto;
+    btnGuardar.title       = resuelto ? 'Esta PQR ya fue resuelta y no se puede modificar.' : '';
+    modalLockNote.style.display = resuelto ? 'block' : 'none';
+
     // Limpiar error
     modalError.style.display = 'none';
     modalError.textContent   = '';
@@ -282,7 +293,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     cerrarModal();
     await renderTabla();
-    showAlertSuccess('La respuesta fue registrada exitosamente.');
+    showAlertSuccess('La respuesta ya fue enviada.');
   });
 
   // ════════════════════════════════════════════════════════════════
@@ -293,6 +304,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.ciclarEstado = async function(id) {
     const p = await PQRModel.getById(id);
     if (!p) return;
+
+    if (p.estado === 'Resuelto') {
+      showAlertError('Esta PQR ya fue resuelta y no se puede modificar. Solo puede eliminarse.');
+      return;
+    }
 
     const nuevo     = siguienteEstado(p.estado);
     const resultado = await PQRModel.cambiarEstado(id, nuevo);

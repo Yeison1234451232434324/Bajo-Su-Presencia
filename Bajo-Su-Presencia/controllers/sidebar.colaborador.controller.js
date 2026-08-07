@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
       </li>
       <li>
         <a href="reporte.html" id="nav-reporte">
-          <i class="bx bx-upload" aria-hidden="true"></i>
+          <i class="bx bx-notepad" aria-hidden="true"></i>
           <span class="nav-item">Subir Reporte</span>
         </a>
         <span class="tooltip">Subir Reporte</span>

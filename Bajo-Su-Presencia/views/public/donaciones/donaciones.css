@@ -26,6 +26,39 @@
   --ease:      cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* ── Modo oscuro (ver Bajo-Su-Presencia/helpers/theme.css) ──────────
+   Esta página define su propia paleta local (arriba) en vez de los
+   tokens de panel.css, así que se redefine aquí en vez de en theme.css
+   para no duplicar valores entre archivos. */
+:root[data-theme="dark"] {
+  --azul-soft: rgba(30, 58, 138, 0.28);
+  --oro-soft:  rgba(212, 166, 74, 0.22);
+  --tinta:     #e6e8ee;
+  --muted:     #9aa4b2;
+  --linea:     #2a3448;
+  --blanco:    #1a2130;
+  --bg:        #0f1523;
+}
+/* Nota: .dn-input (es un <input>) y .dn-anon-card/.dn-success-card
+   (matchean "-card") ya quedan cubiertos por la capa legacy genérica de
+   theme.css — confirmado en navegador, por eso no se repiten aquí. */
+:root[data-theme="dark"] .dn-otro,
+:root[data-theme="dark"] .dn-monto,
+:root[data-theme="dark"] .dn-prop,
+:root[data-theme="dark"] .dn-res-item,
+:root[data-theme="dark"] .dn-metodo { background: var(--blanco); }
+:root[data-theme="dark"] .dn-otro.is-sel { background: #202a3d; }
+:root[data-theme="dark"] .dn-switch-track { background: #354056; }
+:root[data-theme="dark"] .dn-switch-thumb { background: #e6e8ee; }
+:root[data-theme="dark"] .dn-req { background: rgba(212, 166, 74, 0.22); color: #f0c674; }
+/* Estados "seleccionado" con degradado que partía de #fff (quedaba un
+   parche blanco sobre fondo oscuro): mismo tono, punto de partida oscuro. */
+:root[data-theme="dark"] .dn-prop.is-sel { background: linear-gradient(160deg, var(--blanco), var(--oro-soft)); }
+:root[data-theme="dark"] .dn-metodo.is-sel { background: linear-gradient(160deg, var(--blanco), var(--azul-soft)); }
+:root[data-theme="dark"] .dn-metodo[data-metodo="PSE"].is-sel { background: linear-gradient(160deg, var(--blanco), rgba(35, 178, 109, 0.22)); }
+:root[data-theme="dark"] .dn-metodo[data-metodo="Nequi"].is-sel { background: linear-gradient(160deg, var(--blanco), rgba(219, 39, 119, 0.22)); }
+:root[data-theme="dark"] .dn-res-total { background: linear-gradient(160deg, var(--blanco), var(--oro-soft)); }
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 /* Escala base de esta página (algo mayor que /inicio para textos más grandes). */
@@ -353,6 +386,15 @@ body {
   .dn-hero { flex-direction: column; min-height: 0; padding: 0 0 2rem; align-items: stretch; }
   .dn-hero-img { position: static; width: 100%; height: 300px; order: -1; }
   .dn-hero-img img { height: 100%; border-radius: 0 0 24px 24px; }
+  .dn-verse-card {
+    right: 0.85rem; bottom: 0.85rem; left: auto;
+    width: min(62%, 190px); padding: 0.85rem 0.9rem 0.75rem; border-radius: 14px;
+  }
+  .dn-verse-card .dn-quote { font-size: 1.6rem; }
+  .dn-verse-card blockquote { font-size: 0.85rem; margin: 0.2rem 0; }
+  .dn-verse-card figcaption { font-size: 0.68rem; }
+  .dn-verse-heart { width: 28px; height: 28px; margin-top: 0.5rem; }
+  .dn-verse-heart svg { width: 14px; height: 14px; }
   .dn-hero-text { width: 100%; padding: 2rem 1.25rem 0; }
   .dn-scroll-donar { position: static; transform: none; margin: 1.75rem auto 0.5rem; }
   .dn-datos { grid-template-columns: 1fr; }

@@ -26,6 +26,27 @@
   gap: 1.25rem;
 }
 
+/* ── Agrupado: sin asignar / pendientes / completadas ─────────────
+   El contenedor pasa de grid de tarjetas a columna de subgrupos; cada
+   subgrupo mantiene su propio .act-grid-eventos con el grid original. */
+#grid-eventos.act-grid-eventos--agrupado {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.act-subgrupo-titulo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-text);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+.act-subgrupo-titulo--ok      { color: var(--success); }
+.act-subgrupo-titulo--alerta  { color: var(--danger); }
+
 /* Tarjeta de evento */
 .act-evento-card {
   display: flex;

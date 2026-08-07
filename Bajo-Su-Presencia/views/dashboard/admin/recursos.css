@@ -153,50 +153,60 @@
   flex-shrink: 0;
 }
 /* Colores de ícono por categoría (todos en tono azul, sin colores llamativos) */
-.icon-mobiliario  { background: var(--info-bg); color: var(--primary); }
-.icon-audio       { background: var(--info-bg); color: var(--primary); }
-.icon-iluminacion { background: var(--info-bg); color: var(--primary); }
-.icon-papeleria   { background: var(--info-bg); color: var(--primary); }
-.icon-cocina      { background: var(--info-bg); color: var(--primary); }
-.icon-otros       { background: var(--info-bg); color: var(--primary); }
+.icon-mobiliario  { background: var(--info-bg); color: var(--info); }
+.icon-audio       { background: var(--info-bg); color: var(--info); }
+.icon-iluminacion { background: var(--info-bg); color: var(--info); }
+.icon-papeleria   { background: var(--info-bg); color: var(--info); }
+.icon-cocina      { background: var(--info-bg); color: var(--info); }
+.icon-otros       { background: var(--info-bg); color: var(--info); }
 
 .recurso-nombre { font-weight: 700; font-size: 1rem; }
 .recurso-desc   { font-size: 0.8125rem; color: var(--muted); max-width: 220px;
                   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* ── Badges de categoría ── */
-.cat-mobiliario  { background: var(--info-bg); color: var(--info); }
-.cat-audio       { background: var(--info-bg); color: var(--info); }
-.cat-iluminacion { background: var(--info-bg); color: var(--info); }
-.cat-papeleria   { background: var(--info-bg); color: var(--info); }
-.cat-cocina      { background: var(--info-bg); color: var(--info); }
-.cat-otros       { background: var(--info-bg); color: var(--info); }
+/* ── Badges de categoría: estilo "fantasma" (sin relleno) — es una
+   etiqueta de identidad, no un estado, así que no debe competir en color
+   con "Disponible"/"Sin stock" (ver excepción de Estado más abajo), que
+   es la que se queda con píldora sólida. ── */
+.cat-mobiliario,
+.cat-audio,
+.cat-iluminacion,
+.cat-papeleria,
+.cat-cocina,
+.cat-otros {
+  background: transparent;
+  border: 1.5px solid var(--border);
+  color: var(--text-secondary);
+}
 
 /* Badges reutilizados */
 .badge-red    { background: var(--danger-bg); color: var(--danger); }
 .badge-blue   { background: var(--info-bg); color: var(--info); }
 
-/* Esta tabla usa solo tonos azules suaves (sin verde/ámbar) para "Disponible" y "unidades" */
-#dt-recursos .badge-green,
-#dt-recursos .badge-amber {
+/* Esta tabla usa solo tonos azules suaves (sin verde/ámbar) para "Disponible"
+   y "unidades". El selector apunta al contenedor real que arma BSPDataTable
+   (agrega el sufijo "-bsp-dt" y elimina el <div id="dt-recursos"> original),
+   no al id original del HTML estático. */
+#dt-recursos-bsp-dt .badge-green,
+#dt-recursos-bsp-dt .badge-amber {
   background: var(--info-bg);
-  color: var(--primary);
+  color: var(--info);
 }
 
 /* ── Botones de acción ──
    .acciones-cell base + .btn-accion: componentes compartidos, ver panel.css */
 .acciones-cell { justify-content: center; flex-wrap: wrap; }
 
-.btn-editar-rec   { background: var(--info-bg); color: var(--primary); }
+.btn-editar-rec   { background: var(--info-bg); color: var(--info); }
 .btn-editar-rec:hover   { background: var(--info-border); }
 
-.btn-toggle-on    { background: var(--info-bg); color: var(--primary); }
+.btn-toggle-on    { background: var(--info-bg); color: var(--info); }
 .btn-toggle-on:hover    { background: var(--success-border); }
 
 .btn-toggle-off   { background: var(--info-bg); color: var(--danger); }
 .btn-toggle-off:hover   { background: var(--danger-border); }
 
-.btn-asignar      { background: var(--info-bg); color: var(--primary); }
+.btn-asignar      { background: var(--info-bg); color: var(--info); }
 .btn-asignar:hover      { background: var(--info-border); }
 
 .btn-eliminar-rec { background: var(--info-bg); color: var(--danger); }

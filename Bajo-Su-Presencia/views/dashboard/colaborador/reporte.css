@@ -26,6 +26,26 @@
   gap: 1.25rem;
 }
 
+/* ── Agrupado: pendientes de reporte vs. reporte ya cargado ──────
+   El contenedor pasa de grid de tarjetas a columna de subgrupos; cada
+   subgrupo mantiene su propio .rep-grid-eventos con el grid original. */
+#rep-grid-eventos.rep-grid-eventos--agrupado {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.rep-subgrupo-titulo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-text);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+.rep-subgrupo-titulo--ok { color: var(--success); }
+
 /* ── Tarjeta de evento ───────────────────────────────────────── */
 .rep-evento-card {
   display: flex;
@@ -184,7 +204,7 @@
   font-family: var(--font-text);
   font-size: 1rem;
   font-weight: 600;
-  color: #1a1a2e;
+  color: var(--text-primary);
   margin-bottom: 0.45rem;
 }
 .rep-field label i { font-size: 1.1rem; }
@@ -199,7 +219,7 @@
   border-radius: 0.875rem;
   font-family: var(--font-text);
   font-size: 1rem;
-  color: #1a1a2e;
+  color: var(--text-primary);
   background: #fff;
   outline: none;
   transition: border-color 0.2s;
@@ -279,7 +299,7 @@
 }
 .rep-existente-body p {
   font-size: 1rem;
-  color: #1a1a2e;
+  color: var(--text-primary);
   margin-bottom: 0.4rem;
   line-height: 1.5;
 }

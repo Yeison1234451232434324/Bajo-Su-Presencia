@@ -167,6 +167,39 @@
 :root[data-theme="dark"] [class*="-title"] {
   color: #cdd8f5 !important;
 }
+
+/* Mismo problema (texto en var(--primary-dark), invisible sobre fondo
+   oscuro) en clases que no calzan con el patrón "-titulo/-title" de
+   arriba: valores numéricos destacados, nombres de fila/registro y
+   etiquetas puntuales. Enumeradas una por una (no un wildcard genérico
+   "-nombre"/"-label"): se verificó que un patrón amplio pisaría, por
+   ejemplo, ".bsp-portada-reporte-label" (dorado fijo de la portada del
+   PDF, ver generar-reportes.css) con este mismo azul claro — regresión
+   real detectada y descartada antes de aplicar el fix. */
+:root[data-theme="dark"] .counter-info .counter-value,
+:root[data-theme="dark"] .dn-cell-ref .dn-referencia,
+:root[data-theme="dark"] .dn-factura-num-valor,
+:root[data-theme="dark"] .dn-factura-tabla tfoot td,
+:root[data-theme="dark"] .dn-factura-org,
+:root[data-theme="dark"] .stat-pqr-value,
+:root[data-theme="dark"] .cal-stat-value,
+:root[data-theme="dark"] .disp-counter-value,
+:root[data-theme="dark"] .mact-progreso-num,
+:root[data-theme="dark"] .resumen-card .res-valor,
+:root[data-theme="dark"] .historial-evento,
+:root[data-theme="dark"] .hist-evento,
+:root[data-theme="dark"] .btn-volver,
+:root[data-theme="dark"] .rep-btn-volver,
+:root[data-theme="dark"] .ev-plantilla-btn,
+:root[data-theme="dark"] .evento-selector-card label,
+:root[data-theme="dark"] .modal-vol-info strong,
+:root[data-theme="dark"] .gr-tipo-nombre,
+:root[data-theme="dark"] .gr-reciente-nombre,
+:root[data-theme="dark"] .disp-evento-nombre,
+:root[data-theme="dark"] .sed-item-nombre,
+:root[data-theme="dark"] .ev-pub-recursos-label {
+  color: #cdd8f5 !important;
+}
 :root[data-theme="dark"] .panel-header p,
 :root[data-theme="dark"] .section-desc,
 :root[data-theme="dark"] .label {
@@ -233,5 +266,60 @@
 }
 :root[data-theme="dark"] .stat-icon svg,
 :root[data-theme="dark"] .counter-icon svg { stroke: #93b4ff !important; }
+
+/* Chips de prioridad/estado con clase modificadora propia (no ".badge-*",
+   por eso el bloque de arriba no los alcanza): actividades (colaborador y
+   voluntario), eventos (colaborador) y destacados del inicio público.
+   Mismo criterio que los .badge-*: fondo translúcido + texto del tono. */
+:root[data-theme="dark"] .act-prio--alta,
+:root[data-theme="dark"] .mact-prio--alta {
+  background: var(--danger-bg) !important; color: var(--danger) !important;
+}
+:root[data-theme="dark"] .act-prio--media,
+:root[data-theme="dark"] .mact-prio--media,
+:root[data-theme="dark"] .mf-badge--evento,
+:root[data-theme="dark"] .ev-badge--ejecucion {
+  background: var(--warning-bg) !important; color: var(--warning) !important;
+}
+:root[data-theme="dark"] .act-prio--baja,
+:root[data-theme="dark"] .mact-prio--baja,
+:root[data-theme="dark"] .ev-badge--publicado,
+:root[data-theme="dark"] .mf-badge--noticia {
+  background: var(--info-bg) !important; color: var(--info) !important;
+}
+:root[data-theme="dark"] .ev-badge--activo {
+  background: var(--success-bg) !important; color: var(--success) !important;
+}
+:root[data-theme="dark"] .ev-badge--pasado,
+:root[data-theme="dark"] .ev-badge--finalizado {
+  background: var(--surface-2) !important; color: var(--text-muted) !important;
+}
+
+/* Botones de acción (editar/ver/eliminar/cancelar) con fondo pastel propio,
+   mismo motivo que arriba: no coinciden con ningún patrón genérico. */
+:root[data-theme="dark"] .act-btn-editar,
+:root[data-theme="dark"] .btn-ev-ver {
+  background: var(--info-bg) !important; color: var(--info) !important;
+}
+:root[data-theme="dark"] .btn-ev-editar {
+  background: var(--warning-bg) !important; color: var(--warning) !important;
+}
+:root[data-theme="dark"] .act-btn-eliminar,
+:root[data-theme="dark"] .btn-ev-eliminar,
+:root[data-theme="dark"] .vev-btn-cancelar {
+  background: var(--danger-bg) !important; color: var(--danger) !important;
+}
+:root[data-theme="dark"] .act-btn-editar:hover,
+:root[data-theme="dark"] .btn-ev-ver:hover { background: var(--info-border) !important; }
+:root[data-theme="dark"] .btn-ev-editar:hover { background: var(--warning-border) !important; }
+:root[data-theme="dark"] .act-btn-eliminar:hover,
+:root[data-theme="dark"] .btn-ev-eliminar:hover,
+:root[data-theme="dark"] .vev-btn-cancelar:hover { background: var(--danger-border) !important; }
+
+/* Scrollbar del modal de noticias/eventos del inicio público: apenas
+   visible (gris claro) sobre un modal ya oscurecido por el token --surface. */
+:root[data-theme="dark"] .modal-flotante::-webkit-scrollbar-thumb {
+  background: var(--border) !important;
+}
 
 /* La guía de sección y el sidebar ya son azul marino: se ven bien en oscuro. */
