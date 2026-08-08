@@ -118,6 +118,7 @@ function tablaDeRutas(): array
         '/donaciones-admin'       => 'views/dashboard/admin/donaciones.html',
         '/reportes'               => 'views/dashboard/admin/reporte.html',
         '/generar-reportes'       => 'views/dashboard/admin/generar-reportes.html',
+        '/auditoria'              => 'views/dashboard/admin/auditoria.html',
 
         // ── Panel · Colaborador ──────────────────────────────────
         '/colaborador'             => 'views/dashboard/colaborador/eventos.html',

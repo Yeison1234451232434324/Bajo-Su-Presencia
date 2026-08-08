@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Controllers\AuditoriaController;
 use App\Controllers\AuthController;
 use App\Controllers\DataGatewayController;
 use App\Controllers\DonacionesController;
@@ -48,6 +49,9 @@ $router->post('/api/pqr', [PqrController::class, 'crear']);
 // Responder / cambiar estado: panel autenticado — envían correo al solicitante.
 $router->patch('/api/pqr/{id}/responder', [PqrController::class, 'responder']);
 $router->patch('/api/pqr/{id}/estado', [PqrController::class, 'cambiarEstado']);
+
+// ── Auditoría (panel autenticado: rol Administrador) ────────────
+$router->get('/api/auditoria', [AuditoriaController::class, 'index']);
 
 // ── Data Gateway (panel autenticado) ────────────────────────────
 $router->get('/api/db/{table}', [DataGatewayController::class, 'handle']);

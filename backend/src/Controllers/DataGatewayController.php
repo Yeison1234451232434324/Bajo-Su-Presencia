@@ -8,6 +8,7 @@ use App\Exceptions\ApiException;
 use App\Http\Request;
 use App\Http\Response;
 use App\Security\AuthMiddleware;
+use App\Support\AuditLogger;
 use App\Supabase\SupabaseClient;
 
 /**
@@ -123,9 +124,91 @@ final class DataGatewayController
                 throw new ApiException('Método no permitido.', 405);
         }
 
+        // Auditoría: solo escrituras hechas por un usuario autenticado (nunca
+        // el POST público de `pqr`, donde $claims está vacío). El Data Gateway
+        // es el único punto de entrada de la mayoría de las escrituras
+        // administrativas (eventos, noticias, oraciones, actividades,
+        // recursos, voluntarios_eventos, calificaciones_eventos,
+        // evaluaciones, informes, sedes, pqr, donaciones), así que centralizar
+        // aquí el registro cubre todas ellas sin repetir el código en cada
+        // modelo del frontend ni en cada endpoint.
+        if ($isWrite && $claims !== []) {
+            $this->auditar($method, $table, $query, $request->all(), $claims, $status, $data);
+        }
+
         if ($status >= 400) {
             throw new ApiException('Error en la operación de datos.', 502);
         }
         Response::success(is_array($data) ? $data : []);
+    }
+
+    /**
+     * Registra en la auditoría una escritura hecha a través del gateway.
+     *
+     * @param array<string,mixed> $claims Claims del JWT del actor.
+     * @param array<string,mixed> $body   Cuerpo enviado por el cliente.
+     * @param mixed                $data  Respuesta de PostgREST (filas o null).
+     */
+    private function auditar(
+        string $method,
+        string $table,
+        string $query,
+        array $body,
+        array $claims,
+        int $status,
+        $data
+    ): void {
+        $acciones = ['POST' => 'crear', 'PUT' => 'editar', 'PATCH' => 'editar', 'DELETE' => 'eliminar'];
+        $accion   = $acciones[$method] ?? strtolower($method);
+        $exito    = $status < 400;
+
+        $registroId = $this->extraerRegistroId($query, $data);
+        $rol        = (string) ($claims['rol'] ?? '');
+        $correo     = (string) ($claims['correo'] ?? '');
+        $verbo      = ['crear' => 'creó', 'editar' => 'editó', 'eliminar' => 'eliminó'][$accion] ?? $accion;
+        $referencia = $this->identificarRegistro($body);
+
+        $descripcion = trim("{$rol} ({$correo}) {$verbo} un registro en \"{$table}\"")
+            . ($referencia !== null ? " — {$referencia}" : '')
+            . ($exito ? '.' : ' (la operación falló).');
+
+        AuditLogger::registrar($claims, $accion, $table, $registroId, $descripcion, $exito ? 'exito' : 'error');
+    }
+
+    /**
+     * Extrae el id (uuid) del registro afectado: de la fila devuelta por
+     * PostgREST (POST/PATCH con `return=representation`) o, si no hay cuerpo
+     * de respuesta (DELETE), del filtro `id=eq.…` de la query string.
+     *
+     * @param mixed $data
+     */
+    private function extraerRegistroId(string $query, $data): ?string
+    {
+        if (is_array($data) && isset($data[0]) && is_array($data[0]) && isset($data[0]['id'])) {
+            return (string) $data[0]['id'];
+        }
+        if (preg_match('/(?:^|&)id=eq\.([^&]+)/', $query, $m) === 1) {
+            return urldecode($m[1]);
+        }
+        return null;
+    }
+
+    /**
+     * Busca en el cuerpo enviado un campo identificador genérico (no asume
+     * el esquema de ninguna tabla en particular: solo revisa los nombres de
+     * campo más comunes entre los módulos del panel) para hacer la
+     * descripción legible sin una consulta adicional.
+     *
+     * @param array<string,mixed> $body
+     */
+    private function identificarRegistro(array $body): ?string
+    {
+        foreach (['titulo', 'nombre', 'asunto', 'referencia', 'tipo'] as $campo) {
+            $valor = $body[$campo] ?? null;
+            if (is_string($valor) && trim($valor) !== '') {
+                return '"' . mb_substr(trim($valor), 0, 120) . '"';
+            }
+        }
+        return null;
     }
 }

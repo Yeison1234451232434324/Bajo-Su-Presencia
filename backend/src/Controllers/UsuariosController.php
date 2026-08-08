@@ -8,6 +8,8 @@ use App\Http\Request;
 use App\Http\Response;
 use App\Security\AuthMiddleware;
 use App\Services\UsuariosService;
+use App\Support\AuditLogger;
+use Throwable;
 
 /**
  * Controlador del módulo Usuarios (CRUD).
@@ -96,8 +98,29 @@ final class UsuariosController
      */
     public function store(Request $request, array $args): void
     {
-        AuthMiddleware::authorize($request, self::ROLES);
-        Response::success($this->service->create($request->all()), 'Usuario creado.', 201);
+        $claims = AuthMiddleware::authorize($request, self::ROLES);
+        $correoNuevo = (string) ($request->input('email', '') ?: $request->input('correo', ''));
+        try {
+            $row = $this->service->create($request->all());
+        } catch (Throwable $e) {
+            AuditLogger::registrar(
+                $claims,
+                'crear',
+                'usuarios',
+                null,
+                "Intentó crear el usuario \"{$correoNuevo}\" (la operación falló).",
+                'error'
+            );
+            throw $e;
+        }
+        AuditLogger::registrar(
+            $claims,
+            'crear',
+            'usuarios',
+            isset($row['id']) ? (string) $row['id'] : null,
+            "Creó el usuario \"{$correoNuevo}\"."
+        );
+        Response::success($row, 'Usuario creado.', 201);
     }
 
     /**
@@ -107,8 +130,23 @@ final class UsuariosController
      */
     public function update(Request $request, array $args): void
     {
-        AuthMiddleware::authorize($request, self::ROLES);
-        Response::success($this->service->update($args['id'], $request->all()), 'Usuario actualizado.');
+        $claims = AuthMiddleware::authorize($request, self::ROLES);
+        try {
+            $row = $this->service->update($args['id'], $request->all());
+        } catch (Throwable $e) {
+            AuditLogger::registrar(
+                $claims,
+                'editar',
+                'usuarios',
+                $args['id'] ?? null,
+                'Intentó editar un usuario (la operación falló).',
+                'error'
+            );
+            throw $e;
+        }
+        $identificador = $row['correo_electronico'] ?? $row['username'] ?? $args['id'];
+        AuditLogger::registrar($claims, 'editar', 'usuarios', $args['id'] ?? null, "Editó el usuario \"{$identificador}\".");
+        Response::success($row, 'Usuario actualizado.');
     }
 
     /**
@@ -118,8 +156,28 @@ final class UsuariosController
      */
     public function toggleActivo(Request $request, array $args): void
     {
-        AuthMiddleware::authorize($request, self::ROLES);
-        Response::success(['activo' => $this->service->toggleActivo($args['id'])], 'Estado actualizado.');
+        $claims = AuthMiddleware::authorize($request, self::ROLES);
+        try {
+            $nuevo = $this->service->toggleActivo($args['id']);
+        } catch (Throwable $e) {
+            AuditLogger::registrar(
+                $claims,
+                'activar_desactivar',
+                'usuarios',
+                $args['id'] ?? null,
+                'Intentó cambiar el estado activo/inactivo de un usuario (la operación falló).',
+                'error'
+            );
+            throw $e;
+        }
+        AuditLogger::registrar(
+            $claims,
+            $nuevo ? 'activar' : 'desactivar',
+            'usuarios',
+            $args['id'] ?? null,
+            ($nuevo ? 'Activó' : 'Desactivó') . " el usuario con id \"{$args['id']}\"."
+        );
+        Response::success(['activo' => $nuevo], 'Estado actualizado.');
     }
 
     /**
@@ -129,8 +187,21 @@ final class UsuariosController
      */
     public function destroy(Request $request, array $args): void
     {
-        AuthMiddleware::authorize($request, self::ROLES);
-        $this->service->remove($args['id']);
+        $claims = AuthMiddleware::authorize($request, self::ROLES);
+        try {
+            $this->service->remove($args['id']);
+        } catch (Throwable $e) {
+            AuditLogger::registrar(
+                $claims,
+                'eliminar',
+                'usuarios',
+                $args['id'] ?? null,
+                'Intentó eliminar un usuario (la operación falló).',
+                'error'
+            );
+            throw $e;
+        }
+        AuditLogger::registrar($claims, 'eliminar', 'usuarios', $args['id'] ?? null, "Eliminó el usuario con id \"{$args['id']}\".");
         Response::success(null, 'Usuario eliminado.');
     }
 }

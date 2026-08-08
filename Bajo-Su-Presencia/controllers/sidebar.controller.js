@@ -128,6 +128,13 @@ document.addEventListener("DOMContentLoaded", () => {
         </a>
         <span class="tooltip">Donaciones</span>
       </li>
+      <li id="li-auditoria" style="display:none;">
+        <a href="auditoria.html" id="nav-auditoria">
+          <i class="bx bx-shield-quarter" aria-hidden="true"></i>
+          <span class="nav-item">Auditoría</span>
+        </a>
+        <span class="tooltip">Auditoría</span>
+      </li>
       <li class="logout-li">
         <a href="../../public/login/login.html" id="nav-logout">
           <i class="bx bx-log-out" aria-hidden="true"></i>
@@ -214,6 +221,7 @@ document.addEventListener("DOMContentLoaded", () => {
   else if (path.includes("sedes.html"))            document.getElementById("nav-sedes")?.parentElement.classList.add("active-item");
   else if (path.includes("pqr.html"))              document.getElementById("nav-pqr")?.parentElement.classList.add("active-item");
   else if (path.includes("donaciones.html"))       document.getElementById("nav-donaciones")?.parentElement.classList.add("active-item");
+  else if (path.includes("auditoria.html"))        document.getElementById("nav-auditoria")?.parentElement.classList.add("active-item");
 
   // ── Identidad y menú: SIEMPRE según el servidor ──────────────────────────
   // Antes esto se resolvía leyendo `usuarioLogueado` de localStorage de forma
@@ -242,7 +250,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // vuelve a exigir el rol contra el servidor al abrirse.
     if (identidad.rol === 'Administrador') {
       ['li-usuarios', 'li-voluntarios', 'li-recursos',
-       'li-actividades', 'li-reporte', 'li-generar-reportes', 'li-sedes', 'li-pqr', 'li-donaciones']
+       'li-actividades', 'li-reporte', 'li-generar-reportes', 'li-sedes', 'li-pqr', 'li-donaciones', 'li-auditoria']
         .forEach((id) => {
           const el = document.getElementById(id);
           if (el) el.style.display = '';

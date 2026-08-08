@@ -204,7 +204,7 @@
       <div class="chart-card">
         <div class="chart-card-header">
           <h3>Crecimiento de Usuarios</h3>
-          <span class="chart-badge chart-badge--blue">Últimos 6 meses</span>
+          <span class="chart-badge">Últimos 6 meses</span>
         </div>
         <canvas id="userGrowthChart" height="200"></canvas>
       </div>
@@ -212,7 +212,7 @@
       <div class="chart-card">
         <div class="chart-card-header">
           <h3>Contenido Publicado</h3>
-          <span class="chart-badge chart-badge--green">Por tipo</span>
+          <span class="chart-badge">Por tipo</span>
         </div>
         <canvas id="contentChart" height="200"></canvas>
       </div>
@@ -225,19 +225,18 @@
       <div class="chart-card">
         <div class="chart-card-header">
           <h3>Eventos por Mes</h3>
-          <span class="chart-badge chart-badge--amber">Comparativa</span>
+          <span class="chart-badge">Comparativa</span>
         </div>
         <canvas id="eventsMonthChart" height="200"></canvas>
       </div>
 
-      <div class="chart-card chart-card--donut">
+      <div class="chart-card">
         <div class="chart-card-header">
-          <h3>Distribución de Voluntarios</h3>
-          <span class="chart-badge chart-badge--purple">Por área</span>
+          <h3>Listado de Voluntarios</h3>
+          <span class="chart-badge" id="volunteersTotalBadge">—</span>
         </div>
-        <div class="donut-wrap">
-          <canvas id="volunteersChart" height="220"></canvas>
-          <div class="donut-legend" id="volunteersLegend"></div>
+        <div class="volunteer-full-list" id="volunteersFullList">
+          <div class="table-row"><span>Cargando…</span></div>
         </div>
       </div>
 
@@ -259,6 +258,38 @@
         <h3>Voluntarios Destacados</h3>
         <div class="volunteer-list" id="volunteerList">
           <div class="volunteer-item"><div class="volunteer-info"><p class="volunteer-name">Cargando…</p></div></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══ PQR POR ESTADO  +  ACTIVIDADES POR EVENTO  +  AUDITORÍA ════════ -->
+    <div class="tables-grid">
+
+      <!-- PQR por Estado (los 4 estados reales de la tabla pqr) -->
+      <div class="table-card">
+        <h3>PQR por Estado</h3>
+        <div id="pqrEstadoList">
+          <div class="table-row"><span>Cargando…</span></div>
+        </div>
+      </div>
+
+      <!-- Actividades por Evento (top 5 eventos con más actividades) -->
+      <div class="table-card">
+        <h3>Actividades por Evento</h3>
+        <div id="actividadesEventoList">
+          <div class="table-row"><span>Cargando…</span></div>
+        </div>
+      </div>
+
+      <!-- Auditoría (reutiliza /api/auditoria — mismos datos del módulo Auditoría) -->
+      <div class="table-card">
+        <div class="table-card-header table-card-header--compact">
+          <h3>Auditoría</h3>
+          <a href="auditoria.html" class="btn-ver-mas">Ver todo</a>
+        </div>
+        <div id="auditoriaResumen">
+          <div class="table-row"><span>Cargando…</span></div>
         </div>
       </div>
 
@@ -321,6 +352,10 @@
   <script src="../../../models/pqr.model.js"></script>
   <script src="../../../models/donaciones.model.js"></script>
   <script src="../../../models/actividades.model.js"></script>
+  <!-- Reutiliza el mismo modelo del módulo Auditoría (endpoint dedicado
+       GET /api/auditoria, protegido para rol Administrador) — no se
+       duplica ninguna lógica de auditoría aquí. -->
+  <script src="../../../models/auditoria.model.js"></script>
 
   <!-- Carga única y en paralelo de todos los datos del dashboard.
        Antes había 3 bloques de script independientes que repetían consultas
@@ -343,29 +378,70 @@
       return `${y}-${m}-${day}`;
     };
 
+    // Este bloque corre en paralelo con BSPSession.exigir() (script aparte,
+    // más abajo) — no lo espera. Si la sesión NO es válida o el rol no es
+    // Administrador, exigir() reemplaza document.body por la pantalla
+    // "Acceso denegado" (ver session.manager.js → #negar()), y ese reemplazo
+    // puede ocurrir MIENTRAS este bloque sigue en medio de sus propias
+    // esperas asíncronas (el fetch de /api/db/*, etc.). Sin este control, el
+    // código de más abajo seguía intentando usar elementos que ya no existen
+    // en el DOM (getElementById devuelve null) y lanzaba una excepción sin
+    // capturar — cosmético (el acceso ya estaba correctamente denegado), pero
+    // real. Un solo elemento ancla (#panel-fecha-hoy, presente desde el HTML
+    // inicial) basta para saber si la página sigue siendo el dashboard real.
+    const fechaHoyEl = document.getElementById('panel-fecha-hoy');
+    if (!fechaHoyEl) return;
+
     const hoyDate = new Date();
-    document.getElementById('panel-fecha-hoy').textContent =
+    fechaHoyEl.textContent =
       hoyDate.toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
     if (typeof sb === 'undefined') return;
 
     // ── Una sola consulta por tabla, en paralelo ────────────────────────────
-    const [usuariosRes, eventosRes, noticiasRes, oracionesRes, volEventosRes, pqrStats, donStats, actividades] =
+    // pqr/donaciones se leen UNA vez con getAll() y las estadísticas se
+    // calculan aquí mismo en memoria (antes: PQRModel.getEstadisticas() y
+    // DonacionesModel.getEstadisticas() hacían CADA UNA su propio getAll()
+    // interno, y más abajo el bloque de "Actividad reciente" volvía a llamar
+    // PQRModel.getAll()/DonacionesModel.getAll() por tercera vez — 3
+    // consultas a la misma tabla donde basta 1). auditoriaRows reutiliza el
+    // endpoint dedicado del módulo Auditoría (AuditoriaModel), sin duplicar
+    // su lógica de consulta.
+    const [usuariosRes, eventosRes, noticiasRes, oracionesRes, volEventosRes, actividades, pqrTodas, donTodas, auditoriaRows] =
       await Promise.all([
         sb.from('usuarios').select('nombre_completo, activo, especialidad, creado_en, roles(nombre)'),
         sb.from('eventos').select('id, titulo, fecha, hora, hora_fin, ubicacion, estado, publicado_en'),
         sb.from('noticias').select('titulo, publicado_en'),
         sb.from('oraciones').select('titulo, publicado_en'),
         sb.from('voluntarios_eventos').select('usuario_id, usuarios(nombre_completo, especialidad)'),
-        (typeof PQRModel !== 'undefined' ? PQRModel.getEstadisticas() : Promise.resolve(null)).catch(() => null),
-        (typeof DonacionesModel !== 'undefined' ? DonacionesModel.getEstadisticas() : Promise.resolve(null)).catch(() => null),
-        (typeof ActividadesModel !== 'undefined' ? ActividadesModel.getAll() : Promise.resolve([])).catch(() => [])
+        (typeof ActividadesModel !== 'undefined' ? ActividadesModel.getAll() : Promise.resolve([])).catch(() => []),
+        (typeof PQRModel !== 'undefined' ? PQRModel.getAll() : Promise.resolve([])).catch(() => []),
+        (typeof DonacionesModel !== 'undefined' ? DonacionesModel.getAll() : Promise.resolve([])).catch(() => []),
+        (typeof AuditoriaModel !== 'undefined' ? AuditoriaModel.listar({ limite: 100 }) : Promise.resolve([])).catch(() => [])
       ]);
+
+    // Segundo control: esta espera (varias peticiones en paralelo) es
+    // exactamente la ventana de tiempo en la que exigir() puede terminar
+    // primero y reemplazar el DOM. Sin este control, el resto del bloque
+    // (alertas, gráficas Chart.js, tablas) seguía ejecutándose contra
+    // elementos ya inexistentes.
+    if (!document.getElementById('panel-fecha-hoy')) return;
 
     const usuarios  = usuariosRes.data  || [];
     const eventos   = eventosRes.data   || [];
     const noticias  = noticiasRes.data  || [];
     const oraciones = oracionesRes.data || [];
+
+    const pqrStats = pqrTodas.length ? {
+      total:      pqrTodas.length,
+      pendientes: pqrTodas.filter(p => p.estado === 'Pendiente').length,
+      enProceso:  pqrTodas.filter(p => p.estado === 'En proceso').length,
+      resueltos:  pqrTodas.filter(p => p.estado === 'Resuelto').length,
+      cerrados:   pqrTodas.filter(p => p.estado === 'Cerrado').length
+    } : { total: 0, pendientes: 0, enProceso: 0, resueltos: 0, cerrados: 0 };
+
+    const donTotal = donTodas.reduce((acc, d) => acc + d.monto, 0);
+    const donStats = { total: donTotal, cantidad: donTodas.length, promedio: donTodas.length ? Math.round(donTotal / donTodas.length) : 0 };
 
     const activos     = usuarios.filter(u => u.activo !== false);
     const voluntarios = usuarios.filter(u => u.roles?.nombre === 'Voluntario');
@@ -400,15 +476,11 @@
     set('kpi-voluntarios', volActivos.length);
     set('kpi-voluntarios-sub', `de ${voluntarios.length} registrados`);
 
-    if (pqrStats) {
-      set('kpi-pqr', pqrStats.pendientes);
-      set('kpi-pqr-sub', `de ${pqrStats.total} recibidas`);
-    } else { set('kpi-pqr', '—'); set('kpi-pqr-sub', 'No disponible'); }
+    set('kpi-pqr', pqrStats.pendientes);
+    set('kpi-pqr-sub', `de ${pqrStats.total} recibidas`);
 
-    if (donStats) {
-      set('kpi-donaciones', fmtCOP(donStats.total));
-      set('kpi-donaciones-sub', `${donStats.cantidad} registro${donStats.cantidad === 1 ? '' : 's'}`);
-    } else { set('kpi-donaciones', '—'); set('kpi-donaciones-sub', 'No disponible'); }
+    set('kpi-donaciones', fmtCOP(donStats.total));
+    set('kpi-donaciones-sub', `${donStats.cantidad} registro${donStats.cantidad === 1 ? '' : 's'}`);
 
     const actPendientes  = (actividades || []).filter(a => !a.completada).length;
     const actCompletadas = (actividades || []).length - actPendientes;
@@ -420,7 +492,7 @@
     const eventosProx7 = eventos.filter(e => e.fecha >= fechaLocal(hoyDate)
       && e.fecha <= fechaLocal(new Date(hoyDate.getTime() + 7 * 86400000)));
     const alertas = [];
-    if (pqrStats && pqrStats.pendientes > 0) {
+    if (pqrStats.pendientes > 0) {
       alertas.push({ tipo: 'danger', icono: 'bx-error-circle', valor: pqrStats.pendientes,
         label: `PQR pendiente${pqrStats.pendientes === 1 ? '' : 's'} de responder`, href: 'pqr.html' });
     }
@@ -432,7 +504,7 @@
       alertas.push({ tipo: 'info', icono: 'bx-calendar-event', valor: eventosProx7.length,
         label: `Evento${eventosProx7.length === 1 ? '' : 's'} en los próximos 7 días`, href: 'eventos.html' });
     }
-    if (alertas.length) {
+    if (alertsGrid && alertas.length) {
       alertsGrid.style.display = 'grid';
       alertsGrid.innerHTML = alertas.map(a => `
         <a class="alert-card alert-card--${a.tipo}" href="${a.href}">
@@ -460,17 +532,15 @@
     };
     const activityEl = document.getElementById('activityList');
     if (activityEl) {
-      let pqrRecientes = [], donRecientes = [];
-      try { pqrRecientes = typeof PQRModel !== 'undefined' ? await PQRModel.getAll() : []; } catch (_) {}
-      try { donRecientes = typeof DonacionesModel !== 'undefined' ? await DonacionesModel.getAll() : []; } catch (_) {}
-
+      // pqrTodas/donTodas ya se cargaron una sola vez arriba: se reutilizan
+      // aquí en vez de volver a consultar las mismas tablas.
       const items = [
         ...noticias.slice(0, 5).map(n => ({ fecha: n.publicado_en, dot: 'green', text: `Nueva noticia publicada: <strong>${esc(n.titulo || 'Sin título')}</strong>` })),
         ...eventos.slice(0, 5).map(e => ({ fecha: e.publicado_en, dot: 'blue', text: `Evento creado: <strong>${esc(e.titulo || 'Sin título')}</strong>` })),
         ...usuarios.filter(u => u.roles?.nombre === 'Voluntario').slice(0, 5)
           .map(u => ({ fecha: u.creado_en, dot: 'purple', text: `Nuevo voluntario registrado: <strong>${esc(u.nombre_completo || 'Sin nombre')}</strong>` })),
-        ...pqrRecientes.slice(0, 5).map(p => ({ fecha: p.creadoEn, dot: 'amber', text: `PQR recibida: <strong>${esc(p.asunto || 'Sin asunto')}</strong>` })),
-        ...donRecientes.slice(0, 5).map(d => ({ fecha: d.creadoEn, dot: 'green', text: `Donación registrada: <strong>${esc(d.nombre || 'Donante anónimo')}</strong>` }))
+        ...pqrTodas.slice(0, 5).map(p => ({ fecha: p.creadoEn, dot: 'amber', text: `PQR recibida: <strong>${esc(p.asunto || 'Sin asunto')}</strong>` })),
+        ...donTodas.slice(0, 5).map(d => ({ fecha: d.creadoEn, dot: 'green', text: `Donación registrada: <strong>${esc(d.nombre || 'Donante anónimo')}</strong>` }))
       ]
         .filter(it => it.fecha)
         .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
@@ -493,7 +563,7 @@
       (volEventosRes.data || []).forEach(ve => {
         if (!ve.usuario_id) return;
         if (!conteo[ve.usuario_id]) {
-          conteo[ve.usuario_id] = { nombre: ve.usuarios?.nombre_completo || 'Sin nombre', especialidad: ve.usuarios?.especialidad || 'Sin área', total: 0 };
+          conteo[ve.usuario_id] = { usuarioId: ve.usuario_id, nombre: ve.usuarios?.nombre_completo || 'Sin nombre', especialidad: ve.usuarios?.especialidad || 'Sin área', total: 0 };
         }
         conteo[ve.usuario_id].total++;
       });
@@ -502,7 +572,19 @@
       const badgeClases  = ['badge-blue', 'badge-amber', 'badge-green', 'badge-purple', 'badge-red'];
       const iniciales = (n) => n.trim().split(/\s+/).map(p => p[0]).slice(0, 2).join('').toUpperCase() || '—';
 
-      volunteerEl.innerHTML = top.length ? top.map((v, i) => `
+      // Carga de actividades por voluntario: se reutiliza el mismo array
+      // `actividades` (ActividadesModel.getAll(), ya cargado arriba con sus
+      // nombres resueltos en una sola consulta batch) — no se agrega ninguna
+      // consulta nueva para esta columna.
+      const actividadesPorVoluntario = {};
+      (actividades || []).forEach(a => {
+        if (!a.voluntarioId) return;
+        actividadesPorVoluntario[a.voluntarioId] = (actividadesPorVoluntario[a.voluntarioId] || 0) + 1;
+      });
+
+      volunteerEl.innerHTML = top.length ? top.map((v, i) => {
+        const numActividades = actividadesPorVoluntario[v.usuarioId] || 0;
+        return `
         <div class="volunteer-item">
           <div class="volunteer-avatar ${avatarClases[i % avatarClases.length]}">${esc(iniciales(v.nombre))}</div>
           <div class="volunteer-info">
@@ -511,8 +593,78 @@
           </div>
           <div class="volunteer-stats">
             <span class="badge ${badgeClases[i % badgeClases.length]}">${v.total} evento${v.total === 1 ? '' : 's'}</span>
+            ${numActividades > 0 ? `<span class="badge badge-accion">${numActividades} actividad${numActividades === 1 ? '' : 'es'}</span>` : ''}
           </div>
-        </div>`).join('') : '<div class="volunteer-item"><div class="volunteer-info"><p class="volunteer-name">Aún no hay voluntarios asignados a eventos.</p></div></div>';
+        </div>`;
+      }).join('') : '<div class="volunteer-item"><div class="volunteer-info"><p class="volunteer-name">Aún no hay voluntarios asignados a eventos.</p></div></div>';
+    }
+
+    // ── PQR por Estado (los 4 estados reales de public.pqr) ─────────────────
+    const pqrEstadoEl = document.getElementById('pqrEstadoList');
+    if (pqrEstadoEl) {
+      const filas = [
+        { label: 'Pendiente',  valor: pqrStats.pendientes },
+        { label: 'En proceso', valor: pqrStats.enProceso  },
+        { label: 'Resuelto',   valor: pqrStats.resueltos  },
+        { label: 'Cerrado',    valor: pqrStats.cerrados   }
+      ];
+      pqrEstadoEl.innerHTML = pqrStats.total > 0
+        ? filas.map(f => `<div class="table-row"><span>${f.label}</span><span class="badge badge-accion">${f.valor}</span></div>`).join('')
+        : '<div class="table-row"><span>Aún no se han radicado PQR.</span></div>';
+    }
+
+    // ── Actividades por Evento (top 5 eventos con más actividades, con su
+    //    desglose pendientes/completadas) — reutiliza `actividades` y
+    //    `eventos`, ya cargados arriba; sin consultas adicionales. ──────────
+    const actEventoEl = document.getElementById('actividadesEventoList');
+    if (actEventoEl) {
+      const tituloPorEvento = {};
+      eventos.forEach(e => { tituloPorEvento[e.id] = e.titulo || 'Sin título'; });
+
+      const porEvento = {};
+      (actividades || []).forEach(a => {
+        if (!a.eventoId) return;
+        if (!porEvento[a.eventoId]) porEvento[a.eventoId] = { pendientes: 0, completadas: 0 };
+        if (a.completada) porEvento[a.eventoId].completadas++;
+        else porEvento[a.eventoId].pendientes++;
+      });
+      const topEventos = Object.entries(porEvento)
+        .map(([eventoId, c]) => ({ titulo: tituloPorEvento[eventoId] || 'Evento eliminado', ...c, total: c.pendientes + c.completadas }))
+        .sort((a, b) => b.total - a.total)
+        .slice(0, 5);
+
+      actEventoEl.innerHTML = topEventos.length ? topEventos.map(e => `
+        <div class="table-row">
+          <span>${esc(e.titulo)}</span>
+          <span>
+            ${e.pendientes > 0 ? `<span class="badge badge-accion">${e.pendientes} pend.</span>` : ''}
+            ${e.completadas > 0 ? `<span class="badge badge-accion">${e.completadas} listas</span>` : ''}
+          </span>
+        </div>`).join('') : '<div class="table-row"><span>Aún no hay actividades registradas.</span></div>';
+    }
+
+    // ── Auditoría: reutiliza AuditoriaModel (mismo endpoint del módulo
+    //    Auditoría) — solo se agrega un resumen (éxitos/errores y módulos
+    //    más activos), calculado en memoria sobre los mismos registros. ─────
+    const auditoriaEl = document.getElementById('auditoriaResumen');
+    if (auditoriaEl) {
+      const rows = auditoriaRows || [];
+      if (!rows.length) {
+        auditoriaEl.innerHTML = '<div class="table-row"><span>Aún no hay registros de auditoría.</span></div>';
+      } else {
+        const exitos = rows.filter(r => r.resultado !== 'error').length;
+        const errores = rows.length - exitos;
+
+        const porModulo = {};
+        rows.forEach(r => { porModulo[r.modulo] = (porModulo[r.modulo] || 0) + 1; });
+        const topModulos = Object.entries(porModulo).sort((a, b) => b[1] - a[1]).slice(0, 3);
+
+        auditoriaEl.innerHTML = `
+          <div class="table-row"><span>Éxitos (últimos ${rows.length})</span><span class="badge badge-accion">${exitos}</span></div>
+          <div class="table-row"><span>Errores (últimos ${rows.length})</span><span class="badge badge-accion">${errores}</span></div>
+          ${topModulos.map(([modulo, n]) => `<div class="table-row"><span>Módulo más activo: ${esc(modulo)}</span><span class="badge badge-accion">${n}</span></div>`).join('')}
+        `;
+      }
     }
 
     // ── Próximos eventos: se reutiliza el mismo array `eventos` ya cargado ──
@@ -584,17 +736,6 @@
     const oracionesMes = countByMonth(oraciones, 'publicado_en');
     const eventosMes   = countByMonth(eventos, 'fecha');
 
-    const distMap = {};
-    voluntarios.forEach(u => {
-      const k = (u.especialidad && u.especialidad.trim()) ? u.especialidad : 'Sin especialidad';
-      distMap[k] = (distMap[k] || 0) + 1;
-    });
-    let volLabels = Object.keys(distMap);
-    let volData   = volLabels.map(k => distMap[k]);
-    if (volLabels.length === 0) { volLabels = ['Sin voluntarios']; volData = [0]; }
-    const palette = [cPrimary, cAccent, cSuccess, cPurple, cDanger, cInfo, cWarning];
-    const volColors = volLabels.map((_, i) => palette[i % palette.length]);
-
     Chart.defaults.font.family = getComputedStyle(document.body).fontFamily || 'inherit';
 
     new Chart(document.getElementById('userGrowthChart').getContext('2d'), {
@@ -627,20 +768,23 @@
         scales: { y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: fontColor } }, x: { grid: { display: false }, ticks: { color: fontColor } } } }
     });
 
-    new Chart(document.getElementById('volunteersChart').getContext('2d'), {
-      type: 'doughnut',
-      data: { labels: volLabels, datasets: [{ data: volData, backgroundColor: volColors, borderWidth: 2, borderColor: cSurface, hoverOffset: 8 }] },
-      options: { responsive: true, maintainAspectRatio: true, aspectRatio: 1, cutout: '65%', plugins: { legend: { display: false } } }
-    });
-
-    const legendEl = document.getElementById('volunteersLegend');
-    if (legendEl) {
-      legendEl.innerHTML = volLabels.map((label, i) => `
-        <div class="donut-legend-item">
-          <span class="donut-legend-dot" style="background:${volColors[i]}"></span>
-          <span class="donut-legend-label">${esc(label)}</span>
-          <span class="donut-legend-val">${volData[i]}</span>
-        </div>`).join('');
+    // ── Listado de Voluntarios: reemplaza la gráfica de dona "Distribución
+    //    por área" (con datos reales quedaba prácticamente siempre vacía o
+    //    con una sola categoría — poco útil como gráfica). Reutiliza el
+    //    mismo array `voluntarios` ya cargado arriba, sin consultas nuevas. ─
+    const volListEl = document.getElementById('volunteersFullList');
+    const volTotalBadge = document.getElementById('volunteersTotalBadge');
+    if (volTotalBadge) volTotalBadge.textContent = `${voluntarios.length} total`;
+    if (volListEl) {
+      const ordenados = [...voluntarios].sort((a, b) => (a.nombre_completo || '').localeCompare(b.nombre_completo || ''));
+      volListEl.innerHTML = ordenados.length ? ordenados.slice(0, 12).map(v => `
+        <div class="table-row">
+          <span>${esc(v.nombre_completo || 'Sin nombre')}</span>
+          <span>
+            <span class="badge badge-accion">${esc((v.especialidad && v.especialidad.trim()) || 'Sin área')}</span>
+            <span class="badge badge-accion">${v.activo !== false ? 'Activo' : 'Inactivo'}</span>
+          </span>
+        </div>`).join('') : '<div class="table-row"><span>Aún no hay voluntarios registrados.</span></div>';
     }
   });
   </script>

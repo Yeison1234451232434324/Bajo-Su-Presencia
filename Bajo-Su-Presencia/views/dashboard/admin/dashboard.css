@@ -18,14 +18,26 @@
   padding-top: 0.35rem;
 }
 
-/* ── Iconos de las tarjetas de métricas: color por tipo (mismo patrón
-   token-based que .counter-icon--* en panel.css). El SVG usa
-   stroke="currentColor" para heredar el color del contenedor. ── */
-.stat-icon--info    { background: var(--info-bg);    color: var(--info); }
-.stat-icon--success { background: var(--success-bg); color: var(--success); }
-.stat-icon--warning { background: var(--warning-bg); color: var(--warning); }
-.stat-icon--purple   { background: var(--purple-bg);  color: var(--purple); }
-.stat-icon--danger  { background: var(--danger-bg);  color: var(--danger); }
+/* ── Iconos de las tarjetas de métricas: antes cada uno tenía un círculo
+   RELLENO de color pastel (--*-bg) — 6 colores distintos uno al lado del
+   otro se leían "colorete". Mismo criterio "fantasma" ya aplicado a los
+   badges: fondo transparente + borde, conservando el color del ícono
+   (stroke="currentColor" en el SVG) para que las tarjetas sigan siendo
+   distinguibles de un vistazo, solo que sin el relleno sólido. */
+.stat-icon--info    { background: transparent; border: 1.5px solid var(--info);    color: var(--info); }
+.stat-icon--success { background: transparent; border: 1.5px solid var(--success); color: var(--success); }
+.stat-icon--warning { background: transparent; border: 1.5px solid var(--warning); color: var(--warning); }
+.stat-icon--purple   { background: transparent; border: 1.5px solid var(--purple);  color: var(--purple); }
+.stat-icon--danger  { background: transparent; border: 1.5px solid var(--danger);  color: var(--danger); }
+
+/* badge-red/badge-purple: usados por el ranking de "Voluntarios Destacados"
+   (5 puestos, un color por puesto) y por los nuevos widgets de PQR por
+   Estado / Auditoría — no estaban definidos en ningún CSS del panel (bug
+   preexistente: el 5.º puesto del ranking se veía sin color). badge-blue/
+   -amber/-green ya son globales (panel.css); estos dos se agregan aquí con
+   el mismo criterio de módulo local que donaciones.css/usuarios.css. */
+.badge-red    { background: var(--danger-bg); color: var(--danger); }
+.badge-purple { background: var(--purple-bg); color: var(--purple); }
 
 /* Avatares de "Voluntarios Destacados": fondo SÓLIDO (no el tinte pálido
    de --*-bg, que dejaría el texto blanco del avatar ilegible). */
@@ -38,6 +50,17 @@
 /* Subtítulo de contexto real bajo cada valor (reemplaza los porcentajes
    inventados que había antes: aquí solo texto neutro con datos reales). */
 .stat-card .sub { color: var(--muted); }
+
+/* El valor de "Donaciones Registradas" es un monto en pesos (ej. "$ 1.000.000"),
+   mucho más largo que el número entero de las demás tarjetas — con el mismo
+   tamaño de fuente (2.25rem) se salía del borde de la tarjeta. */
+#kpi-donaciones {
+  font-size: 1.65rem;
+  white-space: nowrap;
+}
+@media (max-width: 480px) {
+  #kpi-donaciones { font-size: 1.3rem; }
+}
 
 /* ── Acciones rápidas ─────────────────────────────────────── */
 .quick-actions-grid {
@@ -124,13 +147,20 @@
 .alert-card-value { font-size: 1.25rem; font-weight: 700; color: var(--text-primary); line-height: 1.2; }
 .alert-card-label { font-size: 0.8125rem; color: var(--muted); }
 
+/* Bug real encontrado en la auditoría responsive (no introducido en esta
+   tarea, ya existía): una columna "1fr" de CSS Grid, sin min-width:0, NO se
+   encoge por debajo del tamaño INTRÍNSECO de su contenido. Chart.js fija el
+   atributo width/height del <canvas> en píxeles según el ancho del
+   contenedor al montarse; ese <canvas> se convertía en contenido intrínseco
+   ancho y forzaba la columna (y la tarjeta) a desbordar en móvil. El
+   overflow-x:hidden del body ocultaba el síntoma (sin scroll horizontal
+   visible) pero las gráficas quedaban recortadas, no realmente responsive. */
+.charts-grid > .chart-card { min-width: 0; }
+
 /* ── Alturas fijas de canvas ──────────────────────────────── */
 /* Evita que Chart.js estire las gráficas verticalmente */
 .chart-card canvas {
   max-height: 260px;
-}
-.chart-card--donut canvas {
-  max-height: 180px;
 }
 .chart-card-header {
   display: flex;
@@ -144,56 +174,33 @@
   margin-bottom: 0;
 }
 
-/* Badges de las gráficas */
-.chart-badge {
+/* Badges de las gráficas y de los widgets de resumen (PQR por Estado,
+   Actividades por Evento, Auditoría, Listado de Voluntarios): estilo
+   "fantasma" — fondo transparente + borde, sin píldora de color sólido.
+   Antes cada badge tenía un color distinto (azul/verde/ámbar/morado) solo
+   por variedad visual, no porque representara un estado real — el mismo
+   criterio ya aplicado en donaciones.css/usuarios.css/auditoria.css. El
+   texto de cada fila ya dice el dato (p. ej. "Pendiente"), así que el color
+   no aportaba información, solo ruido visual. */
+.chart-badge,
+.badge-accion {
   font-size: 0.8125rem;
   font-weight: 600;
   padding: 0.2rem 0.65rem;
   border-radius: 999px;
-}
-.chart-badge--blue   { background: var(--info-bg); color: var(--info); }
-.chart-badge--green  { background: var(--success-bg); color: var(--success); }
-.chart-badge--amber  { background: var(--warning-bg); color: var(--warning); }
-.chart-badge--purple { background: var(--purple-bg); color: var(--purple); }
-
-/* ── Gráfica de dona ──────────────────────────────────────── */
-.chart-card--donut .donut-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-}
-.chart-card--donut canvas {
-  width: 180px !important;
-  height: 180px !important;
-  flex-shrink: 0;
-}
-.donut-legend {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  flex: 1;
-}
-.donut-legend-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.9375rem;
+  background: transparent;
+  border: 1.5px solid var(--border);
   color: var(--text-secondary);
+  white-space: nowrap;
 }
-.donut-legend-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.donut-legend-label {
-  flex: 1;
-}
-.donut-legend-val {
-  font-weight: 700;
-  color: var(--primary);
+
+/* ── Listado de Voluntarios (reemplaza la antigua gráfica de dona
+   "Distribución por área" — con datos reales casi siempre quedaba vacía o
+   con una sola categoría) — límite de alto con scroll propio para no
+   descuadrar la tarjeta cuando hay muchos voluntarios. ── */
+.volunteer-full-list {
+  max-height: 260px;
+  overflow-y: auto;
 }
 
 /* ── Actividad Reciente ───────────────────────────────────── */
@@ -313,6 +320,27 @@
   border-bottom: none;
   padding-bottom: 0;
 }
+/* Variante compacta del encabezado de tarjeta: usada dentro de un
+   .table-card normal (con su propio padding), no de .table-card--full
+   (que trae su propio padding horizontal — duplicarlo se veía desalineado). */
+.table-card-header--compact {
+  padding: 0;
+  margin-bottom: 0.75rem;
+  border-bottom: none;
+}
+.table-card-header--compact h3 { margin: 0; padding: 0; border: none; }
+
+/* Fila de tabla con dos o más badges en la celda derecha (PQR por Estado,
+   Actividades por Evento, Auditoría): sin esto, los badges se apilaban
+   pegados sin separación. */
+.table-row > span:last-child {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .btn-ver-mas {
   font-size: 0.9375rem;
   font-weight: 600;
@@ -369,17 +397,6 @@
 
 /* ── Responsive ───────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .chart-card--donut .donut-wrap {
-    flex-direction: column;
-    align-items: center;
-  }
-  .chart-card--donut canvas {
-    width: 160px !important;
-    height: 160px !important;
-  }
-  .donut-legend {
-    width: 100%;
-  }
   .events-table th,
   .events-table td {
     padding: 0.6rem 0.6rem;

@@ -8,6 +8,7 @@ use App\Exceptions\ApiException;
 use App\Http\Request;
 use App\Http\Response;
 use App\Security\AuthMiddleware;
+use App\Support\AuditLogger;
 use App\Support\Logger;
 use App\Support\Mailer;
 use App\Supabase\SupabaseClient;
@@ -104,7 +105,7 @@ final class PqrController
      */
     public function cambiarEstado(Request $request, array $args): void
     {
-        AuthMiddleware::authorize($request, self::ROLES);
+        $claims = AuthMiddleware::authorize($request, self::ROLES);
         $id = $args['id'] ?? '';
         if ($id === '') {
             throw ApiException::validation(['id' => 'Identificador requerido.']);
@@ -115,13 +116,33 @@ final class PqrController
             throw ApiException::validation(['estado' => 'Estado no válido.']);
         }
 
-        $pqr = $this->buscarOFallar($id);
-        $this->rechazarSiResuelto($pqr);
+        try {
+            $pqr = $this->buscarOFallar($id);
+            $this->rechazarSiResuelto($pqr);
 
-        $actualizadas = $this->sb->update('pqr', ['estado' => $estado], ['id' => 'eq.' . $id]);
-        $actualizada  = $actualizadas[0] ?? array_merge($pqr, ['estado' => $estado]);
+            $actualizadas = $this->sb->update('pqr', ['estado' => $estado], ['id' => 'eq.' . $id]);
+            $actualizada  = $actualizadas[0] ?? array_merge($pqr, ['estado' => $estado]);
+        } catch (Throwable $e) {
+            AuditLogger::registrar(
+                $claims,
+                'cambiar_estado',
+                'pqr',
+                $id,
+                "Intentó cambiar el estado de una PQR a \"{$estado}\" (la operación falló).",
+                'error'
+            );
+            throw $e;
+        }
 
         $this->notificarCambioEstado($id, $pqr, $estado);
+
+        AuditLogger::registrar(
+            $claims,
+            'cambiar_estado',
+            'pqr',
+            $id,
+            "Cambió el estado de la PQR \"" . ($pqr['asunto'] ?? $id) . "\" a \"{$estado}\"."
+        );
 
         Response::success($actualizada, 'El estado se actualizó y se notificó al solicitante.');
     }
@@ -150,20 +171,40 @@ final class PqrController
             );
         }
 
-        $pqr = $this->buscarOFallar($id);
-        $this->rechazarSiResuelto($pqr);
+        try {
+            $pqr = $this->buscarOFallar($id);
+            $this->rechazarSiResuelto($pqr);
 
-        $cambios = [
-            'respuesta'         => $respuesta,
-            'respondido_en'     => date('c'),
-            'respondido_por_id' => $claims['sub'] ?? null,
-        ];
-        if (in_array($estado, self::ESTADOS, true)) {
-            $cambios['estado'] = $estado;
+            $cambios = [
+                'respuesta'         => $respuesta,
+                'respondido_en'     => date('c'),
+                'respondido_por_id' => $claims['sub'] ?? null,
+            ];
+            if (in_array($estado, self::ESTADOS, true)) {
+                $cambios['estado'] = $estado;
+            }
+
+            $actualizadas = $this->sb->update('pqr', $cambios, ['id' => 'eq.' . $id]);
+            $actualizada = $actualizadas[0] ?? array_merge($pqr, $cambios);
+        } catch (Throwable $e) {
+            AuditLogger::registrar(
+                $claims,
+                'responder',
+                'pqr',
+                $id,
+                'Intentó responder una PQR (la operación falló).',
+                'error'
+            );
+            throw $e;
         }
 
-        $actualizadas = $this->sb->update('pqr', $cambios, ['id' => 'eq.' . $id]);
-        $actualizada = $actualizadas[0] ?? array_merge($pqr, $cambios);
+        AuditLogger::registrar(
+            $claims,
+            'responder',
+            'pqr',
+            $id,
+            "Respondió la PQR \"" . ($pqr['asunto'] ?? $id) . "\"."
+        );
 
         $correo = (string) ($pqr['correo'] ?? '');
         if (filter_var($correo, FILTER_VALIDATE_EMAIL)) {

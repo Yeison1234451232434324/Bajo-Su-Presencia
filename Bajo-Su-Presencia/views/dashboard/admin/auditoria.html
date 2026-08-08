@@ -1,0 +1,132 @@
+<!--
+  ================================================================
+  AUDITORÍA ADMIN — Bitácora de acciones administrativas
+  ================================================================
+  ¿Qué hace esta página?
+  Muestra el historial de acciones administrativas relevantes
+  (crear/editar/eliminar/activar/desactivar/responder/cambiar estado)
+  ejecutadas desde el panel, con filtros y detalle por registro.
+  Solo lectura: no existe edición ni eliminación de registros.
+
+  Secciones:
+    1. Tarjetas de contadores (total, éxitos, errores)
+    2. Tabla de auditoría con filtros por usuario, módulo, acción,
+       resultado y rango de fechas
+    3. Modal de detalle por registro
+
+  Archivos que usa:
+    - panel.css               → estilos base del panel
+    - auditoria.css           → estilos específicos del módulo
+    - sidebar.controller.js   → sidebar del admin
+    - auditoria.model.js      → lectura vía backend PHP dedicado
+    - auditoria.controller.js → lógica de tabla, filtros y detalle
+  ================================================================
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" href="/Bajo-Su-Presencia/assets/images/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/Bajo-Su-Presencia/assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/Bajo-Su-Presencia/assets/images/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/Bajo-Su-Presencia/assets/images/apple-touch-icon.png">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auditoría – Bajo Su Presencia B.S.P</title>
+  <link rel="stylesheet" href="panel.css" />
+  <link rel="stylesheet" href="auditoria.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js" integrity="sha384-3kOl9EzcOjFxTuc9knN784SI3NaWSFtoc4bHR9P8rsADaAZx9PC++m1OimQhoCCb" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link rel="stylesheet" href="/Bajo-Su-Presencia/helpers/theme.css">
+  <script src="/Bajo-Su-Presencia/helpers/theme.js"></script>
+</head>
+<body>
+
+  <main class="main" id="main">
+    <section class="panel active" style="display:block;">
+
+      <div class="panel-header">
+        <h2>Auditoría</h2>
+        <p>Bitácora de acciones administrativas del panel</p>
+      </div>
+
+      <div class="guia-seccion">
+        <p class="guia-seccion-label"><i class="bx bx-info-circle" aria-hidden="true"></i> Guía de sección</p>
+        <p class="guia-seccion-texto">Consulta las acciones administrativas importantes registradas en el sistema: quién las realizó, sobre qué módulo, cuándo y con qué resultado. Es de solo lectura: los registros no se pueden editar ni eliminar desde aquí.</p>
+      </div>
+
+      <!-- Contadores -->
+      <div class="counters-grid">
+        <div class="counter-card">
+          <div class="counter-icon counter-icon--info">
+            <i class="bx bx-list-check" aria-hidden="true"></i>
+          </div>
+          <div class="counter-info">
+            <p class="counter-label">Registros (últimos)</p>
+            <p class="counter-value" id="cont-au-total">0</p>
+          </div>
+        </div>
+        <div class="counter-card">
+          <div class="counter-icon counter-icon--success">
+            <i class="bx bx-check-circle" aria-hidden="true"></i>
+          </div>
+          <div class="counter-info">
+            <p class="counter-label">Éxitos</p>
+            <p class="counter-value" id="cont-au-exitos">0</p>
+          </div>
+        </div>
+        <div class="counter-card">
+          <div class="counter-icon counter-icon--danger">
+            <i class="bx bx-error-circle" aria-hidden="true"></i>
+          </div>
+          <div class="counter-info">
+            <p class="counter-label">Errores</p>
+            <p class="counter-value" id="cont-au-errores">0</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- DataTable de auditoría -->
+      <div id="dt-auditoria"></div>
+
+    </section>
+  </main>
+
+  <!-- ══ OVERLAY DEL MODAL ════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-overlay"></div>
+
+  <!-- ══ MODAL DETALLE ════════════════════════════════════════════════════ -->
+  <div class="modal au-modal-detalle" id="modal-au-detalle" role="dialog" aria-modal="true" aria-labelledby="au-detalle-titulo">
+    <div class="modal-header">
+      <h3 id="au-detalle-titulo">Detalle del registro</h3>
+      <button class="btn-cerrar-modal" id="btn-cerrar-au-detalle" aria-label="Cerrar">
+        <i class="bx bx-x" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <div class="au-detalle" id="au-detalle-contenido">
+      <!-- Contenido inyectado por el controller -->
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn-cancelar" id="btn-au-detalle-cerrar">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
+  <script src="../../../helpers/validators.helper.js"></script>
+  <script src="../../../helpers/modal.helper.js"></script>
+  <script src="../../../controllers/sidebar.controller.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8" integrity="sha384-Tve8O+C6PBzsIMK/IRCwHbi8fyEzXIlIs6OfVBZHubplwYhaQF/4Mzxqgg+pp/oy" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="../../../services/supabase.client.js"></script>
+  <script src="../../../config/api.config.js"></script>
+  <script src="../../../core/session.manager.js"></script>
+  <script src="../../../services/db.client.js"></script>
+  <script src="../../../models/auditoria.model.js"></script>
+  <script src="../../../helpers/datatable.helper.js"></script>
+  <script src="../../../helpers/alertify.helper.js"></script>
+  <script src="../../../controllers/auditoria.controller.js"></script>
+
+  <script src="../../../controllers/ayuda.controller.js"></script>
+</body>
+</html>
