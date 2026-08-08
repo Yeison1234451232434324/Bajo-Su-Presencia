@@ -30,6 +30,7 @@ html { font-size: 17px; }
 @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
 
 :root {
+  /* ── Marca (no cambia entre temas) ── */
   --primary:       #1E3A8A;
   --primary-dark:  #0F1E5A;
   --primary-light: #2D4FAF;
@@ -39,9 +40,42 @@ html { font-size: 17px; }
   --sidebar-min-w: 80px;
   --font-title:    'EB Garamond', serif;
   --font-text:     'EB Garamond', serif;
-  --bg:            #faf8f3;
-  --border:        #e5e1d8;
-  --muted:         #6b7280;
+
+  /* ── Design tokens (Light) — idénticos al panel admin/colaborador ── */
+  --background:      #faf8f3;
+  --surface:          #ffffff;
+  --surface-2:        #f5f3ee;
+  --surface-hover:     #f0f4ff;
+  --border:            #e5e1d8;
+  --border-light:      #e5e7eb;
+  --text-primary:      #1a1a2e;
+  --text-secondary:    #374151;
+  --text-muted:        #6b7280;
+  --text-on-primary:   #ffffff;
+  --success:           #047857;
+  --success-bg:        #d1fae5;
+  --warning:           #b45309;
+  --warning-bg:        #fef3c7;
+  --warning-border:    #fde68a;
+  --danger:            #b91c1c;
+  --danger-bg:         #fee2e2;
+  --danger-border:     #fecaca;
+  --info:              #1d4ed8;
+  --info-bg:           #dbeafe;
+  --info-border:       #bfdbfe;
+  --success-border:    #a7f3d0;
+  --purple:            #7c3aed;
+  --purple-bg:         #ede9fe;
+
+  /* ── Modales (componente compartido) ── */
+  --modal-overlay-bg:   rgba(15,30,90,0.5);
+  --modal-blur:         3px;
+  --modal-radius:       1.5rem;
+  --modal-shadow:       0 20px 60px rgba(0,0,0,0.2);
+
+  /* Alias retrocompatible: código existente que use var(--bg)/var(--muted) */
+  --bg:    var(--background);
+  --muted: var(--text-muted);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -74,10 +108,18 @@ body {
   color: white; display: flex; height: 50px; width: 100%;
   align-items: center; pointer-events: none;
   opacity: 0; transition: opacity 0.3s; white-space: nowrap;
+  overflow: hidden;
 }
 .sidebar.active .top .logo { opacity: 1; }
+.top .logo img {
+  width: 2rem; height: 2rem; border-radius: 50%; object-fit: cover;
+  margin-right: 8px; flex-shrink: 0;
+}
 .top .logo i { font-size: 2rem; margin-right: 8px; flex-shrink: 0; }
-.top .logo span { font-family: var(--font-title); font-size: 1.1rem; font-weight: 700; }
+.top .logo span {
+  overflow: hidden; text-overflow: ellipsis;
+  font-family: var(--font-title); font-size: 1.1rem; font-weight: 700;
+}
 
 .sidebar .top {
   display: flex;
@@ -133,7 +175,12 @@ body {
   box-shadow: 0 0 0 3px rgba(245, 194, 21, 0.65);
 }
 
-.sidebar .user { display: flex; align-items: center; margin: 0.75rem 0; white-space: nowrap; }
+.sidebar .user {
+  display: flex; align-items: center; margin: 0.75rem 0; white-space: nowrap;
+  /* Sin esto, un correo largo no se recortaba con "…" sino que se cortaba
+     a la mala en el borde del sidebar. */
+  min-width: 0;
+}
 .sidebar .avatar {
   width: 38px; height: 38px; border-radius: 50%;
   border: 2px solid rgba(255,255,255,0.3);
@@ -141,9 +188,15 @@ body {
   color: white; background: linear-gradient(135deg, var(--accent), var(--amber));
   font-weight: 700; font-size: 1rem; flex-shrink: 0;
 }
-.sidebar .user-info { margin-left: 0.75rem; opacity: 0; transition: opacity 0.3s; }
+.sidebar .user-info {
+  margin-left: 0.75rem; opacity: 0; transition: opacity 0.3s;
+  min-width: 0; overflow: hidden;
+}
 .sidebar.active .user-info { opacity: 1; }
-.sidebar .user-info p { color: white; font-size: 0.9375rem; line-height: 1.3; }
+.sidebar .user-info p {
+  color: white; font-size: 0.9375rem; line-height: 1.3;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
 .sidebar .user-info .bold { font-weight: 700; }
 
 .sidebar ul {
@@ -209,6 +262,24 @@ body {
   transition: margin-left 0.5s ease;
 }
 .main.sidebar-open { margin-left: var(--sidebar-w); }
+
+/* ── Expandir al pasar el mouse (sin necesidad de la flecha) ──
+   Solo en escritorio: en móvil/tablet el sidebar es un panel off-canvas
+   activado por el botón hamburguesa, donde :hover no aplica. */
+@media (min-width: 769px) {
+  .sidebar:hover                { width: var(--sidebar-w); }
+  .sidebar:hover .top .logo     { opacity: 1; }
+  .sidebar:hover #btn           { left: 90%; }
+  .sidebar:hover #btn svg       { transform: rotate(180deg); }
+  .sidebar:hover .user-info     { opacity: 1; }
+  .sidebar:hover .nav-item      { opacity: 1; }
+  .sidebar:hover ul li .tooltip { display: none; }
+  .sidebar:hover ~ .main {
+    margin-left: var(--sidebar-w);
+    width: calc(100% - var(--sidebar-w));
+    max-width: calc(100% - var(--sidebar-w));
+  }
+}
 
 /* ── Panel ── */
 .panel { display: none; width: 100%; max-width: 80rem; }

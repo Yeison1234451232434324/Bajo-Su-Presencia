@@ -22,8 +22,8 @@ document.addEventListener("DOMContentLoaded", () => {
   <div class="top">
 
     <div class="logo">
-      <i class="bx bx-church" aria-hidden="true"></i>
-      <span>Bajo Su Presencia</span>
+      <img src="/Bajo-Su-Presencia/assets/images/logo.png" alt="" aria-hidden="true">
+      <span>Bajo Su Presencia B.S.P</span>
     </div>
 
     <button id="btn" class="sidebar-toggle" type="button" aria-label="Expandir menú" aria-expanded="false" aria-controls="sidebar"><svg class="sidebar-toggle-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg></button>

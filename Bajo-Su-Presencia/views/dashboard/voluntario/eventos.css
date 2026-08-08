@@ -4,6 +4,13 @@
    y las clases .badge de panel.css.
    ================================================================ */
 
+/* El icono de fecha/hora/lugar usa var(--primary) (azul marino de marca,
+   fijo entre temas) para que resalte sobre la tarjeta clara — en modo
+   oscuro ese mismo navy se pierde contra el fondo oscuro de la tarjeta.
+   Selector con :root[data-theme="dark"] para ganar por especificidad
+   sin depender del orden de carga de theme.css. */
+:root[data-theme="dark"] .vev-meta-item i { color: var(--info); }
+
 /* ── Encabezado ─────────────────────────────────────────────────── */
 .vev-header-row {
   display: flex;
@@ -95,7 +102,7 @@
   padding: 1rem 1.25rem;
   flex: 1;
 }
-.vev-meta-item { display: flex; align-items: center; gap: .55rem; color: #374151; font-size: .92rem; }
+.vev-meta-item { display: flex; align-items: center; gap: .55rem; color: var(--text-secondary); font-size: .92rem; }
 .vev-meta-item i { color: var(--primary); font-size: 1.1rem; flex-shrink: 0; }
 .vev-meta-item.is-muted { color: var(--muted); }
 

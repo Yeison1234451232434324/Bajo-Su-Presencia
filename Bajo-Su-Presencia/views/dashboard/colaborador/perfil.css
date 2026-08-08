@@ -20,6 +20,9 @@
   margin-bottom: 1.75rem;
   color: #fff;
   max-width: 56rem;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
 }
 .perfil-cabecera .perfil-avatar {
   width: 72px;
@@ -140,6 +143,9 @@
   padding: 1.25rem 1.5rem;
   font-weight: 600;
   max-width: 56rem;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* ── Tarjeta del formulario ── */
@@ -151,6 +157,8 @@
   box-shadow: 0 4px 16px rgba(0,0,0,0.06);
   max-width: 56rem;
   width: 100%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* ── Campos de formulario ── */
@@ -214,6 +222,8 @@
   border-left: 4px solid var(--accent);
   max-width: 56rem;
   width: 100%;
+  margin-left: auto;
+  margin-right: auto;
 }
 .guia-seccion-label {
   font-family: var(--font-text);

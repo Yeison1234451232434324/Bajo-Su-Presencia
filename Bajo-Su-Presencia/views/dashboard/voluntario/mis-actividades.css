@@ -98,7 +98,7 @@
 
 /* ── Sección por evento ──────────────────────────────────────── */
 .mact-evento-section {
-  background: #fff;
+  background: var(--surface);
   border-radius: 1.25rem;
   border: 2px solid var(--border);
   box-shadow: 0 4px 16px rgba(0,0,0,0.04);
@@ -180,13 +180,13 @@
   border: 2px solid var(--border);
   border-radius: 0.875rem;
   margin-bottom: 0.75rem;
-  background: #faf8f3;
+  background: var(--surface-2);
   transition: background 0.2s, border-color 0.2s;
 }
 .mact-item:last-child { margin-bottom: 0; }
 .mact-item--completada {
-  background: #f0fdf4;
-  border-color: #bbf7d0;
+  background: var(--success-bg);
+  border-color: var(--success-border);
 }
 
 .mact-check-btn {
@@ -227,7 +227,7 @@
 }
 .mact-titulo--tachado {
   text-decoration: line-through;
-  color: #6b7280;
+  color: var(--muted);
 }
 
 .mact-item-desc {
