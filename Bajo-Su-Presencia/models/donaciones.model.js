@@ -53,8 +53,8 @@ const DonacionesModel = (() => {
     return { ok: true };
   }
 
-  async function getEstadisticas() {
-    const lista = await getAll();
+  async function getEstadisticas(lista) {
+    lista = lista || await getAll();
     const total = lista.reduce((acc, d) => acc + d.monto, 0);
     return {
       total,

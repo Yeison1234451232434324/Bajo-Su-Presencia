@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   async function renderTabla() {
     cache = await DonacionesModel.getAll();
-    const stats = await DonacionesModel.getEstadisticas();
+    const stats = await DonacionesModel.getEstadisticas(cache);
 
     if (contTotal)    contTotal.textContent    = fmtCOP(stats.total);
     if (contTrans)    contTrans.textContent    = String(stats.cantidad);
