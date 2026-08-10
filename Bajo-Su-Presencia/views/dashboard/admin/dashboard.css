@@ -24,11 +24,15 @@
    badges: fondo transparente + borde, conservando el color del ícono
    (stroke="currentColor" en el SVG) para que las tarjetas sigan siendo
    distinguibles de un vistazo, solo que sin el relleno sólido. */
-.stat-icon--info    { background: transparent; border: 1.5px solid var(--info);    color: var(--info); }
-.stat-icon--success { background: transparent; border: 1.5px solid var(--success); color: var(--success); }
-.stat-icon--warning { background: transparent; border: 1.5px solid var(--warning); color: var(--warning); }
-.stat-icon--purple   { background: transparent; border: 1.5px solid var(--purple);  color: var(--purple); }
-.stat-icon--danger  { background: transparent; border: 1.5px solid var(--danger);  color: var(--danger); }
+.stat-icon--info,
+.stat-icon--success,
+.stat-icon--warning,
+.stat-icon--purple,
+.stat-icon--danger {
+  background: transparent;
+  border: 1.5px solid var(--primary);
+  color: var(--primary);
+}
 
 /* badge-red/badge-purple: usados por el ranking de "Voluntarios Destacados"
    (5 puestos, un color por puesto) y por los nuevos widgets de PQR por

@@ -410,11 +410,11 @@
     // su lógica de consulta.
     const [usuariosRes, eventosRes, noticiasRes, oracionesRes, volEventosRes, actividades, pqrTodas, donTodas, auditoriaRows] =
       await Promise.all([
-        sb.from('usuarios').select('nombre_completo, activo, especialidad, creado_en, roles(nombre)'),
+        sb.from('usuarios').select('nombre_completo, activo, creado_en, roles(nombre), usuario_especialidades(especialidades(nombre))'),
         sb.from('eventos').select('id, titulo, fecha, hora, hora_fin, ubicacion, estado, publicado_en'),
         sb.from('noticias').select('titulo, publicado_en'),
         sb.from('oraciones').select('titulo, publicado_en'),
-        sb.from('voluntarios_eventos').select('usuario_id, usuarios(nombre_completo, especialidad)'),
+        sb.from('voluntarios_eventos').select('usuario_id, usuarios(nombre_completo, usuario_especialidades(especialidades(nombre)))'),
         (typeof ActividadesModel !== 'undefined' ? ActividadesModel.getAll() : Promise.resolve([])).catch(() => []),
         (typeof PQRModel !== 'undefined' ? PQRModel.getAll() : Promise.resolve([])).catch(() => []),
         (typeof DonacionesModel !== 'undefined' ? DonacionesModel.getAll() : Promise.resolve([])).catch(() => []),
@@ -428,7 +428,11 @@
     // elementos ya inexistentes.
     if (!document.getElementById('panel-fecha-hoy')) return;
 
-    const usuarios  = usuariosRes.data  || [];
+    if (usuariosRes.error) window.BSPLog?.error('dashboard.usuarios', usuariosRes.error);
+    const usuarios  = (usuariosRes.data || []).map(u => ({
+      ...u,
+      especialidad: u.usuario_especialidades?.[0]?.especialidades?.nombre || ''
+    }));
     const eventos   = eventosRes.data   || [];
     const noticias  = noticiasRes.data  || [];
     const oraciones = oracionesRes.data || [];
@@ -564,7 +568,7 @@
       (volEventosRes.data || []).forEach(ve => {
         if (!ve.usuario_id) return;
         if (!conteo[ve.usuario_id]) {
-          conteo[ve.usuario_id] = { usuarioId: ve.usuario_id, nombre: ve.usuarios?.nombre_completo || 'Sin nombre', especialidad: ve.usuarios?.especialidad || 'Sin área', total: 0 };
+          conteo[ve.usuario_id] = { usuarioId: ve.usuario_id, nombre: ve.usuarios?.nombre_completo || 'Sin nombre', especialidad: ve.usuarios?.usuario_especialidades?.[0]?.especialidades?.nombre || 'Sin área', total: 0 };
         }
         conteo[ve.usuario_id].total++;
       });

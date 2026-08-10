@@ -128,9 +128,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     return item;
   }
 
+  // Un evento se considera "iniciado" cuando ya llegó su hora de inicio
+  // (o el día completo, si no tiene hora de inicio registrada).
+  function _eventoIniciado(ev) {
+    if (!ev || !ev.fecha) return false;
+    const horaIni = (ev.horario || '').split(' - ')[0].trim();
+    const iniStr = horaIni ? `${ev.fecha}T${horaIni}:00` : `${ev.fecha}T00:00:00`;
+    const ini = new Date(iniStr);
+    return !isNaN(ini) && ini <= new Date();
+  }
+
   window.toggleActividadVoluntario = async function(id) {
     const act = await ActividadesModel.getById(id);
     if (!act) return;
+
+    if (!act.completada) {
+      const ev = await EventosModel.getById(act.eventoId);
+      if (!_eventoIniciado(ev)) {
+        showToast('Evento no iniciado', 'No puedes completar esta actividad hasta que el evento haya iniciado.');
+        return;
+      }
+    }
+
     const res = await ActividadesModel.toggleCompletada(id, !act.completada);
     if (!res.ok) { showToast('Error', res.error || 'No se pudo actualizar.'); return; }
     await render();

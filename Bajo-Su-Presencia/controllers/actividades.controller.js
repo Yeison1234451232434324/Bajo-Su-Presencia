@@ -191,6 +191,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 4. MODAL NUEVA / EDITAR
   // ════════════════════════════════════════════════════════════════
   window.abrirNuevaActividad = async function() {
+    if (_eventoTerminado(eventoActual)) {
+      showAlertError('Este evento ya finalizó: no se pueden crear nuevas actividades.');
+      return;
+    }
     modoEdicion = false; actEditId = null;
     modalTitulo.textContent = 'Nueva Actividad';
     formAct.reset();
@@ -276,6 +280,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!volId) { _err('act-voluntario', 'Debes asignar la actividad a un voluntario.'); valido = false; }
     if (!valido) return;
 
+    if (!modoEdicion && _eventoTerminado(eventoActual)) {
+      showAlertError('Este evento ya finalizó: no se pueden crear nuevas actividades.');
+      return;
+    }
+
     const data = { eventoId: eventoActual.id, titulo, descripcion, prioridad, voluntarioId: volId, voluntarioNombre: volNombre };
 
     let resultado;
@@ -325,6 +334,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       const fecha = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
       return `${dias[fecha.getDay()]} ${parseInt(d)} ${meses[parseInt(m) - 1]}`;
     } catch (_) { return fechaStr; }
+  }
+
+  // Un evento se considera "terminado" cuando ya pasó su hora de fin
+  // (o el día completo, si no tiene hora de fin registrada).
+  function _eventoTerminado(ev) {
+    if (!ev || !ev.fecha) return false;
+    const horaFin = (ev.horario || '').includes(' - ') ? ev.horario.split(' - ')[1].trim() : '';
+    const finStr = horaFin ? `${ev.fecha}T${horaFin}:00` : `${ev.fecha}T23:59:59`;
+    const fin = new Date(finStr);
+    return !isNaN(fin) && fin < new Date();
   }
 
   // ── Inicialización ───────────────────────────────────────────────────────
