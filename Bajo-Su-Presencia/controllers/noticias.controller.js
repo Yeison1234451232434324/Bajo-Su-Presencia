@@ -23,6 +23,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   const sesion = await window.BSPSession.exigir(['Administrador','Colaborador']);
   if (!sesion) return;
 
+  /** Escapa datos de usuario antes de insertarlos con innerHTML (anti-XSS). */
+  const esc = (v) => (window.BSPVal?.escapeHtml
+    ? window.BSPVal.escapeHtml(String(v ?? ''))
+    : String(v ?? '').replace(/[&<>"'`/]/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;',
+        '"': '&quot;', "'": '&#39;', '/': '&#x2F;', '`': '&#x60;'
+      }[c])));
+
   // ── Referencias DOM del formulario ──────────────────────────────────────
   const form         = document.getElementById('form-noticia');
   const inpTitulo    = document.getElementById('news-titulo');
@@ -290,7 +298,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     document.getElementById('modal-noticia-titulo').textContent   = noticia.titulo;
     document.getElementById('modal-noticia-meta').innerHTML       =
-      `📅 ${noticia.fecha} &nbsp;·&nbsp; 👤 ${noticia.autor}`;
+      `📅 ${esc(noticia.fecha)} &nbsp;·&nbsp; 👤 ${esc(noticia.autor)}`;
     document.getElementById('modal-noticia-resumen').textContent  = noticia.resumen;
     document.getElementById('modal-noticia-contenido').textContent =
       noticia.contenido || 'Sin contenido adicional.';

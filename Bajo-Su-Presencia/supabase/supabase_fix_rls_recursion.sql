@@ -5,7 +5,11 @@
 --  lean usuarios → sin recursión. Re-ejecutable.
 -- ============================================================================
 
--- (Re)crea helpers como SECURITY DEFINER
+-- (Re)crea helpers como SECURITY DEFINER. Los cuatro son propiedad de
+-- `postgres` (verificado en la BD real), que en Supabase tiene BYPASSRLS:
+-- por eso su consulta interna a "usuarios" NO vuelve a disparar la policy de
+-- SELECT de "usuarios" y no hay recursión 42P17 aunque usuarios_sel llame a
+-- es_staff(). No se necesita (ni se debe agregar) `row_security = off`.
 create or replace function public.mi_usuario_id()
 returns uuid language sql stable security definer set search_path = public as $$
   select id from public.usuarios where auth_id = auth.uid() limit 1
@@ -43,11 +47,14 @@ end $$;
 alter table public.usuarios enable row level security;
 
 -- 3) Recrear políticas LIMPIAS
---    SELECT: abierto a autenticados (NO llama funciones que lean usuarios)
+--    SELECT: solo staff ve todas las filas; el resto solo la suya. No hace
+--    falta "using (true)" para evitar la recursión: los helpers son de
+--    `postgres` (BYPASSRLS), así que es_staff() no dispara esta misma policy.
+--    Verificado con pruebas reales (ver auditoría): sin error 42P17.
 create policy usuarios_sel on public.usuarios
-  for select to authenticated using (true);
+  for select to authenticated using (public.es_staff() or auth_id = auth.uid());
 
---    INSERT/UPDATE/DELETE: por rol (es_admin lee usuarios vía la SELECT=true → sin recursión)
+--    INSERT/UPDATE/DELETE: por rol
 create policy usuarios_ins on public.usuarios for insert to authenticated
   with check (public.es_admin());
 
@@ -58,7 +65,8 @@ create policy usuarios_upd on public.usuarios for update to authenticated
 create policy usuarios_del on public.usuarios for delete to authenticated
   using (public.es_admin());
 
--- 4) Verificación A: lista las políticas de usuarios (SELECT debe decir 'true')
+-- 4) Verificación A: lista las políticas de usuarios (SELECT debe mostrar
+--    "es_staff() OR (auth_id = auth.uid())", NO 'true')
 select polname,
        (case polcmd when 'r' then 'SELECT' when 'a' then 'INSERT'
                     when 'w' then 'UPDATE' when 'd' then 'DELETE' else polcmd::text end) as cmd,

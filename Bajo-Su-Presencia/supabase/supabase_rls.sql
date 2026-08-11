@@ -129,11 +129,18 @@ end $$;
 do $$ begin
   if to_regclass('public.usuarios') is null then return; end if;
   alter table public.usuarios enable row level security;
-  -- SELECT abierto a autenticados: NO debe llamar funciones que lean usuarios
-  -- (evita recursión infinita 42P17). La escritura sí va por rol.
+  -- SELECT: solo staff ve todas las filas; el resto solo su propia fila.
+  -- ANTES era `using (true)` (cualquier autenticado leía la tabla completa:
+  -- correo, rol, etc. de TODOS los usuarios) porque se asumió que solo el
+  -- panel admin llama a esta tabla, pero el cliente Supabase (anon key +
+  -- sesión real vía sb.auth.setSession()) es accesible desde CUALQUIER
+  -- página cargada en el navegador de cualquier usuario autenticado, sin
+  -- pasar por el backend PHP. `es_staff()` no recursiona sobre "usuarios"
+  -- en el WHERE de la fila evaluada (usa SECURITY DEFINER con su propia
+  -- subconsulta), así que no reintroduce el problema de recursión 42P17.
   drop policy if exists usuarios_sel on public.usuarios;
   create policy usuarios_sel on public.usuarios for select to authenticated
-    using (true);
+    using (public.es_staff() or auth_id = auth.uid());
   drop policy if exists usuarios_ins on public.usuarios;
   create policy usuarios_ins on public.usuarios for insert to authenticated
     with check (public.es_admin());     -- el alta normal la hace el trigger

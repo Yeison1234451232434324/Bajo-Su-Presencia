@@ -21,6 +21,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   const sesion = await window.BSPSession.exigir(['Administrador','Colaborador']);
   if (!sesion) return;
 
+  /**
+   * Escapa datos antes de insertarlos con innerHTML. Título, descripción,
+   * ubicación, nombres de recursos/especialistas, etc. son escritos por
+   * usuarios (incluyendo Colaboradores) y se muestran luego en el panel;
+   * sin escapar, un valor malicioso podría ejecutar JS en el navegador
+   * de otro administrador (stored XSS).
+   */
+  const esc = (v) => (window.BSPVal?.escapeHtml
+    ? window.BSPVal.escapeHtml(String(v ?? ''))
+    : String(v ?? '').replace(/[&<>"'`/]/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;',
+        '"': '&quot;', "'": '&#39;', '/': '&#x2F;', '`': '&#x60;'
+      }[c])));
+
   const form             = document.getElementById('form-evento');
   const recursosGrid     = document.getElementById('recursos-grid');
   const sinRecursos      = document.getElementById('sin-recursos-msg');
@@ -111,10 +125,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="ev-rec-body">
           <div class="ev-rec-header">
             <i class="bx ${icono} ev-rec-icon" aria-hidden="true"></i>
-            <label for="chk-rec-${r.id}" class="ev-rec-nombre">${r.nombre}</label>
-            <span class="badge badge-green ev-rec-stock">${r.cantidad} ${r.unidad}</span>
+            <label for="chk-rec-${r.id}" class="ev-rec-nombre">${esc(r.nombre)}</label>
+            <span class="badge badge-green ev-rec-stock">${esc(r.cantidad)} ${esc(r.unidad)}</span>
           </div>
-          <p class="ev-rec-cat">${r.categoria}</p>
+          <p class="ev-rec-cat">${esc(r.categoria)}</p>
           <div class="ev-rec-qty" id="ev-qty-${r.id}" style="display:none;">
             <label for="qty-rec-${r.id}">Cantidad a usar:</label>
             <input type="number" id="qty-rec-${r.id}" class="ev-qty-input"
@@ -195,10 +209,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="ev-rec-body">
           <div class="ev-rec-header">
             <i class="bx ${icono} ev-rec-icon" aria-hidden="true"></i>
-            <label for="edit-chk-rec-${r.id}" class="ev-rec-nombre">${r.nombre}</label>
-            <span class="badge badge-green ev-rec-stock">${r.cantidad} ${r.unidad}</span>
+            <label for="edit-chk-rec-${r.id}" class="ev-rec-nombre">${esc(r.nombre)}</label>
+            <span class="badge badge-green ev-rec-stock">${esc(r.cantidad)} ${esc(r.unidad)}</span>
           </div>
-          <p class="ev-rec-cat">${r.categoria}</p>
+          <p class="ev-rec-cat">${esc(r.categoria)}</p>
           <div class="ev-rec-qty" id="edit-ev-qty-${r.id}" style="display:${seleccionado ? 'flex' : 'none'};">
             <label for="edit-qty-rec-${r.id}">Cantidad a usar:</label>
             <input type="number" id="edit-qty-rec-${r.id}" class="ev-qty-input"
@@ -268,10 +282,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       <div class="ev-rec-body">
         <div class="ev-rec-header">
           <i class="bx bx-user ev-rec-icon" aria-hidden="true"></i>
-          <label for="${prefix}-chk-esp-${u.id}" class="ev-rec-nombre">${u.nombre}</label>
-          <span class="badge ev-badge-especialidad ev-rec-stock">${u.especialidad}</span>
+          <label for="${prefix}-chk-esp-${u.id}" class="ev-rec-nombre">${esc(u.nombre)}</label>
+          <span class="badge ev-badge-especialidad ev-rec-stock">${esc(u.especialidad)}</span>
         </div>
-        ${detalle ? `<p class="ev-rec-cat">${detalle}</p>` : ''}
+        ${detalle ? `<p class="ev-rec-cat">${esc(detalle)}</p>` : ''}
       </div>`;
     return card;
   }
@@ -524,23 +538,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!ev) return;
     document.getElementById('modal-ver-titulo').innerHTML = `${esc(ev.titulo)} ${badgeEstado(_estadoAuto(ev))}`;
     const chipsRecursos = ev.recursos && ev.recursos.length > 0
-      ? ev.recursos.map(r => `<span class="ev-chip-recurso"><i class="bx bx-package" aria-hidden="true"></i> ${r.recursoNombre} × ${r.cantidad} ${r.unidad || ''}</span>`).join('')
+      ? ev.recursos.map(r => `<span class="ev-chip-recurso"><i class="bx bx-package" aria-hidden="true"></i> ${esc(r.recursoNombre)} × ${esc(r.cantidad)} ${esc(r.unidad || '')}</span>`).join('')
       : '<span class="ev-sin-recursos">Sin recursos asignados</span>';
     document.getElementById('modal-ver-body').innerHTML = `
       <div class="ev-detalle-grid">
-        <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-calendar" aria-hidden="true"></i> Fecha</span><span class="ev-detalle-valor">${ev.fecha}</span></div>
-        <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-time" aria-hidden="true"></i> Horario</span><span class="ev-detalle-valor">${ev.horario}</span></div>
-        <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-map-pin" aria-hidden="true"></i> Ubicación</span><span class="ev-detalle-valor">${ev.ubicacion}</span></div>
-        <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-user" aria-hidden="true"></i> Asistentes</span><span class="ev-detalle-valor">${ev.asistentes || '—'}</span></div>
-        <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-group" aria-hidden="true"></i> Voluntarios necesarios</span><span class="ev-detalle-valor">${ev.voluntariosNecesarios || 0}</span></div>
-        <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-calendar-plus" aria-hidden="true"></i> Publicado</span><span class="ev-detalle-valor">${ev.publicado || '—'}</span></div>
+        <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-calendar" aria-hidden="true"></i> Fecha</span><span class="ev-detalle-valor">${esc(ev.fecha)}</span></div>
+        <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-time" aria-hidden="true"></i> Horario</span><span class="ev-detalle-valor">${esc(ev.horario)}</span></div>
+        <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-map-pin" aria-hidden="true"></i> Ubicación</span><span class="ev-detalle-valor">${esc(ev.ubicacion)}</span></div>
+        <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-user" aria-hidden="true"></i> Asistentes</span><span class="ev-detalle-valor">${esc(ev.asistentes || '—')}</span></div>
+        <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-group" aria-hidden="true"></i> Voluntarios necesarios</span><span class="ev-detalle-valor">${esc(ev.voluntariosNecesarios || 0)}</span></div>
+        <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-calendar-plus" aria-hidden="true"></i> Publicado</span><span class="ev-detalle-valor">${esc(ev.publicado || '—')}</span></div>
         <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-flag" aria-hidden="true"></i> Estado</span><span class="ev-detalle-valor">${badgeEstado(_estadoAuto(ev))}</span></div>
       </div>
-      ${ev.descripcion ? `<div class="ev-detalle-desc"><span class="ev-detalle-label"><i class="bx bx-note" aria-hidden="true"></i> Descripción</span><p>${ev.descripcion}</p></div>` : ''}
+      ${ev.descripcion ? `<div class="ev-detalle-desc"><span class="ev-detalle-label"><i class="bx bx-note" aria-hidden="true"></i> Descripción</span><p>${esc(ev.descripcion)}</p></div>` : ''}
       <div class="ev-detalle-recursos"><span class="ev-detalle-label"><i class="bx bx-package" aria-hidden="true"></i> Recursos asignados</span><div class="ev-chips-wrap" style="margin-top:0.5rem;">${chipsRecursos}</div></div>
       <div class="ev-detalle-recursos"><span class="ev-detalle-label"><i class="bx bx-user-voice" aria-hidden="true"></i> Especialistas requeridos</span><div class="ev-chips-wrap" style="margin-top:0.5rem;">${
         ev.especialistas && ev.especialistas.length > 0
-          ? ev.especialistas.map(e => `<span class="ev-chip-recurso"><i class="bx bx-user" aria-hidden="true"></i> ${e.nombre} — ${e.especialidad}</span>`).join('')
+          ? ev.especialistas.map(e => `<span class="ev-chip-recurso"><i class="bx bx-user" aria-hidden="true"></i> ${esc(e.nombre)} — ${esc(e.especialidad)}</span>`).join('')
           : '<span class="ev-sin-recursos">Sin especialistas asignados</span>'
       }</div></div>`;
     const modalVer = document.getElementById('modal-ver-evento');

@@ -88,13 +88,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     seccion.innerHTML = `
       <div class="mact-evento-header">
         <div class="mact-evento-titulo-row">
-          <span class="mact-evento-titulo">${info.titulo}</span>
+          <span class="mact-evento-titulo">${esc(info.titulo)}</span>
           <span class="mact-evento-completadas${completa ? ' mact-evento-completadas--verde' : ''}" id="mact-ev-label-${eventoId}">${completadas}/${total} completadas</span>
         </div>
         <div class="mact-evento-meta">
-          ${info.fecha    ? `<span><i class="bx bx-calendar" aria-hidden="true"></i> ${info.fecha}</span>` : ''}
-          ${info.horario  ? `<span><i class="bx bx-time" aria-hidden="true"></i> ${info.horario}</span>` : ''}
-          ${info.ubicacion? `<span><i class="bx bx-map-pin" style="color:#f87171;" aria-hidden="true"></i> ${info.ubicacion}</span>` : ''}
+          ${info.fecha    ? `<span><i class="bx bx-calendar" aria-hidden="true"></i> ${esc(info.fecha)}</span>` : ''}
+          ${info.horario  ? `<span><i class="bx bx-time" aria-hidden="true"></i> ${esc(info.horario)}</span>` : ''}
+          ${info.ubicacion? `<span><i class="bx bx-map-pin" style="color:#f87171;" aria-hidden="true"></i> ${esc(info.ubicacion)}</span>` : ''}
         </div>
       </div>
       <div class="mact-mini-barra-track">
@@ -120,10 +120,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       </button>
       <div class="mact-item-body">
         <div class="mact-item-header">
-          <span class="mact-item-titulo${act.completada ? ' mact-titulo--tachado' : ''}">${act.titulo}</span>
+          <span class="mact-item-titulo${act.completada ? ' mact-titulo--tachado' : ''}">${esc(act.titulo)}</span>
           <span class="mact-prio-badge ${prioClass}">${prioLabel}</span>
         </div>
-        ${act.descripcion ? `<p class="mact-item-desc">${act.descripcion}</p>` : ''}
+        ${act.descripcion ? `<p class="mact-item-desc">${esc(act.descripcion)}</p>` : ''}
       </div>`;
     return item;
   }

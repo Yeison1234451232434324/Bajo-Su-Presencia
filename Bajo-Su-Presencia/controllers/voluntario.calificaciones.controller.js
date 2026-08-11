@@ -61,13 +61,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Mejor calificación
     document.getElementById('res-mejor').innerHTML = resumen.mejor
       ? `${renderEstrellasFijas(resumen.mejor.estrellas)}
-         <span class="res-evento-nombre">${resumen.mejor.eventoNombre}</span>`
+         <span class="res-evento-nombre">${esc(resumen.mejor.eventoNombre)}</span>`
       : '<span class="sin-dato">—</span>';
 
     // Peor calificación
     document.getElementById('res-peor').innerHTML = resumen.peor
       ? `${renderEstrellasFijas(resumen.peor.estrellas)}
-         <span class="res-evento-nombre">${resumen.peor.eventoNombre}</span>`
+         <span class="res-evento-nombre">${esc(resumen.peor.eventoNombre)}</span>`
       : '<span class="sin-dato">—</span>';
 
     // Distribución de estrellas (barras)

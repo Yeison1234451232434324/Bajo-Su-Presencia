@@ -301,13 +301,23 @@ class BSPDataTable {
       return;
     }
     wrap.style.display = 'flex';
+    // El texto de búsqueda y los valores de filtro los escribe el propio
+    // usuario que ve la tabla, pero se escapan igual: es un componente
+    // compartido por todas las tablas del panel y no debe depender de que
+    // cada controlador recuerde hacerlo.
+    const _escChip = (v) => (window.BSPVal?.escapeHtml
+      ? window.BSPVal.escapeHtml(String(v ?? ''))
+      : String(v ?? '').replace(/[&<>"'`/]/g, c => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;',
+          '"': '&quot;', "'": '&#39;', '/': '&#x2F;', '`': '&#x60;'
+        }[c])));
     const chips = [];
     if (this.searchQuery) {
-      chips.push(`<span class="bsp-dt-chip">🔍 "${this.searchQuery}"</span>`);
+      chips.push(`<span class="bsp-dt-chip">🔍 "${_escChip(this.searchQuery)}"</span>`);
     }
     activos.forEach(f => {
       const label = this.filters.find(fi => fi.key === f.key)?.label || f.key;
-      chips.push(`<span class="bsp-dt-chip">${label}: <strong>${f.val}</strong></span>`);
+      chips.push(`<span class="bsp-dt-chip">${_escChip(label)}: <strong>${_escChip(f.val)}</strong></span>`);
     });
     wrap.innerHTML = chips.join('') +
       `<button class="bsp-dt-chip-clear" onclick="window.__bspDT['${this.containerId}']._clearAllFilters()">

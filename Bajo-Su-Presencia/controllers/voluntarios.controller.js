@@ -232,7 +232,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           <div style="flex:1;min-width:100px;">${estrellasMostrar}</div>
           <div class="comentario-cell" style="flex:1.5;min-width:120px;">
             ${yaCalificado && vol.califComentario
-              ? `<span class="comentario-preview" title="${vol.califComentario}">${vol.califComentario}</span>`
+              ? `<span class="comentario-preview" title="${esc(vol.califComentario)}">${esc(vol.califComentario)}</span>`
               : '<span class="sin-calif">—</span>'}
           </div>
           <div class="acciones-cell" style="flex-shrink:0;margin-left:auto;">
@@ -494,10 +494,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Mejor y peor calificación
     document.getElementById('res-mejor').innerHTML = resumen.mejor
-      ? `${renderEstrellasFijas(resumen.mejor.estrellas)} <small>${resumen.mejor.eventoNombre}</small>`
+      ? `${renderEstrellasFijas(resumen.mejor.estrellas)} <small>${esc(resumen.mejor.eventoNombre)}</small>`
       : '<span class="sin-calif">—</span>';
     document.getElementById('res-peor').innerHTML = resumen.peor
-      ? `${renderEstrellasFijas(resumen.peor.estrellas)} <small>${resumen.peor.eventoNombre}</small>`
+      ? `${renderEstrellasFijas(resumen.peor.estrellas)} <small>${esc(resumen.peor.eventoNombre)}</small>`
       : '<span class="sin-calif">—</span>';
 
     // Barras de distribución de estrellas (1 a 5)

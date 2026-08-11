@@ -338,8 +338,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       <div class="perfil-row">
         <i class="bx ${icono}" aria-hidden="true"></i>
         <div>
-          <p class="perfil-row-label">${label}</p>
-          <p class="perfil-row-valor">${valor}</p>
+          <p class="perfil-row-label">${esc(label)}</p>
+          <p class="perfil-row-valor">${esc(valor)}</p>
         </div>
       </div>`;
   }
@@ -372,7 +372,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const estadoBadge = u.activo
       ? '<span class="badge badge-green">Activo</span>'
       : '<span class="badge badge-red">Inactivo</span>';
-    const espBadge = u.especialidad ? `<span class="badge badge-especialidad">${u.especialidad}</span>` : '';
+    const espBadge = u.especialidad ? `<span class="badge badge-especialidad">${esc(u.especialidad)}</span>` : '';
     document.getElementById('perfil-badges').innerHTML = rolBadge(u.rol) + espBadge + estadoBadge;
 
     document.getElementById('perfil-info').innerHTML =

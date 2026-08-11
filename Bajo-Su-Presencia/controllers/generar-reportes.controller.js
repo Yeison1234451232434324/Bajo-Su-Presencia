@@ -206,6 +206,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   /* ── Tabla ── */
+  // Las filas se arman con celdas ya "pre-renderizadas" (algunas incluyen
+  // markup literal como <strong>TOTAL</strong>), así que el escape de los
+  // valores dinámicos (título de evento, nombre, propósito, etc.) se hace
+  // en el punto donde se arma cada `filas.map(...)`, no aquí.
   function _tabla(cols, filas, nota) {
     const ths = cols.map(c => `<th>${c}</th>`).join('');
     const trs = filas.length
@@ -235,7 +239,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const h = Math.max(d.v * esc, 2);
       const y = H - 30 - h;
       bars += `<rect x="${x}" y="${y}" width="${BW}" height="${h}" rx="4" fill="${color||C_AZUL}" opacity="0.85"/>`;
-      labs += `<text x="${x+BW/2}" y="${H-10}" text-anchor="middle" font-size="10" fill="#6b7280">${d.l}</text>`;
+      labs += `<text x="${x+BW/2}" y="${H-10}" text-anchor="middle" font-size="10" fill="#6b7280">${esc(d.l)}</text>`;
       vals += `<text x="${x+BW/2}" y="${y-5}" text-anchor="middle" font-size="10" font-weight="bold" fill="${color||C_AZUL}">${d.v}</text>`;
     });
 
@@ -265,7 +269,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     arcos += `<circle cx="${CX}" cy="${CY}" r="${R*0.55}" fill="white"/>`;
     const leyenda = datos.map((d, i) =>
-      `<div class="bsp-dona-leyenda-item"><span class="bsp-dona-dot" style="background:${cols[i%cols.length]}"></span><span>${d.l}: <strong>${d.v}</strong></span></div>`
+      `<div class="bsp-dona-leyenda-item"><span class="bsp-dona-dot" style="background:${cols[i%cols.length]}"></span><span>${esc(d.l)}: <strong>${d.v}</strong></span></div>`
     ).join('');
     return `<div class="bsp-grafica-wrap bsp-grafica-dona-wrap">
       <div class="bsp-grafica-titulo">${titulo}</div>
@@ -313,7 +317,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Tabla
     const filas = eventos.map(ev => {
       const rep = repMap[ev.id];
-      return [ev.titulo, ev.fecha||'—', ev.ubicacion||'—', ev.asistentes||'—',
+      return [esc(ev.titulo), esc(ev.fecha||'—'), esc(ev.ubicacion||'—'), esc(ev.asistentes||'—'),
               rep ? '✅ Sí' : '⏳ No', rep ? _fmt(rep.ofrenda) : '—'];
     });
 
@@ -362,7 +366,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const filas = vols.map(v => {
       const p = v.califs.length ? (v.califs.reduce((s,e)=>s+e,0)/v.califs.length).toFixed(1) : '—';
       const e = p !== '—' ? '★'.repeat(Math.round(Number(p))) + '☆'.repeat(5-Math.round(Number(p))) : '—';
-      return [v.nombre, v.rol||'—', v.eventos, p !== '—' ? `${p} ${e}` : '—'];
+      return [esc(v.nombre), esc(v.rol||'—'), v.eventos, p !== '—' ? `${p} ${e}` : '—'];
     });
 
     const top8 = [...vols].sort((a,b)=>b.eventos-a.eventos).slice(0,8);
@@ -401,7 +405,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const maxOf   = reportes.length ? Math.max(...reportes.map(r=>r.ofrenda||0)) : 0;
     const periodo = desde && hasta ? `${desde} al ${hasta}` : 'Todos los registros';
 
-    const filas = reportes.map(r => [r.eventoTitulo||'—', r.creadoEn||'—', _fmt(r.ofrenda), r.creadoPor||'—']);
+    const filas = reportes.map(r => [esc(r.eventoTitulo||'—'), esc(r.creadoEn||'—'), _fmt(r.ofrenda), esc(r.creadoPor||'—')]);
     if (reportes.length) filas.push(['', '<strong>TOTAL</strong>', `<strong>${_fmt(total)}</strong>`, '']);
 
     const datosBar = reportes.slice(-8).map(r => ({
@@ -469,8 +473,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     donaciones.forEach(d => { porEstado[d.estado] = (porEstado[d.estado]||0) + 1; });
 
     const filas = donaciones.map(d => [
-      d.referencia || '—', d.nombre, d.metodo || '—', _fmt(d.monto),
-      d.proposito || '—', d.estado, d.fecha || '—'
+      esc(d.referencia || '—'), esc(d.nombre), esc(d.metodo || '—'), _fmt(d.monto),
+      esc(d.proposito || '—'), esc(d.estado), esc(d.fecha || '—')
     ]);
     if (aprobadas.length) filas.push(['', '', '', `<strong>${_fmt(total)}</strong>`, '', '<strong>TOTAL APROBADO</strong>', '']);
 

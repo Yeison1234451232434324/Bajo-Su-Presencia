@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Exceptions\ApiException;
 use App\Http\Request;
 use App\Http\Response;
+use App\Security\PublicEndpointGuard;
 use App\Support\Logger;
 use App\Support\Mailer;
 use App\Supabase\SupabaseClient;
@@ -42,6 +43,11 @@ final class DonacionesController
      */
     public function store(Request $request, array $args): void
     {
+        // Público y sin autenticación: mismo riesgo de "email bombing" que
+        // /api/pqr (ver PqrController::crear), además de spam en el
+        // historial de donaciones.
+        (new PublicEndpointGuard())->assertAllowed('donacion', (string) ($_SERVER['REMOTE_ADDR'] ?? ''), 5, 15);
+
         $correo    = trim((string) $request->input('correo', ''));
         $nombre    = trim((string) $request->input('nombre', ''));
         $metodo    = trim((string) $request->input('metodo', ''));

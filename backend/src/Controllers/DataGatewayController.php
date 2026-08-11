@@ -29,16 +29,31 @@ use App\Supabase\SupabaseClient;
 final class DataGatewayController
 {
     /**
-     * Lista blanca de tablas y roles de escritura permitidos.
-     * `read` => true significa "cualquier usuario autenticado".
+     * Lista blanca de tablas y roles de escritura/lectura permitidos.
      *
      * Claves por tabla:
      *   - write          : roles autorizados a escribir (POST/PATCH/PUT/DELETE).
+     *   - read           : roles autorizados a leer (GET) autenticados. Si se
+     *                      omite, cualquier usuario autenticado puede leer
+     *                      (usado solo para catálogos sin datos sensibles).
+     *   - read_select    : cuando `read` está restringido, expresiones `select`
+     *                      adicionales permitidas para CUALQUIER usuario
+     *                      autenticado (aunque no tenga el rol de `read`),
+     *                      para exponer solo columnas no sensibles a módulos
+     *                      que las necesitan (p. ej. nombres para asignar
+     *                      actividades). Cualquier otro valor de `select` es
+     *                      rechazado para esos usuarios.
      *   - public_read    : si true, GET no requiere autenticación (home público).
      *   - public_insert  : si true, POST no requiere autenticación (PQR público).
-     *   (la lectura autenticada está permitida para cualquier tabla listada).
      *
-     * @var array<string,array{write:string[],public_read?:bool,public_insert?:bool}>
+     * IMPORTANTE: el `select` de PostgREST puede pedir columnas o incluso
+     * tablas relacionadas ("embeds") no previstas por el módulo que originó
+     * la petición, y esta pasarela usa la `service_role key` (que salta RLS).
+     * Por eso las tablas con datos sensibles deben declarar `read` y, si
+     * corresponde, `read_select`, en lugar de confiar en que el frontend
+     * jamás pida más columnas de las que muestra su interfaz.
+     *
+     * @var array<string,array{write:string[],read?:string[],read_select?:string[],public_read?:bool,public_insert?:bool}>
      */
     private const TABLES = [
         'recursos'               => ['write' => ['Administrador', 'Colaborador']],
@@ -53,14 +68,26 @@ final class DataGatewayController
         'noticias'               => ['write' => ['Administrador', 'Colaborador'], 'public_read' => true],
         'oraciones'              => ['write' => ['Administrador', 'Colaborador'], 'public_read' => true],
         'sedes'                  => ['write' => ['Administrador', 'Colaborador'], 'public_read' => true],
-        // PQR: cualquiera puede radicar (insertar); solo el panel gestiona:
-        'pqr'                    => ['write' => ['Administrador', 'Colaborador'], 'public_insert' => true],
-        // Solo lectura desde el panel:
-        'usuarios'               => ['write' => []],
-        'roles'                  => ['write' => []],
+        // PQR: cualquiera puede radicar (insertar); solo el panel gestiona
+        // (contiene datos de contacto de quien radica, no es de lectura libre):
+        'pqr'                    => [
+            'write'         => ['Administrador', 'Colaborador'],
+            'read'          => ['Administrador', 'Colaborador'],
+            'public_insert' => true,
+        ],
+        // Datos de cuenta (correo, rol, etc.): solo administración gestiona.
+        // `actividades.model.js` necesita listar nombres de voluntarios para
+        // asignarlos, así que se permite ese `select` puntual a cualquier
+        // usuario autenticado sin exponer correo, teléfono ni demás columnas.
+        'usuarios' => [
+            'write'       => [],
+            'read'        => ['Administrador', 'Colaborador'],
+            'read_select' => ['id,nombre:nombre_completo'],
+        ],
+        'roles' => ['write' => [], 'read' => ['Administrador', 'Colaborador']],
         // Historial de donaciones: el backend inserta al procesar el pago
-        // (DonacionesController); el panel admin solo lee y elimina.
-        'donaciones'             => ['write' => ['Administrador']],
+        // (DonacionesController); solo el panel admin lee y elimina.
+        'donaciones' => ['write' => ['Administrador'], 'read' => ['Administrador']],
     ];
 
     private readonly SupabaseClient $sb;
@@ -92,11 +119,11 @@ final class DataGatewayController
 
         // Las operaciones no públicas requieren autenticación.
         $claims = $isPublic ? [] : AuthMiddleware::authenticate($request);
+        $rol    = (string) ($claims['rol'] ?? '');
 
         // Las escrituras NO públicas exigen un rol autorizado.
         $isWrite = in_array($method, ['POST', 'PATCH', 'PUT', 'DELETE'], true);
         if ($isWrite && !$publicInsert) {
-            $rol = (string) ($claims['rol'] ?? '');
             if ($cfg['write'] === [] || !in_array($rol, $cfg['write'], true)) {
                 throw ApiException::forbidden('No tienes permisos para modificar este recurso.');
             }
@@ -105,6 +132,21 @@ final class DataGatewayController
         // Se toma de la capa HTTP en lugar de leer $_SERVER directamente: así
         // el controlador es probable sin simular el entorno del servidor.
         $query = $request->queryString();
+
+        // Lecturas NO públicas: si la tabla restringe `read`, el usuario debe
+        // tener uno de esos roles, salvo que el `select` solicitado coincida
+        // EXACTAMENTE con uno de los patrones inofensivos de `read_select`.
+        // Esto evita que un usuario autenticado con un rol menor pida, vía
+        // `select=*` u otro `select` no previsto, columnas o tablas
+        // relacionadas ("embeds") fuera de lo que su módulo necesita — la
+        // pasarela usa la `service_role key`, que ignora RLS por completo.
+        if (!$isPublic && $method === 'GET' && isset($cfg['read']) && !in_array($rol, $cfg['read'], true)) {
+            $select        = $this->selectParam($query);
+            $selectPermitido = $select !== null && in_array($select, $cfg['read_select'] ?? [], true);
+            if (!$selectPermitido) {
+                throw ApiException::forbidden('No tienes permisos para consultar este recurso.');
+            }
+        }
 
         switch ($method) {
             case 'GET':
@@ -173,6 +215,18 @@ final class DataGatewayController
             . ($exito ? '.' : ' (la operación falló).');
 
         AuditLogger::registrar($claims, $accion, $table, $registroId, $descripcion, $exito ? 'exito' : 'error');
+    }
+
+    /**
+     * Extrae el valor (decodificado) del parámetro `select` de una query
+     * string cruda en formato PostgREST, o `null` si no está presente.
+     */
+    private function selectParam(string $query): ?string
+    {
+        if (preg_match('/(?:^|&)select=([^&]*)/', $query, $m) !== 1) {
+            return null;
+        }
+        return urldecode($m[1]);
     }
 
     /**

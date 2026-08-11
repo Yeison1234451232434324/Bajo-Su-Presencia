@@ -50,9 +50,13 @@ final class UserRepository
      */
     public function findByUsername(string $username): ?array
     {
-        $rows = $this->sb->select(
+        // Escapa los comodines de PostgREST (%, _) para que el valor se trate
+        // como texto literal y no permita ampliar la coincidencia (p. ej. un
+        // atacante enviando "%" para intentar enumerar/adivinar usuarios).
+        $literal = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $username);
+        $rows    = $this->sb->select(
             'usuarios',
-            ['username' => 'ilike.' . $username, 'limit' => '1'],
+            ['username' => 'ilike.' . $literal, 'limit' => '1'],
             self::SELECT
         );
         return $rows[0] ?? null;

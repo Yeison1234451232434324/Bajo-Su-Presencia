@@ -109,8 +109,8 @@ delete from auth.users;     -- cascada borra auth.identities
 -- ----------------------------------------------------------------------------
 do $$
 declare
-  v_email text := 'admin@correo.com';
-  v_pass  text := 'Admin123*';
+  v_email text := 'CAMBIA_ESTE_CORREO@ejemplo.com';   -- <<< pon el correo real
+  v_pass  text := 'CAMBIA_ESTA_CLAVE';                -- <<< pon una clave fuerte propia
   v_id    uuid := gen_random_uuid();
   v_admin uuid;
 begin

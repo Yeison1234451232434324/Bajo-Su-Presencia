@@ -8,6 +8,7 @@ use App\Exceptions\ApiException;
 use App\Http\Request;
 use App\Http\Response;
 use App\Security\AuthMiddleware;
+use App\Security\PublicEndpointGuard;
 use App\Support\AuditLogger;
 use App\Support\Logger;
 use App\Support\Mailer;
@@ -46,6 +47,11 @@ final class PqrController
      */
     public function crear(Request $request, array $args): void
     {
+        // Público y sin autenticación: sin límite, cualquiera podría radicar
+        // PQR en bucle usando el correo de un tercero como remitente y
+        // bombardearlo de confirmaciones ("email bombing").
+        (new PublicEndpointGuard())->assertAllowed('pqr', (string) ($_SERVER['REMOTE_ADDR'] ?? ''), 5, 15);
+
         $tipo        = trim((string) $request->input('tipo', ''));
         $nombre      = trim((string) $request->input('nombre', ''));
         $correo      = trim((string) $request->input('correo', $request->input('email', '')));

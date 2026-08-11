@@ -216,7 +216,7 @@
       <!-- Mensaje cuando no hay noticias recientes -->
       <div class="carousel-empty" id="news-empty" style="display:none;">
         <span>�</span>
-        <p>No hay noticias publicadas en los últimos 7 días.</p>
+        <p>No hay noticias publicadas hoy.</p>
       </div>
     </div>
   </section>
@@ -469,6 +469,21 @@
 <!-- ══ SCRIPT: Carruseles + Modal ══════════════════════════════════════════ -->
 <script>
 (function () {
+  /**
+   * Escapa datos antes de insertarlos con innerHTML. Noticias y eventos
+   * (título, resumen, contenido, autor, horario, ubicación...) los escribe
+   * el panel de administración (Administrador/Colaborador) y esta es la
+   * página pública sin login: sin escapar, cualquier visitante que cargue
+   * la portada ejecutaría el HTML/JS que se haya guardado ahí (stored XSS
+   * contra todo el público, no solo contra otro admin).
+   */
+  const esc = (v) => (window.BSPVal?.escapeHtml
+    ? window.BSPVal.escapeHtml(String(v ?? ''))
+    : String(v ?? '').replace(/[&<>"'`/]/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;',
+        '"': '&quot;', "'": '&#39;', '/': '&#x2F;', '`': '&#x60;'
+      }[c])));
+
   /* ─── Utilidades de fecha ─────────────────────────────────────────────── */
   const hoy      = new Date();
   hoy.setHours(0, 0, 0, 0);
@@ -496,10 +511,11 @@
   async function leerNoticias() {
     try {
       const todas = await NoticiasModel.getAll();   // Supabase
-      // Noticias recientes o futuras (últimos 7 días en adelante)
+      // Solo noticias del día de hoy o futuras: al día siguiente de su
+      // fecha de publicación dejan de mostrarse en el home.
       return todas.filter(n => {
         const f = parseISO(n.fechaISO || n.fecha);
-        return f && f >= hace7;
+        return f && f >= hoy;
       });
     } catch (_) { return []; }
   }
@@ -624,16 +640,16 @@
     art.innerHTML = `
       <div class="news-card-img-wrap">
         ${n.imagen
-          ? `<img src="${n.imagen}" alt="${n.titulo}" class="news-card-img" loading="lazy" />`
+          ? `<img src="${esc(n.imagen)}" alt="${esc(n.titulo)}" class="news-card-img" loading="lazy" />`
           : `<div class="news-card-img-placeholder"><span>📰</span></div>`}
         <div class="news-card-img-fade"></div>
       </div>
       <div class="news-card-body">
-        <h4 class="news-card-title">${n.titulo}</h4>
-        <p class="news-card-excerpt">${n.resumen || ''}</p>
+        <h4 class="news-card-title">${esc(n.titulo)}</h4>
+        <p class="news-card-excerpt">${esc(n.resumen || '')}</p>
         <div class="news-card-meta">
-          <span>📅 ${formatFecha(n.fechaISO || n.fecha)}</span>
-          <span>👤 ${n.autor || '—'}</span>
+          <span>📅 ${esc(formatFecha(n.fechaISO || n.fecha))}</span>
+          <span>👤 ${esc(n.autor || '—')}</span>
         </div>
         <span class="card-leer-mas">Leer más →</span>
       </div>`;
@@ -653,12 +669,12 @@
     div.innerHTML = `
       <div class="event-card-bar" style="background:${bar}"></div>
       <div class="event-card-body">
-        <h4 class="event-card-title">${ev.titulo}</h4>
+        <h4 class="event-card-title">${esc(ev.titulo)}</h4>
         <div class="event-card-info">
-          <div class="event-info-row"><span class="event-icon">📅</span> ${formatFecha(ev.fecha)}</div>
-          ${ev.horario   ? `<div class="event-info-row"><span class="event-icon">🕙</span> ${ev.horario}</div>` : ''}
-          ${ev.ubicacion ? `<div class="event-info-row"><span class="event-icon">📍</span> ${ev.ubicacion}</div>` : ''}
-          ${ev.asistentes ? `<div class="event-info-row"><span class="event-icon">👥</span> ${ev.asistentes} asistentes esperados</div>` : ''}
+          <div class="event-info-row"><span class="event-icon">📅</span> ${esc(formatFecha(ev.fecha))}</div>
+          ${ev.horario   ? `<div class="event-info-row"><span class="event-icon">🕙</span> ${esc(ev.horario)}</div>` : ''}
+          ${ev.ubicacion ? `<div class="event-info-row"><span class="event-icon">📍</span> ${esc(ev.ubicacion)}</div>` : ''}
+          ${ev.asistentes ? `<div class="event-info-row"><span class="event-icon">👥</span> ${esc(ev.asistentes)} asistentes esperados</div>` : ''}
         </div>
         <span class="card-leer-mas">Ver detalle →</span>
       </div>`;
@@ -797,12 +813,12 @@
     document.getElementById('mf-badge').className    = 'mf-badge mf-badge--noticia';
     document.getElementById('mf-titulo').textContent = n.titulo;
     document.getElementById('mf-meta').innerHTML     =
-      `📅 ${formatFecha(n.fechaISO || n.fecha)} &nbsp;·&nbsp; 👤 ${n.autor || '—'}`;
+      `📅 ${esc(formatFecha(n.fechaISO || n.fecha))} &nbsp;·&nbsp; 👤 ${esc(n.autor || '—')}`;
     document.getElementById('mf-texto').textContent  = n.resumen || '';
 
     const extra = document.getElementById('mf-extra');
     extra.innerHTML = n.contenido
-      ? `<div class="mf-contenido"><p>${n.contenido}</p></div>`
+      ? `<div class="mf-contenido"><p>${esc(n.contenido)}</p></div>`
       : '';
 
     const imgWrap = document.getElementById('mf-img-wrap');
@@ -828,7 +844,7 @@
     document.getElementById('mf-ev-header').style.display  = 'flex';
     document.getElementById('mf-titulo-ev').textContent    = ev.titulo;
     document.getElementById('mf-meta-ev').innerHTML        =
-      `📅 ${formatFecha(ev.fecha)}${ev.horario ? ' &nbsp;·&nbsp; 🕙 ' + ev.horario : ''}`;
+      `📅 ${esc(formatFecha(ev.fecha))}${ev.horario ? ' &nbsp;·&nbsp; 🕙 ' + esc(ev.horario) : ''}`;
 
     // Ícono grande según tipo de evento (heurística por título)
     const titulo = ev.titulo.toLowerCase();
@@ -852,7 +868,7 @@
             <span class="mf-ev-card-icon">📅</span>
             <div>
               <p class="mf-ev-card-label">Fecha</p>
-              <p class="mf-ev-card-val">${formatFecha(ev.fecha)}</p>
+              <p class="mf-ev-card-val">${esc(formatFecha(ev.fecha))}</p>
             </div>
           </div>` : ''}
         ${ev.horario ? `
@@ -860,7 +876,7 @@
             <span class="mf-ev-card-icon">🕙</span>
             <div>
               <p class="mf-ev-card-label">Horario</p>
-              <p class="mf-ev-card-val">${ev.horario}</p>
+              <p class="mf-ev-card-val">${esc(ev.horario)}</p>
             </div>
           </div>` : ''}
         ${ev.ubicacion ? `
@@ -868,7 +884,7 @@
             <span class="mf-ev-card-icon">📍</span>
             <div>
               <p class="mf-ev-card-label">Ubicación</p>
-              <p class="mf-ev-card-val">${ev.ubicacion}</p>
+              <p class="mf-ev-card-val">${esc(ev.ubicacion)}</p>
             </div>
           </div>` : ''}
         ${ev.asistentes ? `
@@ -876,7 +892,7 @@
             <span class="mf-ev-card-icon">👥</span>
             <div>
               <p class="mf-ev-card-label">Asistentes esperados</p>
-              <p class="mf-ev-card-val">${ev.asistentes}</p>
+              <p class="mf-ev-card-val">${esc(ev.asistentes)}</p>
             </div>
           </div>` : ''}
       </div>`;

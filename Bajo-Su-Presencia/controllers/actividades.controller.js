@@ -17,6 +17,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const _esColaborador = ((JSON.parse(localStorage.getItem('usuarioLogueado') || '{}')).rol || '') === 'Colaborador';
 
+  /**
+   * Escapa datos antes de insertarlos con innerHTML (título/descripción de
+   * evento y actividad, nombre de voluntario asignado, etc. son escritos
+   * por usuarios y podrían contener HTML/JS malicioso).
+   */
+  const esc = (v) => (window.BSPVal?.escapeHtml
+    ? window.BSPVal.escapeHtml(String(v ?? ''))
+    : String(v ?? '').replace(/[&<>"'`/]/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;',
+        '"': '&quot;', "'": '&#39;', '/': '&#x2F;', '`': '&#x60;'
+      }[c])));
+
   let eventoActual = null;
   let modoEdicion  = false;
   let actEditId    = null;
@@ -74,7 +86,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="act-ev-body">
           <h3 class="act-ev-titulo">${esc(ev.titulo)}</h3>
           <p class="act-ev-meta"><i class="bx bx-calendar" aria-hidden="true"></i> ${fechaFmt}</p>
-          ${ev.horario ? `<p class="act-ev-meta"><i class="bx bx-time" aria-hidden="true"></i> ${ev.horario}</p>` : ''}
+          ${ev.horario ? `<p class="act-ev-meta"><i class="bx bx-time" aria-hidden="true"></i> ${esc(ev.horario)}</p>` : ''}
           <p class="act-ev-meta"><i class="bx bx-notepad" aria-hidden="true"></i> ${resumen.total} actividad(es) - ${resumen.completadas} completada(s)</p>
           <p class="act-ev-meta act-ev-vol"><i class="bx bx-group" aria-hidden="true"></i> ${volDisp} voluntario(s) necesario(s)</p>
           <p class="act-ev-meta act-ev-inscritos"><i class="bx bx-user-check" aria-hidden="true"></i> ${volInscritos} voluntario(s) inscrito(s)</p>
