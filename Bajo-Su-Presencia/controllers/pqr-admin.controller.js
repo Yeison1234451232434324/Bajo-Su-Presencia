@@ -75,33 +75,32 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       return `
         <div class="pqr-row">
-          <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+          <div class="pqr-row-top">
             ${badgeTipo}
             ${badgePrioridad}
             ${badgeEstado}
-            <span style="flex:1;min-width:120px;font-weight:700;font-size:0.95rem;
-              overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escapeHtml(p.asunto)}">
+            <span class="pqr-row-asunto" title="${escapeHtml(p.asunto)}">
               ${escapeHtml(p.asunto)}
             </span>
-            <span style="flex-shrink:0;font-size:0.82rem;color:var(--muted);">${fecha}</span>
-            <div class="pqr-acciones-cell" style="flex-shrink:0;">
-              <button class="pqr-btn-accion btn-ver-pqr" onclick="abrirModal('${p.id}')" title="Ver detalle${resuelto ? '' : ' y responder'}">
+            <span class="pqr-row-fecha">${fecha}</span>
+            <div class="pqr-acciones-cell">
+              <button class="pqr-btn-accion btn-ver-pqr" data-action="abrir-pqr" data-id="${p.id}" title="Ver detalle${resuelto ? '' : ' y responder'}">
                 <i class="bx bx-show" aria-hidden="true"></i>
               </button>
-              <button class="pqr-btn-accion btn-estado-pqr" onclick="ciclarEstado('${p.id}')"
+              <button class="pqr-btn-accion btn-estado-pqr" data-action="ciclar-estado-pqr" data-id="${p.id}"
                 ${resuelto ? 'disabled title="Resuelto: solo se puede eliminar"' : `title="Cambiar estado: ${siguienteEstado(p.estado)}"`}>
                 <i class="bx bx-transfer-alt" aria-hidden="true"></i>
               </button>
-              <button class="pqr-btn-accion btn-eliminar-pqr" onclick="eliminarPQR('${p.id}')" title="Eliminar PQR">
+              <button class="pqr-btn-accion btn-eliminar-pqr" data-action="eliminar-pqr" data-id="${p.id}" title="Eliminar PQR">
                 <i class="bx bx-trash" aria-hidden="true"></i>
               </button>
             </div>
           </div>
-          <div style="margin-top:0.5rem;font-size:0.875rem;color:var(--muted);">
-            <i class="bx bx-user" style="font-size:0.9rem;" aria-hidden="true"></i>
+          <div class="pqr-row-contacto">
+            <i class="bx bx-user" aria-hidden="true"></i>
             ${escapeHtml(p.nombre)}
             &nbsp;·&nbsp;
-            <i class="bx bx-envelope" style="font-size:0.9rem;" aria-hidden="true"></i>
+            <i class="bx bx-envelope" aria-hidden="true"></i>
             ${escapeHtml(p.email)}
           </div>
         </div>`;
@@ -129,6 +128,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
       window.__bspDT['dt-pqr'] = dtPQR;
       dtPQR.init();
+      document.getElementById('dt-pqr-body')?.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-action]');
+        if (!btn || btn.disabled) return;
+        const id = btn.dataset.id;
+        if (btn.dataset.action === 'abrir-pqr') abrirModal(id);
+        else if (btn.dataset.action === 'ciclar-estado-pqr') ciclarEstado(id);
+        else if (btn.dataset.action === 'eliminar-pqr') eliminarPQR(id);
+      });
     } else {
       dtPQR.refresh(data);
     }
@@ -198,7 +205,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ════════════════════════════════════════════════════════════════
 
   /** Abre el modal con el detalle completo del PQR */
-  window.abrirModal = async function(id) {
+  async function abrirModal(id) {
     const p = await PQRModel.getById(id);
     if (!p) return;
 
@@ -245,7 +252,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Mostrar modal
     BSPModal.abrir({ overlay: modalOverlay, modal });
-  };
+  }
 
   /** Cierra el modal */
   function cerrarModal() {
@@ -301,7 +308,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ════════════════════════════════════════════════════════════════
 
   /** Avanza el estado del PQR al siguiente en el ciclo */
-  window.ciclarEstado = async function(id) {
+  async function ciclarEstado(id) {
     const p = await PQRModel.getById(id);
     if (!p) return;
 
@@ -320,13 +327,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     await renderTabla();
     showAlertSuccess(`El PQR pasó a estado "${nuevo}".`);
-  };
+  }
 
   // ════════════════════════════════════════════════════════════════
   // 6. ELIMINAR PQR
   // ════════════════════════════════════════════════════════════════
 
-  window.eliminarPQR = async function(id) {
+  async function eliminarPQR(id) {
     const p = await PQRModel.getById(id);
     if (!p) return;
 
@@ -344,7 +351,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         showAlertSuccess(`El PQR de "${p.nombre}" fue eliminado.`);
       }
     );
-  };
+  }
 
   // ── Render inicial ───────────────────────────────────────────────────────
   renderTabla();

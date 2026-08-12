@@ -127,7 +127,7 @@ class BSPDataTable {
             </svg>
             <input type="text" class="bsp-dt-search" id="${this.containerId}-search"
               placeholder="Buscar registros…" autocomplete="off"/>
-            <button class="bsp-dt-search-clear" id="${this.containerId}-clear" style="display:none;">
+            <button class="bsp-dt-search-clear u-oculto" id="${this.containerId}-clear">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12">
                 <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
               </svg>
@@ -140,7 +140,7 @@ class BSPDataTable {
       ${filtersHTML}
 
       <!-- Resumen de filtros activos -->
-      <div class="bsp-dt-active-filters" id="${this.containerId}-af" style="display:none;"></div>
+      <div class="bsp-dt-active-filters u-oculto" id="${this.containerId}-af"></div>
 
       <!-- Fila de títulos de columna, opcional -->
       ${this.headerHTML ? `<div class="bsp-dt-header-row" id="${this.containerId}-header">${this.headerHTML}</div>` : ''}
@@ -270,6 +270,19 @@ class BSPDataTable {
     });
 
     fclearEl?.addEventListener('click', () => this._clearAllFilters());
+
+    // Delegación: chip "Limpiar todo" (antes onclick inline) y paginación
+    // (antes onclick="window.__bspDT['id'].goPage(n)" inline). Los wraps
+    // existen desde init(); su contenido se re-renderiza en cada _render().
+    const afEl  = document.getElementById(`${this.containerId}-af`);
+    afEl?.addEventListener('click', (e) => {
+      if (e.target.closest('[data-action="clear-all-filters"]')) this._clearAllFilters();
+    });
+    const pagEl = document.getElementById(`${this.containerId}-pag`);
+    pagEl?.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-action="goto-page"]');
+      if (btn && !btn.disabled) this.goPage(parseInt(btn.dataset.page, 10));
+    });
   }
 
   // ── Limpiar todos los filtros ────────────────────────────────────────────
@@ -320,7 +333,7 @@ class BSPDataTable {
       chips.push(`<span class="bsp-dt-chip">${_escChip(label)}: <strong>${_escChip(f.val)}</strong></span>`);
     });
     wrap.innerHTML = chips.join('') +
-      `<button class="bsp-dt-chip-clear" onclick="window.__bspDT['${this.containerId}']._clearAllFilters()">
+      `<button class="bsp-dt-chip-clear" data-action="clear-all-filters">
         Limpiar todo ×
       </button>`;
   }
@@ -392,18 +405,26 @@ class BSPDataTable {
       body.innerHTML = this.emptyHTML;
     } else if (this.tableMode) {
       // Modo tabla: renderRow devuelve <tr>...</tr>
-      body.innerHTML = `<table class="${this.tableClass}" style="width:100%;border-collapse:collapse;">
-        <tbody>${page.map((item, i) =>
-          `<tr style="animation:bspDtFadeIn 0.25s ease ${i*25}ms both;">${
+      // La animación escalonada por fila se aplica DESPUÉS por JS
+      // (element.style.animationDelay, no requiere unsafe-inline).
+      body.innerHTML = `<table class="${this.tableClass} u-dt-tabla">
+        <tbody>${page.map((item) =>
+          `<tr class="bsp-dt-row-fade">${
             this.renderRow(item).replace(/^\s*<tr[^>]*>|<\/tr>\s*$/gi, '')
           }</tr>`
         ).join('')}</tbody>
       </table>`;
+      body.querySelectorAll('.bsp-dt-row-fade').forEach((el, i) => {
+        el.style.animation = `bspDtFadeIn 0.25s ease ${i * 25}ms both`;
+      });
     } else {
-      // Modo tarjetas (default)
-      body.innerHTML = page.map((item, i) =>
-        `<div class="bsp-dt-row-wrap" style="animation-delay:${i * 25}ms">${this.renderRow(item)}</div>`
+      // Modo tarjetas (default) — mismo criterio: delay aplicado por JS.
+      body.innerHTML = page.map((item) =>
+        `<div class="bsp-dt-row-wrap">${this.renderRow(item)}</div>`
       ).join('');
+      body.querySelectorAll(':scope > .bsp-dt-row-wrap').forEach((el, i) => {
+        el.style.animationDelay = `${i * 25}ms`;
+      });
     }
 
     this._renderPag(pagWrap, totalPages);
@@ -416,10 +437,10 @@ class BSPDataTable {
     const id  = this.containerId;
     let html  = '<div class="bsp-dt-pag-inner">';
 
-    html += `<button class="bsp-dt-pag-btn bsp-dt-pag-nav" ${cur===1?'disabled':''} onclick="window.__bspDT['${id}'].goPage(1)" title="Primera">
+    html += `<button class="bsp-dt-pag-btn bsp-dt-pag-nav" ${cur===1?'disabled':''} data-action="goto-page" data-page="1" title="Primera">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg>
     </button>`;
-    html += `<button class="bsp-dt-pag-btn bsp-dt-pag-nav" ${cur===1?'disabled':''} onclick="window.__bspDT['${id}'].goPage(${cur-1})" title="Anterior">
+    html += `<button class="bsp-dt-pag-btn bsp-dt-pag-nav" ${cur===1?'disabled':''} data-action="goto-page" data-page="${cur-1}" title="Anterior">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><polyline points="15 18 9 12 15 6"/></svg>
     </button>`;
 
@@ -428,14 +449,14 @@ class BSPDataTable {
         html += `<span class="bsp-dt-pag-ellipsis">…</span>`;
       } else {
         html += `<button class="bsp-dt-pag-btn ${p===cur?'bsp-dt-pag-active':''}"
-          onclick="window.__bspDT['${id}'].goPage(${p})">${p}</button>`;
+          data-action="goto-page" data-page="${p}">${p}</button>`;
       }
     });
 
-    html += `<button class="bsp-dt-pag-btn bsp-dt-pag-nav" ${cur===total?'disabled':''} onclick="window.__bspDT['${id}'].goPage(${cur+1})" title="Siguiente">
+    html += `<button class="bsp-dt-pag-btn bsp-dt-pag-nav" ${cur===total?'disabled':''} data-action="goto-page" data-page="${cur+1}" title="Siguiente">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><polyline points="9 18 15 12 9 6"/></svg>
     </button>`;
-    html += `<button class="bsp-dt-pag-btn bsp-dt-pag-nav" ${cur===total?'disabled':''} onclick="window.__bspDT['${id}'].goPage(${total})" title="Última">
+    html += `<button class="bsp-dt-pag-btn bsp-dt-pag-nav" ${cur===total?'disabled':''} data-action="goto-page" data-page="${total}" title="Última">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
     </button>`;
 

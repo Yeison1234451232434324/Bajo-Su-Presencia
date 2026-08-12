@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="act-ev-body">
           <h3 class="act-ev-titulo">${esc(ev.nombre)}</h3>
           <p class="act-ev-meta"><i class="bx bx-calendar" aria-hidden="true"></i> ${fechaFmt}</p>
-          ${ev.lugar ? `<p class="act-ev-meta"><i class="bx bx-map-pin" style="color:#f87171;" aria-hidden="true"></i> ${esc(ev.lugar)}</p>` : ''}
+          ${ev.lugar ? `<p class="act-ev-meta"><i class="bx bx-map-pin u-icono-rojo" aria-hidden="true"></i> ${esc(ev.lugar)}</p>` : ''}
           <p class="act-ev-meta"><i class="bx bx-group" aria-hidden="true"></i> ${total} voluntario(s)</p>
           <p class="act-ev-meta act-ev-inscritos"><i class="bx bx-star" aria-hidden="true"></i> ${calificados} de ${total} calificado(s)</p>
         </div>`;
@@ -147,13 +147,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   /** Vuelve al grid de eventos desde la vista de calificación */
-  window.volverAEventosVol = function() {
+  function volverAEventosVol() {
     eventoActualId = null;
     vistaCalificarVol.style.display = 'none';
     vistaEventosVol.style.display   = 'block';
     ocultarPaneles();
     renderGridEventosVol();
-  };
+  }
+  document.querySelector('.btn-volver')?.addEventListener('click', volverAEventosVol);
 
   // ════════════════════════════════════════════════════════════════
   // 2. TABLA DE VOLUNTARIOS
@@ -201,26 +202,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const btnCalif = `
         <button class="btn-accion btn-calificar ${yaCalificado ? 'btn-editar-calif' : ''}"
-          onclick="abrirModalCalif('${vol.id}')"
+          data-action="abrir-modal-calif" data-id="${vol.id}"
           title="${yaCalificado ? 'Editar calificación' : 'Calificar voluntario'}">
           <i class="bx ${yaCalificado ? 'bx-edit' : 'bx-star'}"></i>
         </button>`;
       const btnHist = `
         <button class="btn-accion btn-historial"
-          onclick="verHistorial('${escJs(vol.id)}', '${escJs(vol.nombre)}')"
+          data-action="ver-historial" data-id="${esc(vol.id)}" data-nombre="${esc(vol.nombre)}"
           title="Ver historial completo">
           <i class="bx bx-history" aria-hidden="true"></i>
         </button>`;
       const btnResumen = `
         <button class="btn-accion btn-resumen"
-          onclick="verResumen('${escJs(vol.id)}', '${escJs(vol.nombre)}')"
+          data-action="ver-resumen" data-id="${esc(vol.id)}" data-nombre="${esc(vol.nombre)}"
           title="Ver resumen estadístico">
           <i class="bx bx-bar-chart-alt-2" aria-hidden="true"></i>
         </button>`;
 
       return `
         <div class="vol-row">
-          <div class="user-cell" style="flex:2;min-width:160px;">
+          <div class="user-cell">
             <div class="user-avatar-sm user-avatar-sm--vol">
               ${avatar}
             </div>
@@ -229,13 +230,13 @@ document.addEventListener('DOMContentLoaded', async () => {
               <p class="user-username">${esc(vol.rol)}</p>
             </div>
           </div>
-          <div style="flex:1;min-width:100px;">${estrellasMostrar}</div>
-          <div class="comentario-cell" style="flex:1.5;min-width:120px;">
+          <div class="vol-row-estrellas">${estrellasMostrar}</div>
+          <div class="comentario-cell">
             ${yaCalificado && vol.califComentario
               ? `<span class="comentario-preview" title="${esc(vol.califComentario)}">${esc(vol.califComentario)}</span>`
               : '<span class="sin-calif">—</span>'}
           </div>
-          <div class="acciones-cell" style="flex-shrink:0;margin-left:auto;">
+          <div class="acciones-cell">
             ${btnCalif}${btnHist}${btnResumen}
           </div>
         </div>`;
@@ -259,6 +260,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
       window.__bspDT['dt-voluntarios'] = dtVoluntarios;
       dtVoluntarios.init();
+      document.getElementById('dt-voluntarios-body')?.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        const id = btn.dataset.id;
+        if (btn.dataset.action === 'abrir-modal-calif') abrirModalCalif(id);
+        else if (btn.dataset.action === 'ver-historial') verHistorial(id, btn.dataset.nombre);
+        else if (btn.dataset.action === 'ver-resumen') verResumen(id, btn.dataset.nombre);
+      });
     } else {
       dtVoluntarios.refresh(data);
     }
@@ -279,7 +288,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ════════════════════════════════════════════════════════════════
 
   /** Abre el modal para calificar a un voluntario */
-  window.abrirModalCalif = async function(voluntarioId) {
+  async function abrirModalCalif(voluntarioId) {
     if (!eventoActualId) return;
 
     const evento = await VoluntariosModel.getEventoById(eventoActualId);
@@ -308,7 +317,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderEstrellaModal(califEstrellas);
 
     BSPModal.abrir({ overlay: modalOverlay, modal });
-  };
+  }
 
   /**
    * Renderiza las 5 estrellas interactivas dentro del modal.
@@ -437,7 +446,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ════════════════════════════════════════════════════════════════
 
   /** Muestra el panel lateral con el historial de calificaciones del voluntario */
-  window.verHistorial = async function(voluntarioId, nombre) {
+  async function verHistorial(voluntarioId, nombre) {
     const historial = await VoluntariosModel.getHistorialVoluntario(voluntarioId);
 
     historialNombre.textContent = nombre;
@@ -446,7 +455,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (historial.length === 0) {
       historialLista.innerHTML = `
         <div class="panel-vacio">
-          <i class="bx bx-history" style="font-size:2.5rem;color:var(--border-light);" aria-hidden="true"></i>
+          <i class="bx bx-history" aria-hidden="true"></i>
           <p>Este voluntario aún no tiene calificaciones registradas.</p>
         </div>`;
     } else {
@@ -469,7 +478,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Ocultar resumen si estaba abierto y mostrar historial
     panelResumen.style.display  = 'none';
     panelHistorial.style.display = 'block';
-  };
+  }
 
   btnCerrarHist.addEventListener('click', () => {
     panelHistorial.style.display = 'none';
@@ -480,7 +489,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ════════════════════════════════════════════════════════════════
 
   /** Muestra el panel con el resumen estadístico personal del voluntario */
-  window.verResumen = async function(voluntarioId, nombre) {
+  async function verResumen(voluntarioId, nombre) {
     const resumen = await VoluntariosModel.getResumenVoluntario(voluntarioId);
 
     resumenNombre.textContent = nombre;
@@ -510,18 +519,19 @@ document.addEventListener('DOMContentLoaded', async () => {
       const pct     = Math.round((cant / maxVal) * 100);
       distWrap.innerHTML += `
         <div class="dist-fila">
-          <span class="dist-label">${i} <i class="bx bxs-star star-on" style="font-size:0.85rem;" aria-hidden="true"></i></span>
+          <span class="dist-label">${i} <i class="bx bxs-star star-on" aria-hidden="true"></i></span>
           <div class="dist-barra-wrap">
-            <div class="dist-barra" style="width:${pct}%"></div>
+            <div class="dist-barra" id="vol-dist-barra-${i}"></div>
           </div>
           <span class="dist-cant">${cant}</span>
         </div>`;
+      distWrap.querySelector(`#vol-dist-barra-${i}`).style.width = `${pct}%`;
     }
 
     // Ocultar historial si estaba abierto y mostrar resumen
     panelHistorial.style.display = 'none';
     panelResumen.style.display   = 'block';
-  };
+  }
 
   btnCerrarResumen.addEventListener('click', () => {
     panelResumen.style.display = 'none';

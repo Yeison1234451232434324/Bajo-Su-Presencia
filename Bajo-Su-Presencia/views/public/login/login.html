@@ -94,26 +94,14 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js" integrity="sha384-3kOl9EzcOjFxTuc9knN784SI3NaWSFtoc4bHR9P8rsADaAZx9PC++m1OimQhoCCb" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="../../../helpers/alertify.overrides.css" />
     <script src="../../../helpers/alertify.helper.js?v=6"></script>
     <!-- SDK de Supabase + cliente compartido (deben ir ANTES de auth.controller.js) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8" integrity="sha384-Tve8O+C6PBzsIMK/IRCwHbi8fyEzXIlIs6OfVBZHubplwYhaQF/4Mzxqgg+pp/oy" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="../../../services/supabase.client.js?v=6"></script>
     <script src="../../../config/api.config.js?v=6"></script>
     <script src="../../../controllers/auth.controller.js?v=6"></script>
-    <script>
-        // Toggle mostrar/ocultar contraseña
-        document.getElementById('toggle-password').addEventListener('click', function() {
-            const input   = document.getElementById('password');
-            const eyeIcon = document.getElementById('eye-icon');
-            if (input.type === 'password') {
-                input.type = 'text';
-                eyeIcon.className = 'bx bx-show';
-            } else {
-                input.type = 'password';
-                eyeIcon.className = 'bx bx-hide';
-            }
-        });
-    </script>
+    <script src="../../../controllers/login-toggle.controller.js?v=1"></script>
 </body>
 
 </html>

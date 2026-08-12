@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       card.dataset.id = r.id;
       card.innerHTML = `
         <div class="ev-rec-check">
-          <input type="checkbox" id="chk-rec-${r.id}" onchange="toggleRecursoEvento('${r.id}')" />
+          <input type="checkbox" id="chk-rec-${r.id}" />
         </div>
         <div class="ev-rec-body">
           <div class="ev-rec-header">
@@ -129,12 +129,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             <span class="badge badge-green ev-rec-stock">${esc(r.cantidad)} ${esc(r.unidad)}</span>
           </div>
           <p class="ev-rec-cat">${esc(r.categoria)}</p>
-          <div class="ev-rec-qty" id="ev-qty-${r.id}" style="display:none;">
+          <div class="ev-rec-qty" id="ev-qty-${r.id}">
             <label for="qty-rec-${r.id}">Cantidad a usar:</label>
             <input type="number" id="qty-rec-${r.id}" class="ev-qty-input"
-              min="1" max="${r.cantidad}" value="1"
-              onchange="actualizarCantidad('${r.id}', this.value, ${r.cantidad})"
-              oninput="actualizarCantidad('${r.id}', this.value, ${r.cantidad})" />
+              min="1" max="${r.cantidad}" value="1" data-max="${r.cantidad}" />
             <span class="ev-qty-max">máx. ${r.cantidad}</span>
           </div>
         </div>`;
@@ -142,7 +140,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  window.toggleRecursoEvento = function(id) {
+  function toggleRecursoEvento(id) {
     const card = document.getElementById(`ev-rec-${id}`);
     const chk  = document.getElementById(`chk-rec-${id}`);
     const qtyDiv = document.getElementById(`ev-qty-${id}`);
@@ -155,15 +153,33 @@ document.addEventListener('DOMContentLoaded', async () => {
       delete seleccionados[id];
     }
     actualizarContador();
-  };
+  }
 
-  window.actualizarCantidad = function(id, valor, max) {
+  function actualizarCantidad(id, valor, max) {
     let cant = parseInt(valor) || 1;
     if (cant < 1) cant = 1; if (cant > max) cant = max;
     const input = document.getElementById(`qty-rec-${id}`);
     if (input) input.value = cant;
     seleccionados[id] = cant;
-  };
+  }
+
+  // Delegación para la grilla de recursos (antes onchange/oninput inline
+  // generados por template literal en cada tarjeta de recurso).
+  recursosGrid.addEventListener('change', (e) => {
+    if (e.target.matches('input[type="checkbox"]')) {
+      const id = e.target.closest('.ev-recurso-card')?.dataset.id;
+      if (id) toggleRecursoEvento(id);
+    } else if (e.target.matches('.ev-qty-input')) {
+      const id = e.target.closest('.ev-recurso-card')?.dataset.id;
+      if (id) actualizarCantidad(id, e.target.value, parseInt(e.target.dataset.max, 10));
+    }
+  });
+  recursosGrid.addEventListener('input', (e) => {
+    if (e.target.matches('.ev-qty-input')) {
+      const id = e.target.closest('.ev-recurso-card')?.dataset.id;
+      if (id) actualizarCantidad(id, e.target.value, parseInt(e.target.dataset.max, 10));
+    }
+  });
 
   function actualizarContador() {
     if (!contadorRecursos) return;
@@ -203,8 +219,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       card.dataset.id = r.id;
       card.innerHTML = `
         <div class="ev-rec-check">
-          <input type="checkbox" id="edit-chk-rec-${r.id}" ${seleccionado ? 'checked' : ''}
-            onchange="toggleRecursoEdicion('${r.id}')" />
+          <input type="checkbox" id="edit-chk-rec-${r.id}" ${seleccionado ? 'checked' : ''} />
         </div>
         <div class="ev-rec-body">
           <div class="ev-rec-header">
@@ -213,21 +228,35 @@ document.addEventListener('DOMContentLoaded', async () => {
             <span class="badge badge-green ev-rec-stock">${esc(r.cantidad)} ${esc(r.unidad)}</span>
           </div>
           <p class="ev-rec-cat">${esc(r.categoria)}</p>
-          <div class="ev-rec-qty" id="edit-ev-qty-${r.id}" style="display:${seleccionado ? 'flex' : 'none'};">
+          <div class="ev-rec-qty" id="edit-ev-qty-${r.id}">
             <label for="edit-qty-rec-${r.id}">Cantidad a usar:</label>
             <input type="number" id="edit-qty-rec-${r.id}" class="ev-qty-input"
-              min="1" max="${r.cantidad}" value="${seleccionado ? cantPre : 1}"
-              onchange="actualizarCantidadEdicion('${r.id}', this.value, ${r.cantidad})"
-              oninput="actualizarCantidadEdicion('${r.id}', this.value, ${r.cantidad})" />
+              min="1" max="${r.cantidad}" value="${seleccionado ? cantPre : 1}" data-max="${r.cantidad}" />
             <span class="ev-qty-max">máx. ${r.cantidad}</span>
           </div>
         </div>`;
+      if (seleccionado) card.querySelector('.ev-rec-qty').style.display = 'flex';
       grid.appendChild(card);
     });
     actualizarContadorEdicion();
   }
+  document.getElementById('edit-recursos-grid')?.addEventListener('change', (e) => {
+    if (e.target.matches('input[type="checkbox"]')) {
+      const id = e.target.closest('.ev-recurso-card')?.dataset.id;
+      if (id) toggleRecursoEdicion(id);
+    } else if (e.target.matches('.ev-qty-input')) {
+      const id = e.target.closest('.ev-recurso-card')?.dataset.id;
+      if (id) actualizarCantidadEdicion(id, e.target.value, parseInt(e.target.dataset.max, 10));
+    }
+  });
+  document.getElementById('edit-recursos-grid')?.addEventListener('input', (e) => {
+    if (e.target.matches('.ev-qty-input')) {
+      const id = e.target.closest('.ev-recurso-card')?.dataset.id;
+      if (id) actualizarCantidadEdicion(id, e.target.value, parseInt(e.target.dataset.max, 10));
+    }
+  });
 
-  window.toggleRecursoEdicion = function(id) {
+  function toggleRecursoEdicion(id) {
     const card = document.getElementById(`edit-ev-rec-${id}`);
     const chk  = document.getElementById(`edit-chk-rec-${id}`);
     const qtyDiv = document.getElementById(`edit-ev-qty-${id}`);
@@ -240,15 +269,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       delete seleccionadosEdicion[id];
     }
     actualizarContadorEdicion();
-  };
+  }
 
-  window.actualizarCantidadEdicion = function(id, valor, max) {
+  function actualizarCantidadEdicion(id, valor, max) {
     let cant = parseInt(valor) || 1;
     if (cant < 1) cant = 1; if (cant > max) cant = max;
     const input = document.getElementById(`edit-qty-rec-${id}`);
     if (input) input.value = cant;
     seleccionadosEdicion[id] = cant;
-  };
+  }
 
   function actualizarContadorEdicion() {
     const counter = document.getElementById('edit-contador-recursos');
@@ -272,12 +301,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     card.className = `ev-recurso-card${checked ? ' ev-rec-selected' : ''}`;
     card.id = `${prefix}-esp-${u.id}`;
     card.dataset.id = u.id;
-    const toggleFn = prefix === 'edit' ? 'toggleEspecialistaEdicion' : 'toggleEspecialista';
     const detalle = u.ocupacion || u.rol || '';
     card.innerHTML = `
       <div class="ev-rec-check">
-        <input type="checkbox" id="${prefix}-chk-esp-${u.id}" ${checked ? 'checked' : ''}
-          onchange="${toggleFn}('${u.id}')" />
+        <input type="checkbox" id="${prefix}-chk-esp-${u.id}" ${checked ? 'checked' : ''} />
       </div>
       <div class="ev-rec-body">
         <div class="ev-rec-header">
@@ -302,6 +329,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     todos.forEach(u => grid.appendChild(_cardEspecialista(u, { prefix: 'ev', checked: false })));
     actualizarContadorEspecialistas();
   }
+  document.getElementById('especialistas-grid')?.addEventListener('change', (e) => {
+    if (!e.target.matches('input[type="checkbox"]')) return;
+    const id = e.target.closest('.ev-recurso-card')?.dataset.id;
+    if (id) toggleEspecialista(id);
+  });
 
   async function cargarEspecialistasEdicion(eventoEspecialistas) {
     const grid = document.getElementById('edit-especialistas-grid');
@@ -321,8 +353,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     actualizarContadorEspecialistasEdicion();
   }
+  document.getElementById('edit-especialistas-grid')?.addEventListener('change', (e) => {
+    if (!e.target.matches('input[type="checkbox"]')) return;
+    const id = e.target.closest('.ev-recurso-card')?.dataset.id;
+    if (id) toggleEspecialistaEdicion(id);
+  });
 
-  window.toggleEspecialista = function(id) {
+  function toggleEspecialista(id) {
     const u = _especialistasCache.find(x => String(x.id) === String(id));
     const card = document.getElementById(`ev-esp-${id}`);
     const chk  = document.getElementById(`ev-chk-esp-${id}`);
@@ -334,9 +371,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       delete especialistasSel[id];
     }
     actualizarContadorEspecialistas();
-  };
+  }
 
-  window.toggleEspecialistaEdicion = function(id) {
+  function toggleEspecialistaEdicion(id) {
     const u = _especialistasCache.find(x => String(x.id) === String(id));
     const card = document.getElementById(`edit-esp-${id}`);
     const chk  = document.getElementById(`edit-chk-esp-${id}`);
@@ -348,7 +385,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       delete especialistasSelEdicion[id];
     }
     actualizarContadorEspecialistasEdicion();
-  };
+  }
 
   function actualizarContadorEspecialistas() {
     const c = document.getElementById('contador-especialistas');
@@ -368,7 +405,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ════════════════════════════════════════════════════════════════
   // 4. PUBLICAR EVENTO
   // ════════════════════════════════════════════════════════════════
-  window.submitEvent = async function(e) {
+  async function submitEvent(e) {
     e.preventDefault();
 
     const titulo        = BSPVal.cleanText(document.getElementById('ev-titulo')?.value || '');
@@ -444,7 +481,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const nRec = recursosSeleccionados.length;
     showAlertSuccess(`"${data.titulo}" fue publicado${nRec > 0 ? ` con ${nRec} recurso(s) asignado(s)` : ''}.`);
-  };
+  }
 
   // ════════════════════════════════════════════════════════════════
   // 5. HISTORIAL DE EVENTOS
@@ -474,7 +511,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const finalizado = ev.estadoAuto === 'Finalizado';
       const btnEditar = finalizado
         ? ''
-        : `<button class="btn-ev-accion btn-ev-editar" onclick="abrirEditar('${ev.id}')" title="Editar evento"><i class="bx bx-edit" aria-hidden="true"></i></button>`;
+        : `<button class="btn-ev-accion btn-ev-editar" data-action="editar-evento" data-id="${ev.id}" title="Editar evento"><i class="bx bx-edit" aria-hidden="true"></i></button>`;
       return `
         <div class="ev-publicado-card" id="ev-card-${ev.id}">
           <div class="ev-pub-header">
@@ -488,9 +525,9 @@ document.addEventListener('DOMContentLoaded', async () => {
               </p>
             </div>
             <div class="ev-pub-acciones">
-              <button class="btn-ev-accion btn-ev-ver" onclick="verEvento('${ev.id}')" title="Ver detalle"><i class="bx bx-show" aria-hidden="true"></i></button>
+              <button class="btn-ev-accion btn-ev-ver" data-action="ver-evento" data-id="${ev.id}" title="Ver detalle"><i class="bx bx-show" aria-hidden="true"></i></button>
               ${btnEditar}
-              ${!_esColaborador ? `<button class="btn-ev-accion btn-ev-eliminar" onclick="eliminarEvento('${ev.id}')" title="Eliminar evento"><i class="bx bx-trash" aria-hidden="true"></i></button>` : ''}
+              ${!_esColaborador ? `<button class="btn-ev-accion btn-ev-eliminar" data-action="eliminar-evento" data-id="${ev.id}" title="Eliminar evento"><i class="bx bx-trash" aria-hidden="true"></i></button>` : ''}
             </div>
           </div>
           ${ev.descripcion ? `<p class="ev-pub-desc">${esc(ev.descripcion)}</p>` : ''}
@@ -525,6 +562,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
       window.__bspDT['lista-eventos-publicados'] = dtEventos;
       dtEventos.init();
+      // Delegación: acciones de cada tarjeta de evento (antes onclick inline).
+      document.getElementById('lista-eventos-publicados-body')?.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        const id = btn.dataset.id;
+        if (btn.dataset.action === 'ver-evento') verEvento(id);
+        else if (btn.dataset.action === 'editar-evento') abrirEditar(id);
+        else if (btn.dataset.action === 'eliminar-evento') eliminarEvento(id);
+      });
     } else {
       dtEventos.refresh(ordenados);
     }
@@ -533,7 +579,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ════════════════════════════════════════════════════════════════
   // 6. VER DETALLE
   // ════════════════════════════════════════════════════════════════
-  window.verEvento = async function(id) {
+  async function verEvento(id) {
     const ev = await EventosModel.getById(id);
     if (!ev) return;
     document.getElementById('modal-ver-titulo').innerHTML = `${esc(ev.titulo)} ${badgeEstado(_estadoAuto(ev))}`;
@@ -551,26 +597,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-flag" aria-hidden="true"></i> Estado</span><span class="ev-detalle-valor">${badgeEstado(_estadoAuto(ev))}</span></div>
       </div>
       ${ev.descripcion ? `<div class="ev-detalle-desc"><span class="ev-detalle-label"><i class="bx bx-note" aria-hidden="true"></i> Descripción</span><p>${esc(ev.descripcion)}</p></div>` : ''}
-      <div class="ev-detalle-recursos"><span class="ev-detalle-label"><i class="bx bx-package" aria-hidden="true"></i> Recursos asignados</span><div class="ev-chips-wrap" style="margin-top:0.5rem;">${chipsRecursos}</div></div>
-      <div class="ev-detalle-recursos"><span class="ev-detalle-label"><i class="bx bx-user-voice" aria-hidden="true"></i> Especialistas requeridos</span><div class="ev-chips-wrap" style="margin-top:0.5rem;">${
+      <div class="ev-detalle-recursos"><span class="ev-detalle-label"><i class="bx bx-package" aria-hidden="true"></i> Recursos asignados</span><div class="ev-chips-wrap">${chipsRecursos}</div></div>
+      <div class="ev-detalle-recursos"><span class="ev-detalle-label"><i class="bx bx-user-voice" aria-hidden="true"></i> Especialistas requeridos</span><div class="ev-chips-wrap">${
         ev.especialistas && ev.especialistas.length > 0
           ? ev.especialistas.map(e => `<span class="ev-chip-recurso"><i class="bx bx-user" aria-hidden="true"></i> ${esc(e.nombre)} — ${esc(e.especialidad)}</span>`).join('')
           : '<span class="ev-sin-recursos">Sin especialistas asignados</span>'
       }</div></div>`;
     const modalVer = document.getElementById('modal-ver-evento');
     BSPModal.abrir({ overlay: modalVer, modal: modalVer, modoDisplay: true });
-  };
+  }
 
-  window.cerrarModalVer = function(e) {
+  function cerrarModalVer(e) {
     const modalVer = document.getElementById('modal-ver-evento');
     if (e && e.target !== modalVer) return;
     BSPModal.cerrar({ overlay: modalVer, modal: modalVer, modoDisplay: true });
-  };
+  }
 
   // ════════════════════════════════════════════════════════════════
   // 7. EDITAR EVENTO
   // ════════════════════════════════════════════════════════════════
-  window.abrirEditar = async function(id) {
+  async function abrirEditar(id) {
     const ev = await EventosModel.getById(id);
     if (!ev) return;
     if (_estadoAuto(ev) === 'Finalizado') {
@@ -597,9 +643,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const modalEditar = document.getElementById('modal-editar-evento');
     BSPModal.abrir({ overlay: modalEditar, modal: modalEditar, modoDisplay: true });
-  };
+  }
 
-  window.guardarEdicion = async function(e) {
+  async function guardarEdicion(e) {
     e.preventDefault();
     const id        = document.getElementById('edit-id').value;   // UUID (string)
     const titulo    = document.getElementById('edit-titulo')?.value.trim() || '';
@@ -654,18 +700,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     cerrarModalEditar();
     await renderEventosPublicados();
     showAlertSuccess(`"${data.titulo}" fue actualizado correctamente.`);
-  };
+  }
 
-  window.cerrarModalEditar = function(e) {
+  function cerrarModalEditar(e) {
     const modalEditar = document.getElementById('modal-editar-evento');
     if (e && e.target !== modalEditar) return;
     BSPModal.cerrar({ overlay: modalEditar, modal: modalEditar, modoDisplay: true });
-  };
+  }
 
   // ════════════════════════════════════════════════════════════════
   // 8. ELIMINAR EVENTO
   // ════════════════════════════════════════════════════════════════
-  window.eliminarEvento = async function(id) {
+  async function eliminarEvento(id) {
     if (_esColaborador) { showAlertError('Los colaboradores no tienen permiso para eliminar eventos.'); return; }
     const ev = await EventosModel.getById(id);
     if (!ev) return;
@@ -679,7 +725,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         showAlertSuccess(`"${ev.titulo}" fue eliminado.`);
       }
     );
-  };
+  }
 
   // ════════════════════════════════════════════════════════════════
   // SEDE — datalist de ubicación
@@ -701,7 +747,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // ── Plantillas ───────────────────────────────────────────────────────────
-  window.aplicarPlantilla = function(btnEl, titulo, horaInicio, horaFin) {
+  function aplicarPlantilla(btnEl, titulo, horaInicio, horaFin) {
     document.querySelectorAll('.ev-plantilla-btn').forEach(b => b.classList.remove('activa'));
     btnEl.classList.add('activa');
     const tituloInput = document.getElementById('ev-titulo');
@@ -711,7 +757,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (iniInput)    iniInput.value    = horaInicio || '';
     if (finInput)    finInput.value    = horaFin    || '';
     actualizarPreview();
-  };
+  }
 
   // ── Inicialización ───────────────────────────────────────────────────────
   const _hoy = new Date().toISOString().split('T')[0];
@@ -721,6 +767,36 @@ document.addEventListener('DOMContentLoaded', async () => {
   [['ev-titulo', 150], ['ev-ubicacion', 150], ['ev-asistentes', 50]].forEach(([id, max]) => {
     const el = document.getElementById(id); if (el) el.maxLength = max;
   });
+
+  // ── Wiring de eventos (antes manejadores inline on*= en el HTML) ─────────
+  if (form) form.addEventListener('submit', submitEvent);
+
+  document.querySelectorAll('.ev-plantilla-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      aplicarPlantilla(this, this.dataset.titulo, this.dataset.inicio, this.dataset.fin);
+    });
+  });
+
+  const _previewInputIds = ['ev-titulo', 'ev-hora-inicio', 'ev-hora-fin', 'ev-ubicacion', 'ev-asistentes', 'ev-voluntarios', 'ev-descripcion'];
+  _previewInputIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', actualizarPreview);
+  });
+  if (_fechaInput) _fechaInput.addEventListener('change', actualizarPreview);
+
+  const modalVerEl = document.getElementById('modal-ver-evento');
+  if (modalVerEl) {
+    modalVerEl.addEventListener('click', cerrarModalVer);
+    modalVerEl.querySelector('.ev-modal-close')?.addEventListener('click', () => cerrarModalVer());
+  }
+  const modalEditarEl = document.getElementById('modal-editar-evento');
+  if (modalEditarEl) {
+    modalEditarEl.addEventListener('click', cerrarModalEditar);
+    modalEditarEl.querySelector('.ev-modal-close')?.addEventListener('click', () => cerrarModalEditar());
+  }
+  const formEditar = document.getElementById('form-editar-evento');
+  if (formEditar) formEditar.addEventListener('submit', guardarEdicion);
+  document.querySelector('.btn-ev-cancelar')?.addEventListener('click', () => cerrarModalEditar());
 
   (async () => {
     await cargarRecursos();
@@ -734,7 +810,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ════════════════════════════════════════════════════════════════
   // 9. PREVISUALIZACIÓN EN TIEMPO REAL
   // ════════════════════════════════════════════════════════════════
-  window.actualizarPreview = function() {
+  function actualizarPreview() {
     const previewCol = document.getElementById('ev-preview-col');
     if (!previewCol) return;
     const titulo      = document.getElementById('ev-titulo')?.value.trim() || '';
@@ -779,7 +855,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const descEl = document.getElementById('prev-ev-desc');
     if (descripcion) { descEl.textContent = descripcion; descEl.style.display = 'block'; }
     else { descEl.style.display = 'none'; }
-  };
+  }
 
   actualizarPreview();
 });

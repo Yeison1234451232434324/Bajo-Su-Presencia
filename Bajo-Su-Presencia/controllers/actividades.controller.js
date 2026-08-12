@@ -150,12 +150,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     await renderActividades();
   }
 
-  window.volverAEventos = function() {
+  function volverAEventos() {
     eventoActual = null;
     vistaActividades.style.display = 'none';
     vistaEventos.style.display     = 'block';
     renderEventos();
-  };
+  }
+  document.querySelector('.btn-volver')?.addEventListener('click', volverAEventos);
 
   // ════════════════════════════════════════════════════════════════
   // 3. LISTA DE ACTIVIDADES DEL EVENTO
@@ -180,7 +181,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       item.className = `act-item${act.completada ? ' act-item--completada' : ''}`;
       item.id = `act-item-${act.id}`;
       item.innerHTML = `
-        <button class="act-check-btn act-check-btn--readonly" disabled title="Solo el voluntario asignado puede cambiar el estado" style="cursor:default;opacity:0.7;">
+        <button class="act-check-btn act-check-btn--readonly" disabled title="Solo el voluntario asignado puede cambiar el estado">
           ${act.completada ? '<i class="bx bx-check-circle act-check-icon act-check-icon--done" aria-hidden="true"></i>' : '<i class="bx bx-circle act-check-icon" aria-hidden="true"></i>'}
         </button>
         <div class="act-item-body">
@@ -192,8 +193,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           <p class="act-item-asignado"><i class="bx bx-user" aria-hidden="true"></i> Asignado a: ${esc(act.voluntarioNombre || '—')}</p>
         </div>
         <div class="act-item-acciones">
-          <button class="act-btn-accion act-btn-editar" onclick="abrirEditar('${act.id}')" title="Editar"><i class="bx bx-edit" aria-hidden="true"></i></button>
-          ${!_esColaborador ? `<button class="act-btn-accion act-btn-eliminar" onclick="eliminarActividad('${act.id}')" title="Eliminar"><i class="bx bx-trash" aria-hidden="true"></i></button>` : ''}
+          <button class="act-btn-accion act-btn-editar" data-action="editar-actividad" data-id="${act.id}" title="Editar"><i class="bx bx-edit" aria-hidden="true"></i></button>
+          ${!_esColaborador ? `<button class="act-btn-accion act-btn-eliminar" data-action="eliminar-actividad" data-id="${act.id}" title="Eliminar"><i class="bx bx-trash" aria-hidden="true"></i></button>` : ''}
         </div>`;
       listaActividades.appendChild(item);
     });
@@ -202,7 +203,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ════════════════════════════════════════════════════════════════
   // 4. MODAL NUEVA / EDITAR
   // ════════════════════════════════════════════════════════════════
-  window.abrirNuevaActividad = async function() {
+  async function abrirNuevaActividad() {
     if (_eventoTerminado(eventoActual)) {
       showAlertError('Este evento ya finalizó: no se pueden crear nuevas actividades.');
       return;
@@ -213,9 +214,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('act-prioridad').value = 'media';
     await _cargarVoluntarios();
     _mostrarModal();
-  };
+  }
+  document.querySelector('.btn-nueva-actividad')?.addEventListener('click', abrirNuevaActividad);
 
-  window.abrirEditar = async function(id) {
+  async function abrirEditar(id) {
     const act = await ActividadesModel.getById(id);
     if (!act) return;
     modoEdicion = true; actEditId = id;
@@ -226,7 +228,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('act-prioridad').value    = act.prioridad;
     selectVol.value = act.voluntarioId || '';
     _mostrarModal();
-  };
+  }
 
   // ════════════════════════════════════════════════════════════════
   // 5. CARGAR VOLUNTARIOS EN EL SELECT (desde usuarios)
@@ -313,7 +315,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ════════════════════════════════════════════════════════════════
   // 7. ELIMINAR
   // ════════════════════════════════════════════════════════════════
-  window.eliminarActividad = async function(id) {
+  async function eliminarActividad(id) {
     if (_esColaborador) { showAlertError('Los colaboradores no tienen permiso para eliminar actividades.'); return; }
     const act = await ActividadesModel.getById(id);
     if (!act) return;
@@ -327,15 +329,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         showAlertSuccess(`"${act.titulo}" fue eliminada.`);
       }
     );
-  };
+  }
+
+  // Delegación de eventos para acciones dinámicas de la lista de actividades
+  // (antes onclick="..." inline generado por template literal).
+  listaActividades.addEventListener('click', (event) => {
+    const btn = event.target.closest('[data-action]');
+    if (!btn || !listaActividades.contains(btn)) return;
+    const id = btn.dataset.id;
+    if (btn.dataset.action === 'editar-actividad') abrirEditar(id);
+    else if (btn.dataset.action === 'eliminar-actividad') eliminarActividad(id);
+  });
 
   // ════════════════════════════════════════════════════════════════
   // 8. HELPERS MODAL + FECHA
   // ════════════════════════════════════════════════════════════════
   function _mostrarModal() { BSPModal.abrir({ overlay: modalOverlay, modal, modoDisplay: true }); }
   function _cerrarModal()  { BSPModal.cerrar({ overlay: modalOverlay, modal, modoDisplay: true }); formAct.reset(); }
-  window.cerrarModalActividad = function() { _cerrarModal(); };
   modalOverlay.addEventListener('click', _cerrarModal);
+  document.querySelector('.act-modal-close')?.addEventListener('click', _cerrarModal);
+  document.querySelector('.btn-act-cancelar')?.addEventListener('click', _cerrarModal);
 
   function _formatFecha(fechaStr) {
     if (!fechaStr) return '—';

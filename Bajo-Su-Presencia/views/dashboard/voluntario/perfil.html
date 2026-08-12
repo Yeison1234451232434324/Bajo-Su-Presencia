@@ -45,7 +45,7 @@
 <body>
 
 <main class="main" id="main">
-  <section class="panel active" style="display:block;">
+  <section class="panel active">
 
     <!-- Encabezado -->
     <div class="panel-header">
@@ -81,7 +81,7 @@
         <!-- Foto de perfil (opcional) -->
         <div class="perfil-foto-group">
           <div class="perfil-foto-preview" id="perfil-foto-preview">
-            <img id="perfil-foto-img" alt="Foto de perfil" style="display:none;" />
+            <img id="perfil-foto-img" alt="Foto de perfil" hidden />
             <span id="perfil-foto-inicial">V</span>
           </div>
           <div class="perfil-foto-acciones">
@@ -91,12 +91,12 @@
                 <i class="bx bx-upload" aria-hidden="true"></i> Subir foto
               </label>
               <input type="file" id="perfil-foto-input" accept="image/png, image/jpeg, image/webp" hidden />
-              <button type="button" id="perfil-foto-quitar" class="perfil-foto-quitar" style="display:none;">
+              <button type="button" id="perfil-foto-quitar" class="perfil-foto-quitar" hidden>
                 <i class="bx bx-trash" aria-hidden="true"></i> Quitar
               </button>
             </div>
             <p class="field-hint">JPG, PNG o WEBP. Se ajusta automáticamente; si no subes ninguna, se mostrará tu inicial.</p>
-            <p class="campo-error" id="perfil-foto-error" style="display:none;"></p>
+            <p class="campo-error" id="perfil-foto-error" hidden></p>
           </div>
         </div>
 
@@ -105,8 +105,7 @@
           <div class="form-group">
             <label for="perfil-nombre"><i class="bx bx-user" aria-hidden="true"></i> Nombre Completo</label>
             <input id="perfil-nombre" type="text" class="form-control"
-              placeholder="Ej: María González" required
-              oninput="this.value=this.value.replace(/[0-9]/g,'')" />
+              placeholder="Ej: María González" required />
           </div>
           <div class="form-group">
             <label for="perfil-username"><i class="bx bx-at" aria-hidden="true"></i> Nombre de Usuario</label>
@@ -184,6 +183,7 @@
 <script src="../../../core/session.manager.js"></script>
 <script src="../../../services/db.client.js"></script>
 <script src="../../../models/usuarios.model.js"></script>
+<link rel="stylesheet" href="../../../helpers/alertify.overrides.css" />
 <script src="../../../helpers/alertify.helper.js"></script>
 <script src="../../../controllers/perfil.controller.js"></script>
 </body>

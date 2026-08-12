@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ════════════════════════════════════════════════════════════════
 
   /** Actualiza la vista previa cada vez que el usuario escribe */
-  window.updatePrayerPreview = function () {
+  function updatePrayerPreview() {
     const texto = txtTexto.value;
     const verso = txtVersiculo.value;
     const img   = txtImagen.value;
@@ -73,7 +73,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
       previewImgW.style.display = 'none';
     }
-  };
+  }
+  [txtTexto, txtVersiculo, txtImagen].forEach(el => el?.addEventListener('input', updatePrayerPreview));
 
   // ════════════════════════════════════════════════════════════════
   // 2. PUBLICAR / ACTUALIZAR ORACIÓN
@@ -151,7 +152,7 @@ document.addEventListener('DOMContentLoaded', async () => {
    * Pre-llena el formulario con los datos de la oración a editar
    * y hace scroll hacia arriba para que el usuario la vea.
    */
-  window.editarOracion = async function (id) {
+  async function editarOracion(id) {
     const oracion = await OracionModel.getById(id);
     if (!oracion) return;
 
@@ -168,7 +169,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Cambiar el botón a modo edición
     btnSubmit.innerHTML = `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-        style="width:1.15rem;height:1.15rem;">
+        class="u-icono-115">
         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
       </svg>
@@ -178,7 +179,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Scroll al formulario
     document.querySelector('.form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
+  }
 
   /** Cancela la edición y vuelve al modo crear */
   btnCancelar.addEventListener('click', () => {
@@ -190,7 +191,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 4. ELIMINAR ORACIÓN
   // ════════════════════════════════════════════════════════════════
 
-  window.eliminarOracion = async function (id) {
+  async function eliminarOracion(id) {
     if (_esColaborador) { showAlertError('Los colaboradores no tienen permiso para eliminar oraciones.'); return; }
     const oracion = await OracionModel.getById(id);
     if (!oracion) return;
@@ -212,14 +213,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         showAlertSuccess('La oración fue eliminada del historial.');
       }
     );
-  };
+  }
 
   // ════════════════════════════════════════════════════════════════
   // 5. MODAL DE VISTA COMPLETA
   // ════════════════════════════════════════════════════════════════
 
   /** Abre el modal con el texto completo de la oración */
-  window.verOracion = async function (id) {
+  async function verOracion(id) {
     const oracion = await OracionModel.getById(id);
     if (!oracion) return;
 
@@ -239,7 +240,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       overlay: document.getElementById('modal-overlay-oracion'),
       modal:   document.getElementById('modal-ver-oracion')
     });
-  };
+  }
 
   // Cerrar modal de vista
   document.getElementById('btn-cerrar-modal-oracion').addEventListener('click', cerrarModalVer);
@@ -270,8 +271,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="or-card" id="or-card-${oracion.id}">
           ${oracion.imagen
             ? `<div class="or-card-img-wrap">
-                 <img src="${esc(oracion.imagen)}" alt="Imagen de la oración" class="or-card-img"
-                   onerror="this.parentElement.style.display='none'" />
+                 <img src="${esc(oracion.imagen)}" alt="Imagen de la oración" class="or-card-img" />
                </div>`
             : ''}
           <div class="or-card-body">
@@ -281,16 +281,16 @@ document.addEventListener('DOMContentLoaded', async () => {
               </span>
               <div class="or-card-acciones">
                 <button class="btn-accion-or btn-ver-or"
-                  onclick="verOracion('${oracion.id}')" title="Ver oración completa">
+                  data-action="ver-oracion" data-id="${oracion.id}" title="Ver oración completa">
                   <i class="bx bx-show" aria-hidden="true"></i>
                 </button>
                 <button class="btn-accion-or btn-editar-or"
-                  onclick="editarOracion('${oracion.id}')" title="Editar oración">
+                  data-action="editar-oracion" data-id="${oracion.id}" title="Editar oración">
                   <i class="bx bx-edit" aria-hidden="true"></i>
                 </button>
                 ${!_esColaborador ? `
                 <button class="btn-accion-or btn-eliminar-or"
-                  onclick="eliminarOracion('${oracion.id}')" title="Eliminar oración">
+                  data-action="eliminar-oracion" data-id="${oracion.id}" title="Eliminar oración">
                   <i class="bx bx-trash" aria-hidden="true"></i>
                 </button>` : ''}
               </div>
@@ -324,6 +324,18 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
       window.__bspDT['lista-oraciones'] = dtOraciones;
       dtOraciones.init();
+      const body = document.getElementById('lista-oraciones-body');
+      body?.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        const id = btn.dataset.id;
+        if (btn.dataset.action === 'ver-oracion') verOracion(id);
+        else if (btn.dataset.action === 'editar-oracion') editarOracion(id);
+        else if (btn.dataset.action === 'eliminar-oracion') eliminarOracion(id);
+      });
+      body?.addEventListener('error', (e) => {
+        if (e.target.matches('.or-card-img')) e.target.parentElement.style.display = 'none';
+      }, true);
     } else {
       dtOraciones.refresh(oraciones);
     }
@@ -341,7 +353,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     btnCancelar.style.display = 'none';
     btnSubmit.innerHTML = `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-        style="width:1.15rem;height:1.15rem;">
+        class="u-icono-115">
         <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
         <polyline points="17 21 17 13 7 13 7 21"/>
         <polyline points="7 3 7 8 15 8"/>

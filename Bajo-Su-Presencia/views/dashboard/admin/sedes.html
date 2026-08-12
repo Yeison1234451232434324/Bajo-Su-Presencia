@@ -38,7 +38,7 @@
 <body>
 
 <main class="main" id="main">
-  <section class="panel active" style="display:block;">
+  <section class="panel active">
 
     <!-- ── Barra superior: encabezado + botón Agregar Sede ─────────────── -->
     <div class="sed-topbar">
@@ -49,7 +49,7 @@
           <p>Administre contenido para diferentes ubicaciones</p>
         </div>
       </div>
-      <button class="sed-btn-agregar" onclick="abrirModalSede()">
+      <button class="sed-btn-agregar">
         <i class="bx bx-plus" aria-hidden="true"></i> Agregar Sede
       </button>
     </div>
@@ -124,7 +124,7 @@
       <!-- Botones -->
       <div class="sed-modal-footer">
         <button type="submit" class="sed-btn-guardar">Agregar Sede</button>
-        <button type="button" class="sed-btn-cancelar" onclick="cerrarModalSede()">Cancelar</button>
+        <button type="button" class="sed-btn-cancelar">Cancelar</button>
       </div>
 
     </form>
@@ -146,6 +146,7 @@
 <!-- Motor DataTable -->
 <script src="../../../helpers/datatable.helper.js"></script>
 <!-- Alertify Helper -->
+<link rel="stylesheet" href="../../../helpers/alertify.overrides.css" />
 <script src="../../../helpers/alertify.helper.js"></script>
   <script src="../../../controllers/sedes.controller.js"></script>
 

@@ -51,7 +51,7 @@
 
 <!-- Área principal (el sidebar se inyecta por JS) -->
 <main class="main" id="main">
-  <section class="panel active" style="display:block;">
+  <section class="panel active">
 
     <!-- Encabezado de la sección -->
     <div class="panel-header">
@@ -76,11 +76,11 @@
     </div>
 
     <!-- ══ VISTA 2: CALIFICAR VOLUNTARIOS DEL EVENTO ══════════════════ -->
-    <div id="vista-calificar-vol" style="display:none;">
+    <div id="vista-calificar-vol" hidden>
 
       <!-- Barra superior: Volver -->
       <div class="vol-topbar">
-        <button class="btn-volver" onclick="volverAEventosVol()">
+        <button class="btn-volver">
           <i class="bx bx-chevron-left" aria-hidden="true"></i> Volver a Eventos
         </button>
       </div>
@@ -150,7 +150,7 @@
             <div class="resumen-card">
               <p class="res-label">Eventos</p>
               <p class="res-valor" id="res-total">—</p>
-              <p style="font-size:0.78rem;color:var(--muted);margin-top:0.2rem;">calificados</p>
+              <p class="u-nota-pequena">calificados</p>
             </div>
           </div>
 
@@ -230,7 +230,7 @@
     <div class="modal-footer">
       <button type="button" class="btn-cancelar" id="btn-cancelar-vol">Cancelar</button>
       <button type="submit" class="btn-guardar">
-        <i class="bx bx-save" style="margin-right:0.35rem;" aria-hidden="true"></i>
+        <i class="bx bx-save u-mr-035" aria-hidden="true"></i>
         Guardar Calificación
       </button>
     </div>
@@ -255,6 +255,7 @@
 <!-- Motor DataTable -->
 <script src="../../../helpers/datatable.helper.js"></script>
 <!-- Alertify Helper -->
+<link rel="stylesheet" href="../../../helpers/alertify.overrides.css" />
 <script src="../../../helpers/alertify.helper.js"></script>
 <!-- Controlador de voluntarios -->
   <script src="../../../controllers/voluntarios.controller.js"></script>

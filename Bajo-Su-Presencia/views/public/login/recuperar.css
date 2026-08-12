@@ -32,3 +32,21 @@
   .recuperar-container h1 { font-size: 22px; }
   .recuperar-texto { font-size: 13px; }
 }
+
+/* Fase 2B: movido desde el <style> embebido en recuperar.html */
+.paso { display:none; }
+.paso.activo { display:block; }
+.otp-input { letter-spacing:14px; text-align:center; font-size:22px; font-weight:600; }
+.reglas { list-style:none; padding:0; margin:8px 0 4px; font-size:13px; }
+.reglas li { color:rgba(255,255,255,0.78); margin:3px 0; font-weight:500; transition:.15s; }
+.reglas li.ok { color:#29bb7e; font-weight:600; }
+.reglas li::before { content:'○ '; }
+.reglas li.ok::before { content:'✓ '; }
+.link-accion { background:none; border:none; color:#8ab4ff; font-weight:600; cursor:pointer; font-size:13px; }
+.link-accion:disabled { color:rgba(255,255,255,0.55); cursor:default; }
+.sub { color:rgba(255,255,255,0.85); font-size:13.5px; text-align:center; margin:-4px 0 14px; }
+.sub--otp-reenviar { margin-top: 12px; }
+
+/* Fase 2C: antes style="" inline en la pantalla de éxito */
+.recuperar-check-ok { text-align: center; font-size: 60px; line-height: 1; margin: 10px 0; color: #00b37e; }
+.boton--enlace { display: block; text-align: center; text-decoration: none; }

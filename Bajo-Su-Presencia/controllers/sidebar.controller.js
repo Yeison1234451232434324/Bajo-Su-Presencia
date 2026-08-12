@@ -65,70 +65,70 @@ document.addEventListener("DOMContentLoaded", () => {
         </a>
         <span class="tooltip">Publicar Noticia</span>
       </li>
-      <li id="li-usuarios" style="display:none;">
+      <li id="li-usuarios" class="u-oculto">
         <a href="usuarios.html" id="nav-usuarios">
           <i class="bx bx-group" aria-hidden="true"></i>
           <span class="nav-item">Gestión de Usuarios</span>
         </a>
         <span class="tooltip">Gestión de Usuarios</span>
       </li>
-      <li id="li-voluntarios" style="display:none;">
+      <li id="li-voluntarios" class="u-oculto">
         <a href="voluntarios.html" id="nav-voluntarios">
           <i class="bx bx-medal" aria-hidden="true"></i>
           <span class="nav-item">Calificar Voluntarios</span>
         </a>
         <span class="tooltip">Calificar Voluntarios</span>
       </li>
-      <li id="li-recursos" style="display:none;">
+      <li id="li-recursos" class="u-oculto">
         <a href="recursos.html" id="nav-recursos">
           <i class="bx bx-package" aria-hidden="true"></i>
           <span class="nav-item">Gestión de Recursos</span>
         </a>
         <span class="tooltip">Gestión de Recursos</span>
       </li>
-      <li id="li-actividades" style="display:none;">
+      <li id="li-actividades" class="u-oculto">
         <a href="actividades.html" id="nav-actividades">
           <i class="bx bx-task" aria-hidden="true"></i>
           <span class="nav-item">Actividades</span>
         </a>
         <span class="tooltip">Actividades</span>
       </li>
-      <li id="li-reporte" style="display:none;">
+      <li id="li-reporte" class="u-oculto">
         <a href="reporte.html" id="nav-reporte">
           <i class="bx bx-notepad" aria-hidden="true"></i>
           <span class="nav-item">Subir Reporte</span>
         </a>
         <span class="tooltip">Subir Reporte</span>
       </li>
-      <li id="li-generar-reportes" style="display:none;">
+      <li id="li-generar-reportes" class="u-oculto">
         <a href="generar-reportes.html" id="nav-generar-reportes">
           <i class="bx bx-bar-chart-alt-2" aria-hidden="true"></i>
           <span class="nav-item">Generar Reportes</span>
         </a>
         <span class="tooltip">Generar Reportes</span>
       </li>
-      <li id="li-sedes" style="display:none;">
+      <li id="li-sedes" class="u-oculto">
         <a href="sedes.html" id="nav-sedes">
           <i class="bx bx-buildings" aria-hidden="true"></i>
           <span class="nav-item">Gestión de Sedes</span>
         </a>
         <span class="tooltip">Gestión de Sedes</span>
       </li>
-      <li id="li-pqr" style="display:none;">
+      <li id="li-pqr" class="u-oculto">
         <a href="pqr.html" id="nav-pqr">
           <i class="bx bx-message-detail" aria-hidden="true"></i>
           <span class="nav-item">PQR</span>
         </a>
         <span class="tooltip">PQR</span>
       </li>
-      <li id="li-donaciones" style="display:none;">
+      <li id="li-donaciones" class="u-oculto">
         <a href="donaciones.html" id="nav-donaciones">
           <i class="bx bx-donate-heart" aria-hidden="true"></i>
           <span class="nav-item">Donaciones</span>
         </a>
         <span class="tooltip">Donaciones</span>
       </li>
-      <li id="li-auditoria" style="display:none;">
+      <li id="li-auditoria" class="u-oculto">
         <a href="auditoria.html" id="nav-auditoria">
           <i class="bx bx-shield-quarter" aria-hidden="true"></i>
           <span class="nav-item">Auditoría</span>
@@ -253,7 +253,7 @@ document.addEventListener("DOMContentLoaded", () => {
        'li-actividades', 'li-reporte', 'li-generar-reportes', 'li-sedes', 'li-pqr', 'li-donaciones', 'li-auditoria']
         .forEach((id) => {
           const el = document.getElementById(id);
-          if (el) el.style.display = '';
+          if (el) el.classList.remove('u-oculto');
         });
     }
   })();

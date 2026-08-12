@@ -145,14 +145,13 @@
 /* ── Botones de acción ──
    .acciones-cell + .btn-accion: componentes compartidos, ver panel.css */
 
-.btn-ver      { background: var(--info-bg); color: var(--primary-dark); }
-.btn-ver:hover      { background: var(--info-border); }
-
-.btn-editar   { background: var(--info-bg); color: var(--primary-dark); }
-.btn-editar:hover   { background: var(--info-border); }
-
-.btn-toggle   { background: var(--info-bg); color: var(--primary-dark); }
-.btn-toggle:hover   { background: var(--success-border); }
+/* Fondo transparente, contorno e icono azul rey */
+.btn-ver, .btn-editar, .btn-toggle {
+  background: transparent;
+  border: 1.5px solid #1E3A8A;
+  color: #1E3A8A;
+}
+.btn-ver:hover, .btn-editar:hover, .btn-toggle:hover { background: #1E3A8A; color: #fff; }
 
 /* ══════════════════════════════════════════════════
    MODAL
@@ -502,3 +501,9 @@
   .usr-fecha-input { min-width: 100%; }
   .btn-limpiar-usr { width: 100%; justify-content: center; }
 }
+
+/* Fase 2C: antes style="" inline (color de avatar por rol) */
+.user-avatar-sm--administrador { background: linear-gradient(135deg,#1E3A8A,#2D4FAF); }
+.user-avatar-sm--colaborador   { background: linear-gradient(135deg,#d97706,#F5C215); }
+.user-avatar-sm--voluntario    { background: linear-gradient(135deg,#64748b,#94a3b8); }
+.user-avatar-sm--otro          { background: #6b7280; }

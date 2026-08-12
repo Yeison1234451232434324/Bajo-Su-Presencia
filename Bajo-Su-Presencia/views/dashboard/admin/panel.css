@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+
 /*
  * ================================================================
  *  PANEL ADMIN — Estilos base compartidos
@@ -21,9 +23,6 @@
 /* Tamaño base de fuente ligeramente mayor (16 -> 17px, +6%) para agrandar
    de forma uniforme la letra de todos los apartados. Escala los rem. */
 html { font-size: 17px; }
-
-
-@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
 
 /* ── Variables globales de diseño ─────────────────────────────
    Colores, fuentes y medidas usadas en todo el panel.
@@ -509,14 +508,15 @@ body {
   justify-content: center;
   font-size: 1.4rem;
   flex-shrink: 0;
-  background: var(--info-bg);
+  background: transparent;
+  border: 1.5px solid var(--primary);
   color: var(--primary);
 }
-.counter-icon--info    { background: var(--info-bg);    color: var(--info); }
-.counter-icon--success { background: var(--success-bg); color: var(--success); }
-.counter-icon--danger  { background: var(--danger-bg);  color: var(--danger); }
-.counter-icon--warning { background: var(--warning-bg); color: var(--warning); }
-.counter-icon--purple  { background: var(--purple-bg);  color: var(--purple); }
+.counter-icon--info    { border-color: var(--info);    color: var(--info); }
+.counter-icon--success { border-color: var(--success); color: var(--success); }
+.counter-icon--danger  { border-color: var(--danger);  color: var(--danger); }
+.counter-icon--warning { border-color: var(--warning); color: var(--warning); }
+.counter-icon--purple  { border-color: var(--purple);  color: var(--purple); }
 .counter-info .counter-label {
   font-size: 0.9375rem;
   color: var(--muted);

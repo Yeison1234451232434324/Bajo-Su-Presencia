@@ -43,7 +43,7 @@
 
 <!-- Área principal (el sidebar se inyecta por JS) -->
 <main class="main" id="main">
-  <section class="panel active" style="display:block;">
+  <section class="panel active">
 
     <!-- Encabezado -->
     <div class="panel-header">
@@ -58,42 +58,42 @@
     </div>
 
     <!-- Plantillas de eventos -->
-    <div class="ev-plantillas-wrap" style="max-width:56rem;margin:0 auto 1.25rem;">
+    <div class="ev-plantillas-wrap ev-plantillas-wrap--angosto">
       <p class="ev-plantillas-label">
         <i class="bx bx-layer" aria-hidden="true"></i>
         Plantillas rápidas — selecciona o escribe tu propio título
       </p>
       <div class="ev-plantillas-grid">
-        <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Culto Principal','10:00','12:00')">
+        <button type="button" class="ev-plantilla-btn" data-titulo="Culto Principal" data-inicio="10:00" data-fin="12:00">
           <i class="bx bx-church" aria-hidden="true"></i> Culto Principal
         </button>
-        <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Estudio Bíblico','19:00','21:00')">
+        <button type="button" class="ev-plantilla-btn" data-titulo="Estudio Bíblico" data-inicio="19:00" data-fin="21:00">
           <i class="bx bx-book-open" aria-hidden="true"></i> Estudio Bíblico
         </button>
-        <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Reunión de Jóvenes','18:00','20:00')">
+        <button type="button" class="ev-plantilla-btn" data-titulo="Reunión de Jóvenes" data-inicio="18:00" data-fin="20:00">
           <i class="bx bx-group" aria-hidden="true"></i> Reunión de Jóvenes
         </button>
-        <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Oración Matutina','08:00','10:00')">
+        <button type="button" class="ev-plantilla-btn" data-titulo="Oración Matutina" data-inicio="08:00" data-fin="10:00">
           <i class="bx bx-sun" aria-hidden="true"></i> Oración Matutina
         </button>
-        <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Vigilia de Oración','21:00','23:00')">
+        <button type="button" class="ev-plantilla-btn" data-titulo="Vigilia de Oración" data-inicio="21:00" data-fin="23:00">
           <i class="bx bx-moon" aria-hidden="true"></i> Vigilia de Oración
         </button>
-        <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Conferencia','09:00','17:00')">
+        <button type="button" class="ev-plantilla-btn" data-titulo="Conferencia" data-inicio="09:00" data-fin="17:00">
           <i class="bx bx-microphone" aria-hidden="true"></i> Conferencia
         </button>
-        <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Retiro Espiritual','08:00','18:00')">
+        <button type="button" class="ev-plantilla-btn" data-titulo="Retiro Espiritual" data-inicio="08:00" data-fin="18:00">
           <i class="bx bx-trip" aria-hidden="true"></i> Retiro Espiritual
         </button>
-        <button type="button" class="ev-plantilla-btn" onclick="aplicarPlantilla(this,'Celebración Especial','18:00','20:00')">
+        <button type="button" class="ev-plantilla-btn" data-titulo="Celebración Especial" data-inicio="18:00" data-fin="20:00">
           <i class="bx bx-star" aria-hidden="true"></i> Celebración Especial
         </button>
       </div>
     </div>
 
     <!-- ══ FORMULARIO ════════════════════════════════════════════════════ -->
-    <div class="form-card" style="max-width:56rem;margin:0 auto;">
-      <form id="form-evento" onsubmit="submitEvent(event)" novalidate>
+    <div class="form-card form-card--angosto">
+      <form id="form-evento" novalidate>
 
         <!-- Título -->
         <div class="form-group">
@@ -124,7 +124,7 @@
         <div class="form-row">
           <div class="form-group">
             <label for="ev-ubicacion">
-              <i class="bx bx-buildings" style="color:var(--primary);" aria-hidden="true"></i>
+              <i class="bx bx-buildings u-icono-primario" aria-hidden="true"></i>
               Sede / Ubicación
             </label>
             <input id="ev-ubicacion" type="text" class="form-control"
@@ -161,7 +161,7 @@
               Ningún recurso seleccionado (opcional)
             </span>
           </div>
-          <div id="sin-recursos-msg" class="ev-sin-recursos-msg" style="display:none;">
+          <div id="sin-recursos-msg" class="ev-sin-recursos-msg" hidden>
             <i class="bx bx-error-circle" aria-hidden="true"></i>
             No hay recursos disponibles en el inventario.
           </div>
@@ -172,14 +172,14 @@
         <div class="form-group">
           <div class="ev-recursos-header">
             <label>
-              <i class="bx bx-user-voice" style="color:var(--primary);" aria-hidden="true"></i>
+              <i class="bx bx-user-voice u-icono-primario" aria-hidden="true"></i>
               Especialistas requeridos
             </label>
             <span id="contador-especialistas" class="ev-contador">
               Ningún especialista seleccionado (opcional)
             </span>
           </div>
-          <div id="sin-especialistas-msg" class="ev-sin-recursos-msg" style="display:none;">
+          <div id="sin-especialistas-msg" class="ev-sin-recursos-msg" hidden>
             <i class="bx bx-error-circle" aria-hidden="true"></i>
             No hay usuarios con una especialidad registrada.
           </div>
@@ -189,7 +189,7 @@
         <!-- Botón publicar -->
         <button type="submit" class="btn-submit">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-            style="width:1.15rem;height:1.15rem;">
+            class="u-icono-115">
             <line x1="12" y1="5" x2="12" y2="19"/>
             <line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
@@ -212,11 +212,11 @@
 </main>
 
 <!-- ══ MODAL VER DETALLE ════════════════════════════════════════════════ -->
-<div id="modal-ver-evento" class="ev-modal-overlay" style="display:none;" onclick="cerrarModalVer(event)">
+<div id="modal-ver-evento" class="ev-modal-overlay" hidden>
   <div class="ev-modal-box">
     <div class="ev-modal-header">
       <h3 id="modal-ver-titulo" class="ev-modal-title"></h3>
-      <button class="ev-modal-close" onclick="cerrarModalVer()" aria-label="Cerrar">
+      <button class="ev-modal-close" aria-label="Cerrar">
         <i class="bx bx-x" aria-hidden="true"></i>
       </button>
     </div>
@@ -225,18 +225,18 @@
 </div>
 
 <!-- ══ MODAL EDITAR EVENTO ══════════════════════════════════════════════ -->
-<div id="modal-editar-evento" class="ev-modal-overlay" style="display:none;" onclick="cerrarModalEditar(event)">
+<div id="modal-editar-evento" class="ev-modal-overlay" hidden>
   <div class="ev-modal-box ev-modal-box--wide">
     <div class="ev-modal-header">
       <h3 class="ev-modal-title">
         <i class="bx bx-edit" aria-hidden="true"></i> Editar Evento
       </h3>
-      <button class="ev-modal-close" onclick="cerrarModalEditar()" aria-label="Cerrar">
+      <button class="ev-modal-close" aria-label="Cerrar">
         <i class="bx bx-x" aria-hidden="true"></i>
       </button>
     </div>
     <div class="ev-modal-body">
-      <form id="form-editar-evento" onsubmit="guardarEdicion(event)" novalidate>
+      <form id="form-editar-evento" novalidate>
         <input type="hidden" id="edit-id" />
 
         <div class="form-group">
@@ -264,7 +264,7 @@
         <div class="form-row">
           <div class="form-group">
             <label for="edit-ubicacion">
-              <i class="bx bx-buildings" style="color:var(--primary);" aria-hidden="true"></i>
+              <i class="bx bx-buildings u-icono-primario" aria-hidden="true"></i>
               Sede / Ubicación
             </label>
             <input id="edit-ubicacion" type="text" class="form-control"
@@ -289,14 +289,14 @@
         </div>
 
         <!-- Recursos del evento (editables) -->
-        <div class="form-group" style="margin-top:1rem;">
+        <div class="form-group u-mt-1">
           <div class="ev-recursos-header">
             <label>Recursos del Inventario</label>
             <span id="edit-contador-recursos" class="ev-contador">
               Ningún recurso seleccionado (opcional)
             </span>
           </div>
-          <div id="edit-sin-recursos-msg" class="ev-sin-recursos-msg" style="display:none;">
+          <div id="edit-sin-recursos-msg" class="ev-sin-recursos-msg" hidden>
             <i class="bx bx-error-circle" aria-hidden="true"></i>
             No hay recursos disponibles en el inventario.
           </div>
@@ -304,17 +304,17 @@
         </div>
 
         <!-- Especialistas del evento (editables) -->
-        <div class="form-group" style="margin-top:1rem;">
+        <div class="form-group u-mt-1">
           <div class="ev-recursos-header">
             <label>
-              <i class="bx bx-user-voice" style="color:var(--primary);" aria-hidden="true"></i>
+              <i class="bx bx-user-voice u-icono-primario" aria-hidden="true"></i>
               Especialistas requeridos
             </label>
             <span id="edit-contador-especialistas" class="ev-contador">
               Ningún especialista seleccionado (opcional)
             </span>
           </div>
-          <div id="edit-sin-especialistas-msg" class="ev-sin-recursos-msg" style="display:none;">
+          <div id="edit-sin-especialistas-msg" class="ev-sin-recursos-msg" hidden>
             <i class="bx bx-error-circle" aria-hidden="true"></i>
             No hay usuarios con una especialidad registrada.
           </div>
@@ -322,10 +322,10 @@
         </div>
 
         <div class="ev-modal-footer">
-          <button type="button" class="btn-ev-cancelar" onclick="cerrarModalEditar()">
+          <button type="button" class="btn-ev-cancelar">
             Cancelar
           </button>
-          <button type="submit" class="btn-submit" style="margin:0;">
+          <button type="submit" class="btn-submit u-m-0">
             <i class="bx bx-save" aria-hidden="true"></i> Guardar Cambios
           </button>
         </div>
@@ -357,6 +357,7 @@
 <!-- Motor DataTable -->
 <script src="../../../helpers/datatable.helper.js"></script>
 <!-- Alertify Helper -->
+<link rel="stylesheet" href="../../../helpers/alertify.overrides.css" />
 <script src="../../../helpers/alertify.helper.js"></script>
 <!-- Controlador de eventos -->
   <!-- Utilidades puras de horario (BSPHorario), usadas por el controlador -->

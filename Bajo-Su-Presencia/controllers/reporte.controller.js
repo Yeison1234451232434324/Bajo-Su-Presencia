@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           <h3 class="rep-ev-titulo">${esc(ev.titulo)}</h3>
           <p class="rep-ev-meta"><i class="bx bx-calendar" aria-hidden="true"></i> ${fechaFmt}</p>
           ${ev.horario   ? `<p class="rep-ev-meta"><i class="bx bx-time" aria-hidden="true"></i> ${esc(ev.horario)}</p>` : ''}
-          ${ev.ubicacion ? `<p class="rep-ev-meta"><i class="bx bx-map-pin" style="color:#f87171;" aria-hidden="true"></i> ${esc(ev.ubicacion)}</p>` : ''}
+          ${ev.ubicacion ? `<p class="rep-ev-meta"><i class="bx bx-map-pin u-icono-rojo" aria-hidden="true"></i> ${esc(ev.ubicacion)}</p>` : ''}
           ${tieneRep
             ? `<p class="rep-ev-cargado"><i class="bx bx-check-circle" aria-hidden="true"></i> Reporte cargado</p>`
             : ''}
@@ -166,12 +166,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     vistaFormulario.style.display = 'block';
   }
 
-  window.volverAEventosReporte = function() {
+  function volverAEventosReporte() {
     eventoActual = null;
     vistaFormulario.style.display = 'none';
     vistaEventos.style.display    = 'block';
     renderEventos();
-  };
+  }
+  document.querySelector('.rep-btn-volver')?.addEventListener('click', volverAEventosReporte);
 
   // ════════════════════════════════════════════════════════════════
   // 3. GUARDAR REPORTE
@@ -204,9 +205,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     showAlertSuccess(`El reporte de "${eventoActual.titulo}" fue guardado correctamente.`);
   });
 
-  window.cancelarReporte = function() {
+  function cancelarReporte() {
     volverAEventosReporte();
-  };
+  }
+  document.querySelector('.rep-btn-cancelar')?.addEventListener('click', cancelarReporte);
 
   // ════════════════════════════════════════════════════════════════
   // 4. MOSTRAR REPORTE EXISTENTE

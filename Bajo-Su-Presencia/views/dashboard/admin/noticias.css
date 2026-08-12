@@ -239,17 +239,13 @@
 }
 .btn-accion-nt:active { transform: scale(0.90); }
 
-/* Ver → azul */
-.btn-ver-nt     { background: var(--info-bg); color: var(--info); }
-.btn-ver-nt:hover     { background: var(--info-border); }
-
-/* Editar → ámbar */
-.btn-editar-nt  { background: var(--info-bg); color: var(--info); }
-.btn-editar-nt:hover  { background: var(--warning-border); }
-
-/* Eliminar → rojo */
-.btn-eliminar-nt { background: var(--info-bg); color: var(--info); }
-.btn-eliminar-nt:hover { background: var(--danger-border); }
+/* Fondo transparente, contorno e icono azul rey */
+.btn-ver-nt, .btn-editar-nt, .btn-eliminar-nt {
+  background: transparent;
+  border: 1.5px solid #1E3A8A;
+  color: #1E3A8A;
+}
+.btn-ver-nt:hover, .btn-editar-nt:hover, .btn-eliminar-nt:hover { background: #1E3A8A; color: #fff; }
 
 /* Resumen de la noticia */
 .nt-card-resumen {

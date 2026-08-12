@@ -53,7 +53,7 @@
 
 <!-- Área principal (el sidebar se inyecta por JS) -->
 <main class="main" id="main">
-  <section class="panel active" style="display:block;">
+  <section class="panel active">
 
     <!-- Encabezado de la sección -->
     <div class="panel-header">
@@ -74,7 +74,7 @@
         <!-- Título de la noticia -->
         <div class="form-group">
           <label for="news-titulo">
-            <i class="bx bx-news" style="color:var(--primary);" aria-hidden="true"></i>
+            <i class="bx bx-news u-icono-primario" aria-hidden="true"></i>
             Título de la Noticia
           </label>
           <input
@@ -89,7 +89,7 @@
         <!-- Resumen breve -->
         <div class="form-group">
           <label for="news-resumen">
-            <i class="bx bx-align-left" style="color:var(--primary);" aria-hidden="true"></i>
+            <i class="bx bx-align-left u-icono-primario" aria-hidden="true"></i>
             Resumen Breve
           </label>
           <textarea
@@ -105,14 +105,14 @@
         <div class="form-row">
           <div class="form-group">
             <label for="news-fecha">
-              <i class="bx bx-calendar" style="color:var(--primary);" aria-hidden="true"></i>
+              <i class="bx bx-calendar u-icono-primario" aria-hidden="true"></i>
               Fecha
             </label>
             <input type="date" id="news-fecha" class="form-control" required />
           </div>
           <div class="form-group">
             <label for="news-autor">
-              <i class="bx bx-user" style="color:var(--primary);" aria-hidden="true"></i>
+              <i class="bx bx-user u-icono-primario" aria-hidden="true"></i>
               Autor
             </label>
             <input
@@ -121,7 +121,6 @@
               class="form-control"
               placeholder="Ej: Pastor Miguel Ángel"
               required
-              oninput="this.value=this.value.replace(/[0-9]/g,'')"
             />
           </div>
         </div>
@@ -129,7 +128,7 @@
         <!-- URL de la imagen -->
         <div class="form-group">
           <label for="news-imagen">
-            <i class="bx bx-image" style="color:var(--primary);" aria-hidden="true"></i>
+            <i class="bx bx-image u-icono-primario" aria-hidden="true"></i>
             URL de la Imagen (Opcional)
           </label>
           <input
@@ -143,7 +142,7 @@
         <!-- Contenido completo -->
         <div class="form-group">
           <label for="news-contenido">
-            <i class="bx bx-file-blank" style="color:var(--primary);" aria-hidden="true"></i>
+            <i class="bx bx-file-blank u-icono-primario" aria-hidden="true"></i>
             Contenido Completo (Opcional)
           </label>
           <textarea
@@ -156,7 +155,7 @@
 
         <!-- ── VISTA PREVIA EN TIEMPO REAL ──────────────────────────────── -->
         <!-- Se muestra automáticamente al escribir título o resumen -->
-        <div class="news-preview-box" id="news-preview-box" style="display:none;">
+        <div class="news-preview-box" id="news-preview-box" hidden>
 
           <!-- Etiqueta indicadora -->
           <div class="news-preview-label">
@@ -165,7 +164,7 @@
           </div>
 
           <!-- Imagen de portada (se oculta si no hay URL) -->
-          <div class="prev-img-wrap" id="prev-img-wrap" style="display:none;">
+          <div class="prev-img-wrap" id="prev-img-wrap" hidden>
             <img id="prev-img" src="" alt="Vista previa imagen" class="prev-img" />
             <div class="prev-img-fade"></div>
           </div>
@@ -185,7 +184,7 @@
         <!-- Botón publicar / guardar cambios -->
         <button type="submit" class="btn-submit" id="btn-submit-noticia">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-            style="width:1.15rem;height:1.15rem;">
+            class="u-icono-115">
             <line x1="12" y1="5" x2="12" y2="19"/>
             <line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
@@ -221,7 +220,7 @@
 <div class="modal-ver-noticia" id="modal-ver-noticia" role="dialog" aria-modal="true">
 
   <!-- Imagen de cabecera del modal (se oculta si no hay imagen) -->
-  <div class="modal-nt-img-wrap" id="modal-noticia-img-wrap" style="display:none;">
+  <div class="modal-nt-img-wrap" id="modal-noticia-img-wrap" hidden>
     <img id="modal-noticia-img" src="" alt="Imagen de la noticia" class="modal-nt-img" />
     <div class="modal-nt-img-fade"></div>
   </div>
@@ -267,6 +266,7 @@
 <!-- Motor DataTable -->
 <script src="../../../helpers/datatable.helper.js"></script>
 <!-- Alertify Helper (configuración global de alertas) -->
+<link rel="stylesheet" href="../../../helpers/alertify.overrides.css" />
 <script src="../../../helpers/alertify.helper.js"></script>
 <!-- Controlador: formulario, vista previa, historial, editar, eliminar y modal -->
   <script src="../../../controllers/noticias.controller.js"></script>

@@ -92,7 +92,7 @@
 .ev-rec-cat    { font-size: 0.8125rem; color: var(--muted); margin-bottom: 0.5rem; }
 
 .ev-rec-qty {
-  display: flex;
+  display: none; /* Fase 2C: antes style="display:none;" inline; JS pone 'flex' al seleccionar */
   align-items: center;
   gap: 0.5rem;
   margin-top: 0.5rem;
@@ -246,7 +246,7 @@
   white-space: nowrap;
   padding-top: 2px;
 }
-.ev-chips-wrap { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.ev-chips-wrap { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
 
 .ev-chip-recurso {
   display: inline-flex;
@@ -297,21 +297,21 @@
   transition: background 0.15s, transform 0.1s;
 }
 .btn-ev-accion:active { transform: scale(0.92); }
-.btn-ev-ver     { background: #dbeafe; color: #1d4ed8; }
-.btn-ev-ver:hover { background: #bfdbfe; }
-.btn-ev-editar  { background: #fef9c3; color: #a16207; }
-.btn-ev-editar:hover { background: #fef08a; }
-.btn-ev-eliminar { background: #fee2e2; color: #dc2626; }
-.btn-ev-eliminar:hover { background: #fecaca; }
+.btn-ev-ver, .btn-ev-editar, .btn-ev-eliminar { background: transparent; border: 1.5px solid #1E3A8A; color: #1E3A8A; }
+.btn-ev-ver:hover, .btn-ev-editar:hover, .btn-ev-eliminar:hover { background: #1E3A8A; color: #fff; }
 
 /* ══════════════════════════════════════════════════
    MODALES
 ══════════════════════════════════════════════════ */
+/* display:none por defecto: el atributo hidden del HTML inicial no alcanza
+   a ocultarlo si esta regla trae su propio display, porque una regla de
+   autor le gana al [hidden] del navegador aunque tengan la misma
+   especificidad. modal.helper.js pone 'flex'/'none' inline al abrir/cerrar. */
 .ev-modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.45);
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   z-index: 1000;
@@ -426,3 +426,7 @@
   .ev-modal-box, .ev-modal-box--wide { max-width: 100%; }
   .ev-pub-acciones { flex-wrap: wrap; }
 }
+
+/* Fase 2B: antes style="" inline en plantillas.html */
+.ev-plantillas-wrap--angosto { max-width: 56rem; margin: 0 auto 1.25rem; }
+.form-card--angosto { max-width: 56rem; margin: 0 auto; }

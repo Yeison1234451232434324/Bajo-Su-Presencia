@@ -42,7 +42,7 @@
 <body>
 
   <main class="main" id="main">
-    <section class="panel active" style="display:block;">
+    <section class="panel active">
 
       <div class="panel-header">
         <h2>Donaciones</h2>
@@ -110,7 +110,7 @@
     <div class="modal-footer dn-no-print">
       <button type="button" class="btn-cancelar" id="btn-factura-cerrar">Cerrar</button>
       <button type="button" class="btn-guardar" id="btn-factura-imprimir">
-        <i class="bx bx-printer" style="margin-right:0.35rem;" aria-hidden="true"></i>
+        <i class="bx bx-printer u-mr-035" aria-hidden="true"></i>
         Imprimir / Guardar PDF
       </button>
     </div>
@@ -127,6 +127,7 @@
   <script src="../../../services/db.client.js"></script>
   <script src="../../../models/donaciones.model.js"></script>
   <script src="../../../helpers/datatable.helper.js"></script>
+  <link rel="stylesheet" href="../../../helpers/alertify.overrides.css" />
   <script src="../../../helpers/alertify.helper.js"></script>
   <script src="../../../controllers/donaciones.controller.js"></script>
 

@@ -16,6 +16,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         '"': '&quot;', "'": '&#39;', '/': '&#x2F;', '`': '&#x60;'
       }[c])));
 
+  // Filtra dígitos mientras se escribe (antes oninput= inline en el HTML).
+  ['campo-nombre', 'campo-apellidos'].forEach(id => {
+    const el = document.getElementById(id);
+    el?.addEventListener('input', function () { this.value = this.value.replace(/[0-9]/g, ''); });
+  });
+
   // Control de acceso contra el SERVIDOR, no contra localStorage.
   // El rol procede del JWT verificado en /api/auth/me: escribir
   // `usuarioLogueado` a mano ya no concede acceso a esta vista.
@@ -72,6 +78,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
     return map[rol] || '#6b7280';
   }
+  // Misma paleta que colorAvatar(), como nombre de clase (Fase 2C: para
+  // el HTML generado por innerHTML, que no debe llevar style="" inline).
+  function colorAvatarClase(rol) {
+    const map = {
+      'Administrador': 'user-avatar-sm--administrador',
+      'Colaborador':   'user-avatar-sm--colaborador',
+      'Voluntario':    'user-avatar-sm--voluntario'
+    };
+    return map[rol] || 'user-avatar-sm--otro';
+  }
 
   // ── DataTable de usuarios ────────────────────────────────────────────────
   let dtUsuarios = null;
@@ -101,12 +117,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         : '<span class="badge badge-red">Inactivo</span>';
       const btnToggle = u.id === 1
         ? `<button class="btn-accion btn-toggle" disabled title="No se puede desactivar al admin principal"><i class="bx bx-lock" aria-hidden="true"></i></button>`
-        : `<button class="btn-accion btn-toggle" onclick="toggleUsuario('${u.id}')" title="${u.activo ? 'Desactivar' : 'Activar'}"><i class="bx ${u.activo ? 'bx-toggle-right' : 'bx-toggle-left'}"></i></button>`;
+        : `<button class="btn-accion btn-toggle" data-action="toggle-usuario" data-id="${u.id}" title="${u.activo ? 'Desactivar' : 'Activar'}"><i class="bx ${u.activo ? 'bx-toggle-right' : 'bx-toggle-left'}"></i></button>`;
       const avatar      = esc(String(u.nombre ?? '').charAt(0).toUpperCase());
-      const avatarColor = colorAvatar(u.rol);
+      const avatarClase = colorAvatarClase(u.rol);
       const avatarHTML  = u.foto
         ? `<div class="user-avatar-sm user-avatar-foto"><img src="${esc(u.foto)}" alt="${esc(u.nombre)}" /></div>`
-        : `<div class="user-avatar-sm" style="background:${avatarColor}">${avatar}</div>`;
+        : `<div class="user-avatar-sm ${avatarClase}">${avatar}</div>`;
       return `
         <div class="dt-row-usuarios${u.activo ? '' : ' inactivo'}">
           <div class="user-cell">
@@ -122,8 +138,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           <span class="dt-c-estado">${badgeEstado}</span>
           <span class="dt-c-fecha">${esc(u.creado)}</span>
           <div class="acciones-cell">
-            <button class="btn-accion btn-ver" onclick="verPerfil('${u.id}')" title="Ver perfil"><i class="bx bx-id-card" aria-hidden="true"></i></button>
-            <button class="btn-accion btn-editar" onclick="abrirEditar('${u.id}')" title="Editar usuario"><i class="bx bx-edit" aria-hidden="true"></i></button>
+            <button class="btn-accion btn-ver" data-action="ver-perfil" data-id="${u.id}" title="Ver perfil"><i class="bx bx-id-card" aria-hidden="true"></i></button>
+            <button class="btn-accion btn-editar" data-action="editar-usuario" data-id="${u.id}" title="Editar usuario"><i class="bx bx-edit" aria-hidden="true"></i></button>
             ${btnToggle}
           </div>
         </div>`;
@@ -160,6 +176,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
       window.__bspDT['dt-usuarios'] = dtUsuarios;
       dtUsuarios.init();
+      document.getElementById('dt-usuarios-body')?.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-action]');
+        if (!btn || btn.disabled) return;
+        const id = btn.dataset.id;
+        if (btn.dataset.action === 'ver-perfil') verPerfil(id);
+        else if (btn.dataset.action === 'editar-usuario') abrirEditar(id);
+        else if (btn.dataset.action === 'toggle-usuario') toggleUsuario(id);
+      });
     } else {
       dtUsuarios.refresh(data);
     }
@@ -177,7 +201,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // ── Modal EDITAR ─────────────────────────────────────────────────────────
-  window.abrirEditar = async function(id) {
+  async function abrirEditar(id) {
     const u = await UsuariosModel.getById(id);
     if (!u) return;
     editandoId = id;
@@ -197,7 +221,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     passHint.style.display = 'block';
     modalError.style.display = 'none';
     BSPModal.abrir({ overlay: modalOverlay, modal });
-  };
+  }
 
   function cerrarModal() {
     BSPModal.cerrar({ overlay: modalOverlay, modal });
@@ -317,7 +341,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // ── Toggle activo/inactivo ───────────────────────────────────────────────
-  window.toggleUsuario = async function(id) {
+  async function toggleUsuario(id) {
     const resultado = await UsuariosModel.toggleActivo(id);
     if (!resultado.ok) {
       showAlertError(resultado.error);
@@ -327,7 +351,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     showAlertSuccess(
       resultado.activo ? 'El usuario ahora puede iniciar sesión.' : 'El usuario ha sido desactivado.'
     );
-  };
+  }
 
   // ── Modal VER PERFIL ───────────────────────────────────────────────────
   let perfilViendoId = null;
@@ -344,7 +368,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       </div>`;
   }
 
-  window.verPerfil = async function(id) {
+  async function verPerfil(id) {
     const u = await UsuariosModel.getById(id);
     if (!u) return;
     perfilViendoId = id;
@@ -385,7 +409,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       _filaPerfil('bx-calendar',  'Registrado',    u.creado);
 
     BSPModal.abrir({ overlay: modalOverlay, modal: modalPerfil });
-  };
+  }
 
   function cerrarPerfil() {
     BSPModal.cerrar({ overlay: modalOverlay, modal: modalPerfil });
@@ -402,7 +426,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   btnPerfilEditar.addEventListener('click', () => {
     const id = perfilViendoId;
     cerrarPerfil();
-    if (id !== null) window.abrirEditar(id);
+    if (id !== null) abrirEditar(id);
   });
 
   // ── Restricciones HTML dinámicas ─────────────────────────────────────────

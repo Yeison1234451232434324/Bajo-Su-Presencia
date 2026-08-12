@@ -45,7 +45,7 @@
 
 <!-- Área principal (el sidebar se inyecta por JS) -->
 <main class="main" id="main">
-  <section class="panel active" style="display:block;">
+  <section class="panel active">
 
     <!-- ── Encabezado del módulo ──────────────────────────────────────── -->
     <div class="pqr-topbar">
@@ -183,7 +183,7 @@
     </div>
 
     <!-- Respuesta existente (se muestra si ya fue respondido) -->
-    <div class="pqr-modal-section" id="modal-respuesta-existente-wrap" style="display:none;">
+    <div class="pqr-modal-section" id="modal-respuesta-existente-wrap" hidden>
       <h4 class="pqr-modal-section-title">
         <i class="bx bx-check-circle" aria-hidden="true"></i>
         Respuesta enviada
@@ -205,7 +205,7 @@
       <div class="pqr-modal-error" id="pqr-modal-error" role="alert"></div>
 
       <!-- Nota: PQR ya resuelta, de solo lectura -->
-      <div class="pqr-modal-lock-note" id="pqr-modal-resuelto-nota" style="display:none;">
+      <div class="pqr-modal-lock-note" id="pqr-modal-resuelto-nota" hidden>
         <i class="bx bx-lock-alt" aria-hidden="true"></i>
         Esta PQR ya fue marcada como <b>Resuelto</b>: no se puede responder ni cambiar su estado. Solo puede eliminarse.
       </div>
@@ -226,7 +226,7 @@
         </div>
 
         <div>
-          <label for="modal-campo-estado" style="margin-bottom:0.5rem;">
+          <label for="modal-campo-estado" class="u-mb-05">
             <i class="bx bx-transfer-alt" aria-hidden="true"></i>
             Cambiar estado
           </label>
@@ -271,6 +271,7 @@
 <!-- Motor DataTable -->
 <script src="../../../helpers/datatable.helper.js"></script>
 <!-- Alertify Helper -->
+<link rel="stylesheet" href="../../../helpers/alertify.overrides.css" />
 <script src="../../../helpers/alertify.helper.js"></script>
   <script src="../../../controllers/pqr-admin.controller.js"></script>
 

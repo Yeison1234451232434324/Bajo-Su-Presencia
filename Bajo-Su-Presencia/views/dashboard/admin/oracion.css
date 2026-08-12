@@ -133,17 +133,13 @@
 }
 .btn-accion-or:active { transform: scale(0.92); }
 
-/* Ver → azul claro */
-.btn-ver-or     { background: var(--info-bg); color: var(--info); }
-.btn-ver-or:hover     { background: var(--info-border); }
-
-/* Editar → ámbar */
-.btn-editar-or  { background: var(--info-bg); color: var(--info); }
-.btn-editar-or:hover  { background: var(--warning-border); }
-
-/* Eliminar → rojo */
-.btn-eliminar-or { background: var(--info-bg); color: var(--info); }
-.btn-eliminar-or:hover { background: var(--danger-border); }
+/* Fondo transparente, contorno e icono azul rey */
+.btn-ver-or, .btn-editar-or, .btn-eliminar-or {
+  background: transparent;
+  border: 1.5px solid #1E3A8A;
+  color: #1E3A8A;
+}
+.btn-ver-or:hover, .btn-editar-or:hover, .btn-eliminar-or:hover { background: #1E3A8A; color: #fff; }
 
 /* Texto de la oración (truncado a 2 líneas) */
 .or-card-texto {
@@ -336,3 +332,7 @@
   .or-card-texto { font-size: 0.9375rem; }
   .or-card-versiculo { font-size: 0.9375rem; }
 }
+
+/* Vista previa de imagen del formulario (Fase 2B: antes style="" inline) */
+.preview-img-wrap { display: none; margin-bottom: 1rem; border-radius: 0.75rem; overflow: hidden; }
+.preview-img-wrap img { width: 100%; height: 200px; object-fit: cover; }

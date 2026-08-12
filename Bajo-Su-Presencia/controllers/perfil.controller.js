@@ -30,6 +30,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   const sesion = await window.BSPSession.exigir(['Administrador','Colaborador','Voluntario']);
   if (!sesion) return;
 
+  // Filtra dígitos mientras se escribe (antes oninput= inline en el HTML).
+  document.getElementById('perfil-nombre')
+    ?.addEventListener('input', function () { this.value = this.value.replace(/[0-9]/g, ''); });
+
   // ── Referencias DOM ──────────────────────────────────────────────────────
   const form        = document.getElementById('form-perfil');
   const avatar      = document.getElementById('perfil-avatar');

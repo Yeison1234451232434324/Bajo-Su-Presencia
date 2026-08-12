@@ -1,0 +1,530 @@
+(function () {
+  'use strict';
+
+  /* ══════════════════════════════════════════════════════════════
+     1. ROL DEL USUARIO
+  ══════════════════════════════════════════════════════════════ */
+  function getRol() {
+    try {
+      const d = localStorage.getItem('usuarioLogueado');
+      if (d) return JSON.parse(d).rol || 'Administrador';
+    } catch (_) {}
+    return 'Administrador';
+  }
+
+  function getNombre() {
+    try {
+      const d = localStorage.getItem('usuarioLogueado');
+      if (d) return JSON.parse(d).nombre || '';
+    } catch (_) {}
+    return '';
+  }
+
+  const ROL    = getRol();
+  const NOMBRE = getNombre();
+
+  /* ══════════════════════════════════════════════════════════════
+     2. BASE DE CONOCIMIENTO — fuente única de verdad.
+        Sincronizar con BSP_AYUDA_DATA en ayuda.controller.js.
+        En producción, ambos pueden consumir el mismo endpoint.
+  ══════════════════════════════════════════════════════════════ */
+  const KB_DATA = [
+    {
+      id: 'inicio',
+      categoria: 'Primeros Pasos',
+      icono: 'bx-rocket',
+      colorBg: '#dbeafe',
+      colorStroke: '#1E3A8A',
+      roles: ['Administrador', 'Colaborador', 'Voluntario'],
+      preguntas: [
+        {
+          id: 'q-01',
+          pregunta: '¿Cómo inicio sesión en el sistema?',
+          respuesta: 'Ve a la pantalla de inicio e ingresa tu <strong>nombre de usuario</strong>, <strong>correo</strong> y <strong>contraseña</strong>. Si olvidaste la contraseña, usa el enlace "Recuperar contraseña" debajo del formulario.',
+          roles: ['Administrador', 'Colaborador', 'Voluntario']
+        },
+        {
+          id: 'q-02',
+          pregunta: '¿Qué puede hacer cada rol en el sistema?',
+          respuesta: '<strong>Administrador:</strong> acceso completo — gestiona usuarios, eventos, noticias, sedes, recursos, reportes y PQR.<br><strong>Colaborador:</strong> publica eventos, noticias, oraciones, gestiona actividades y sube reportes.<br><strong>Voluntario:</strong> consulta calificaciones, registra disponibilidad y revisa sus actividades.',
+          roles: ['Administrador']
+        },
+        {
+          id: 'q-02b',
+          pregunta: '¿Qué módulos tengo disponibles como Colaborador?',
+          respuesta: 'Como Colaborador puedes: <strong>Publicar Eventos</strong>, publicar la <strong>Oración del Día</strong>, publicar <strong>Noticias</strong>, gestionar <strong>Actividades</strong> y <strong>Subir Reportes</strong>. Para acceso adicional, contacta al Administrador.',
+          roles: ['Colaborador']
+        },
+        {
+          id: 'q-02c',
+          pregunta: '¿Qué módulos tengo disponibles como Voluntario?',
+          respuesta: 'Como Voluntario tienes acceso a: <strong>Mis Calificaciones</strong> (ver tu desempeño), <strong>Mi Disponibilidad</strong> (indicar cuándo puedes servir) y <strong>Mis Actividades</strong> (tareas asignadas).',
+          roles: ['Voluntario']
+        },
+        {
+          id: 'q-03',
+          pregunta: '¿Qué hago si no puedo acceder a mi cuenta?',
+          respuesta: 'Verifica que tu nombre de usuario, correo y contraseña sean correctos. Si persiste, contacta al Administrador a través del formulario de soporte de este panel o el módulo PQR.',
+          roles: ['Administrador', 'Colaborador', 'Voluntario']
+        }
+      ]
+    },
+    {
+      id: 'eventos',
+      categoria: 'Eventos y Actividades',
+      icono: 'bx-calendar-event',
+      colorBg: '#fef3c7',
+      colorStroke: '#d97706',
+      roles: ['Administrador', 'Colaborador'],
+      preguntas: [
+        {
+          id: 'q-04',
+          pregunta: '¿Cómo creo un nuevo evento?',
+          respuesta: 'Ve a <strong>"Publicar Evento"</strong> en el menú lateral. Completa título, descripción, fecha y sede. Haz clic en "Publicar" para que el evento sea visible en la comunidad.',
+          roles: ['Administrador', 'Colaborador']
+        },
+        {
+          id: 'q-05',
+          pregunta: '¿Puedo editar o eliminar un evento publicado?',
+          respuesta: 'Sí. En la lista de eventos usa el botón de <strong>editar</strong> (lápiz) o <strong>eliminar</strong> (papelera) de cada fila. Confirma la acción en el diálogo que aparece.',
+          roles: ['Administrador', 'Colaborador']
+        },
+        {
+          id: 'q-06a',
+          pregunta: '¿Cómo gestiono las actividades del sistema?',
+          respuesta: 'Ve a <strong>"Actividades"</strong> en el menú. Puedes crear actividades, asignarlas a voluntarios y hacer seguimiento del estado de cada una desde la tabla principal.',
+          roles: ['Administrador', 'Colaborador']
+        }
+      ]
+    },
+    {
+      id: 'voluntario-trabajo',
+      categoria: 'Mi Disponibilidad y Actividades',
+      icono: 'bx-time-five',
+      colorBg: '#fce7f3',
+      colorStroke: '#db2777',
+      roles: ['Voluntario'],
+      preguntas: [
+        {
+          id: 'q-vol-01',
+          pregunta: '¿Cómo registro mi disponibilidad?',
+          respuesta: 'Ve a <strong>"Mi Disponibilidad"</strong> en el menú lateral. Selecciona los días y franjas horarias en que puedes servir y guarda los cambios. El coordinador verá esta información al asignarte actividades.',
+          roles: ['Voluntario']
+        },
+        {
+          id: 'q-vol-02',
+          pregunta: '¿Cómo veo las actividades que me han asignado?',
+          respuesta: 'En <strong>"Mis Actividades"</strong> aparece la lista de tareas asignadas, con su fecha, descripción y estado. Puedes marcar actividades como completadas desde esa vista.',
+          roles: ['Voluntario']
+        },
+        {
+          id: 'q-vol-03',
+          pregunta: '¿Dónde veo mis calificaciones y evaluaciones?',
+          respuesta: 'En <strong>"Mis Calificaciones"</strong> puedes ver la valoración de tu desempeño en cada actividad, incluyendo las observaciones del coordinador.',
+          roles: ['Voluntario']
+        }
+      ]
+    },
+    {
+      id: 'noticias',
+      categoria: 'Noticias y Contenido',
+      icono: 'bx-news',
+      colorBg: '#d1fae5',
+      colorStroke: '#059669',
+      roles: ['Administrador', 'Colaborador'],
+      preguntas: [
+        {
+          id: 'q-07',
+          pregunta: '¿Cómo publico una noticia?',
+          respuesta: 'Ve a <strong>"Publicar Noticia"</strong> en el menú. Escribe el título y contenido, adjunta una imagen si lo deseas y haz clic en "Publicar".',
+          roles: ['Administrador', 'Colaborador']
+        },
+        {
+          id: 'q-07b',
+          pregunta: '¿Cómo publico la Oración del Día?',
+          respuesta: 'Ve a <strong>"Oración del Día"</strong> en el menú. Escribe el texto, una referencia bíblica opcional y haz clic en "Publicar". Solo se muestra una oración activa a la vez.',
+          roles: ['Administrador', 'Colaborador']
+        },
+        {
+          id: 'q-08',
+          pregunta: '¿Dónde aparece el contenido publicado?',
+          respuesta: 'Las noticias y oraciones aparecen en el panel y en el <strong>Dashboard</strong> como resumen del contenido publicado este mes.',
+          roles: ['Administrador', 'Colaborador']
+        }
+      ]
+    },
+    {
+      id: 'reportes',
+      categoria: 'Reportes y Estadísticas',
+      icono: 'bx-bar-chart-alt-2',
+      colorBg: '#ecfdf5',
+      colorStroke: '#10b981',
+      roles: ['Administrador', 'Colaborador'],
+      preguntas: [
+        {
+          id: 'q-rep-01',
+          pregunta: '¿Cómo subo un reporte de actividad?',
+          respuesta: 'Ve a <strong>"Subir Reporte"</strong> en el menú. Selecciona el archivo, completa los campos requeridos y haz clic en "Subir". El reporte quedará disponible para revisión del Administrador.',
+          roles: ['Administrador', 'Colaborador']
+        },
+        {
+          id: 'q-11',
+          pregunta: '¿Cómo genero reportes consolidados del sistema?',
+          respuesta: 'Ve a <strong>"Generar Reportes"</strong> (solo Administrador). Selecciona rango de fechas y tipo de reporte. Haz clic en "Exportar" para descargar el archivo.',
+          roles: ['Administrador']
+        },
+        {
+          id: 'q-12',
+          pregunta: '¿Qué información muestra el Dashboard?',
+          respuesta: 'El Dashboard muestra: miembros activos, eventos del mes, noticias, oraciones, voluntarios, asistencia promedio y <strong>gráficas de crecimiento</strong> de los últimos 6 meses.',
+          roles: ['Administrador']
+        }
+      ]
+    },
+    {
+      id: 'pqr',
+      categoria: 'PQR y Comunicación',
+      icono: 'bx-message-detail',
+      colorBg: '#ede9fe',
+      colorStroke: '#7c3aed',
+      roles: ['Administrador', 'Colaborador', 'Voluntario'],
+      preguntas: [
+        {
+          id: 'q-09',
+          pregunta: '¿Qué es un PQR y para qué sirve?',
+          respuesta: '<strong>PQR</strong> son Peticiones, Quejas y Reclamos. Úsalo para comunicarte formalmente con la administración. Tu solicitud quedará registrada y recibirás seguimiento.',
+          roles: ['Administrador', 'Colaborador', 'Voluntario']
+        },
+        {
+          id: 'q-10',
+          pregunta: '¿Cómo reviso y gestiono las PQR recibidas?',
+          respuesta: 'Ve a <strong>"PQR"</strong> en el menú del Administrador para ver todas las solicitudes, filtrarlas por estado (pendiente, en proceso, resuelto) y actualizar cada caso.',
+          roles: ['Administrador']
+        }
+      ]
+    },
+    {
+      id: 'admin-gestion',
+      categoria: 'Gestión Administrativa',
+      icono: 'bx-shield',
+      colorBg: '#dbeafe',
+      colorStroke: '#1E3A8A',
+      roles: ['Administrador'],
+      preguntas: [
+        {
+          id: 'q-adm-01',
+          pregunta: '¿Cómo creo o edito un usuario del sistema?',
+          respuesta: 'Ve a <strong>"Gestión de Usuarios"</strong>. Haz clic en "Nuevo Usuario", completa nombre, username, email, rol y contraseña. Para editar, usa el botón de lápiz en la fila del usuario.',
+          roles: ['Administrador']
+        },
+        {
+          id: 'q-adm-02',
+          pregunta: '¿Cómo califico el desempeño de un voluntario?',
+          respuesta: 'Ve a <strong>"Calificar Voluntarios"</strong>. Selecciona el voluntario, asigna una puntuación y escribe observaciones. El voluntario verá su evaluación desde su panel.',
+          roles: ['Administrador']
+        },
+        {
+          id: 'q-adm-03',
+          pregunta: '¿Cómo gestiono las sedes de la comunidad?',
+          respuesta: 'En <strong>"Gestión de Sedes"</strong> crea, edita y elimina sedes con nombre, dirección y capacidad. Las sedes aparecen como opciones al crear eventos.',
+          roles: ['Administrador']
+        },
+        {
+          id: 'q-adm-04',
+          pregunta: '¿Cómo gestiono los recursos disponibles?',
+          respuesta: 'En <strong>"Gestión de Recursos"</strong> registra equipos, materiales y espacios. Asígnalos a eventos o actividades para llevar control del inventario.',
+          roles: ['Administrador']
+        }
+      ]
+    }
+  ];
+
+  /* ══════════════════════════════════════════════════════════════
+     3. FILTRADO POR ROL
+  ══════════════════════════════════════════════════════════════ */
+  const DATA_ROL = KB_DATA
+    .filter(cat => cat.roles.includes(ROL))
+    .map(cat => ({ ...cat, preguntas: cat.preguntas.filter(q => q.roles.includes(ROL)) }))
+    .filter(cat => cat.preguntas.length > 0);
+
+  const totalArticulos = DATA_ROL.reduce((s, c) => s + c.preguntas.length, 0);
+
+  /* ══════════════════════════════════════════════════════════════
+     4. HELPERS DE RENDERIZADO
+  ══════════════════════════════════════════════════════════════ */
+  function rolIcon() {
+    return { Administrador: 'bx-shield', Colaborador: 'bx-user-check', Voluntario: 'bx-heart' }[ROL] || 'bx-user';
+  }
+
+  function buildChips() {
+    return DATA_ROL.map(cat =>
+      `<a href="#cat-${cat.id}" class="ac-hero-chip">
+        <i class="bx ${cat.icono}" aria-hidden="true"></i> ${cat.categoria}
+      </a>`
+    ).join('');
+  }
+
+  function buildCard(cat) {
+    const items = cat.preguntas.map((q, i) => `
+      <div class="ac-card-acc-item" role="listitem">
+        <button class="ac-card-acc-trigger" aria-expanded="${i === 0 ? 'true' : 'false'}"
+                aria-controls="acp-${q.id}">
+          <span>${q.pregunta}</span>
+          <i class="bx bx-chevron-down ac-card-chevron" aria-hidden="true"></i>
+        </button>
+        <div class="ac-card-acc-panel ${i === 0 ? 'is-open' : ''}" id="acp-${q.id}" role="region">
+          <div class="ac-card-acc-inner">${q.respuesta}</div>
+        </div>
+      </div>`
+    ).join('');
+
+    return `
+      <article class="ac-cat-card" id="cat-${cat.id}" aria-labelledby="cat-title-${cat.id}">
+        <div class="ac-cat-card-header">
+          <div class="ac-cat-icon ac-cat-icon--${cat.id}" aria-hidden="true">
+            <i class="bx ${cat.icono}" aria-hidden="true"></i>
+          </div>
+          <div>
+            <h3 class="ac-cat-card-title" id="cat-title-${cat.id}">${cat.categoria}</h3>
+            <p class="ac-cat-card-count">${cat.preguntas.length} pregunta${cat.preguntas.length !== 1 ? 's' : ''}</p>
+          </div>
+        </div>
+        <div class="ac-card-accordion" role="list">${items}</div>
+      </article>`;
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     5. RENDER COMPLETO DE LA PÁGINA
+  ══════════════════════════════════════════════════════════════ */
+  function render() {
+    const saludo = NOMBRE ? `, ${NOMBRE}` : '';
+    const app = document.getElementById('ac-app');
+
+    app.innerHTML = `
+      <!-- Barra superior -->
+      <header>
+        <nav class="ac-topbar" aria-label="Navegación del Centro de Ayuda">
+          <a href="/Bajo-Su-Presencia/" data-action="volver" class="ac-topbar-brand" aria-label="Volver al panel">
+            <i class="bx bx-church" aria-hidden="true"></i>
+            <span class="ac-topbar-brand-name">Bajo Su Presencia</span>
+            <span class="ac-topbar-brand-sub">Centro de Ayuda</span>
+          </a>
+          <div class="u-flex-gap-075">
+            <span class="ac-topbar-rol-badge">
+              <i class="bx ${rolIcon()}" aria-hidden="true"></i> ${ROL}
+            </span>
+            <a href="/Bajo-Su-Presencia/" data-action="volver" class="ac-topbar-back"
+               aria-label="Volver a la página anterior">
+              <i class="bx bx-arrow-back" aria-hidden="true"></i>
+              Volver al Panel
+            </a>
+          </div>
+        </nav>
+      </header>
+
+      <!-- Héroe -->
+      <section class="ac-hero" aria-labelledby="ac-hero-title">
+        <p class="ac-hero-eyebrow">
+          <i class="bx bx-help-circle" aria-hidden="true"></i>
+          Centro de Ayuda
+        </p>
+        <h1 id="ac-hero-title">¿En qué podemos ayudarte${saludo}?</h1>
+        <p>${totalArticulos} artículo${totalArticulos !== 1 ? 's' : ''} disponible${totalArticulos !== 1 ? 's' : ''} para tu rol de <strong class="u-icono-dorado">${ROL}</strong></p>
+
+        <div class="ac-search-box" role="search">
+          <i class="bx bx-search ac-search-icon" aria-hidden="true"></i>
+          <input type="search" class="ac-search-main" id="ac-search-main"
+                 placeholder="Buscar entre ${totalArticulos} artículos…"
+                 aria-label="Buscar en la base de conocimiento"
+                 autocomplete="off" />
+        </div>
+
+        <nav class="ac-hero-chips" aria-label="Acceso rápido por categoría">
+          ${buildChips()}
+        </nav>
+      </section>
+
+      <!-- Contenido principal -->
+      <main class="ac-main" id="ac-main">
+
+        <!-- Resultados de búsqueda -->
+        <section class="ac-search-results" id="ac-search-results"
+                 aria-live="polite" aria-label="Resultados de búsqueda">
+          <p class="ac-section-label" id="ac-results-label">Resultados</p>
+          <div class="ac-search-hits" id="ac-search-hits"></div>
+          <div class="ac-no-results" id="ac-no-results">
+            <i class="bx bx-search-alt" aria-hidden="true"></i>
+            No encontramos resultados. Intenta con otros términos o usa el formulario de soporte.
+          </div>
+        </section>
+
+        <!-- Grid de categorías -->
+        <section class="ac-categories-section" id="ac-categories-section"
+                 aria-label="Categorías de ayuda">
+          <div class="ac-categories-header">
+            <h2>Categorías de Ayuda</h2>
+            <span>${DATA_ROL.length} categoría${DATA_ROL.length !== 1 ? 's' : ''} · ${totalArticulos} artículo${totalArticulos !== 1 ? 's' : ''}</span>
+          </div>
+          <div class="ac-categories-grid" id="ac-categories-grid">
+            ${DATA_ROL.map(buildCard).join('')}
+          </div>
+        </section>
+
+        <!-- Sección de contacto -->
+        <section class="ac-contact-section" aria-labelledby="ac-contact-title">
+          <h2 id="ac-contact-title">¿No encontraste lo que buscabas?</h2>
+          <p>Nuestro equipo de soporte está disponible para ayudarte con cualquier consulta o problema.</p>
+          <div class="ac-contact-btns">
+            <button class="ac-contact-btn-primary" id="ac-open-widget-btn"
+                    aria-label="Abrir formulario de soporte">
+              <i class="bx bx-envelope" aria-hidden="true"></i>
+              Enviar Solicitud de Soporte
+            </button>
+            <a href="../public/pqr/pqr.html" class="ac-contact-btn-secondary"
+               aria-label="Ir al módulo PQR">
+              <i class="bx bx-message-detail" aria-hidden="true"></i>
+              Enviar un PQR
+            </a>
+          </div>
+        </section>
+
+      </main>
+
+      <!-- Footer -->
+      <footer class="ac-footer" role="contentinfo">
+        <strong>Bajo Su Presencia</strong> · Centro de Ayuda · Viendo como: ${ROL}
+      </footer>
+    `;
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     6. INICIALIZAR EVENTOS — después del render
+  ══════════════════════════════════════════════════════════════ */
+  function initEvents() {
+
+    /* Volver al panel / a la página anterior */
+    document.querySelectorAll('[data-action="volver"]').forEach(enlace => {
+      enlace.addEventListener('click', e => {
+        e.preventDefault();
+        history.back();
+      });
+    });
+
+    /* Acordeones de tarjetas */
+    document.querySelectorAll('.ac-card-acc-trigger').forEach(trigger => {
+      const item = trigger.closest('.ac-card-acc-item');
+      /* Inicializar estado del primer ítem (abierto por defecto) */
+      if (trigger.getAttribute('aria-expanded') === 'true') {
+        item.classList.add('is-open');
+        item.querySelector('.ac-card-acc-panel').classList.add('is-open');
+      }
+
+      trigger.addEventListener('click', () => {
+        const expanded = trigger.getAttribute('aria-expanded') === 'true';
+        /* Cerrar los demás ítems de la misma tarjeta */
+        item.closest('.ac-card-accordion').querySelectorAll('.ac-card-acc-item').forEach(el => {
+          el.classList.remove('is-open');
+          el.querySelector('.ac-card-acc-trigger').setAttribute('aria-expanded', 'false');
+          el.querySelector('.ac-card-acc-panel').classList.remove('is-open');
+        });
+        if (!expanded) {
+          item.classList.add('is-open');
+          item.querySelector('.ac-card-acc-panel').classList.add('is-open');
+          trigger.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+
+    /* Chips: scroll suave a la sección */
+    document.querySelectorAll('.ac-hero-chip').forEach(chip => {
+      chip.addEventListener('click', e => {
+        e.preventDefault();
+        const target = document.getElementById(chip.getAttribute('href').slice(1));
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    /* Búsqueda global */
+    const searchInput       = document.getElementById('ac-search-main');
+    const searchResults     = document.getElementById('ac-search-results');
+    const searchHits        = document.getElementById('ac-search-hits');
+    const noResults         = document.getElementById('ac-no-results');
+    const categoriesSection = document.getElementById('ac-categories-section');
+    const resultsLabel      = document.getElementById('ac-results-label');
+
+    searchInput.addEventListener('input', () => {
+      const q = searchInput.value.trim().toLowerCase();
+      if (!q) {
+        searchResults.classList.remove('is-visible');
+        categoriesSection.style.display = '';
+        return;
+      }
+      categoriesSection.style.display = 'none';
+      searchResults.classList.add('is-visible');
+      searchHits.innerHTML = '';
+      noResults.classList.remove('is-visible');
+
+      const hits = [];
+      DATA_ROL.forEach(cat => {
+        cat.preguntas.forEach(item => {
+          const texto = (cat.categoria + ' ' + item.pregunta + ' ' + item.respuesta)
+            .toLowerCase().replace(/<[^>]+>/g, '');
+          if (texto.includes(q)) hits.push({ cat: cat.categoria, q: item.pregunta, r: item.respuesta });
+        });
+      });
+
+      if (hits.length === 0) {
+        noResults.classList.add('is-visible');
+        resultsLabel.textContent = 'Sin resultados';
+        return;
+      }
+      resultsLabel.textContent = `${hits.length} resultado${hits.length !== 1 ? 's' : ''} para "${searchInput.value.trim()}"`;
+
+      hits.forEach(hit => {
+        const el = document.createElement('div');
+        el.className = 'ac-hit-item';
+        el.setAttribute('role', 'button');
+        el.setAttribute('tabindex', '0');
+        el.innerHTML = `
+          <p class="ac-hit-cat">${hit.cat}</p>
+          <p class="ac-hit-q">${hit.q}</p>
+          <p class="ac-hit-a">${hit.r}</p>`;
+        const toggle = () => el.classList.toggle('is-open');
+        el.addEventListener('click', toggle);
+        el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
+        searchHits.appendChild(el);
+      });
+    });
+
+    searchInput.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        searchInput.value = '';
+        searchInput.dispatchEvent(new Event('input'));
+        searchInput.blur();
+      }
+    });
+
+    /* Botón de soporte → abre el widget si está disponible */
+    document.getElementById('ac-open-widget-btn').addEventListener('click', () => {
+      const fab = document.getElementById('bsp-ayuda-fab');
+      if (fab) {
+        fab.click();
+        setTimeout(() => {
+          const toFormBtn = document.getElementById('bsp-to-form-btn');
+          if (toFormBtn) toFormBtn.click();
+        }, 400);
+      } else {
+        document.querySelector('.ac-contact-section').scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     ENTRADA
+  ══════════════════════════════════════════════════════════════ */
+  document.addEventListener('DOMContentLoaded', () => {
+    render();
+    initEvents();
+  });
+
+})();

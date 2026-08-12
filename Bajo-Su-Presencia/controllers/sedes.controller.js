@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           <div class="sed-item-header">
             <div class="sed-item-icon"><i class="bx bx-buildings" aria-hidden="true"></i></div>
             <span class="sed-item-nombre">${esc(s.nombre)}</span>
-            <button class="sed-btn-eliminar" onclick="eliminarSede('${s.id}')" title="Eliminar sede">
+            <button class="sed-btn-eliminar" data-action="eliminar-sede" data-id="${s.id}" title="Eliminar sede">
               <i class="bx bx-trash" aria-hidden="true"></i>
             </button>
           </div>
@@ -70,22 +70,28 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
       window.__bspDT['dt-sedes'] = dtSedes;
       dtSedes.init();
+      document.getElementById('dt-sedes-body')?.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-action="eliminar-sede"]');
+        if (btn) eliminarSede(btn.dataset.id);
+      });
     } else {
       dtSedes.refresh(data);
     }
   }
 
   // ── Abrir modal ──────────────────────────────────────────────────────────
-  window.abrirModalSede = function() {
+  function abrirModalSede() {
     form.reset();
     BSPModal.abrir({ overlay: modalOverlay, modal, modoDisplay: true });
-  };
+  }
+  document.querySelector('.sed-btn-agregar')?.addEventListener('click', abrirModalSede);
 
   // ── Cerrar modal ─────────────────────────────────────────────────────────
-  window.cerrarModalSede = function() {
+  function cerrarModalSede() {
     BSPModal.cerrar({ overlay: modalOverlay, modal, modoDisplay: true });
-  };
+  }
   modalOverlay.addEventListener('click', cerrarModalSede);
+  document.querySelector('.sed-btn-cancelar')?.addEventListener('click', cerrarModalSede);
 
   // ── Helpers de validación DOM (delegados a BSPVal) ──────────────────────
   const _err = (id, msg) => BSPVal._err(id, msg);
@@ -169,7 +175,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // ── Eliminar sede ────────────────────────────────────────────────────────
-  window.eliminarSede = async function(id) {
+  async function eliminarSede(id) {
     const s = await SedesModel.getById(id);
     if (!s) return;
     showAlertConfirm(
@@ -182,7 +188,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         showAlertSuccess(`"${s.nombre}" fue eliminada.`);
       }
     );
-  };
+  }
 
   // ── Init ─────────────────────────────────────────────────────────────────
   render();

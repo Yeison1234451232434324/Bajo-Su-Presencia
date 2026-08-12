@@ -81,13 +81,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       distWrap.innerHTML += `
         <div class="dist-fila">
           <span class="dist-label">
-            ${i} <i class="bx bxs-star" style="color:#F5C215;font-size:0.85rem;" aria-hidden="true"></i>
+            ${i} <i class="bx bxs-star u-icono-dorado u-font-085" aria-hidden="true"></i>
           </span>
           <div class="dist-barra-wrap">
-            <div class="dist-barra" style="width:${pct}%"></div>
+            <div class="dist-barra" id="dist-barra-${i}"></div>
           </div>
           <span class="dist-cant">${cant}</span>
         </div>`;
+      distWrap.querySelector(`#dist-barra-${i}`).style.width = `${pct}%`;
     }
   }
 
@@ -106,16 +107,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     const eventos = [...new Set(historial.map(c => c.eventoNombre).filter(Boolean))].sort();
 
     function renderCard(c) {
-      const colorBorde = c.estrellas >= 4 ? '#059669' : c.estrellas === 3 ? '#d97706' : '#dc2626';
+      const claseTier = c.estrellas >= 4 ? 'hist-card--alta' : c.estrellas === 3 ? 'hist-card--media' : 'hist-card--baja';
       return `
-        <div class="hist-card" style="border-left-color:${colorBorde}">
+        <div class="hist-card ${claseTier}">
           <div class="hist-card-header">
             <div>
               <h4 class="hist-evento">${esc(c.eventoNombre)}</h4>
               <p class="hist-fecha"><i class="bx bx-calendar" aria-hidden="true"></i> ${esc(c.fecha)}</p>
             </div>
-            <div class="hist-nota-grande" style="color:${colorBorde}">
-              ${c.estrellas}<span style="font-size:1rem;">/5</span>
+            <div class="hist-nota-grande">
+              ${c.estrellas}<span class="u-font-1">/5</span>
             </div>
           </div>
           <div class="hist-estrellas">${renderEstrellasFijas(c.estrellas)}</div>
@@ -124,7 +125,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                  <i class="bx bx-comment-detail hist-obs-icon" aria-hidden="true"></i>
                  <p>"${esc(c.comentario)}"</p>
                </div>`
-            : `<p class="sin-dato" style="margin-top:0.5rem;">Sin observaciones registradas.</p>`}
+            : `<p class="sin-dato u-mt-05">Sin observaciones registradas.</p>`}
         </div>`;
     }
 

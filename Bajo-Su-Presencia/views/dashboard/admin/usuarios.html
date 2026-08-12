@@ -48,7 +48,7 @@
 
   <!-- Área principal (el sidebar se inyecta por JS) -->
   <main class="main" id="main">
-    <section class="panel active" style="display:block;">
+    <section class="panel active">
 
       <!-- Encabezado -->
       <div class="panel-header">
@@ -94,7 +94,7 @@
       </div>
 
       <!-- Botón nuevo usuario -->
-      <div style="display:flex;justify-content:flex-end;margin-bottom:1rem;">
+      <div class="u-toolbar-fin">
         <button class="btn-nuevo" id="btn-nuevo-usuario">
           <i class="bx bx-user-plus" aria-hidden="true"></i>
           Nuevo Usuario
@@ -134,7 +134,6 @@
             placeholder="Ej: María Fernanda"
             required
             minlength="3"
-            oninput="this.value=this.value.replace(/[0-9]/g,'')"
           />
         </div>
         <div class="form-group">
@@ -144,7 +143,6 @@
             id="campo-apellidos"
             class="form-control"
             placeholder="Ej: González Pérez"
-            oninput="this.value=this.value.replace(/[0-9]/g,'')"
           />
         </div>
       </div>
@@ -178,7 +176,7 @@
       <div class="form-row">
         <div class="form-group">
           <label for="campo-rol">Rol</label>
-          <select id="campo-rol" class="form-control select-filtro" required style="width:100%;">
+          <select id="campo-rol" class="form-control select-filtro u-w-100" required>
             <option value="Colaborador">Colaborador</option>
             <option value="Voluntario">Voluntario</option>
             <option value="Administrador">Administrador</option>
@@ -246,7 +244,7 @@
           <datalist id="especialidades-sugeridas">
             <!-- Sugerencias inyectadas por el controller (texto libre permitido) -->
           </datalist>
-          <p class="pass-hint" style="display:block;">Si tiene una especialidad podrá ser asignado a eventos que la requieran.</p>
+          <p class="pass-hint u-bloque">Si tiene una especialidad podrá ser asignado a eventos que la requieran.</p>
         </div>
       </div>
 
@@ -265,7 +263,7 @@
       <div class="modal-footer">
         <button type="button" class="btn-cancelar" id="btn-cancelar">Cancelar</button>
         <button type="submit" class="btn-guardar">
-          <i class="bx bx-save" style="margin-right:0.35rem;" aria-hidden="true"></i>
+          <i class="bx bx-save u-mr-035" aria-hidden="true"></i>
           Guardar
         </button>
       </div>
@@ -297,7 +295,7 @@
     <div class="modal-footer">
       <button type="button" class="btn-cancelar" id="btn-perfil-cerrar">Cerrar</button>
       <button type="button" class="btn-guardar" id="btn-perfil-editar">
-        <i class="bx bx-edit" style="margin-right:0.35rem;" aria-hidden="true"></i> Editar
+        <i class="bx bx-edit u-mr-035" aria-hidden="true"></i> Editar
       </button>
     </div>
   </div>
@@ -319,6 +317,7 @@
   <!-- Motor DataTable -->
   <script src="../../../helpers/datatable.helper.js"></script>
   <!-- Alertify Helper -->
+  <link rel="stylesheet" href="../../../helpers/alertify.overrides.css" />
   <script src="../../../helpers/alertify.helper.js"></script>
   <!-- Controller -->
   <script src="../../../controllers/usuarios.controller.js"></script>

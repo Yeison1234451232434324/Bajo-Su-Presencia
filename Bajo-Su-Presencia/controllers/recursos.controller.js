@@ -85,14 +85,14 @@ document.addEventListener('DOMContentLoaded', async () => {
           <div class="recurso-col">${badgeDisp}</div>
           <div class="recurso-col recurso-fecha">${esc(r.creado)}</div>
           <div class="acciones-cell">
-            <button class="btn-accion btn-editar-rec" onclick="abrirEditar('${r.id}')" title="Editar recurso">
+            <button class="btn-accion btn-editar-rec" data-action="editar-recurso" data-id="${r.id}" title="Editar recurso">
               <i class="bx bx-edit" aria-hidden="true"></i>
             </button>
             <button class="btn-accion ${r.disponible ? 'btn-toggle-on' : 'btn-toggle-off'}"
-              onclick="toggleRecurso('${r.id}')" title="${r.disponible ? 'Desactivar' : 'Activar'} recurso">
+              data-action="toggle-recurso" data-id="${r.id}" title="${r.disponible ? 'Desactivar' : 'Activar'} recurso">
               <i class="bx ${r.disponible ? 'bx-toggle-right' : 'bx-toggle-left'}"></i>
             </button>
-            <button class="btn-accion btn-eliminar-rec" onclick="eliminarRecurso('${r.id}')" title="Eliminar recurso">
+            <button class="btn-accion btn-eliminar-rec" data-action="eliminar-recurso" data-id="${r.id}" title="Eliminar recurso">
               <i class="bx bx-trash" aria-hidden="true"></i>
             </button>
           </div>
@@ -122,6 +122,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
       window.__bspDT['dt-recursos'] = dtRecursos;
       dtRecursos.init();
+      document.getElementById('dt-recursos-body')?.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        const id = btn.dataset.id;
+        if (btn.dataset.action === 'editar-recurso') abrirEditar(id);
+        else if (btn.dataset.action === 'toggle-recurso') toggleRecurso(id);
+        else if (btn.dataset.action === 'eliminar-recurso') eliminarRecurso(id);
+      });
     } else {
       dtRecursos.refresh(data);
     }
@@ -181,7 +189,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   /** Abre el modal en modo EDITAR con los datos del recurso pre-llenados */
-  window.abrirEditar = async function(id) {
+  async function abrirEditar(id) {
     const r = await RecursosModel.getById(id);
     if (!r) return;
 
@@ -195,7 +203,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     modalError.style.display = 'none';
     BSPModal.abrir({ overlay: modalOverlay, modal });
-  };
+  }
 
   /** Cierra el modal y limpia el formulario */
   function cerrarModal() {
@@ -291,7 +299,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 4. TOGGLE DISPONIBILIDAD
   // ════════════════════════════════════════════════════════════════
 
-  window.toggleRecurso = async function(id) {
+  async function toggleRecurso(id) {
     const resultado = await RecursosModel.toggleDisponible(id);
     if (!resultado.ok) {
       showAlertError(resultado.error);
@@ -303,13 +311,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         ? 'El recurso ya está disponible para asignar a eventos.'
         : 'El recurso fue marcado como no disponible.'
     );
-  };
+  }
 
   // ════════════════════════════════════════════════════════════════
   // 5. ELIMINAR RECURSO
   // ════════════════════════════════════════════════════════════════
 
-  window.eliminarRecurso = async function(id) {
+  async function eliminarRecurso(id) {
     const r = await RecursosModel.getById(id);
     if (!r) return;
 
@@ -326,7 +334,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         showAlertSuccess(`"${r.nombre}" fue eliminado del inventario.`);
       }
     );
-  };
+  }
 
   // ── Render inicial ───────────────────────────────────────────────────────
   renderTabla();

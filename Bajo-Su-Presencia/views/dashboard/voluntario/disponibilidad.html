@@ -46,7 +46,7 @@
 <body>
 
 <main class="main" id="main">
-  <section class="panel active" style="display:block;">
+  <section class="panel active">
 
     <!-- Encabezado -->
     <div class="panel-header">
@@ -64,7 +64,7 @@
     <div class="disp-counters">
 
       <div class="disp-counter-card">
-        <div class="disp-counter-icon" style="background:#dbeafe;color:#1E3A8A;">
+        <div class="disp-counter-icon disp-counter-icon--total">
           <i class="bx bx-calendar" aria-hidden="true"></i>
         </div>
         <div>
@@ -74,7 +74,7 @@
       </div>
 
       <div class="disp-counter-card">
-        <div class="disp-counter-icon" style="background:#ede9fe;color:#7c3aed;">
+        <div class="disp-counter-icon disp-counter-icon--inscritos">
           <i class="bx bx-user-check" aria-hidden="true"></i>
         </div>
         <div>
@@ -84,7 +84,7 @@
       </div>
 
       <div class="disp-counter-card">
-        <div class="disp-counter-icon" style="background:#d1fae5;color:#059669;">
+        <div class="disp-counter-icon disp-counter-icon--disponible">
           <i class="bx bx-check-circle" aria-hidden="true"></i>
         </div>
         <div>
@@ -117,6 +117,7 @@
 <!-- Motor DataTable -->
 <script src="../../../helpers/datatable.helper.js"></script>
 <!-- Alertify Helper -->
+<link rel="stylesheet" href="../../../helpers/alertify.overrides.css" />
 <script src="../../../helpers/alertify.helper.js"></script>
   <script src="../../../controllers/voluntario.disponibilidad.controller.js"></script>
 

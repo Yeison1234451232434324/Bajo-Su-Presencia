@@ -47,7 +47,7 @@
 
 <!-- Área principal (el sidebar se inyecta por JS) -->
 <main class="main" id="main">
-  <section class="panel active" style="display:block;">
+  <section class="panel active">
 
     <!-- Encabezado -->
     <div class="panel-header">
@@ -107,7 +107,7 @@
     </div>
 
     <!-- Botón nuevo recurso -->
-    <div style="display:flex;justify-content:flex-end;margin-bottom:1rem;">
+    <div class="u-toolbar-fin">
       <button class="btn-nuevo" id="btn-nuevo-recurso">
         <i class="bx bx-plus" aria-hidden="true"></i>
         Nuevo Recurso
@@ -153,7 +153,7 @@
     <!-- Categoría -->
     <div class="form-group">
       <label for="campo-categoria">Categoría</label>
-      <select id="campo-categoria" class="form-control select-filtro" style="width:100%;" required>
+      <select id="campo-categoria" class="form-control select-filtro u-w-100" required>
         <option value="Mobiliario">Mobiliario</option>
         <option value="Audio y Video">Audio y Video</option>
         <option value="Iluminación">Iluminación</option>
@@ -191,7 +191,7 @@
     <div class="modal-footer">
       <button type="button" class="btn-cancelar" id="btn-cancelar-rec">Cancelar</button>
       <button type="submit" class="btn-guardar">
-        <i class="bx bx-save" style="margin-right:0.35rem;" aria-hidden="true"></i>
+        <i class="bx bx-save u-mr-035" aria-hidden="true"></i>
         Guardar
       </button>
     </div>
@@ -216,6 +216,7 @@
 <!-- Motor DataTable -->
 <script src="../../../helpers/datatable.helper.js"></script>
 <!-- Alertify Helper -->
+<link rel="stylesheet" href="../../../helpers/alertify.overrides.css" />
 <script src="../../../helpers/alertify.helper.js"></script>
 <!-- Controlador de recursos -->
   <script src="../../../controllers/recursos.controller.js"></script>

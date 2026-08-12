@@ -58,8 +58,8 @@ function enviarCabecerasSeguridad(): void
     header('Cross-Origin-Opener-Policy: same-origin');
 
     $csp = "default-src 'self'; "
-         . "script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; "
-         . "style-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com https://unpkg.com 'unsafe-inline'; "
+         . "script-src 'self' https://cdn.jsdelivr.net; "
+         . "style-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com https://unpkg.com; "
          . "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net https://unpkg.com data:; "
          . "img-src 'self' data: https:; "
          . "connect-src 'self' http://localhost:8000 http://127.0.0.1:8000 https://*.supabase.co; "

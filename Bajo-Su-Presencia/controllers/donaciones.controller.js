@@ -87,8 +87,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           <span class="dt-c-proposito">${esc(d.proposito)}</span>
           <span class="dt-c-estado">${estadoBadge(d.estado)}</span>
           <div class="acciones-cell">
-            <button class="btn-accion btn-ver" onclick="verFactura('${d.id}')" title="Ver factura"><i class="bx bx-receipt" aria-hidden="true"></i></button>
-            <button class="btn-accion btn-eliminar" onclick="eliminarDonacion('${d.id}')" title="Eliminar"><i class="bx bx-trash" aria-hidden="true"></i></button>
+            <button class="btn-accion btn-ver" data-action="ver-factura" data-id="${d.id}" title="Ver factura"><i class="bx bx-receipt" aria-hidden="true"></i></button>
+            <button class="btn-accion btn-eliminar" data-action="eliminar-donacion" data-id="${d.id}" title="Eliminar"><i class="bx bx-trash" aria-hidden="true"></i></button>
           </div>
         </div>`;
     }
@@ -123,13 +123,19 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
       window.__bspDT['dt-donaciones'] = dtDonaciones;
       dtDonaciones.init();
+      document.getElementById('dt-donaciones-body')?.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        if (btn.dataset.action === 'ver-factura') verFactura(btn.dataset.id);
+        else if (btn.dataset.action === 'eliminar-donacion') eliminarDonacion(btn.dataset.id);
+      });
     } else {
       dtDonaciones.refresh(data);
     }
   }
 
   // ── Factura profesional ──────────────────────────────────────────────────
-  window.verFactura = async function(id) {
+  async function verFactura(id) {
     const d = cache.find(x => x.id === id);
     if (!d) return;
 
@@ -158,7 +164,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div>
           <p class="dn-factura-meta-label">Fecha de emisión</p>
           <p class="dn-factura-meta-valor">${esc(fmtFechaHora(d.creadoEn))}</p>
-          <p class="dn-factura-meta-label" style="margin-top:0.5rem;">Estado</p>
+          <p class="dn-factura-meta-label u-mt-05">Estado</p>
           <p class="dn-factura-meta-valor">${estadoBadge(d.estado)}</p>
         </div>
       </div>
@@ -186,14 +192,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     `;
 
     BSPModal.abrir({ overlay: modalOverlay, modal: modalFactura });
-  };
+  }
 
   function cerrarFactura() {
     BSPModal.cerrar({ overlay: modalOverlay, modal: modalFactura });
   }
 
   // ── Eliminar ──────────────────────────────────────────────────────────────
-  window.eliminarDonacion = async function(id) {
+  async function eliminarDonacion(id) {
     const d = cache.find(x => x.id === id);
     if (!d) return;
 
@@ -207,7 +213,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         showAlertSuccess(`La transacción "${d.referencia}" fue eliminada.`);
       }
     );
-  };
+  }
 
   // ── Event listeners ──────────────────────────────────────────────────────
   btnCerrarFactura.addEventListener('click', cerrarFactura);

@@ -904,3 +904,12 @@
 }
 
 /* fin plantilla BSP */
+
+/* Fase 2C: antes style="" inline */
+.gr-sin-reportes { color: var(--muted); font-size: 0.9rem; }
+.bsp-dona-dot--0 { background: #0F1E5A; }
+.bsp-dona-dot--1 { background: #F5C215; }
+.bsp-dona-dot--2 { background: #059669; }
+.bsp-dona-dot--3 { background: #7c3aed; }
+.bsp-dona-dot--4 { background: #dc2626; }
+.bsp-dona-dot--5 { background: #0891b2; }

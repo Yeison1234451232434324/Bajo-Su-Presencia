@@ -1488,3 +1488,13 @@ a    { text-decoration: none; }
   .header-menu    { display: none !important; }
   .header-actions { display: none !important; }
 }
+
+/* Imagen de la oración del día (Fase 2B: antes style="" inline) */
+#prayer-imagen-dia { display: none; width: 100%; max-height: 280px; object-fit: cover; border-radius: 0.75rem; margin-bottom: 1.25rem; }
+
+/* Fase 2C: antes style="" inline (colores de barra por índice) */
+.event-card-bar--0 { background: linear-gradient(to right,#f59e0b,#ca8a04); }
+.event-card-bar--1 { background: linear-gradient(to right,#f97316,#ef4444); }
+.event-card-bar--2 { background: linear-gradient(to right,#eab308,#d97706); }
+.event-card-bar--3 { background: linear-gradient(to right,#3b82f6,#1d4ed8); }
+.event-card-bar--4 { background: linear-gradient(to right,#8b5cf6,#6d28d9); }

@@ -40,7 +40,7 @@
 <body>
 
 <main class="main" id="main">
-  <section class="panel active" style="display:block;">
+  <section class="panel active">
 
     <!-- Encabezado -->
     <div class="panel-header">
@@ -65,14 +65,14 @@
     </div>
 
     <!-- ══ VISTA 2: ACTIVIDADES DEL EVENTO ═══════════════════════════════ -->
-    <div id="vista-actividades" style="display:none;">
+    <div id="vista-actividades" hidden>
 
       <!-- Barra superior: Volver + Nueva Actividad -->
       <div class="act-topbar">
-        <button class="btn-volver" onclick="volverAEventos()">
+        <button class="btn-volver">
           <i class="bx bx-chevron-left" aria-hidden="true"></i> Volver a Eventos
         </button>
-        <button class="btn-nueva-actividad" onclick="abrirNuevaActividad()">
+        <button class="btn-nueva-actividad">
           <i class="bx bx-plus" aria-hidden="true"></i> Nueva Actividad
         </button>
       </div>
@@ -83,7 +83,7 @@
         <div class="act-banner-meta">
           <span><i class="bx bx-calendar" aria-hidden="true"></i> <span class="act-banner-fecha">—</span></span>
           <span><i class="bx bx-time" aria-hidden="true"></i> <span class="act-banner-hora">—</span></span>
-          <span><i class="bx bx-map-pin" style="color:#f87171;" aria-hidden="true"></i> <span class="act-banner-lugar">—</span></span>
+          <span><i class="bx bx-map-pin u-icono-rojo" aria-hidden="true"></i> <span class="act-banner-lugar">—</span></span>
         </div>
       </div>
 
@@ -112,7 +112,7 @@
 
     <div class="act-modal-header">
       <h3 id="modal-act-titulo">Nueva Actividad</h3>
-      <button class="act-modal-close" onclick="cerrarModalActividad()" aria-label="Cerrar">
+      <button class="act-modal-close" aria-label="Cerrar">
         <i class="bx bx-x" aria-hidden="true"></i>
       </button>
     </div>
@@ -163,7 +163,7 @@
       <!-- Botones -->
       <div class="act-modal-footer">
         <button type="submit" class="btn-act-crear">Crear Actividad</button>
-        <button type="button" class="btn-act-cancelar" onclick="cerrarModalActividad()">Cancelar</button>
+        <button type="button" class="btn-act-cancelar">Cancelar</button>
       </div>
 
     </form>
@@ -185,6 +185,7 @@
 <script src="../../../models/actividades.model.js"></script>
 <script src="../../../models/usuarios.model.js"></script>
 <!-- Alertify Helper -->
+<link rel="stylesheet" href="../../../helpers/alertify.overrides.css" />
 <script src="../../../helpers/alertify.helper.js"></script>
   <script src="../../../controllers/actividades.controller.js"></script>
 

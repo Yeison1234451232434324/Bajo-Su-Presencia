@@ -72,11 +72,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ${necesarios > 0 ? `Se necesitan <strong>${necesarios}</strong> · Faltan <strong>${faltan}</strong>` : 'Sin cupo de voluntarios definido'}</p>
               ${estaRegistrado ? `<p class="disp-evento-meta"><i class="bx bx-briefcase" aria-hidden="true"></i> Rol: <strong>${esc(rolEnEvento)}</strong></p>` : ''}
             </div>
-            <div class="disp-card-estado" style="display:flex;flex-direction:column;gap:0.4rem;align-items:flex-end;">
+            <div class="disp-card-estado">
               ${estadoBadge}${badgeCupo}
             </div>
           </div>
-          <button class="btn-disp-accion ${btnClass}" onclick="accionEvento('${ev.id}', '${estaRegistrado ? 'toggle' : 'unirse'}')">
+          <button class="btn-disp-accion ${btnClass}" data-action="accion-evento" data-id="${ev.id}" data-tipo="${estaRegistrado ? 'toggle' : 'unirse'}">
             <i class="bx ${btnIcono}" aria-hidden="true"></i> ${btnTexto}
           </button>
         </div>`;
@@ -104,6 +104,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
       window.__bspDT['eventos-grid'] = dtDisp;
       dtDisp.init();
+      document.getElementById('eventos-grid-body')?.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-action="accion-evento"]');
+        if (btn) accionEvento(btn.dataset.id, btn.dataset.tipo);
+      });
     } else {
       dtDisp.refresh(conEstado);
     }
@@ -115,7 +119,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('cnt-disponible').textContent = disponible;
   }
 
-  window.accionEvento = async function(eventoId, accion) {
+  async function accionEvento(eventoId, accion) {
     if (!_miId) { showToast('Error', 'No se pudo identificar tu usuario.'); return; }
 
     if (accion === 'unirse') {
@@ -135,7 +139,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         nueva ? 'El administrador podrá verte como disponible para este evento.' : 'Has indicado que no estarás disponible para este evento.'
       );
     }
-  };
+  }
 
   (async () => {
     try { _miId = await window.miUsuarioId(); } catch (_) { _miId = null; }

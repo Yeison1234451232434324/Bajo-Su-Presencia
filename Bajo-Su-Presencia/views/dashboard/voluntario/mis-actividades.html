@@ -42,7 +42,7 @@
 <body>
 
 <main class="main" id="main">
-  <section class="panel active" style="display:block;">
+  <section class="panel active">
 
     <!-- ── Encabezado con ícono + progreso total ─────────────────────── -->
     <div class="mact-header-row">
@@ -68,7 +68,7 @@
         <span id="mact-barra-pct">0%</span>
       </div>
       <div class="mact-barra-track">
-        <div class="mact-barra-fill" id="mact-barra-fill" style="width:0%"></div>
+        <div class="mact-barra-fill" id="mact-barra-fill"></div>
       </div>
     </div>
 
@@ -93,6 +93,7 @@
 <script src="../../../models/eventos.model.js"></script>
 <script src="../../../models/actividades.model.js"></script>
 <!-- Alertify Helper -->
+<link rel="stylesheet" href="../../../helpers/alertify.overrides.css" />
 <script src="../../../helpers/alertify.helper.js"></script>
   <script src="../../../controllers/voluntario.actividades.controller.js"></script>
 

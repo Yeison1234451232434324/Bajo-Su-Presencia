@@ -191,7 +191,7 @@
 
 /* Sección de cantidad (visible solo cuando está seleccionado) */
 .ev-rec-qty {
-  display: flex;
+  display: none; /* Fase 2C: antes style="display:none;" inline; JS pone 'flex' al seleccionar */
   align-items: center;
   gap: 0.5rem;
   margin-top: 0.5rem;
@@ -310,6 +310,7 @@
   padding-top: 2px;
 }
 .ev-chips-wrap {
+  margin-top: 0.5rem;
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
@@ -504,26 +505,18 @@
 }
 .btn-ev-accion:active { transform: scale(0.92); }
 
-/* Ver detalle — azul */
-.btn-ev-ver {
-  background: var(--info-bg);
-  color: var(--info);
-}
-.btn-ev-ver:hover { background: var(--info-border); }
-
-/* Editar — ámbar */
-.btn-ev-editar {
-  background: var(--warning-bg);
-  color: var(--warning);
-}
-.btn-ev-editar:hover { background: var(--warning); color: var(--text-on-primary); }
-
-/* Eliminar — rojo */
+/* Fondo transparente, contorno e icono azul rey */
+.btn-ev-ver,
+.btn-ev-editar,
 .btn-ev-eliminar {
-  background: var(--danger-bg);
-  color: var(--danger);
+  background: transparent;
+  border: 1.5px solid #1E3A8A;
+  color: #1E3A8A;
 }
-.btn-ev-eliminar:hover { background: var(--danger); color: var(--text-on-primary); }
+
+.btn-ev-ver:hover,
+.btn-ev-editar:hover,
+.btn-ev-eliminar:hover { background: #1E3A8A; color: #fff; }
 
 /* Fecha de publicación */
 .ev-pub-fecha-pub {
@@ -537,13 +530,17 @@
    MODALES — Ver detalle y Editar evento
 ══════════════════════════════════════════════════ */
 
-/* Overlay oscuro */
+/* Overlay oscuro. display:none por defecto: el atributo hidden del HTML
+   inicial no alcanza a ocultarlo si esta regla trae su propio display,
+   porque una regla de autor le gana al [hidden] del navegador aunque
+   tengan la misma especificidad. modal.helper.js pone 'flex' inline al
+   abrir y 'none' inline al cerrar (ver modoDisplay en modal.helper.js). */
 .ev-modal-overlay {
   position: fixed;
   inset: 0;
   background: var(--modal-overlay-bg);
   backdrop-filter: blur(var(--modal-blur));
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   z-index: 1000;

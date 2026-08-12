@@ -40,6 +40,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const inpFecha     = document.getElementById('news-fecha');
   const inpImagen    = document.getElementById('news-imagen');
   const btnSubmit    = document.getElementById('btn-submit-noticia');
+
+  // Filtra dígitos mientras se escribe (antes oninput= inline en el HTML).
+  inpAutor?.addEventListener('input', function () { this.value = this.value.replace(/[0-9]/g, ''); });
   const btnCancelar  = document.getElementById('btn-cancelar-noticia');
 
   // Referencias DOM de la vista previa
@@ -214,7 +217,7 @@ document.addEventListener('DOMContentLoaded', async () => {
    * Pre-llena el formulario con los datos de la noticia a editar
    * y hace scroll al formulario.
    */
-  window.editarNoticia = async function (id) {
+  async function editarNoticia(id) {
     const noticia = await NoticiasModel.getById(id);
     if (!noticia) return;
 
@@ -233,7 +236,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Cambiar botón a modo edición
     btnSubmit.innerHTML = `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-        style="width:1.15rem;height:1.15rem;">
+        class="u-icono-115">
         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
       </svg>
@@ -243,7 +246,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Scroll al formulario
     document.querySelector('.form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
+  }
 
   /** Cancela la edición y vuelve al modo crear */
   btnCancelar.addEventListener('click', () => {
@@ -255,7 +258,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 4. ELIMINAR NOTICIA
   // ════════════════════════════════════════════════════════════════
 
-  window.eliminarNoticia = async function (id) {
+  async function eliminarNoticia(id) {
     if (_esColaborador) { showAlertError('Los colaboradores no tienen permiso para eliminar noticias.'); return; }
     const noticia = await NoticiasModel.getById(id);
     if (!noticia) return;
@@ -276,14 +279,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         showAlertSuccess(`"${noticia.titulo}" fue eliminada del historial.`);
       }
     );
-  };
+  }
 
   // ════════════════════════════════════════════════════════════════
   // 5. MODAL DE LECTURA COMPLETA
   // ════════════════════════════════════════════════════════════════
 
   /** Abre el modal con el contenido completo de la noticia */
-  window.verNoticia = async function (id) {
+  async function verNoticia(id) {
     const noticia = await NoticiasModel.getById(id);
     if (!noticia) return;
 
@@ -307,7 +310,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       overlay: document.getElementById('modal-overlay-noticia'),
       modal:   document.getElementById('modal-ver-noticia')
     });
-  };
+  }
 
   // Cerrar modal
   document.getElementById('btn-cerrar-modal-noticia').addEventListener('click', cerrarModal);
@@ -341,8 +344,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="nt-card" id="nt-card-${noticia.id}">
           ${noticia.imagen
             ? `<div class="nt-card-img-wrap">
-                 <img src="${esc(noticia.imagen)}" alt="${esc(noticia.titulo)}" class="nt-card-img"
-                   onerror="this.parentElement.style.display='none'" />
+                 <img src="${esc(noticia.imagen)}" alt="${esc(noticia.titulo)}" class="nt-card-img" />
                  <div class="nt-card-img-fade"></div>
                </div>`
             : `<div class="nt-card-img-placeholder"><i class="bx bx-news" aria-hidden="true"></i></div>`}
@@ -351,16 +353,16 @@ document.addEventListener('DOMContentLoaded', async () => {
               <h4 class="nt-card-titulo">${esc(noticia.titulo)}</h4>
               <div class="nt-card-acciones">
                 <button class="btn-accion-nt btn-ver-nt"
-                  onclick="verNoticia('${noticia.id}')" title="Leer noticia completa">
+                  data-action="ver-noticia" data-id="${noticia.id}" title="Leer noticia completa">
                   <i class="bx bx-show" aria-hidden="true"></i>
                 </button>
                 <button class="btn-accion-nt btn-editar-nt"
-                  onclick="editarNoticia('${noticia.id}')" title="Editar noticia">
+                  data-action="editar-noticia" data-id="${noticia.id}" title="Editar noticia">
                   <i class="bx bx-edit" aria-hidden="true"></i>
                 </button>
                 ${!_esColaborador ? `
                 <button class="btn-accion-nt btn-eliminar-nt"
-                  onclick="eliminarNoticia('${noticia.id}')" title="Eliminar noticia">
+                  data-action="eliminar-noticia" data-id="${noticia.id}" title="Eliminar noticia">
                   <i class="bx bx-trash" aria-hidden="true"></i>
                 </button>` : ''}
               </div>
@@ -394,6 +396,20 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
       window.__bspDT['lista-noticias'] = dtNoticias;
       dtNoticias.init();
+      const body = document.getElementById('lista-noticias-body');
+      body?.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        const id = btn.dataset.id;
+        if (btn.dataset.action === 'ver-noticia') verNoticia(id);
+        else if (btn.dataset.action === 'editar-noticia') editarNoticia(id);
+        else if (btn.dataset.action === 'eliminar-noticia') eliminarNoticia(id);
+      });
+      // 'error' de <img> no burbujea: se captura en fase de captura
+      // (antes onerror="" inline en cada <img> generada dinámicamente).
+      body?.addEventListener('error', (e) => {
+        if (e.target.matches('.nt-card-img')) e.target.parentElement.style.display = 'none';
+      }, true);
     } else {
       dtNoticias.refresh(noticias);
     }
@@ -412,7 +428,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     btnCancelar.style.display = 'none';
     btnSubmit.innerHTML = `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-        style="width:1.15rem;height:1.15rem;">
+        class="u-icono-115">
         <line x1="12" y1="5" x2="12" y2="19"/>
         <line x1="5" y1="12" x2="19" y2="12"/>
       </svg>

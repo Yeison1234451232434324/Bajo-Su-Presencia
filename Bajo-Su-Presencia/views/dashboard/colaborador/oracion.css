@@ -15,3 +15,7 @@
  */
 
 /* CSS específico para el módulo Oración del Día – Colaborador */
+
+/* Vista previa de imagen del formulario (Fase 2B: antes style="" inline) */
+.preview-img-wrap { display: none; margin-bottom: 1rem; border-radius: 0.75rem; overflow: hidden; }
+.preview-img-wrap img { width: 100%; height: 200px; object-fit: cover; }

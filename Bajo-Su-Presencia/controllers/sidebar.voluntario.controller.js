@@ -71,6 +71,14 @@ document.addEventListener("DOMContentLoaded", () => {
         </a>
         <span class="tooltip">Eventos</span>
       </li>
+      <!-- Disponibilidad en los eventos donde ya está inscrito -->
+      <li>
+        <a href="disponibilidad.html" id="nav-disponibilidad">
+          <i class="bx bx-calendar-check" aria-hidden="true"></i>
+          <span class="nav-item">Mi Disponibilidad</span>
+        </a>
+        <span class="tooltip">Mi Disponibilidad</span>
+      </li>
       <!-- Mi perfil -->
       <li>
         <a href="perfil.html" id="nav-perfil">
@@ -150,6 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const path = window.location.pathname;
   if      (path.includes("calificaciones.html"))  document.getElementById("nav-calificaciones")?.parentElement.classList.add("active-item");
   else if (path.includes("mis-actividades.html"))   document.getElementById("nav-mis-actividades")?.parentElement.classList.add("active-item");
+  else if (path.includes("disponibilidad.html"))    document.getElementById("nav-disponibilidad")?.parentElement.classList.add("active-item");
   else if (path.includes("eventos"))                document.getElementById("nav-eventos")?.parentElement.classList.add("active-item");
   else if (path.includes("perfil.html"))            document.getElementById("nav-perfil")?.parentElement.classList.add("active-item");
 

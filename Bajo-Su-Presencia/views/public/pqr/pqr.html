@@ -84,12 +84,12 @@
   <!-- Menú móvil desplegable -->
   <div class="header-mobile-menu" id="header-mobile-menu" aria-hidden="true">
     <ul class="mobile-lista-menu">
-      <li><a href="../inicio/index.html#Inicio"   onclick="cerrarMenuMovil()">Inicio</a></li>
-      <li><a href="../inicio/index.html#Oracion"  onclick="cerrarMenuMovil()">Oración</a></li>
-      <li><a href="../inicio/index.html#Noticias" onclick="cerrarMenuMovil()">Noticias</a></li>
-      <li><a href="../inicio/index.html#Eventos"  onclick="cerrarMenuMovil()">Eventos</a></li>
-      <li><a href="pqr.html"                      onclick="cerrarMenuMovil()">PQR</a></li>
-      <li><a href="../inicio/index.html#Contacto" onclick="cerrarMenuMovil()">Contacto</a></li>
+      <li><a href="../inicio/index.html#Inicio">Inicio</a></li>
+      <li><a href="../inicio/index.html#Oracion">Oración</a></li>
+      <li><a href="../inicio/index.html#Noticias">Noticias</a></li>
+      <li><a href="../inicio/index.html#Eventos">Eventos</a></li>
+      <li><a href="pqr.html">PQR</a></li>
+      <li><a href="../inicio/index.html#Contacto">Contacto</a></li>
     </ul>
     <div class="mobile-menu-actions">
       <a href="../login/login.html" class="mobile-btn-login">
@@ -103,7 +103,7 @@
 <!-- ══════════════════════════════════════════
      CONTENIDO PRINCIPAL
 ══════════════════════════════════════════ -->
-<main style="padding-top: 80px;">
+<main class="u-pt-80">
 
   <section class="pqr-section">
     <div class="pqr-container">
@@ -357,7 +357,7 @@
             <span>Viernes · Reunión Jóvenes</span>
             <span class="footer-schedule-time">6:00 PM</span>
           </div>
-          <div class="footer-schedule-row" style="border-bottom:none;">
+          <div class="footer-schedule-row u-border-bottom-none">
             <span>Sábado · Oración Matutina</span>
             <span class="footer-schedule-time">8:00 AM</span>
           </div>
@@ -381,32 +381,7 @@
 
 <!-- ══ SCRIPTS ══════════════════════════════════════════════════════════ -->
 <!-- Menú hamburguesa -->
-<script>
-(function () {
-  const btn  = document.getElementById('header-hamburger');
-  const menu = document.getElementById('header-mobile-menu');
-
-  btn.addEventListener('click', () => {
-    const abierto = menu.classList.toggle('header-mobile-menu--open');
-    btn.classList.toggle('header-hamburger--open', abierto);
-    btn.setAttribute('aria-expanded', abierto);
-    menu.setAttribute('aria-hidden', !abierto);
-    document.body.style.overflow = abierto ? 'hidden' : '';
-  });
-
-  window.cerrarMenuMovil = function () {
-    menu.classList.remove('header-mobile-menu--open');
-    btn.classList.remove('header-hamburger--open');
-    btn.setAttribute('aria-expanded', 'false');
-    menu.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
-  };
-
-  document.addEventListener('click', e => {
-    if (!e.target.closest('.site-header')) cerrarMenuMovil();
-  });
-})();
-</script>
+<script src="../../../controllers/menu-movil-pqr.controller.js?v=1"></script>
 
 <!-- Supabase: SDK + cliente (ANTES del modelo) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8" integrity="sha384-Tve8O+C6PBzsIMK/IRCwHbi8fyEzXIlIs6OfVBZHubplwYhaQF/4Mzxqgg+pp/oy" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -417,6 +392,7 @@
 <script src="../../../models/pqr.model.js"></script>
 <!-- Alertify -->
 <script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js" integrity="sha384-3kOl9EzcOjFxTuc9knN784SI3NaWSFtoc4bHR9P8rsADaAZx9PC++m1OimQhoCCb" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link rel="stylesheet" href="../../../helpers/alertify.overrides.css" />
 <script src="../../../helpers/alertify.helper.js"></script>
 <!-- Controlador PQR público -->
   <script src="../../../helpers/validators.helper.js"></script>

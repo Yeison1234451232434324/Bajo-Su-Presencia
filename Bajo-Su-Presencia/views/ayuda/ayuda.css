@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+
 /*
  * ================================================================
  *  CENTRO DE AYUDA — Estilos de la página completa
@@ -9,9 +11,6 @@
 /* Tamaño base de fuente ligeramente mayor (16 -> 17px, +6%) para agrandar
    de forma uniforme la letra de todos los apartados. Escala los rem. */
 html { font-size: 17px; }
-
-
-@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
 
 /* ── Variables (heredan de panel.css si está cargado) ─────────── */
 :root {
@@ -510,3 +509,35 @@ body {
   .ac-contact-btn-primary,
   .ac-contact-btn-secondary { justify-content: center; }
 }
+
+/* Fase 2C: antes style="" inline por categoría (colores fijos por id) */
+.ac-cat-icon--inicio             { background: #dbeafe; }
+.ac-cat-icon--inicio i           { color: #1E3A8A; }
+.ac-cat-icon--eventos            { background: #fef3c7; }
+.ac-cat-icon--eventos i          { color: #d97706; }
+.ac-cat-icon--voluntario-trabajo { background: #fce7f3; }
+.ac-cat-icon--voluntario-trabajo i { color: #db2777; }
+.ac-cat-icon--noticias           { background: #d1fae5; }
+.ac-cat-icon--noticias i         { color: #059669; }
+.ac-cat-icon--reportes           { background: #ecfdf5; }
+.ac-cat-icon--reportes i         { color: #10b981; }
+.ac-cat-icon--pqr                { background: #ede9fe; }
+.ac-cat-icon--pqr i              { color: #7c3aed; }
+.ac-cat-icon--admin-gestion      { background: #dbeafe; }
+.ac-cat-icon--admin-gestion i    { color: #1E3A8A; }
+.u-flex-gap-075 { display: flex; align-items: center; gap: 0.75rem; }
+
+/* Fase 4 CSP: antes <style> inyectado dinámicamente por injectExtraStyles() en ayuda-page.controller.js */
+.ac-topbar-rol-badge {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  background: rgba(245,194,21,0.18); border: 1px solid rgba(245,194,21,0.35);
+  border-radius: 2rem; padding: 0.25rem 0.75rem;
+  font-family: 'EB Garamond', serif; font-size: 0.82rem; font-weight: 600;
+  color: #F5C215;
+}
+.ac-topbar-rol-badge i { font-size: 0.85rem; }
+
+/* Acordeón de tarjeta — estado abierto */
+.ac-card-acc-panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.28s ease; }
+.ac-card-acc-panel.is-open { grid-template-rows: 1fr; }
+.ac-card-acc-item.is-open .ac-card-chevron { transform: rotate(180deg); }

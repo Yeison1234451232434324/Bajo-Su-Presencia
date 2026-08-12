@@ -217,3 +217,16 @@
 @media (max-width: 480px) {
   .cal-stats-grid { grid-template-columns: 1fr; }
 }
+
+/* Fase 2B: antes style="" inline en las tarjetas de estadísticas */
+.cal-stat-icon--eventos { background: #dbeafe; color: #1d4ed8; }
+.cal-stat-icon--mejor   { background: #dbeafe; color: #059669; }
+.cal-stat-icon--peor    { background: #dbeafe; color: #dc2626; }
+
+/* Fase 2C: antes style="" inline (color según nota, 3 niveles fijos) */
+.hist-card--alta  { border-left-color: #059669; }
+.hist-card--alta  .hist-nota-grande { color: #059669; }
+.hist-card--media { border-left-color: #d97706; }
+.hist-card--media .hist-nota-grande { color: #d97706; }
+.hist-card--baja  { border-left-color: #dc2626; }
+.hist-card--baja  .hist-nota-grande { color: #dc2626; }

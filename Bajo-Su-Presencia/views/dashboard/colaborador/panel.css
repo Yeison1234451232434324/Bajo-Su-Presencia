@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+
 /*
  * ================================================================
  *  PANEL COLABORADOR — Estilos base compartidos
@@ -22,9 +24,6 @@
 /* Tamaño base de fuente ligeramente mayor (16 -> 17px, +6%) para agrandar
    de forma uniforme la letra de todos los apartados. Escala los rem. */
 html { font-size: 17px; }
-
-
-@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
 
 :root {
   /* ── Marca (no cambia entre temas) ── */

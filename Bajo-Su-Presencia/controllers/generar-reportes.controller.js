@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   function renderHistorial() {
     listaRecientes.innerHTML = '';
     if (!historial.length) {
-      listaRecientes.innerHTML = `<p style="color:var(--muted);font-size:0.9rem;">Aún no se han generado reportes.</p>`;
+      listaRecientes.innerHTML = `<p class="gr-sin-reportes">Aún no se han generado reportes.</p>`;
       return;
     }
     [...historial].reverse().slice(0, 5).forEach((item, idx) => {
@@ -50,14 +50,18 @@ document.addEventListener('DOMContentLoaded', async () => {
           <div class="gr-reciente-nombre">${esc(item.nombre)}</div>
           <div class="gr-reciente-fecha">Generado: ${esc(item.fecha)}</div>
         </div>
-        <button class="gr-reciente-dl" title="Descargar" onclick="descargarHistorial(${historial.length - 1 - idx})">
+        <button class="gr-reciente-dl" title="Descargar" data-action="descargar-historial" data-idx="${historial.length - 1 - idx}">
           <i class="bx bx-download" aria-hidden="true"></i>
         </button>`;
       listaRecientes.appendChild(div);
     });
   }
+  listaRecientes.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-action="descargar-historial"]');
+    if (btn) descargarHistorial(parseInt(btn.dataset.idx, 10));
+  });
 
-  window.generarReporte = async function() {
+  async function generarReporte() {
     const desde = fechaDesde.value;
     const hasta = fechaHasta.value;
     let html = '', nombreReporte = '';
@@ -84,9 +88,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     pdfContenido.innerHTML = html;
     BSPModal.abrir({ overlay: modalOverlay, modal, modoDisplay: true });
-  };
+  }
 
-  window.descargarPDF = function() {
+  function descargarPDF() {
     // Mover el contenido del PDF al body temporalmente para que
     // el @media print lo encuentre fuera del modal
     const contenido = document.getElementById('gr-pdf-contenido');
@@ -103,19 +107,22 @@ document.addEventListener('DOMContentLoaded', async () => {
       const w = document.getElementById('bsp-print-wrapper');
       if (w) w.remove();
     }, 1000);
-  };
+  }
 
-  window.descargarHistorial = function(idx) {
+  function descargarHistorial(idx) {
     const item = historial[idx];
     if (!item) return;
     pdfContenido.innerHTML = item.html;
     BSPModal.abrir({ overlay: modalOverlay, modal, modoDisplay: true });
-  };
+  }
 
-  window.cerrarModalReporte = function() {
+  function cerrarModalReporte() {
     BSPModal.cerrar({ overlay: modalOverlay, modal, modoDisplay: true });
-  };
+  }
   modalOverlay.addEventListener('click', cerrarModalReporte);
+  document.querySelector('.gr-btn-generar')?.addEventListener('click', generarReporte);
+  document.querySelector('.gr-btn-descargar')?.addEventListener('click', descargarPDF);
+  document.querySelector('.gr-btn-cerrar-modal')?.addEventListener('click', cerrarModalReporte);
 
   // ══════════════════════════════════════════════════════════════
   // PLANTILLA BSP — helpers de construcción
@@ -269,7 +276,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     arcos += `<circle cx="${CX}" cy="${CY}" r="${R*0.55}" fill="white"/>`;
     const leyenda = datos.map((d, i) =>
-      `<div class="bsp-dona-leyenda-item"><span class="bsp-dona-dot" style="background:${cols[i%cols.length]}"></span><span>${esc(d.l)}: <strong>${d.v}</strong></span></div>`
+      `<div class="bsp-dona-leyenda-item"><span class="bsp-dona-dot bsp-dona-dot--${i % cols.length}"></span><span>${esc(d.l)}: <strong>${d.v}</strong></span></div>`
     ).join('');
     return `<div class="bsp-grafica-wrap bsp-grafica-dona-wrap">
       <div class="bsp-grafica-titulo">${titulo}</div>

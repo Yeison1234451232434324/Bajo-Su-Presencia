@@ -48,7 +48,7 @@
 <body>
 
 <main class="main" id="main">
-  <section class="panel active" style="display:block;">
+  <section class="panel active">
 
     <!-- Encabezado -->
     <div class="panel-header">
@@ -126,7 +126,7 @@
       </div>
 
       <!-- Botón generar -->
-      <button class="gr-btn-generar" onclick="generarReporte()">
+      <button class="gr-btn-generar">
         <i class="bx bx-file-find" aria-hidden="true"></i> Generar Reporte
       </button>
 
@@ -152,12 +152,12 @@
 
     <!-- Barra superior del modal -->
     <div class="gr-modal-topbar">
-      <h3 id="gr-modal-titulo"><i class="bx bx-file" style="margin-right:0.4rem;color:var(--primary);" aria-hidden="true"></i> Vista Previa del Reporte</h3>
+      <h3 id="gr-modal-titulo"><i class="bx bx-file u-icono-mr-primario" aria-hidden="true"></i> Vista Previa del Reporte</h3>
       <div class="gr-modal-topbar-btns">
-        <button class="gr-btn-descargar" onclick="descargarPDF()">
+        <button class="gr-btn-descargar">
           <i class="bx bx-download" aria-hidden="true"></i> Descargar PDF
         </button>
-        <button class="gr-btn-cerrar-modal" onclick="cerrarModalReporte()" aria-label="Cerrar">
+        <button class="gr-btn-cerrar-modal" aria-label="Cerrar">
           <i class="bx bx-x" aria-hidden="true"></i>
         </button>
       </div>
@@ -189,6 +189,7 @@
 <script src="../../../models/reportes.model.js"></script>
 <script src="../../../models/donaciones.model.js"></script>
 <!-- Alertify Helper -->
+<link rel="stylesheet" href="../../../helpers/alertify.overrides.css" />
 <script src="../../../helpers/alertify.helper.js"></script>
   <script src="../../../controllers/generar-reportes.controller.js"></script>
 

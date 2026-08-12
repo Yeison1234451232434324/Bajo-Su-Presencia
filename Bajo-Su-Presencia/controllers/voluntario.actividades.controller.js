@@ -17,6 +17,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!sesion) return;
 
   const contenedor  = document.getElementById('mact-contenedor');
+  contenedor.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-action="toggle-actividad-voluntario"]');
+    if (btn) toggleActividadVoluntario(btn.dataset.id);
+  });
   const barraFill   = document.getElementById('mact-barra-fill');
   const barraPct    = document.getElementById('mact-barra-pct');
   const progresoNum = document.getElementById('mact-progreso-num');
@@ -94,13 +98,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="mact-evento-meta">
           ${info.fecha    ? `<span><i class="bx bx-calendar" aria-hidden="true"></i> ${esc(info.fecha)}</span>` : ''}
           ${info.horario  ? `<span><i class="bx bx-time" aria-hidden="true"></i> ${esc(info.horario)}</span>` : ''}
-          ${info.ubicacion? `<span><i class="bx bx-map-pin" style="color:#f87171;" aria-hidden="true"></i> ${esc(info.ubicacion)}</span>` : ''}
+          ${info.ubicacion? `<span><i class="bx bx-map-pin u-icono-rojo" aria-hidden="true"></i> ${esc(info.ubicacion)}</span>` : ''}
         </div>
       </div>
       <div class="mact-mini-barra-track">
-        <div class="mact-mini-barra-fill${completa ? ' mact-mini-barra-fill--completa' : ''}" id="mact-mini-barra-${eventoId}" style="width:${pct}%"></div>
+        <div class="mact-mini-barra-fill${completa ? ' mact-mini-barra-fill--completa' : ''}" id="mact-mini-barra-${eventoId}"></div>
       </div>
       <div class="mact-lista" id="mact-lista-${eventoId}"></div>`;
+    seccion.querySelector(`#mact-mini-barra-${eventoId}`).style.width = `${pct}%`;
     const lista = seccion.querySelector(`#mact-lista-${eventoId}`);
     acts.forEach(act => lista.appendChild(_crearItemActividad(act)));
     return seccion;
@@ -113,7 +118,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     item.className = `mact-item${act.completada ? ' mact-item--completada' : ''}`;
     item.id = `mact-item-${act.id}`;
     item.innerHTML = `
-      <button class="mact-check-btn" onclick="toggleActividadVoluntario('${act.id}')"
+      <button class="mact-check-btn" data-action="toggle-actividad-voluntario" data-id="${act.id}"
         title="${act.completada ? 'Marcar como pendiente' : 'Marcar como completada'}"
         aria-label="${act.completada ? 'Desmarcar' : 'Completar'} actividad">
         ${act.completada ? '<i class="bx bx-check-circle mact-check-icon mact-check-icon--done" aria-hidden="true"></i>' : '<i class="bx bx-circle mact-check-icon" aria-hidden="true"></i>'}
@@ -138,7 +143,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     return !isNaN(ini) && ini <= new Date();
   }
 
-  window.toggleActividadVoluntario = async function(id) {
+  async function toggleActividadVoluntario(id) {
     const act = await ActividadesModel.getById(id);
     if (!act) return;
 
@@ -157,7 +162,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       act.completada ? 'Actividad pendiente' : '¡Actividad completada!',
       act.completada ? `"${act.titulo}" marcada como pendiente.` : `"${act.titulo}" marcada como completada.`
     );
-  };
+  }
 
   function _formatFecha(fechaStr) {
     if (!fechaStr) return '';

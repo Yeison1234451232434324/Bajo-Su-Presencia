@@ -41,7 +41,7 @@
 
   <!-- Área principal (el sidebar se inyecta por JS) -->
   <main class="main" id="main">
-    <section class="panel active" style="display:block;">
+    <section class="panel active">
 
       <!-- Encabezado -->
       <div class="panel-header">
@@ -62,44 +62,41 @@
           <!-- Texto de la oración -->
           <div class="form-group">
             <label for="prayerText">
-              <i class="bx bx-church" style="color:var(--primary);" aria-hidden="true"></i>
+              <i class="bx bx-church u-icono-primario" aria-hidden="true"></i>
               Texto de la Oración
             </label>
             <textarea class="form-control" id="prayerText" rows="8"
               placeholder="Escribe la oración del día aquí..."
-              oninput="updatePrayerPreview()" required></textarea>
+              required></textarea>
             <p class="char-count"><span id="prayerCount">0</span> caracteres</p>
           </div>
 
           <!-- Versículo -->
           <div class="form-group">
             <label for="prayerVerse">
-              <i class="bx bx-book-open" style="color:var(--primary);" aria-hidden="true"></i>
+              <i class="bx bx-book-open u-icono-primario" aria-hidden="true"></i>
               Versículo o Frase Final
             </label>
             <input type="text" class="form-control" id="prayerVerse"
-              placeholder="Ej: Filipenses 4:7 o Amén 🙏"
-              oninput="updatePrayerPreview()" />
+              placeholder="Ej: Filipenses 4:7 o Amén 🙏" />
           </div>
 
           <!-- Imagen opcional -->
           <div class="form-group">
             <label for="prayerImage">
-              <i class="bx bx-image" style="color:var(--primary);" aria-hidden="true"></i>
+              <i class="bx bx-image u-icono-primario" aria-hidden="true"></i>
               Imagen Inspiradora (Opcional)
             </label>
             <input type="url" class="form-control" id="prayerImage"
-              placeholder="https://ejemplo.com/imagen-oracion.jpg"
-              oninput="updatePrayerPreview()" />
+              placeholder="https://ejemplo.com/imagen-oracion.jpg" />
             <p class="char-count">Agrega una imagen para acompañar la oración</p>
           </div>
 
           <!-- Vista previa en tiempo real -->
-          <div class="preview-box" id="prayerPreview" style="display:none;">
+          <div class="preview-box" id="prayerPreview" hidden>
             <h3>Vista Previa</h3>
-            <div id="previewImgWrap" style="display:none;margin-bottom:1rem;border-radius:0.75rem;overflow:hidden;">
-              <img id="previewImg" src="" alt="Vista previa"
-                style="width:100%;height:200px;object-fit:cover;" />
+            <div id="previewImgWrap" class="preview-img-wrap">
+            <img id="previewImg" src="" alt="Vista previa" />
             </div>
             <p class="preview-text" id="previewText"></p>
             <p class="preview-verse" id="previewVerse"></p>
@@ -108,7 +105,7 @@
           <!-- Botón publicar / guardar cambios -->
           <button type="submit" class="btn-submit" id="btn-submit-oracion">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-              style="width:1.15rem;height:1.15rem;">
+              class="u-icono-115">
               <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
               <polyline points="17 21 17 13 7 13 7 21"/>
               <polyline points="7 3 7 8 15 8"/>
@@ -155,7 +152,7 @@
         <i class="bx bx-x" aria-hidden="true"></i>
       </button>
     </div>
-    <div class="modal-or-img-wrap" id="modal-oracion-img-wrap" style="display:none;">
+    <div class="modal-or-img-wrap" id="modal-oracion-img-wrap" hidden>
       <img id="modal-oracion-img" src="" alt="Imagen de la oración" class="modal-or-img" />
     </div>
     <p class="modal-or-texto" id="modal-oracion-texto"></p>
@@ -179,6 +176,7 @@
   <!-- Motor DataTable -->
   <script src="../../../helpers/datatable.helper.js"></script>
   <!-- Alertify Helper -->
+  <link rel="stylesheet" href="../../../helpers/alertify.overrides.css" />
   <script src="../../../helpers/alertify.helper.js"></script>
   <!-- Controlador: formulario, historial, editar, eliminar y modal -->
   <script src="../../../controllers/oracion.controller.js"></script>

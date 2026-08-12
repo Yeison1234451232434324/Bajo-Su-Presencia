@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           <span class="au-cell-desc">${esc(a.descripcion)}</span>
           <span class="dt-c-resultado">${resultadoBadge(a.resultado)}</span>
           <div class="acciones-cell">
-            <button class="btn-accion btn-ver" onclick="verDetalleAuditoria('${a.id}')" title="Ver detalle"><i class="bx bx-show" aria-hidden="true"></i></button>
+            <button class="btn-accion btn-ver" data-action="ver-detalle-auditoria" data-id="${a.id}" title="Ver detalle"><i class="bx bx-show" aria-hidden="true"></i></button>
           </div>
         </div>`;
     }
@@ -113,13 +113,19 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
       window.__bspDT['dt-auditoria'] = dtAuditoria;
       dtAuditoria.init();
+      // Delegación: fila generada dinámicamente por BSPDataTable (antes
+      // onclick="verDetalleAuditoria(...)" inline en el template).
+      document.getElementById('dt-auditoria-body')?.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-action="ver-detalle-auditoria"]');
+        if (btn) verDetalleAuditoria(btn.dataset.id);
+      });
     } else {
       dtAuditoria.refresh(cache);
     }
   }
 
   // ── Detalle ───────────────────────────────────────────────────────────────
-  window.verDetalleAuditoria = function(id) {
+  function verDetalleAuditoria(id) {
     const a = cache.find(x => x.id === id);
     if (!a) return;
 
@@ -162,7 +168,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     `;
 
     BSPModal.abrir({ overlay: modalOverlay, modal: modalDetalle });
-  };
+  }
 
   function cerrarDetalle() {
     BSPModal.cerrar({ overlay: modalOverlay, modal: modalDetalle });

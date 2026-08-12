@@ -47,7 +47,7 @@
 
 <!-- Área principal (el sidebar se inyecta por JS) -->
 <main class="main" id="main">
-  <section class="panel active" style="display:block;">
+  <section class="panel active">
 
     <!-- Encabezado -->
     <div class="panel-header">
@@ -78,7 +78,7 @@
 
       <!-- Total de eventos calificados -->
       <div class="cal-stat-card">
-        <div class="cal-stat-icon" style="background:#dbeafe;color:#1d4ed8;">
+        <div class="cal-stat-icon cal-stat-icon--eventos">
           <i class="bx bx-calendar-check" aria-hidden="true"></i>
         </div>
         <div class="cal-stat-body">
@@ -89,7 +89,7 @@
 
       <!-- Mejor calificación -->
       <div class="cal-stat-card">
-        <div class="cal-stat-icon" style="background:#dbeafe;color:#059669;">
+        <div class="cal-stat-icon cal-stat-icon--mejor">
           <i class="bx bx-trophy" aria-hidden="true"></i>
         </div>
         <div class="cal-stat-body">
@@ -100,7 +100,7 @@
 
       <!-- Calificación más baja -->
       <div class="cal-stat-card">
-        <div class="cal-stat-icon" style="background:#dbeafe;color:#dc2626;">
+        <div class="cal-stat-icon cal-stat-icon--peor">
           <i class="bx bx-trending-down" aria-hidden="true"></i>
         </div>
         <div class="cal-stat-body">
@@ -150,6 +150,7 @@
 <!-- Motor DataTable -->
 <script src="../../../helpers/datatable.helper.js"></script>
 <!-- Alertify Helper -->
+<link rel="stylesheet" href="../../../helpers/alertify.overrides.css" />
 <script src="../../../helpers/alertify.helper.js"></script>
   <script src="../../../controllers/voluntario.calificaciones.controller.js"></script>
 

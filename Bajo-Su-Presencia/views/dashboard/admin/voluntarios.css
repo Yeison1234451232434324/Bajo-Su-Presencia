@@ -207,7 +207,9 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  flex: 2; min-width: 160px; /* Fase 2C: antes style="" inline en vol-row */
 }
+.vol-row-estrellas { flex: 1; min-width: 100px; }
 .user-avatar-sm {
   width: 36px; height: 36px;
   border-radius: 50%;
@@ -244,6 +246,7 @@
 }
 .star-on  { color: var(--accent); }
 .star-off { color: var(--border-light); }
+.dist-label .star-on { font-size: 0.85rem; } /* Fase 2C: antes style="" inline */
 .estrella-num {
   font-size: 0.82rem;
   color: var(--muted);
@@ -255,7 +258,7 @@
 .sin-calif { color: var(--text-muted); font-size: 0.9375rem; font-style: italic; }
 
 /* ── Comentario preview en tabla ── */
-.comentario-cell { max-width: 200px; }
+.comentario-cell { max-width: 200px; flex: 1.5; min-width: 120px; }
 .comentario-preview {
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -268,7 +271,7 @@
 
 /* ── Botones de acción ──
    .acciones-cell base + .btn-accion: componentes compartidos, ver panel.css */
-.acciones-cell { flex-wrap: wrap; }
+.acciones-cell { flex-wrap: wrap; flex-shrink: 0; margin-left: auto; }
 /* .btn-accion: componente compartido, ver panel.css */
 
 /* Disponibilidad ON (verde) */
@@ -484,6 +487,7 @@
   display: flex; flex-direction: column; align-items: center;
   gap: 0.75rem; padding: 2rem; text-align: center; color: var(--text-muted);
 }
+.panel-vacio i { font-size: 2.5rem; color: var(--border-light); } /* Fase 2C */
 
 /* ── Resumen estadístico ── */
 .resumen-grid {

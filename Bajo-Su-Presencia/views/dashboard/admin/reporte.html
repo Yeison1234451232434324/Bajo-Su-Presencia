@@ -45,7 +45,7 @@
 <body>
 
 <main class="main" id="main">
-  <section class="panel active" style="display:block;">
+  <section class="panel active">
 
     <!-- Encabezado -->
     <div class="panel-header">
@@ -70,11 +70,11 @@
     </div>
 
     <!-- ══ VISTA 2: FORMULARIO DE REPORTE ════════════════════════════════ -->
-    <div id="rep-vista-formulario" style="display:none;">
+    <div id="rep-vista-formulario" hidden>
 
       <!-- Botón volver -->
       <div class="rep-topbar">
-        <button class="rep-btn-volver" onclick="volverAEventosReporte()">
+        <button class="rep-btn-volver">
           <i class="bx bx-chevron-left" aria-hidden="true"></i> Volver a Eventos
         </button>
       </div>
@@ -85,7 +85,7 @@
         <div class="rep-banner-meta">
           <span><i class="bx bx-calendar" aria-hidden="true"></i> <span class="rep-banner-fecha">—</span></span>
           <span><i class="bx bx-time" aria-hidden="true"></i> <span class="rep-banner-hora">—</span></span>
-          <span><i class="bx bx-map-pin" style="color:#f87171;" aria-hidden="true"></i> <span class="rep-banner-lugar">—</span></span>
+          <span><i class="bx bx-map-pin u-icono-rojo" aria-hidden="true"></i> <span class="rep-banner-lugar">—</span></span>
         </div>
       </div>
 
@@ -146,7 +146,7 @@
             <button type="submit" class="rep-btn-guardar" id="rep-btn-guardar">
               <i class="bx bx-upload" aria-hidden="true"></i> Cargar Reporte
             </button>
-            <button type="button" class="rep-btn-cancelar" onclick="cancelarReporte()">
+            <button type="button" class="rep-btn-cancelar">
               Cancelar
             </button>
           </div>
@@ -155,7 +155,7 @@
       </div>
 
       <!-- Reporte existente (se muestra si ya hay uno guardado) -->
-      <div class="rep-existente" id="rep-existente" style="display:none;">
+      <div class="rep-existente" id="rep-existente" hidden>
         <!-- Contenido generado por el controller -->
       </div>
 
@@ -177,6 +177,7 @@
 <script src="../../../models/eventos.model.js"></script>
 <script src="../../../models/reportes.model.js"></script>
 <!-- Alertify Helper -->
+<link rel="stylesheet" href="../../../helpers/alertify.overrides.css" />
 <script src="../../../helpers/alertify.helper.js"></script>
   <script src="../../../controllers/reporte.controller.js"></script>
 
