@@ -475,14 +475,21 @@
       leerEventos()   // Supabase
     ]);
 
+    // El atributo `hidden` del HTML no basta: `.carousel-empty { display: flex }`
+    // en styles.css (una regla de autor) siempre le gana al `[hidden]` del
+    // navegador (una regla de user-agent), así que sin un `display:none`
+    // explícito aquí el mensaje de "vacío" queda visible SIEMPRE, aunque sí
+    // haya noticias/eventos y el carrusel se esté mostrando encima.
     if (noticias.length) {
       initCarrusel('news-track', 'news-prev', 'news-next', 'news-dots', noticias, crearTarjetaNoticia);
+      document.getElementById('news-empty').style.display = 'none';
     } else {
       document.getElementById('news-empty').style.display = 'flex';
     }
 
     if (eventos.length) {
       initCarrusel('ev-track', 'ev-prev', 'ev-next', 'ev-dots', eventos, crearTarjetaEvento);
+      document.getElementById('ev-empty').style.display = 'none';
     } else {
       document.getElementById('ev-empty').style.display = 'flex';
     }
