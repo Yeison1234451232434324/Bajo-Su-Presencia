@@ -8,6 +8,18 @@
  * ================================================================
  */
 
+/* ══════════════════════════════════════════════════
+   Alinear "Guía de sección" con el ancho del formulario
+   (panel.css la define a 80rem; aquí el formulario, las
+   plantillas y el historial usan 56rem — mismo ajuste que
+   ya tiene admin/eventos.css para su propio ancho de 72rem)
+══════════════════════════════════════════════════ */
+.guia-seccion {
+  max-width: 56rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 /* ── Encabezado de la sección de recursos ── */
 .ev-recursos-header {
   display: flex;

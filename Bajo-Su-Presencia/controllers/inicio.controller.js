@@ -465,9 +465,15 @@
   }
   /* ─── Inicializar (noticias y oración desde Supabase) ─────────────────── */
   (async () => {
-    await cargarOracionDelDia();
-    const noticias = await leerNoticias();
-    const eventos  = await leerEventos();   // Supabase
+    // Las 3 operaciones son independientes entre sí (ninguna depende del
+    // resultado de otra), así que se disparan en paralelo en vez de
+    // encadenarlas con await secuencial: el tiempo total pasa a ser el
+    // máximo de las 3 en vez de la suma.
+    const [, noticias, eventos] = await Promise.all([
+      cargarOracionDelDia(),
+      leerNoticias(),
+      leerEventos()   // Supabase
+    ]);
 
     if (noticias.length) {
       initCarrusel('news-track', 'news-prev', 'news-next', 'news-dots', noticias, crearTarjetaNoticia);

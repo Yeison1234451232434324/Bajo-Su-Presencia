@@ -132,7 +132,6 @@ function tablaDeRutas(): array
         // ── Panel · Voluntario ───────────────────────────────────
         '/voluntario'                 => 'views/dashboard/voluntario/calificaciones.html',
         '/voluntario/calificaciones'  => 'views/dashboard/voluntario/calificaciones.html',
-        '/voluntario/disponibilidad'  => 'views/dashboard/voluntario/disponibilidad.html',
         '/voluntario/actividades'     => 'views/dashboard/voluntario/mis-actividades.html',
         '/voluntario/eventos'         => 'views/dashboard/voluntario/eventos.html',
         '/voluntario/perfil'          => 'views/dashboard/voluntario/perfil.html',

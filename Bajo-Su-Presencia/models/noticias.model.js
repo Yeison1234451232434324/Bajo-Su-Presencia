@@ -17,6 +17,8 @@
 const NoticiasModel = (() => {
 
   const TABLA = 'noticias';
+  // Columnas realmente usadas por _fromRow — evita traer filas completas.
+  const SEL = 'id, titulo, descripcion, contenido, imagen_url, publicado_en, usuarios(nombre:nombre_completo)';
 
   function _fechaLegible(iso) {
     if (!iso) return '';
@@ -44,14 +46,14 @@ const NoticiasModel = (() => {
   async function getAll() {
     const { data, error } = await DB
       .from(TABLA)
-      .select('*, usuarios(nombre:nombre_completo)')
+      .select(SEL)
       .order('publicado_en', { ascending: false });
     if (error) { (window.BSPLog ? window.BSPLog.error('NoticiasModel.getAll', error) : console.error('NoticiasModel.getAll')); return []; }
     return (data || []).map(_fromRow);
   }
 
   async function getById(id) {
-    const { data, error } = await DB.from(TABLA).select('*, usuarios(nombre:nombre_completo)').eq('id', id).single();
+    const { data, error } = await DB.from(TABLA).select(SEL).eq('id', id).single();
     if (error || !data) return null;
     return _fromRow(data);
   }

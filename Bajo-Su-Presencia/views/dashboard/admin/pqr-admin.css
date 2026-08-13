@@ -103,12 +103,13 @@
   justify-content: center;
   font-size: 1.3rem;
   flex-shrink: 0;
-  background: var(--info-bg);
-  color: var(--primary);
+  background: transparent;
+  color: #1e3a8a;
+  border: 1.5px solid #1e3a8a;
 }
-.stat-pqr-icon--warning { color: var(--warning); }
-.stat-pqr-icon--info    { color: var(--info); }
-.stat-pqr-icon--success { color: var(--success); }
+.stat-pqr-icon--warning { color: #1e3a8a; }
+.stat-pqr-icon--info    { color: #1e3a8a; }
+.stat-pqr-icon--success { color: #1e3a8a; }
 
 .stat-pqr-label {
   font-size: 0.8125rem;
@@ -295,14 +296,14 @@
   transform: scale(0.92);
 }
 
-.btn-ver-pqr      { background: var(--info-bg); color: var(--info); }
-.btn-ver-pqr:hover { background: var(--info-border); }
+.btn-ver-pqr      { background: transparent; color: #1e3a8a; border: 1.5px solid #1e3a8a; }
+.btn-ver-pqr:hover { opacity: 0.7; }
 
-.btn-estado-pqr      { background: var(--info-bg); color: var(--info); }
-.btn-estado-pqr:hover { background: var(--warning-border); }
+.btn-estado-pqr      { background: transparent; color: #1e3a8a; border: 1.5px solid #1e3a8a; }
+.btn-estado-pqr:hover { opacity: 0.7; }
 
-.btn-eliminar-pqr      { background: var(--info-bg); color: var(--info); }
-.btn-eliminar-pqr:hover { background: var(--danger-border); }
+.btn-eliminar-pqr      { background: transparent; color: #1e3a8a; border: 1.5px solid #1e3a8a; }
+.btn-eliminar-pqr:hover { opacity: 0.7; }
 
 /* ══════════════════════════════════════════════════
    MODAL DE DETALLE / RESPUESTA

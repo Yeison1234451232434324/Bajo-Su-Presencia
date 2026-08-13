@@ -221,9 +221,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Bloquear caracteres peligrosos en el input numérico de cantidad
   BSPVal.blockNumericChars(document.getElementById('campo-cantidad'));
 
+  // Cerrojo anti-doble-submit (mismo patrón que auth.controller.js).
+  let enviandoRecurso = false;
+
   /** Submit del formulario de crear/editar */
   formRecurso.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (enviandoRecurso) return;
     modalError.style.display = 'none';
 
     /* Leer y limpiar todos los valores */
@@ -267,6 +271,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     /* Llamada async al modelo (Supabase) */
+    const btnSubmitRecurso = formRecurso.querySelector('button[type="submit"]');
+    enviandoRecurso = true;
+    if (btnSubmitRecurso) { btnSubmitRecurso.disabled = true; btnSubmitRecurso.setAttribute('aria-busy', 'true'); }
+
     let resultado;
     try {
       resultado = editandoId === null
@@ -275,14 +283,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (ex) {
       modalError.textContent = 'Error de conexión. Revisa tu internet e intenta de nuevo.';
       modalError.style.display = 'block';
+      enviandoRecurso = false;
+      if (btnSubmitRecurso) { btnSubmitRecurso.disabled = false; btnSubmitRecurso.removeAttribute('aria-busy'); }
       return;
     }
     if (!resultado.ok) {
       modalError.textContent   = resultado.error;
       modalError.style.display = 'block';
+      enviandoRecurso = false;
+      if (btnSubmitRecurso) { btnSubmitRecurso.disabled = false; btnSubmitRecurso.removeAttribute('aria-busy'); }
       return;
     }
 
+    enviandoRecurso = false;
+    if (btnSubmitRecurso) { btnSubmitRecurso.disabled = false; btnSubmitRecurso.removeAttribute('aria-busy'); }
     cerrarModal();
     await renderTabla();
     showAlertSuccess(

@@ -16,6 +16,8 @@ const RecursosModel = (() => {
 
   const TABLA = 'recursos';
   const PUENTE = 'evento_recursos';
+  // Columnas realmente usadas por _fromRow — evita traer filas completas.
+  const SEL = 'id, nombre, categoria, descripcion, cantidad, unidad, disponible, creado_en';
 
   function _fromRow(r) {
     return {
@@ -38,13 +40,13 @@ const RecursosModel = (() => {
 
   // ── Inventario ─────────────────────────────────────────────────────────────
   async function getAll() {
-    const { data, error } = await DB.from(TABLA).select('*').order('nombre', { ascending: true });
+    const { data, error } = await DB.from(TABLA).select(SEL).order('nombre', { ascending: true });
     if (error) { (window.BSPLog ? window.BSPLog.error('RecursosModel.getAll', error) : console.error('RecursosModel.getAll')); return []; }
     return (data || []).map(_fromRow);
   }
 
   async function getById(id) {
-    const { data, error } = await DB.from(TABLA).select('*').eq('id', id).single();
+    const { data, error } = await DB.from(TABLA).select(SEL).eq('id', id).single();
     if (error || !data) return null;
     return _fromRow(data);
   }

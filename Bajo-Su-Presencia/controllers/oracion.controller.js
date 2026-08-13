@@ -43,6 +43,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ID de la oración que se está editando (null = modo crear)
   let editandoId = null;
 
+  // Cerrojo anti-doble-submit (mismo patrón que auth.controller.js).
+  let enviandoOracion = false;
+
   // ── Helpers de validación DOM (delegados a BSPVal) ──────────────────────
   const _err = (id, msg) => BSPVal._err(id, msg);
   const _ok  = (...ids)  => BSPVal._ok(...ids);
@@ -82,6 +85,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (enviandoOracion) return;
 
     /* Leer y limpiar todos los valores */
     const texto    = BSPVal.cleanText(txtTexto.value);
@@ -116,6 +120,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     /* Datos limpios al modelo */
     const data = { texto, versiculo, imagen: imagenUrl };
 
+    enviandoOracion = true;
+    if (btnSubmit) { btnSubmit.disabled = true; btnSubmit.setAttribute('aria-busy', 'true'); }
+
     /* Llamada async al modelo (Supabase) */
     let resultado;
     try {
@@ -124,10 +131,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         : await OracionModel.actualizar(editandoId, data);
     } catch (ex) {
       showAlertError('Error de conexión. Revisa tu internet e intenta de nuevo.');
+      enviandoOracion = false;
+      if (btnSubmit) { btnSubmit.disabled = false; btnSubmit.removeAttribute('aria-busy'); }
       return;
     }
     if (!resultado.ok) {
       showAlertError(resultado.error);
+      enviandoOracion = false;
+      if (btnSubmit) { btnSubmit.disabled = false; btnSubmit.removeAttribute('aria-busy'); }
       return;
     }
 
@@ -142,6 +153,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     );
 
     editandoId = null;
+    enviandoOracion = false;
+    if (btnSubmit) { btnSubmit.disabled = false; btnSubmit.removeAttribute('aria-busy'); }
   });
 
   // ════════════════════════════════════════════════════════════════

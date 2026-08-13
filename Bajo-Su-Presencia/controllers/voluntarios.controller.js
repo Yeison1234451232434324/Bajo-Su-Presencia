@@ -378,9 +378,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (len > 300) inputComentario.value = inputComentario.value.substring(0, 300);
   });
 
+  // Cerrojo anti-doble-submit (mismo patrón que auth.controller.js).
+  let enviandoCalif = false;
+
   /** Submit del formulario de calificación */
   formCalif.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (enviandoCalif) return;
     modalError.style.display = 'none';
 
     /* Leer y limpiar valores */
@@ -406,6 +410,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     /* Llamada async al modelo */
+    const btnSubmitCalif = formCalif.querySelector('button[type="submit"]');
+    enviandoCalif = true;
+    if (btnSubmitCalif) { btnSubmitCalif.disabled = true; btnSubmitCalif.setAttribute('aria-busy', 'true'); }
+
     let resultado;
     try {
       resultado = await VoluntariosModel.guardarCalificacion({
@@ -417,14 +425,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (ex) {
       modalError.textContent = 'Error de conexión. Intenta de nuevo.';
       modalError.style.display = 'block';
+      enviandoCalif = false;
+      if (btnSubmitCalif) { btnSubmitCalif.disabled = false; btnSubmitCalif.removeAttribute('aria-busy'); }
       return;
     }
     if (!resultado.ok) {
       modalError.textContent   = resultado.error;
       modalError.style.display = 'block';
+      enviandoCalif = false;
+      if (btnSubmitCalif) { btnSubmitCalif.disabled = false; btnSubmitCalif.removeAttribute('aria-busy'); }
       return;
     }
 
+    enviandoCalif = false;
+    if (btnSubmitCalif) { btnSubmitCalif.disabled = false; btnSubmitCalif.removeAttribute('aria-busy'); }
     cerrarModal();
     await renderTablaVoluntarios();
     showToast('Calificación guardada', `La calificación fue registrada exitosamente.`);
@@ -510,23 +524,29 @@ document.addEventListener('DOMContentLoaded', async () => {
       : '<span class="sin-calif">—</span>';
 
     // Barras de distribución de estrellas (1 a 5)
+    // Antes: `distWrap.innerHTML += ...` dentro del loop reconstruía TODO el
+    // contenido en cada vuelta, destruyendo las barras ya creadas y con ellas
+    // el `style.width` que se les había asignado — por eso solo la última
+    // barra procesada (1★) conservaba su ancho real y las demás se veían al
+    // 100%. Se arma el HTML completo (con el ancho ya incluido) y se asigna
+    // una sola vez.
     const distWrap = document.getElementById('res-distribucion');
-    distWrap.innerHTML = '';
     const maxVal = Math.max(...Object.values(resumen.distribucion), 1); // evitar división por 0
 
+    let distHtml = '';
     for (let i = 5; i >= 1; i--) {
       const cant    = resumen.distribucion[i];
       const pct     = Math.round((cant / maxVal) * 100);
-      distWrap.innerHTML += `
+      distHtml += `
         <div class="dist-fila">
           <span class="dist-label">${i} <i class="bx bxs-star star-on" aria-hidden="true"></i></span>
           <div class="dist-barra-wrap">
-            <div class="dist-barra" id="vol-dist-barra-${i}"></div>
+            <div class="dist-barra" style="width:${pct}%"></div>
           </div>
           <span class="dist-cant">${cant}</span>
         </div>`;
-      distWrap.querySelector(`#vol-dist-barra-${i}`).style.width = `${pct}%`;
     }
+    distWrap.innerHTML = distHtml;
 
     // Ocultar historial si estaba abierto y mostrar resumen
     panelHistorial.style.display = 'none';

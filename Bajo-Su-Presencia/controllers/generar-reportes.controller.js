@@ -233,17 +233,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     const W = 500, H = 180, PAD = 44;
     const slot = (W - PAD * 2) / datos.length;
     const BW   = Math.min(38, slot - 10);
-    const esc  = (H - 50) / max;
+    // Renombrado de "esc" a "escala": el nombre "esc" tapaba (shadowing) la
+    // función esc() de escape HTML del scope exterior, usada más abajo en
+    // labs (esc(d.l)) — causaba "TypeError: esc is not a function" al
+    // generar cualquier gráfico de barras.
+    const escala = (H - 50) / max;
     let bars = '', labs = '', vals = '', guias = '';
 
     for (let i = 1; i <= 4; i++) {
-      const gy = H - 30 - (max / 4 * i * esc);
+      const gy = H - 30 - (max / 4 * i * escala);
       guias += `<line x1="${PAD}" y1="${gy}" x2="${W-PAD}" y2="${gy}" stroke="#e5e7eb" stroke-width="1"/>
                 <text x="${PAD-4}" y="${gy+4}" text-anchor="end" font-size="9" fill="#9ca3af">${Math.round(max/4*i)}</text>`;
     }
     datos.forEach((d, i) => {
       const x = PAD + i * slot + (slot - BW) / 2;
-      const h = Math.max(d.v * esc, 2);
+      const h = Math.max(d.v * escala, 2);
       const y = H - 30 - h;
       bars += `<rect x="${x}" y="${y}" width="${BW}" height="${h}" rx="4" fill="${color||C_AZUL}" opacity="0.85"/>`;
       labs += `<text x="${x+BW/2}" y="${H-10}" text-anchor="middle" font-size="10" fill="#6b7280">${esc(d.l)}</text>`;
@@ -294,15 +298,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // ── 1. Reporte de Eventos ──────────────────────────────────────────────
   async function _generarReporteEventos(desde, hasta) {
-    let eventos = [];
-    try { eventos = await EventosModel.getAll(); }
-    catch (e) { window.BSPLog?.error('generarReportes.eventos', e); }
+    // eventos y _reps son independientes entre sí (ninguno usa el resultado
+    // del otro para su propia consulta): se cruzan por evento_id recién
+    // después, en JS plano (repMap). Se piden en paralelo en vez de en
+    // serie para no sumar sus latencias.
+    let eventos = [], _reps = [];
+    const [eventosRes, repsRes] = await Promise.allSettled([
+      EventosModel.getAll(),
+      ReportesModel.getAll()
+    ]);
+    if (eventosRes.status === 'fulfilled') eventos = eventosRes.value;
+    else window.BSPLog?.error('generarReportes.eventos', eventosRes.reason);
+    if (repsRes.status === 'fulfilled') _reps = repsRes.value;
+    else window.BSPLog?.error('generarReportes.reportes', repsRes.reason);
+
     eventos = _filtrar(eventos, desde, hasta, 'fecha');
 
     // Pre-cargar reportes en un mapa por evento (evita llamadas async en filter/map)
-    let _reps = [];
-    try { _reps = await ReportesModel.getAll(); }
-    catch (e) { window.BSPLog?.error('generarReportes.reportes', e); }
     const repMap = {};
     _reps.forEach(r => { repMap[r.eventoId] = r; });
 
@@ -346,9 +358,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // ── 2. Reporte de Voluntarios ──────────────────────────────────────────
   async function _generarReporteVoluntarios(desde, hasta) {
-    let eventos = [];
-    try { eventos = await VoluntariosModel.getEventos(); }
-    catch (e) { window.BSPLog?.error('generarReportes.voluntarios', e); }
+    // eventos y califs son independientes entre sí (ninguno usa el resultado
+    // del otro para su propia consulta): se cruzan por voluntarioId recién
+    // después, en JS plano (mapaVol). Se piden en paralelo en vez de en
+    // serie para no sumar sus latencias.
+    let eventos = [], califs = [];
+    const [eventosRes, califsRes] = await Promise.allSettled([
+      VoluntariosModel.getEventos(),
+      VoluntariosModel.getCalificaciones()
+    ]);
+    if (eventosRes.status === 'fulfilled') eventos = eventosRes.value;
+    else window.BSPLog?.error('generarReportes.voluntarios', eventosRes.reason);
+    if (califsRes.status === 'fulfilled') califs = califsRes.value;
+    else window.BSPLog?.error('generarReportes.calificaciones', califsRes.reason);
+
     eventos = _filtrar(eventos, desde, hasta, 'fecha');
 
     const mapaVol = {};
@@ -359,9 +382,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
     });
 
-    let califs = [];
-    try { califs = await VoluntariosModel.getCalificaciones(); }
-    catch (e) { window.BSPLog?.error('generarReportes.calificaciones', e); }
     califs = _filtrar(califs, desde, hasta, 'fecha');
     califs.forEach(c => { if (mapaVol[c.voluntarioId]) mapaVol[c.voluntarioId].califs.push(c.estrellas); });
 

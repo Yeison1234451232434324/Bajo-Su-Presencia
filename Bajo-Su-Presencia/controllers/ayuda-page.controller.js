@@ -46,7 +46,7 @@
         {
           id: 'q-02',
           pregunta: '¿Qué puede hacer cada rol en el sistema?',
-          respuesta: '<strong>Administrador:</strong> acceso completo — gestiona usuarios, eventos, noticias, sedes, recursos, reportes y PQR.<br><strong>Colaborador:</strong> publica eventos, noticias, oraciones, gestiona actividades y sube reportes.<br><strong>Voluntario:</strong> consulta calificaciones, registra disponibilidad y revisa sus actividades.',
+          respuesta: '<strong>Administrador:</strong> acceso completo — gestiona usuarios, eventos, noticias, sedes, recursos, reportes y PQR.<br><strong>Colaborador:</strong> publica eventos, noticias, oraciones, gestiona actividades y sube reportes.<br><strong>Voluntario:</strong> consulta calificaciones, se inscribe en eventos y revisa sus actividades.',
           roles: ['Administrador']
         },
         {
@@ -108,7 +108,7 @@
         {
           id: 'q-vol-01',
           pregunta: '¿Cómo registro mi disponibilidad?',
-          respuesta: 'Ve a <strong>"Mi Disponibilidad"</strong> en el menú lateral. Selecciona los días y franjas horarias en que puedes servir y guarda los cambios. El coordinador verá esta información al asignarte actividades.',
+          respuesta: 'Ve a <strong>"Eventos"</strong> en el menú lateral e inscríbete en los eventos donde puedas servir. El coordinador verá tu inscripción al asignarte actividades. Si ya no puedes asistir, cancela tu inscripción desde la misma tarjeta del evento.',
           roles: ['Voluntario']
         },
         {

@@ -17,6 +17,8 @@
 const OracionModel = (() => {
 
   const TABLA = 'oraciones';
+  // Columnas realmente usadas por _fromRow — evita traer filas completas.
+  const SEL = 'id, contenido, versiculo, imagen_url, publicado_en';
 
   function _fechaLegible(iso) {
     if (!iso) return '';
@@ -39,13 +41,13 @@ const OracionModel = (() => {
   function _msg(error) { return DB.mensajeError(error); }
 
   async function getAll() {
-    const { data, error } = await DB.from(TABLA).select('*').order('publicado_en', { ascending: false });
+    const { data, error } = await DB.from(TABLA).select(SEL).order('publicado_en', { ascending: false });
     if (error) { (window.BSPLog ? window.BSPLog.error('OracionModel.getAll', error) : console.error('OracionModel.getAll')); return []; }
     return (data || []).map(_fromRow);
   }
 
   async function getById(id) {
-    const { data, error } = await DB.from(TABLA).select('*').eq('id', id).single();
+    const { data, error } = await DB.from(TABLA).select(SEL).eq('id', id).single();
     if (error || !data) return null;
     return _fromRow(data);
   }

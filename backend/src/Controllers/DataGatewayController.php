@@ -45,26 +45,76 @@ final class DataGatewayController
      *                      rechazado para esos usuarios.
      *   - public_read    : si true, GET no requiere autenticación (home público).
      *   - public_insert  : si true, POST no requiere autenticación (PQR público).
+     *   - embed_select   : proyecciones EXACTAS permitidas cuando esta tabla
+     *                      aparece EMBEBIDA dentro del `select` de OTRA tabla
+     *                      (p. ej. `eventos?select=...,informes(...)`). Es
+     *                      independiente de `read`/`read_select`: una tabla
+     *                      puede exigir rol de staff para acceso directo y
+     *                      aun así permitir una proyección mínima (p. ej. solo
+     *                      el nombre) cuando se la embebe desde una tabla
+     *                      pública — ver `validarEmbeds()`. Ausente o vacío =
+     *                      NUNCA embebible (fail-closed): hay que declararlo
+     *                      explícitamente antes de usarlo desde el frontend.
      *
      * IMPORTANTE: el `select` de PostgREST puede pedir columnas o incluso
      * tablas relacionadas ("embeds") no previstas por el módulo que originó
      * la petición, y esta pasarela usa la `service_role key` (que salta RLS).
      * Por eso las tablas con datos sensibles deben declarar `read` y, si
      * corresponde, `read_select`, en lugar de confiar en que el frontend
-     * jamás pida más columnas de las que muestra su interfaz.
+     * jamás pida más columnas de las que muestra su interfaz. Y por la misma
+     * razón, CUALQUIER tabla que aparezca embebida dentro del `select` —a
+     * cualquier profundidad de anidamiento— se valida contra `embed_select`
+     * de la tabla embebida, sin importar cuál sea la tabla del path ni el rol
+     * del solicitante: ver `validarEmbeds()`, invocado para TODO GET.
      *
-     * @var array<string,array{write:string[],read?:string[],read_select?:string[],public_read?:bool,public_insert?:bool}>
+     * @var array<string,array{write:string[],read?:string[],read_select?:string[],embed_select?:string[],public_read?:bool,public_insert?:bool}>
      */
     private const TABLES = [
-        'recursos'               => ['write' => ['Administrador', 'Colaborador']],
-        'evento_recursos'        => ['write' => ['Administrador', 'Colaborador']],
+        'recursos'               => [
+            'write'        => ['Administrador', 'Colaborador'],
+            // Embebida dentro de evento_recursos (eventos.model.js) y en las
+            // asignaciones de recursos por evento (recursos.model.js).
+            'embed_select' => ['nombre, unidad'],
+        ],
+        'evento_recursos'        => [
+            'write'        => ['Administrador', 'Colaborador'],
+            // Embebida dentro de eventos (eventos.model.js).
+            'embed_select' => ['recurso_id, cantidad, recursos(nombre, unidad)'],
+        ],
         'actividades'            => ['write' => ['Administrador', 'Colaborador', 'Voluntario']],
-        'informes'               => ['write' => ['Administrador', 'Colaborador']],
+        // Datos financieros por evento: antes sin `read` (cualquier
+        // autenticado la leía completa) y alcanzable además vía embed desde
+        // `eventos` (tabla pública) — las dos vulnerabilidades confirmadas en
+        // la auditoría de la Fase 5. `read` la restringe a quienes ya pueden
+        // escribirla; no declara `embed_select`, así que embeberla desde
+        // cualquier otra tabla queda bloqueado (no hay un uso legítimo hoy).
+        'informes'               => [
+            'write' => ['Administrador', 'Colaborador'],
+            'read'  => ['Administrador', 'Colaborador'],
+        ],
         'calificaciones_eventos' => ['write' => ['Administrador', 'Colaborador']],
         'evaluaciones'           => ['write' => ['Administrador', 'Colaborador']],
-        'voluntarios_eventos'    => ['write' => ['Administrador', 'Colaborador', 'Voluntario']],
+        'voluntarios_eventos'    => [
+            'write'        => ['Administrador', 'Colaborador', 'Voluntario'],
+            // Dos proyecciones legítimas distintas, verificadas por lectura
+            // exacta del código (Fase 5.6, corrige regresión de la Fase 5C):
+            //  - eventos.model.js: sin `disponible` (no lo necesita esa vista).
+            //  - voluntarios.model.js (SEL_EV): con `disponible`, usada por
+            //    "Calificar Voluntarios" y "Mi Disponibilidad". Ambas incluyen
+            //    a su vez el embed (ya acotado) hacia usuarios.
+            'embed_select' => [
+                'usuario_id, rol_en_evento, usuarios(nombre:nombre_completo)',
+                'usuario_id, rol_en_evento, disponible, usuarios(nombre:nombre_completo)',
+            ],
+        ],
         // Contenido visible en el sitio público (lectura anónima):
-        'eventos'                => ['write' => ['Administrador', 'Colaborador'], 'public_read' => true],
+        'eventos'                => [
+            'write'        => ['Administrador', 'Colaborador'],
+            'public_read'  => true,
+            // Embebida dentro de informes/evaluaciones de voluntarios
+            // (reportes.model.js, voluntarios.model.js): solo el título.
+            'embed_select' => ['titulo'],
+        ],
         'noticias'               => ['write' => ['Administrador', 'Colaborador'], 'public_read' => true],
         'oraciones'              => ['write' => ['Administrador', 'Colaborador'], 'public_read' => true],
         'sedes'                  => ['write' => ['Administrador', 'Colaborador'], 'public_read' => true],
@@ -79,10 +129,13 @@ final class DataGatewayController
         // `actividades.model.js` necesita listar nombres de voluntarios para
         // asignarlos, así que se permite ese `select` puntual a cualquier
         // usuario autenticado sin exponer correo, teléfono ni demás columnas.
+        // El mismo string mínimo es lo único embebible desde CUALQUIER otra
+        // tabla (noticias, actividades, pqr, informes, reportes, voluntarios).
         'usuarios' => [
-            'write'       => [],
-            'read'        => ['Administrador', 'Colaborador'],
-            'read_select' => ['id,nombre:nombre_completo'],
+            'write'        => [],
+            'read'         => ['Administrador', 'Colaborador'],
+            'read_select'  => ['id,nombre:nombre_completo'],
+            'embed_select' => ['nombre:nombre_completo'],
         ],
         'roles' => ['write' => [], 'read' => ['Administrador', 'Colaborador']],
         // Historial de donaciones: el backend inserta al procesar el pago
@@ -145,6 +198,22 @@ final class DataGatewayController
             $selectPermitido = $select !== null && in_array($select, $cfg['read_select'] ?? [], true);
             if (!$selectPermitido) {
                 throw ApiException::forbidden('No tienes permisos para consultar este recurso.');
+            }
+        }
+
+        // Cualquier tabla embebida dentro del `select` (a cualquier nivel de
+        // anidamiento) debe estar en su lista blanca `embed_select` — sin
+        // importar cuál sea la tabla del path, su rol de `read`, ni si la
+        // petición es pública. Esto es lo que impide que una tabla pública
+        // (eventos, noticias, oraciones) se use como puerta de entrada hacia
+        // tablas sensibles (informes, usuarios, ...) vía
+        // `select=...,tabla_sensible(...)`. Se aplica a TODO GET, incluidos
+        // los ya autorizados arriba: la autorización de la tabla del path no
+        // dice nada sobre qué tablas relacionadas es seguro exponer.
+        if ($method === 'GET') {
+            $select = $select ?? $this->selectParam($query);
+            if ($select !== null) {
+                $this->validarEmbeds($select);
             }
         }
 
@@ -227,6 +296,100 @@ final class DataGatewayController
             return null;
         }
         return urldecode($m[1]);
+    }
+
+    /**
+     * Valida TODAS las relaciones embebidas de un `select` de PostgREST,
+     * a cualquier profundidad de anidamiento, contra la lista blanca
+     * `embed_select` de cada tabla embebida (ver comentario de `TABLES`).
+     *
+     * Fail-closed: una tabla embebida que no exista en `TABLES`, o cuya
+     * proyección no coincida EXACTAMENTE (tras normalizar espacios) con una
+     * de las cadenas declaradas en su `embed_select`, rechaza toda la
+     * petición — sin importar qué tan inocua parezca el resto del `select`.
+     *
+     * @throws ApiException 403 si alguna relación embebida no está autorizada.
+     */
+    private function validarEmbeds(string $select): void
+    {
+        foreach ($this->extraerEmbeds($select) as $embed) {
+            $tablaEmbebida = $embed['tabla'];
+            $cfgEmbebida   = self::TABLES[$tablaEmbebida] ?? null;
+            $permitidos    = $cfgEmbebida['embed_select'] ?? [];
+
+            $normalizado          = $this->normalizarSelect($embed['inner']);
+            $permitidosNormalizados = array_map([$this, 'normalizarSelect'], $permitidos);
+
+            if ($cfgEmbebida === null || !in_array($normalizado, $permitidosNormalizados, true)) {
+                throw ApiException::forbidden('No tienes permisos para consultar este recurso.');
+            }
+        }
+    }
+
+    /**
+     * Extrae, recursivamente, todas las relaciones embebidas de un `select`
+     * de PostgREST: `tabla(...)`, `alias:tabla(...)` y `tabla!fk(...)`, en
+     * cualquier nivel de anidamiento.
+     *
+     * @return array<int,array{tabla:string,inner:string}> Una entrada por
+     *         cada tabla embebida encontrada (aplanado, incluye las anidadas
+     *         dentro de otras).
+     */
+    private function extraerEmbeds(string $select): array
+    {
+        $embeds = [];
+        $len    = strlen($select);
+        $offset = 0;
+
+        // (?:^|[,(]) : el identificador arranca al inicio de la cadena o tras
+        //              una coma/paréntesis (no en medio de otra palabra).
+        // (?:\w+\s*:\s*)? : alias opcional ("respondido:usuarios(...)").
+        // (\w+)            : nombre real de la tabla — el que se valida.
+        // (?:\s*!\s*\w+)?  : hint de FK opcional ("usuarios!voluntario_id(...)").
+        $patron = '/(?:^|[,(])\s*(?:\w+\s*:\s*)?(\w+)(?:\s*!\s*\w+)?\s*\(/';
+
+        while ($offset < $len && preg_match($patron, $select, $m, PREG_OFFSET_CAPTURE, $offset) === 1) {
+            $tabla        = $m[1][0];
+            $matchEnd     = $m[0][1] + strlen($m[0][0]); // posición justo tras el '(' de apertura
+            $parenAbierto = $matchEnd - 1;
+
+            // Buscar el ')' que cierra este embed, respetando anidamiento.
+            $profundidad = 1;
+            $cursor      = $matchEnd;
+            while ($cursor < $len && $profundidad > 0) {
+                if ($select[$cursor] === '(') {
+                    $profundidad++;
+                } elseif ($select[$cursor] === ')') {
+                    $profundidad--;
+                }
+                $cursor++;
+            }
+            if ($profundidad !== 0) {
+                // Paréntesis sin cerrar: `select` malformado — se rechaza
+                // dejando la tabla fuera de cualquier lista blanca posible.
+                $embeds[] = ['tabla' => $tabla, 'inner' => "\0malformado\0"];
+                break;
+            }
+
+            $inner    = substr($select, $parenAbierto + 1, $cursor - $parenAbierto - 2);
+            $embeds[] = ['tabla' => $tabla, 'inner' => $inner];
+
+            // Recursión: el contenido embebido puede tener sus propios embeds
+            // anidados (p. ej. evento_recursos(..., recursos(nombre, unidad))).
+            foreach ($this->extraerEmbeds($inner) as $anidado) {
+                $embeds[] = $anidado;
+            }
+
+            $offset = $cursor;
+        }
+
+        return $embeds;
+    }
+
+    /** Normaliza espacios para comparar `select` embebidos de forma tolerante. */
+    private function normalizarSelect(string $select): string
+    {
+        return preg_replace('/\s+/', '', $select) ?? $select;
     }
 
     /**

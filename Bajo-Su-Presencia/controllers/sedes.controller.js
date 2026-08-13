@@ -100,9 +100,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Bloquear caracteres peligrosos en el campo numérico de miembros
   BSPVal.blockNumericChars(document.getElementById('sed-miembros'));
 
+  // Cerrojo anti-doble-submit (mismo patrón que auth.controller.js).
+  let enviandoSede = false;
+
   // ── Guardar sede ─────────────────────────────────────────────────────────
   form.addEventListener('submit', async e => {
     e.preventDefault();
+    if (enviandoSede) return;
 
     /* Leer y limpiar todos los valores */
     const nombre      = BSPVal.cleanText(document.getElementById('sed-nombre').value);
@@ -161,14 +165,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     /* Llamada async al modelo con try-catch */
+    const btnSubmitSede = form.querySelector('button[type="submit"]');
+    enviandoSede = true;
+    if (btnSubmitSede) { btnSubmitSede.disabled = true; btnSubmitSede.setAttribute('aria-busy', 'true'); }
+
     let res;
     try {
       res = await SedesModel.crear(data);
     } catch (ex) {
       showAlertError('Error de conexión. Revisa tu internet e intenta de nuevo.');
+      enviandoSede = false;
+      if (btnSubmitSede) { btnSubmitSede.disabled = false; btnSubmitSede.removeAttribute('aria-busy'); }
       return;
     }
-    if (!res.ok) { showAlertError(res.error); return; }
+    if (!res.ok) {
+      showAlertError(res.error);
+      enviandoSede = false;
+      if (btnSubmitSede) { btnSubmitSede.disabled = false; btnSubmitSede.removeAttribute('aria-busy'); }
+      return;
+    }
+    enviandoSede = false;
+    if (btnSubmitSede) { btnSubmitSede.disabled = false; btnSubmitSede.removeAttribute('aria-busy'); }
     cerrarModalSede();
     await render();
     showAlertSuccess(`"${data.nombre}" fue registrada correctamente.`);

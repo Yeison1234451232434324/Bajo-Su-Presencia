@@ -38,6 +38,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   const form             = document.getElementById('form-evento');
   const recursosGrid     = document.getElementById('recursos-grid');
   const sinRecursos      = document.getElementById('sin-recursos-msg');
+
+  // Cerrojos anti-doble-submit (mismo patrón que auth.controller.js).
+  let enviandoEvento = false;
+  let enviandoEdicionEvento = false;
   const listaEventos     = document.getElementById('lista-eventos-publicados');
   const contadorRecursos = document.getElementById('contador-recursos');
 
@@ -407,6 +411,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ════════════════════════════════════════════════════════════════
   async function submitEvent(e) {
     e.preventDefault();
+    if (enviandoEvento) return;
 
     const titulo        = BSPVal.cleanText(document.getElementById('ev-titulo')?.value || '');
     const fechaVal      = document.getElementById('ev-fecha')?.value || '';
@@ -464,10 +469,27 @@ document.addEventListener('DOMContentLoaded', async () => {
       especialistas: Object.values(especialistasSel)
     };
 
+    const btnSubmitEvento = form ? form.querySelector('button[type="submit"]') : null;
+    enviandoEvento = true;
+    if (btnSubmitEvento) { btnSubmitEvento.disabled = true; btnSubmitEvento.setAttribute('aria-busy', 'true'); }
+
     let resultado;
     try { resultado = await EventosModel.crear(data); }
-    catch (ex) { showAlertError('Error de conexión. Intenta de nuevo.'); return; }
-    if (!resultado.ok) { showAlertError(resultado.error); return; }
+    catch (ex) {
+      showAlertError('Error de conexión. Intenta de nuevo.');
+      enviandoEvento = false;
+      if (btnSubmitEvento) { btnSubmitEvento.disabled = false; btnSubmitEvento.removeAttribute('aria-busy'); }
+      return;
+    }
+    if (!resultado.ok) {
+      showAlertError(resultado.error);
+      enviandoEvento = false;
+      if (btnSubmitEvento) { btnSubmitEvento.disabled = false; btnSubmitEvento.removeAttribute('aria-busy'); }
+      return;
+    }
+
+    enviandoEvento = false;
+    if (btnSubmitEvento) { btnSubmitEvento.disabled = false; btnSubmitEvento.removeAttribute('aria-busy'); }
 
     e.target.reset();
     Object.keys(seleccionados).forEach(k => delete seleccionados[k]);
@@ -647,6 +669,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   async function guardarEdicion(e) {
     e.preventDefault();
+    if (enviandoEdicionEvento) return;
     const id        = document.getElementById('edit-id').value;   // UUID (string)
     const titulo    = document.getElementById('edit-titulo')?.value.trim() || '';
     const fecha     = document.getElementById('edit-fecha')?.value || '';
@@ -692,10 +715,27 @@ document.addEventListener('DOMContentLoaded', async () => {
       especialistas: Object.values(especialistasSelEdicion)
     };
 
+    const formEditarEl = document.getElementById('form-editar-evento');
+    const btnSubmitEdicion = formEditarEl ? formEditarEl.querySelector('button[type="submit"]') : null;
+    enviandoEdicionEvento = true;
+    if (btnSubmitEdicion) { btnSubmitEdicion.disabled = true; btnSubmitEdicion.setAttribute('aria-busy', 'true'); }
+
     let resultado;
     try { resultado = await EventosModel.actualizar(id, data); }
-    catch (ex) { showAlertError('Error de conexión. Intenta de nuevo.'); return; }
-    if (!resultado.ok) { showAlertError(resultado.error); return; }
+    catch (ex) {
+      showAlertError('Error de conexión. Intenta de nuevo.');
+      enviandoEdicionEvento = false;
+      if (btnSubmitEdicion) { btnSubmitEdicion.disabled = false; btnSubmitEdicion.removeAttribute('aria-busy'); }
+      return;
+    }
+    if (!resultado.ok) {
+      showAlertError(resultado.error);
+      enviandoEdicionEvento = false;
+      if (btnSubmitEdicion) { btnSubmitEdicion.disabled = false; btnSubmitEdicion.removeAttribute('aria-busy'); }
+      return;
+    }
+    enviandoEdicionEvento = false;
+    if (btnSubmitEdicion) { btnSubmitEdicion.disabled = false; btnSubmitEdicion.removeAttribute('aria-busy'); }
 
     cerrarModalEditar();
     await renderEventosPublicados();
@@ -799,12 +839,24 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.querySelector('.btn-ev-cancelar')?.addEventListener('click', () => cerrarModalEditar());
 
   (async () => {
-    await cargarRecursos();
-    await cargarEspecialistas();
-    await cargarSedes();
+    // Las 4 operaciones son independientes entre sí: cada una escribe en su
+    // propia región de DOM/caché (grid de recursos, grid de especialistas,
+    // datalist de sedes, lista de eventos publicados) y ninguna lee el
+    // resultado de otra — renderEventosPublicados() usa ev.recursos/
+    // ev.especialistas ya embebidos en la respuesta de EventosModel.getAll(),
+    // no _recursosCache/_especialistasCache. Se piden en paralelo en vez de
+    // en serie para no sumar sus latencias. allSettled: cada función ya
+    // resuelve sus propios errores internamente (los modelos devuelven []
+    // ante fallo), así que ninguna debería rechazar, pero se usa allSettled
+    // para que un fallo inesperado en una no impida que las demás terminen.
+    await Promise.allSettled([
+      cargarRecursos(),
+      cargarEspecialistas(),
+      cargarSedes(),
+      renderEventosPublicados()
+    ]);
     actualizarContador();
     actualizarContadorEspecialistas();
-    await renderEventosPublicados();
   })();
 
   // ════════════════════════════════════════════════════════════════

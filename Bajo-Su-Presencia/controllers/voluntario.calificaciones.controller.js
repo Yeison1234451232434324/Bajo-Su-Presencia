@@ -71,25 +71,31 @@ document.addEventListener('DOMContentLoaded', async () => {
       : '<span class="sin-dato">—</span>';
 
     // Distribución de estrellas (barras)
+    // Antes: `distWrap.innerHTML += ...` dentro del loop reconstruía TODO el
+    // contenido en cada vuelta, destruyendo las barras ya creadas y con ellas
+    // el `style.width` que se les había asignado — por eso solo la última
+    // barra procesada (1★) conservaba su ancho real y las demás se veían al
+    // 100%. Se arma el HTML completo (con el ancho ya incluido) y se asigna
+    // una sola vez.
     const distWrap = document.getElementById('res-dist');
-    distWrap.innerHTML = '';
     const maxVal = Math.max(...Object.values(resumen.distribucion), 1);
 
+    let distHtml = '';
     for (let i = 5; i >= 1; i--) {
       const cant = resumen.distribucion[i];
       const pct  = Math.round((cant / maxVal) * 100);
-      distWrap.innerHTML += `
+      distHtml += `
         <div class="dist-fila">
           <span class="dist-label">
             ${i} <i class="bx bxs-star u-icono-dorado u-font-085" aria-hidden="true"></i>
           </span>
           <div class="dist-barra-wrap">
-            <div class="dist-barra" id="dist-barra-${i}"></div>
+            <div class="dist-barra" style="width:${pct}%"></div>
           </div>
           <span class="dist-cant">${cant}</span>
         </div>`;
-      distWrap.querySelector(`#dist-barra-${i}`).style.width = `${pct}%`;
     }
+    distWrap.innerHTML = distHtml;
   }
 
   // ════════════════════════════════════════════════════════════════

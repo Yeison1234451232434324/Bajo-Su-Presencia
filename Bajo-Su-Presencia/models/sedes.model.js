@@ -19,6 +19,8 @@
 const SedesModel = (() => {
 
   const TABLA = 'sedes';
+  // Columnas realmente usadas por _fromRow — evita traer filas completas.
+  const SEL = 'id, nombre, ciudad, direccion, telefono, pastor_encargado';
 
   // Convierte una fila de la BD al objeto que usa la vista
   function _fromRow(r) {
@@ -39,14 +41,14 @@ const SedesModel = (() => {
 
   /** Devuelve todas las sedes (ordenadas por nombre) */
   async function getAll() {
-    const { data, error } = await DB.from(TABLA).select('*').order('nombre', { ascending: true });
+    const { data, error } = await DB.from(TABLA).select(SEL).order('nombre', { ascending: true });
     if (error) { (window.BSPLog ? window.BSPLog.error('SedesModel.getAll', error) : console.error('SedesModel.getAll')); return []; }
     return (data || []).map(_fromRow);
   }
 
   /** Devuelve una sede por id (uuid) o null */
   async function getById(id) {
-    const { data, error } = await DB.from(TABLA).select('*').eq('id', id).single();
+    const { data, error } = await DB.from(TABLA).select(SEL).eq('id', id).single();
     if (error || !data) return null;
     return _fromRow(data);
   }

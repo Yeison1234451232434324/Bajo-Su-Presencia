@@ -29,6 +29,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ── Estado ───────────────────────────────────────────────────────────────
   let eventoActual = null;
 
+  // Cerrojo anti-doble-submit (mismo patrón que auth.controller.js).
+  let enviandoReporte = false;
+
   // ── Referencias DOM ──────────────────────────────────────────────────────
   const vistaEventos  = document.getElementById('rep-vista-eventos');
   const vistaFormulario = document.getElementById('rep-vista-formulario');
@@ -181,6 +184,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   formReporte.addEventListener('submit', async e => {
     e.preventDefault();
     if (!eventoActual) return;
+    if (enviandoReporte) return;
 
     const data = {
       eventoId:     eventoActual.id,
@@ -191,16 +195,28 @@ document.addEventListener('DOMContentLoaded', async () => {
       creadoPor:    _getNombreUsuario()
     };
 
+    enviandoReporte = true;
+    if (btnGuardar) { btnGuardar.disabled = true; btnGuardar.setAttribute('aria-busy', 'true'); }
+
     let resultado;
     try { resultado = await ReportesModel.guardar(data); }
-    catch (ex) { showAlertError('Error de conexión. Intenta de nuevo.'); return; }
+    catch (ex) {
+      showAlertError('Error de conexión. Intenta de nuevo.');
+      enviandoReporte = false;
+      if (btnGuardar) { btnGuardar.disabled = false; btnGuardar.removeAttribute('aria-busy'); }
+      return;
+    }
 
     if (!resultado.ok) {
       showAlertError(resultado.error);
+      enviandoReporte = false;
+      if (btnGuardar) { btnGuardar.disabled = false; btnGuardar.removeAttribute('aria-busy'); }
       return;
     }
 
     btnGuardar.textContent = 'Actualizar Reporte';
+    enviandoReporte = false;
+    if (btnGuardar) { btnGuardar.disabled = false; btnGuardar.removeAttribute('aria-busy'); }
     _renderReporteExistente(resultado.reporte);
     showAlertSuccess(`El reporte de "${eventoActual.titulo}" fue guardado correctamente.`);
   });

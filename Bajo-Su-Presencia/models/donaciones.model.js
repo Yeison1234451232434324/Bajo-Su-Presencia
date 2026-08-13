@@ -17,6 +17,8 @@ const DonacionesModel = (() => {
   const TABLA = 'donaciones';
   const METODOS = ['PSE', 'Nequi', 'Tarjeta'];
   const ESTADOS = ['Aprobada', 'Pendiente', 'Rechazada'];
+  // Columnas realmente usadas por _fromRow — evita traer filas completas.
+  const SEL = 'id, referencia, correo, nombre, metodo, monto, proposito, estado, creado_en';
 
   function _fromRow(r) {
     return {
@@ -36,13 +38,13 @@ const DonacionesModel = (() => {
   function _msg(error) { return DB.mensajeError(error); }
 
   async function getAll() {
-    const { data, error } = await DB.from(TABLA).select('*').order('creado_en', { ascending: false });
+    const { data, error } = await DB.from(TABLA).select(SEL).order('creado_en', { ascending: false });
     if (error) { (window.BSPLog ? window.BSPLog.error('DonacionesModel.getAll', error) : console.error('DonacionesModel.getAll')); return []; }
     return (data || []).map(_fromRow);
   }
 
   async function getById(id) {
-    const { data, error } = await DB.from(TABLA).select('*').eq('id', id).single();
+    const { data, error } = await DB.from(TABLA).select(SEL).eq('id', id).single();
     if (error || !data) return null;
     return _fromRow(data);
   }

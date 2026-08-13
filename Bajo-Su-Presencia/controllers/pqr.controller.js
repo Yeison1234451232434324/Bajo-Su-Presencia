@@ -27,9 +27,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const TIPOS_PQR_VALIDOS = ['Petición', 'Queja', 'Reclamo', 'Sugerencia'];
 
+  // Cerrojo anti-doble-submit (mismo patrón que auth.controller.js).
+  let enviandoPQR = false;
+
   // ── Submit del formulario ────────────────────────────────────────────────
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (enviandoPQR) return;
 
     /* Leer y limpiar TODOS los valores antes de validar y antes de guardar */
     const tipo        = document.getElementById('pqr-tipo').value;
@@ -76,17 +80,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const data = { tipo, nombre, email: emailVal, telefono, asunto, descripcion };
 
     /* Llamada async al modelo (Supabase) */
+    enviandoPQR = true;
+    if (btnSubmit) { btnSubmit.disabled = true; btnSubmit.setAttribute('aria-busy', 'true'); }
+
     let resultado;
     try {
       resultado = await PQRModel.crear(data);
     } catch (ex) {
       mostrarError('Error de conexión. Revisa tu internet e intenta de nuevo.');
+      enviandoPQR = false;
+      if (btnSubmit) { btnSubmit.disabled = false; btnSubmit.removeAttribute('aria-busy'); }
       return;
     }
     if (!resultado.ok) {
       mostrarError(resultado.error);
+      enviandoPQR = false;
+      if (btnSubmit) { btnSubmit.disabled = false; btnSubmit.removeAttribute('aria-busy'); }
       return;
     }
+
+    // No reactivamos el botón tras éxito: el formulario queda oculto y se
+    // reemplaza por la sección de éxito. Se reactivará solo si el usuario
+    // pulsa "Enviar otra solicitud" (ver btnNueva más abajo).
 
     // Éxito: notificación alertify + mostrar sección de éxito
     showAlertSuccess('¡Tu solicitud fue enviada exitosamente! Te contactaremos pronto.');
@@ -100,6 +115,8 @@ document.addEventListener('DOMContentLoaded', () => {
     form.reset();
     form.style.display = '';
     successBox.classList.remove('visible');
+    enviandoPQR = false;
+    if (btnSubmit) { btnSubmit.disabled = false; btnSubmit.removeAttribute('aria-busy'); }
 
     // Scroll al inicio del formulario
     form.scrollIntoView({ behavior: 'smooth', block: 'start' });

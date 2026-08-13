@@ -189,6 +189,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  /**
+   * Busca un PQR ya cargado en memoria (dtPQR.allData, poblado por
+   * renderTabla con la misma proyección de columnas que getById) en vez
+   * de volver a pedirlo a Supabase en cada clic de fila. Si por algún
+   * motivo no está en memoria (p. ej. la tabla aún no se ha cargado),
+   * hace fallback a PQRModel.getById para no romper el flujo.
+   */
+  async function _obtenerPQR(id) {
+    const enMemoria = dtPQR?.allData?.find(p => String(p.id) === String(id));
+    if (enMemoria) return enMemoria;
+    return await PQRModel.getById(id);
+  }
+
   /** Escapa caracteres HTML para evitar XSS */
   function escapeHtml(str) {
     if (!str) return '';
@@ -206,7 +219,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   /** Abre el modal con el detalle completo del PQR */
   async function abrirModal(id) {
-    const p = await PQRModel.getById(id);
+    const p = await _obtenerPQR(id);
     if (!p) return;
 
     pqrActualId = id;
@@ -268,8 +281,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 4. GUARDAR RESPUESTA
   // ════════════════════════════════════════════════════════════════
 
+  // Cerrojo anti-doble-clic (mismo patrón que auth.controller.js).
+  let enviandoRespuestaPQR = false;
+
   btnGuardar.addEventListener('click', async () => {
     if (!pqrActualId) return;
+    if (enviandoRespuestaPQR) return;
 
     const respuesta   = document.getElementById('modal-campo-respuesta').value;
     const nuevoEstado = document.getElementById('modal-campo-estado').value;
@@ -285,6 +302,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
+    enviandoRespuestaPQR = true;
+    btnGuardar.disabled = true;
+    btnGuardar.setAttribute('aria-busy', 'true');
+
     const resultado = await PQRModel.responder(
       pqrActualId,
       respuesta,
@@ -295,9 +316,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!resultado.ok) {
       modalError.textContent   = resultado.error;
       modalError.style.display = 'block';
+      enviandoRespuestaPQR = false;
+      btnGuardar.disabled = false;
+      btnGuardar.removeAttribute('aria-busy');
       return;
     }
 
+    enviandoRespuestaPQR = false;
+    btnGuardar.disabled = false;
+    btnGuardar.removeAttribute('aria-busy');
     cerrarModal();
     await renderTabla();
     showAlertSuccess('La respuesta ya fue enviada.');
@@ -309,7 +336,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   /** Avanza el estado del PQR al siguiente en el ciclo */
   async function ciclarEstado(id) {
-    const p = await PQRModel.getById(id);
+    const p = await _obtenerPQR(id);
     if (!p) return;
 
     if (p.estado === 'Resuelto') {
@@ -334,7 +361,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ════════════════════════════════════════════════════════════════
 
   async function eliminarPQR(id) {
-    const p = await PQRModel.getById(id);
+    const p = await _obtenerPQR(id);
     if (!p) return;
 
     showAlertConfirm(

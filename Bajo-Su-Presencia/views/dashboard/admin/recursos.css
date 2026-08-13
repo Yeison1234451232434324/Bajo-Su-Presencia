@@ -52,8 +52,9 @@
   display: flex; align-items: center; justify-content: center;
   font-size: 1.3rem;
   flex-shrink: 0;
-  background: var(--info-bg);
-  color: var(--primary);
+  background: transparent;
+  color: #1e3a8a;
+  border: 1.5px solid #1e3a8a;
 }
 .stat-rec-label {
   font-size: 0.8125rem;
@@ -197,20 +198,20 @@
    .acciones-cell base + .btn-accion: componentes compartidos, ver panel.css */
 .acciones-cell { justify-content: center; flex-wrap: wrap; }
 
-.btn-editar-rec   { background: var(--info-bg); color: var(--info); }
-.btn-editar-rec:hover   { background: var(--info-border); }
+.btn-editar-rec   { background: transparent; color: #1e3a8a; border: 1.5px solid #1e3a8a; }
+.btn-editar-rec:hover   { opacity: 0.7; }
 
-.btn-toggle-on    { background: var(--info-bg); color: var(--info); }
-.btn-toggle-on:hover    { background: var(--success-border); }
+.btn-toggle-on    { background: transparent; color: #1e3a8a; border: 1.5px solid #1e3a8a; }
+.btn-toggle-on:hover    { opacity: 0.7; }
 
-.btn-toggle-off   { background: var(--info-bg); color: var(--danger); }
-.btn-toggle-off:hover   { background: var(--danger-border); }
+.btn-toggle-off   { background: transparent; color: #1e3a8a; border: 1.5px solid #1e3a8a; }
+.btn-toggle-off:hover   { opacity: 0.7; }
 
-.btn-asignar      { background: var(--info-bg); color: var(--info); }
-.btn-asignar:hover      { background: var(--info-border); }
+.btn-asignar      { background: transparent; color: #1e3a8a; border: 1.5px solid #1e3a8a; }
+.btn-asignar:hover      { opacity: 0.7; }
 
-.btn-eliminar-rec { background: var(--info-bg); color: var(--danger); }
-.btn-eliminar-rec:hover { background: var(--danger-border); }
+.btn-eliminar-rec { background: transparent; color: #1e3a8a; border: 1.5px solid #1e3a8a; }
+.btn-eliminar-rec:hover { opacity: 0.7; }
 
 /* ══════════════════════════════════════════════════
    MODAL CREAR / EDITAR

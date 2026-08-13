@@ -57,6 +57,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ID de la noticia que se está editando (null = modo crear)
   let editandoId = null;
 
+  // Cerrojo anti-doble-submit (mismo patrón que auth.controller.js).
+  let enviandoNoticia = false;
+
   // ── Rol del usuario activo ────────────────────────────────────────────────
   const _sesion = JSON.parse(localStorage.getItem('usuarioLogueado') || '{}');
   const _esColaborador = (_sesion.rol || '') === 'Colaborador';
@@ -135,6 +138,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (enviandoNoticia) return;
 
     /* Leer y limpiar todos los valores antes de validar */
     const titulo    = BSPVal.cleanText(inpTitulo.value);
@@ -183,6 +187,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     /* Datos limpios — nunca usar .value directamente aquí */
     const data = { titulo, resumen, contenido, autor, fechaISO: fechaVal, imagen: imagenUrl };
 
+    enviandoNoticia = true;
+    if (btnSubmit) { btnSubmit.disabled = true; btnSubmit.setAttribute('aria-busy', 'true'); }
+
     /* Llamada async al modelo (Supabase) */
     let resultado;
     try {
@@ -191,10 +198,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         : await NoticiasModel.actualizar(editandoId, data);
     } catch (ex) {
       showAlertError('Error de conexión. Revisa tu internet e intenta de nuevo.');
+      enviandoNoticia = false;
+      if (btnSubmit) { btnSubmit.disabled = false; btnSubmit.removeAttribute('aria-busy'); }
       return;
     }
     if (!resultado.ok) {
       showAlertError(resultado.error);
+      enviandoNoticia = false;
+      if (btnSubmit) { btnSubmit.disabled = false; btnSubmit.removeAttribute('aria-busy'); }
       return;
     }
 
@@ -207,6 +218,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     );
 
     editandoId = null;
+    enviandoNoticia = false;
+    if (btnSubmit) { btnSubmit.disabled = false; btnSubmit.removeAttribute('aria-busy'); }
   });
 
   // ════════════════════════════════════════════════════════════════

@@ -236,9 +236,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   const _err = (id, msg) => BSPVal._err(id, msg);
   const _ok  = (...ids) => BSPVal._ok(...ids);
 
+  // Cerrojo anti-doble-submit (mismo patrón que auth.controller.js).
+  let enviandoUsuario = false;
+
   // ── Submit formulario ────────────────────────────────────────────────────
   formUsuario.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (enviandoUsuario) return;
     modalError.style.display = 'none';
 
     /* Leer valores — todos trimados antes de validar y antes de guardar */
@@ -316,6 +320,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                    username, email: emailVal, rol, password, telefono, ubicacion, ocupacion, especialidad, bio };
 
     /* Llamada async al modelo (Supabase) */
+    const btnSubmitUsuario = formUsuario.querySelector('button[type="submit"]');
+    enviandoUsuario = true;
+    if (btnSubmitUsuario) { btnSubmitUsuario.disabled = true; btnSubmitUsuario.setAttribute('aria-busy', 'true'); }
+
     let resultado;
     try {
       resultado = editandoId === null
@@ -324,13 +332,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (ex) {
       modalError.textContent = 'Error de conexión. Revisa tu internet e intenta de nuevo.';
       modalError.style.display = 'block';
+      enviandoUsuario = false;
+      if (btnSubmitUsuario) { btnSubmitUsuario.disabled = false; btnSubmitUsuario.removeAttribute('aria-busy'); }
       return;
     }
     if (!resultado.ok) {
       modalError.textContent   = resultado.error;
       modalError.style.display = 'block';
+      enviandoUsuario = false;
+      if (btnSubmitUsuario) { btnSubmitUsuario.disabled = false; btnSubmitUsuario.removeAttribute('aria-busy'); }
       return;
     }
+    enviandoUsuario = false;
+    if (btnSubmitUsuario) { btnSubmitUsuario.disabled = false; btnSubmitUsuario.removeAttribute('aria-busy'); }
     cerrarModal();
     await renderTabla();
     showAlertSuccess(

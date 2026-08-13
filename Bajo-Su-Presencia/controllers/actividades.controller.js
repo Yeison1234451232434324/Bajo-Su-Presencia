@@ -271,8 +271,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   const _ok  = (...ids)  => BSPVal._ok(...ids);
   const PRIORIDADES_VALIDAS = ['alta', 'media', 'baja'];
 
+  // Cerrojo anti-doble-submit (mismo patrón que auth.controller.js).
+  let enviandoActividad = false;
+
   formAct.addEventListener('submit', async e => {
     e.preventDefault();
+    if (enviandoActividad) return;
     const titulo      = BSPVal.cleanText(document.getElementById('act-titulo-input').value);
     const descripcion = BSPVal.cleanText(document.getElementById('act-descripcion').value);
     const prioridad   = document.getElementById('act-prioridad').value;
@@ -301,12 +305,28 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const data = { eventoId: eventoActual.id, titulo, descripcion, prioridad, voluntarioId: volId, voluntarioNombre: volNombre };
 
+    const btnSubmitAct = formAct.querySelector('button[type="submit"]');
+    enviandoActividad = true;
+    if (btnSubmitAct) { btnSubmitAct.disabled = true; btnSubmitAct.setAttribute('aria-busy', 'true'); }
+
     let resultado;
     try {
       resultado = modoEdicion ? await ActividadesModel.actualizar(actEditId, data) : await ActividadesModel.crear(data);
-    } catch (ex) { showAlertError('Error de conexión. Intenta de nuevo.'); return; }
-    if (!resultado.ok) { showAlertError(resultado.error); return; }
+    } catch (ex) {
+      showAlertError('Error de conexión. Intenta de nuevo.');
+      enviandoActividad = false;
+      if (btnSubmitAct) { btnSubmitAct.disabled = false; btnSubmitAct.removeAttribute('aria-busy'); }
+      return;
+    }
+    if (!resultado.ok) {
+      showAlertError(resultado.error);
+      enviandoActividad = false;
+      if (btnSubmitAct) { btnSubmitAct.disabled = false; btnSubmitAct.removeAttribute('aria-busy'); }
+      return;
+    }
 
+    enviandoActividad = false;
+    if (btnSubmitAct) { btnSubmitAct.disabled = false; btnSubmitAct.removeAttribute('aria-busy'); }
     _cerrarModal();
     await renderActividades();
     showAlertSuccess(`"${data.titulo}" fue ${modoEdicion ? 'actualizada' : 'creada'} correctamente.`);

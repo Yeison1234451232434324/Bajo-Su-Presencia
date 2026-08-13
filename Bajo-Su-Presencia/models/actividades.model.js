@@ -8,7 +8,10 @@
  *   titulo (app)   ↔ nombre (BD)
  *   eventoId       ↔ evento_id
  *   voluntarioId   ↔ voluntario_id
- *   voluntarioNombre → se resuelve desde usuarios (query aparte)
+ *   voluntarioNombre → embebido vía FK fk_actividades_voluntario
+ *                      (actividades.voluntario_id → usuarios.id,
+ *                      ON DELETE SET NULL) en la misma consulta —
+ *                      antes era una segunda consulta a /usuarios.
  *
  * Requiere window.sb (services/supabase.client.js).
  * ============================================================
@@ -17,8 +20,13 @@
 const ActividadesModel = (() => {
 
   const TABLA = 'actividades';
+  // Columnas realmente usadas por _fromRow — evita traer filas completas.
+  // "usuarios!voluntario_id" desambigua el embed por esa FK específica
+  // (mismo patrón que ya usan pqr.model.js y reportes.model.js).
+  const SEL = 'id, evento_id, nombre, descripcion, prioridad, voluntario_id, completada, ' +
+              'usuarios!voluntario_id(nombre:nombre_completo)';
 
-  function _fromRow(r, nombres) {
+  function _fromRow(r) {
     return {
       id:               r.id,
       eventoId:         r.evento_id,
@@ -26,7 +34,10 @@ const ActividadesModel = (() => {
       descripcion:      r.descripcion || '',
       prioridad:        r.prioridad || 'media',
       voluntarioId:     r.voluntario_id,
-      voluntarioNombre: (nombres && nombres[r.voluntario_id]) || '',
+      // FK con ON DELETE SET NULL: si el voluntario fue eliminado,
+      // voluntario_id y el embed quedan en null → mismo fallback a ''
+      // que antes daba el mapa de nombres cuando el id no aparecía.
+      voluntarioNombre: r.usuarios?.nombre || '',
       completada:       r.completada === true,
       creadaEn:         ''
     };
@@ -35,28 +46,16 @@ const ActividadesModel = (() => {
   // Traducción de errores centralizada en db.client.js (window.DB.mensajeError).
   function _msg(error) { return DB.mensajeError(error); }
 
-  // Resuelve nombres de usuarios por id (para mostrar el voluntario asignado)
-  async function _nombres(ids) {
-    const uniq = [...new Set((ids || []).filter(Boolean))];
-    if (!uniq.length) return {};
-    const { data } = await DB.from('usuarios').select('id, nombre:nombre_completo').in('id', uniq);
-    const map = {};
-    (data || []).forEach(u => { map[u.id] = u.nombre; });
-    return map;
-  }
-
   async function getAll() {
-    const { data, error } = await DB.from(TABLA).select('*');
+    const { data, error } = await DB.from(TABLA).select(SEL);
     if (error) { (window.BSPLog ? window.BSPLog.error('ActividadesModel.getAll', error) : console.error('ActividadesModel.getAll')); return []; }
-    const nombres = await _nombres((data || []).map(a => a.voluntario_id));
-    return (data || []).map(a => _fromRow(a, nombres));
+    return (data || []).map(_fromRow);
   }
 
   async function getByEvento(eventoId) {
-    const { data, error } = await DB.from(TABLA).select('*').eq('evento_id', eventoId);
+    const { data, error } = await DB.from(TABLA).select(SEL).eq('evento_id', eventoId);
     if (error) { (window.BSPLog ? window.BSPLog.error('ActividadesModel.getByEvento', error) : console.error('ActividadesModel.getByEvento')); return []; }
-    const nombres = await _nombres((data || []).map(a => a.voluntario_id));
-    return (data || []).map(a => _fromRow(a, nombres));
+    return (data || []).map(_fromRow);
   }
 
   // Actividades de varios eventos en una sola consulta (WHERE evento_id IN (...)),
@@ -64,17 +63,15 @@ const ActividadesModel = (() => {
   async function getByEventos(eventoIds) {
     const uniq = [...new Set((eventoIds || []).filter(Boolean))];
     if (!uniq.length) return [];
-    const { data, error } = await DB.from(TABLA).select('*').in('evento_id', uniq);
+    const { data, error } = await DB.from(TABLA).select(SEL).in('evento_id', uniq);
     if (error) { (window.BSPLog ? window.BSPLog.error('ActividadesModel.getByEventos', error) : console.error('ActividadesModel.getByEventos')); return []; }
-    const nombres = await _nombres((data || []).map(a => a.voluntario_id));
-    return (data || []).map(a => _fromRow(a, nombres));
+    return (data || []).map(_fromRow);
   }
 
   async function getById(id) {
-    const { data, error } = await DB.from(TABLA).select('*').eq('id', id).single();
+    const { data, error } = await DB.from(TABLA).select(SEL).eq('id', id).single();
     if (error || !data) return null;
-    const nombres = await _nombres([data.voluntario_id]);
-    return _fromRow(data, nombres);
+    return _fromRow(data);
   }
 
   async function crear(data) {
@@ -90,10 +87,9 @@ const ActividadesModel = (() => {
       voluntario_id: data.voluntarioId,
       completada:    false
     };
-    const { data: ins, error } = await DB.from(TABLA).insert(fila).select('*').single();
+    const { data: ins, error } = await DB.from(TABLA).insert(fila).select(SEL).single();
     if (error) return { ok: false, error: _msg(error) };
-    const nombres = await _nombres([ins.voluntario_id]);
-    return { ok: true, actividad: _fromRow(ins, nombres) };
+    return { ok: true, actividad: _fromRow(ins) };
   }
 
   async function actualizar(id, data) {
@@ -106,10 +102,9 @@ const ActividadesModel = (() => {
       prioridad:     ['alta','media','baja'].includes(data.prioridad) ? data.prioridad : 'media',
       voluntario_id: data.voluntarioId
     };
-    const { data: upd, error } = await DB.from(TABLA).update(fila).eq('id', id).select('*').single();
+    const { data: upd, error } = await DB.from(TABLA).update(fila).eq('id', id).select(SEL).single();
     if (error) return { ok: false, error: _msg(error) };
-    const nombres = await _nombres([upd.voluntario_id]);
-    return { ok: true, actividad: _fromRow(upd, nombres) };
+    return { ok: true, actividad: _fromRow(upd) };
   }
 
   async function toggleCompletada(id, completada) {
