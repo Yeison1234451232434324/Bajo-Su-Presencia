@@ -204,7 +204,6 @@ final class UsuariosService
         $fields = [
             'nombres'   => $nombres,
             'apellidos' => $apellidos,
-            'username'  => ($data['username'] ?? '') ?: null,
             'rol_id'    => $this->users->roleIdByName($data['rol'] ?? null),
             // Validación de servidor: normaliza y exige 10 dígitos exactos.
             // No puede omitirse aunque el cliente salte la validación del DOM.
@@ -213,6 +212,16 @@ final class UsuariosService
             'ocupacion' => ($data['ocupacion'] ?? '') ?: null,
             'bio'       => ($data['bio'] ?? '') ?: null,
         ];
+        // `username` es NOT NULL en la BD y es la credencial de acceso: solo se
+        // incluye en el PATCH cuando el formulario manda uno de verdad. Si se
+        // omitiera esta condición, un alta sin username explícito (el campo es
+        // opcional en el form) mandaría `username: null`, chocando con el NOT
+        // NULL contra la fila que el trigger de Auth ya creó con un username
+        // provisional — y en edición, borraría el username existente con el
+        // que el usuario inicia sesión.
+        if (!empty(trim((string) ($data['username'] ?? '')))) {
+            $fields['username'] = trim((string) $data['username']);
+        }
         // La foto solo se actualiza si el formulario la envía (perfil propio).
         if (array_key_exists('foto', $data)) {
             $fields['foto_url'] = ($data['foto'] ?? '') ?: null;
