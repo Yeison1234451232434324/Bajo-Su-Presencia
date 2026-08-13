@@ -151,25 +151,51 @@ window.bspBindLogout = function (redirectTo) {
 
 /**
  * Renueva el JWT propio usando el refresh token de Supabase guardado en login.
+ *
+ * Candado de una sola renovación en vuelo: el JWT dura 5 min y la vista
+ * (p. ej. eventos.controller.js) dispara varias llamadas en PARALELO al
+ * cargar (recursos, especialistas, sedes, eventos). Si el token ya venció,
+ * las cuatro reciben 401 casi a la vez y —sin este candado— cada una
+ * llamaba a este método por su cuenta con el MISMO refresh token. Supabase
+ * rota el refresh token en cada uso (de un solo uso): de esas llamadas
+ * concurrentes solo la primera en llegar lo consume con éxito, y las demás
+ * son rechazadas ("Token inválido o expirado"), así que esa sección
+ * simplemente queda vacía (recursos sin listar, historial sin la fila
+ * recién creada, etc. — al azar, según cuál petición gane la carrera).
+ * Verificado disparando las 4 llamadas a la vez: sin candado, 2 de 4
+ * fallaban. Con el candado, todas comparten la MISMA promesa de renovación
+ * en curso en vez de iniciar una cada una.
+ *
  * @returns {Promise<boolean>} true si se renovó correctamente.
  */
+window._bspRefreshEnCurso = null;
 window.bspRefreshToken = async function () {
-  const refresh = window.bspAuth.getRefresh();
-  if (!refresh) return false;
+  if (window._bspRefreshEnCurso) return window._bspRefreshEnCurso;
+
+  window._bspRefreshEnCurso = (async () => {
+    const refresh = window.bspAuth.getRefresh();
+    if (!refresh) return false;
+    try {
+      const r = await fetch(`${window.API_BASE}/api/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: refresh })
+      });
+      const b = await r.json();
+      if (r.ok && b.status === 'success' && b.data?.token?.access_token) {
+        window.bspAuth.setToken(b.data.token.access_token);
+        if (b.data.supabase_refresh_token) localStorage.setItem('bspRefresh', b.data.supabase_refresh_token);
+        return true;
+      }
+    } catch (_) { /* ignorar */ }
+    return false;
+  })();
+
   try {
-    const r = await fetch(`${window.API_BASE}/api/auth/refresh`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refresh_token: refresh })
-    });
-    const b = await r.json();
-    if (r.ok && b.status === 'success' && b.data?.token?.access_token) {
-      window.bspAuth.setToken(b.data.token.access_token);
-      if (b.data.supabase_refresh_token) localStorage.setItem('bspRefresh', b.data.supabase_refresh_token);
-      return true;
-    }
-  } catch (_) { /* ignorar */ }
-  return false;
+    return await window._bspRefreshEnCurso;
+  } finally {
+    window._bspRefreshEnCurso = null;
+  }
 };
 
 /**
