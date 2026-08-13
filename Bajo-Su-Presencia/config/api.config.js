@@ -165,7 +165,7 @@ window.bspRefreshToken = async function () {
     const b = await r.json();
     if (r.ok && b.status === 'success' && b.data?.token?.access_token) {
       window.bspAuth.setToken(b.data.token.access_token);
-      if (b.data.supabase?.refresh_token) localStorage.setItem('bspRefresh', b.data.supabase.refresh_token);
+      if (b.data.supabase_refresh_token) localStorage.setItem('bspRefresh', b.data.supabase_refresh_token);
       return true;
     }
   } catch (_) { /* ignorar */ }
