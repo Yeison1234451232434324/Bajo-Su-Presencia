@@ -173,8 +173,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const califMap = {};
     califsEvento.forEach(c => { califMap[c.voluntarioId] = c; });
 
-    // Mostrar info del evento en el encabezado
+    // Mostrar info del evento y la tabla (arrancan en display:none por CSS
+    // hasta que hay un evento seleccionado — ver voluntarios.css: "se muestra por JS").
     eventoInfo.style.display = 'flex';
+    if (tablaWrap) tablaWrap.style.display = 'block';
     document.getElementById('info-nombre').textContent = evento.nombre;
     document.getElementById('info-fecha').textContent  = evento.fecha;
     document.getElementById('info-lugar').textContent  = evento.lugar;
