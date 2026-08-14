@@ -300,26 +300,50 @@
   background: var(--surface-2) !important; color: var(--text-muted) !important;
 }
 
-/* Botones de acción (editar/ver/eliminar/cancelar) con fondo pastel propio,
-   mismo motivo que arriba: no coinciden con ningún patrón genérico. */
+/* Botones de acción (editar/ver/eliminar/cancelar): sin fondo pastel propio
+   en modo oscuro, solo el ícono con el tono correspondiente. */
 :root[data-theme="dark"] .act-btn-editar,
 :root[data-theme="dark"] .btn-ev-ver {
-  background: var(--info-bg) !important; color: var(--info) !important;
+  background: transparent !important; color: var(--info) !important;
 }
 :root[data-theme="dark"] .btn-ev-editar {
-  background: var(--warning-bg) !important; color: var(--warning) !important;
+  background: transparent !important; color: var(--warning) !important;
 }
 :root[data-theme="dark"] .act-btn-eliminar,
 :root[data-theme="dark"] .btn-ev-eliminar,
 :root[data-theme="dark"] .vev-btn-cancelar {
-  background: var(--danger-bg) !important; color: var(--danger) !important;
+  background: transparent !important; color: var(--danger) !important;
 }
 :root[data-theme="dark"] .act-btn-editar:hover,
-:root[data-theme="dark"] .btn-ev-ver:hover { background: var(--info-border) !important; }
-:root[data-theme="dark"] .btn-ev-editar:hover { background: var(--warning-border) !important; }
+:root[data-theme="dark"] .btn-ev-ver:hover { background: var(--surface-2) !important; }
+:root[data-theme="dark"] .btn-ev-editar:hover { background: var(--surface-2) !important; }
 :root[data-theme="dark"] .act-btn-eliminar:hover,
 :root[data-theme="dark"] .btn-ev-eliminar:hover,
-:root[data-theme="dark"] .vev-btn-cancelar:hover { background: var(--danger-border) !important; }
+:root[data-theme="dark"] .vev-btn-cancelar:hover { background: var(--surface-2) !important; }
+
+/* Botones de acción con contorno azul rey fijo (#1E3A8A): en modo oscuro
+   ese azul se pierde sobre el fondo navy, así que icono y borde pasan a
+   blanco. Cubre oración, noticias, PQR, recursos, usuarios y eventos. */
+:root[data-theme="dark"] .btn-ver-or,
+:root[data-theme="dark"] .btn-editar-or,
+:root[data-theme="dark"] .btn-eliminar-or,
+:root[data-theme="dark"] .btn-ver-nt,
+:root[data-theme="dark"] .btn-editar-nt,
+:root[data-theme="dark"] .btn-eliminar-nt,
+:root[data-theme="dark"] .btn-ver-pqr,
+:root[data-theme="dark"] .btn-estado-pqr,
+:root[data-theme="dark"] .btn-eliminar-pqr,
+:root[data-theme="dark"] .btn-editar-rec,
+:root[data-theme="dark"] .btn-toggle-on,
+:root[data-theme="dark"] .btn-toggle-off,
+:root[data-theme="dark"] .btn-asignar,
+:root[data-theme="dark"] .btn-eliminar-rec,
+:root[data-theme="dark"] .btn-ver,
+:root[data-theme="dark"] .btn-editar,
+:root[data-theme="dark"] .btn-toggle {
+  color: #fff !important;
+  border-color: #fff !important;
+}
 
 /* Scrollbar del modal de noticias/eventos del inicio público: apenas
    visible (gris claro) sobre un modal ya oscurecido por el token --surface. */
