@@ -246,6 +246,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (_) {
       inscritos = (eventoActual && eventoActual.especialistas) || [];
     }
+
+    // Los usuarios con una especialidad asignada pueden ser administradores,
+    // por lo que no deben poder recibir actividades asignadas.
+    try {
+      const especialistas = await UsuariosModel.getEspecialistas();
+      const idsEspecialistas = new Set(especialistas.map(u => u.id));
+      inscritos = inscritos.filter(v => !idsEspecialistas.has(v.usuarioId));
+    } catch (_) { /* si falla la consulta, se deja la lista sin filtrar */ }
+
     _volsCache = inscritos;
 
     if (!inscritos.length) {
