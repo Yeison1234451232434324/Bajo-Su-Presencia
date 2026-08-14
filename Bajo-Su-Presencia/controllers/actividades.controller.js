@@ -247,13 +247,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       inscritos = (eventoActual && eventoActual.especialistas) || [];
     }
 
-    // Los usuarios con una especialidad asignada pueden ser administradores,
-    // por lo que no deben poder recibir actividades asignadas.
-    try {
-      const especialistas = await UsuariosModel.getEspecialistas();
-      const idsEspecialistas = new Set(especialistas.map(u => u.id));
-      inscritos = inscritos.filter(v => !idsEspecialistas.has(v.usuarioId));
-    } catch (_) { /* si falla la consulta, se deja la lista sin filtrar */ }
+    // Quien fue inscrito al evento con un rol de especialista puede ser un
+    // administrador, así que no debe poder recibir actividades asignadas.
+    inscritos = inscritos.filter(v => !v.especialidad);
 
     _volsCache = inscritos;
 
