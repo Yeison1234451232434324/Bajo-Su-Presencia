@@ -43,10 +43,17 @@ final class PublicEndpointGuard
      * Verifica que la IP no haya superado el máximo de solicitudes en la
      * ventana indicada para este `bucket`, y registra la solicitud actual.
      *
-     * Fail-open ante fallos del almacén (no bloquea el uso legítimo si la
-     * tabla de intentos no está disponible), igual que el resto de guards.
+     * Si el almacén en Supabase falla, NO se abre la puerta sin más: el envío
+     * de correo (SMTP) y el resto de efectos de estos endpoints (donaciones,
+     * PQR) son independientes de Supabase, así que un fallo puntual de la
+     * tabla `login_attempts` no impide que se pueda seguir abusando del
+     * endpoint (email bombing) — se confirmó en pruebas: sin este respaldo,
+     * una caída de Supabase permitía superar el límite de 5/15min sin freno
+     * alguno. Por eso se aplica aquí, como red de emergencia, el mismo límite
+     * pero contado localmente (archivo + flock, igual que {@see RateLimiter}),
+     * sin tocar Supabase ni el límite global de IP.
      *
-     * @throws ApiException 429 si se superó el límite.
+     * @throws ApiException 429 si se superó el límite (por Supabase o local).
      */
     public function assertAllowed(string $bucket, string $ip, int $maxPorVentana, int $ventanaMinutos): void
     {
@@ -76,7 +83,69 @@ final class PublicEndpointGuard
             if ($e->httpStatus() === 423) {
                 throw $e;
             }
-            $this->logger->critical('Límite de solicitudes públicas no disponible (fail-open)', ['error' => $e->getMessage()]);
+            $this->logger->critical('Límite de solicitudes públicas no disponible; usando respaldo local', ['error' => $e->getMessage()]);
+            self::assertAllowedLocal($key, $maxPorVentana, $ventanaMinutos);
+        }
+    }
+
+    /**
+     * Respaldo local (sin Supabase) para cuando el almacén remoto falla.
+     *
+     * Mismo mecanismo de archivo + `flock` ya validado en {@see RateLimiter},
+     * pero con clave/límite/ventana propios de cada `bucket`, en vez de
+     * reutilizar directamente `RateLimiter::assertAllowed()` (que es fijo a
+     * 60/60s por IP y ya se aplicó una vez, antes del enrutamiento, a esta
+     * misma petición — llamarlo de nuevo aquí no aportaría el límite más
+     * estricto que estos endpoints necesitan).
+     */
+    private static function assertAllowedLocal(string $key, int $maxPorVentana, int $ventanaMinutos): void
+    {
+        try {
+            $dir = sys_get_temp_dir() . '/defbsp_ratelimit_fallback';
+            if (!is_dir($dir)) {
+                @mkdir($dir, 0700, true);
+            }
+
+            $archivo = $dir . '/' . hash('crc32b', $key) . '.json';
+            $handle  = @fopen($archivo, 'c+');
+            if ($handle === false) {
+                return;
+            }
+
+            try {
+                if (!flock($handle, LOCK_EX)) {
+                    return;
+                }
+
+                $contenido = stream_get_contents($handle);
+                $data      = $contenido !== false && $contenido !== '' ? json_decode($contenido, true) : null;
+
+                $ahora         = time();
+                $ventanaSegundos = $ventanaMinutos * 60;
+                if (!is_array($data) || !isset($data['inicio'], $data['conteo']) || ($ahora - (int) $data['inicio']) >= $ventanaSegundos) {
+                    $data = ['inicio' => $ahora, 'conteo' => 0];
+                }
+
+                $data['conteo']++;
+
+                ftruncate($handle, 0);
+                rewind($handle);
+                fwrite($handle, json_encode($data));
+                fflush($handle);
+
+                if ((int) $data['conteo'] > $maxPorVentana) {
+                    throw ApiException::locked('Demasiadas solicitudes. Inténtalo de nuevo en unos minutos.');
+                }
+            } finally {
+                flock($handle, LOCK_UN);
+                fclose($handle);
+            }
+        } catch (ApiException $e) {
+            throw $e;
+        } catch (\Throwable) {
+            // Fail-open solo ante un fallo del propio respaldo local (disco
+            // lleno, permisos, etc.) — no se deja la petición sin ningún
+            // control por un problema de E/S imprevisto.
         }
     }
 }

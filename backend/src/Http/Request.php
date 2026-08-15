@@ -122,6 +122,21 @@ final class Request
         if (isset($_SERVER['CONTENT_TYPE'])) {
             $headers['content-type'] = (string) $_SERVER['CONTENT_TYPE'];
         }
+
+        // Bajo Apache/mod_php (Windows, verificado con Apache 2.4.58) `Authorization`
+        // no siempre llega en `$_SERVER['HTTP_AUTHORIZATION']`, aunque el cliente sí
+        // la envía; `getallheaders()`/`apache_request_headers()` sí la ven. Sin este
+        // respaldo, todas las rutas protegidas por JWT quedan inaccesibles bajo Apache.
+        if (!isset($headers['authorization'])) {
+            $all = function_exists('getallheaders') ? getallheaders() : (function_exists('apache_request_headers') ? apache_request_headers() : false);
+            foreach ((is_array($all) ? $all : []) as $name => $value) {
+                if (strtolower($name) === 'authorization') {
+                    $headers['authorization'] = (string) $value;
+                    break;
+                }
+            }
+        }
+
         return $headers;
     }
 }

@@ -118,12 +118,20 @@ final class DataGatewayController
         'noticias'               => ['write' => ['Administrador', 'Colaborador'], 'public_read' => true],
         'oraciones'              => ['write' => ['Administrador', 'Colaborador'], 'public_read' => true],
         'sedes'                  => ['write' => ['Administrador', 'Colaborador'], 'public_read' => true],
-        // PQR: cualquiera puede radicar (insertar); solo el panel gestiona
-        // (contiene datos de contacto de quien radica, no es de lectura libre):
+        // PQR: la radicación pública NO se expone aquí a propósito (RT-01,
+        // auditoría de seguridad): este gateway reenvía `$request->all()` sin
+        // whitelist de campos, así que un `public_insert` aquí permitiría a
+        // cualquier anónimo insertar con `estado`, `respuesta` o
+        // `respondido_por_id` arbitrarios — campos que solo debe fijar el
+        // panel — y además sin pasar por el límite de 5/15min de
+        // PublicEndpointGuard (esta pasarela no lo invoca). Verificado que el
+        // frontend (`pqr.model.js`) crea SIEMPRE vía `POST /api/pqr`
+        // (PqrController::crear), que sí sanea los campos y sí aplica ese
+        // límite; no existe ninguna dependencia real de `public_insert` aquí.
+        // Solo el panel (Administrador/Colaborador) lee/gestiona vía esta ruta.
         'pqr'                    => [
-            'write'         => ['Administrador', 'Colaborador'],
-            'read'          => ['Administrador', 'Colaborador'],
-            'public_insert' => true,
+            'write' => ['Administrador', 'Colaborador'],
+            'read'  => ['Administrador', 'Colaborador'],
         ],
         // Datos de cuenta (correo, rol, etc.): solo administración gestiona.
         // `actividades.model.js` necesita listar nombres de voluntarios para
@@ -185,6 +193,65 @@ final class DataGatewayController
         // Se toma de la capa HTTP en lugar de leer $_SERVER directamente: así
         // el controlador es probable sin simular el entorno del servidor.
         $query = $request->queryString();
+
+        // RT-02 — Ownership: el chequeo de arriba (tabla+rol) autoriza a
+        // Voluntario a escribir 'actividades' en general (así puede marcar
+        // sus propias actividades como completadas), pero NO distingue de
+        // QUIÉN es cada fila. Sin esto, un Voluntario podía reasignar o
+        // eliminar actividades de otro voluntario con solo cambiar el `id`
+        // en la URL (confirmado con prueba real en la auditoría de Red Team).
+        // Es la única tabla con escritura para el rol Voluntario, así que se
+        // resuelve aquí puntualmente en vez de construir un sistema de
+        // ownership genérico para el resto del gateway.
+        if ($isWrite && $table === 'actividades' && $rol === 'Voluntario') {
+            $this->assertActividadPropiaDeVoluntario($method, $query, $request->all(), (string) ($claims['sub'] ?? ''));
+        }
+
+        // RT-03 — mismo patrón de ownership que RT-02, para 'voluntarios_eventos'
+        // (segunda y única otra tabla con escritura para el rol Voluntario). Un
+        // Voluntario podía crear/editar/eliminar el registro de disponibilidad de
+        // OTRO usuario con solo indicar su `usuario_id` (confirmado con prueba
+        // real). `rol_en_evento` es la ESPECIALIDAD que asigna Admin/Colaborador
+        // al planear el evento (`eventos.model.js`), no un campo de autoservicio
+        // del voluntario, así que tampoco queda disponible para este rol.
+        if ($isWrite && $table === 'voluntarios_eventos' && $rol === 'Voluntario') {
+            $this->assertVoluntarioEventoPropio($method, $query, $request->all(), (string) ($claims['sub'] ?? ''));
+        }
+
+        // RT-05 — La edición de 'pqr' (PATCH/PUT) queda bloqueada por completo
+        // en el Data Gateway, para Administrador y Colaborador incluidos.
+        // Causa: este gateway reenvía el body sin ninguna whitelist, así que
+        // `estado`/`respuesta`/`respondido_por_id`/`respondido_en` podían
+        // modificarse sin la lógica que sí aplica `PqrController` (timestamp
+        // y autor reales, notificación por correo al solicitante, descripción
+        // de auditoría específica). Auditado: ningún flujo del frontend
+        // (`pqr-admin.controller.js`, `pqr.model.js`) usa PATCH/PUT vía este
+        // gateway para editar PQR — solo GET (listar) y DELETE (eliminar) —
+        // por lo que bloquearlo no quita ninguna funcionalidad real. La única
+        // vía válida para modificar una PQR pasa a ser, sin excepción,
+        // `PqrController::responder()`/`cambiarEstado()`.
+        if ($isWrite && $table === 'pqr' && in_array($method, ['PATCH', 'PUT'], true)) {
+            throw ApiException::forbidden(
+                'La edición directa de PQR mediante el Data Gateway no está permitida. Utilice el endpoint oficial de PQR.'
+            );
+        }
+
+        // RT-04 — Regla de negocio: una PQR "Resuelto" es de solo lectura.
+        // `PqrController::rechazarSiResuelto()` la aplica en el flujo oficial
+        // (responder/cambiar estado). Con RT-05 ya cerrado arriba, PATCH/PUT
+        // de 'pqr' nunca llega hasta aquí — pero este chequeo se conserva tal
+        // cual, intacto, como defensa en profundidad (por si en el futuro se
+        // reabriera cualquier camino de escritura sobre esta tabla). Se
+        // aplica solo a PATCH/PUT sobre una fila existente: la creación
+        // (POST) no toca un estado previo, y DELETE queda fuera a propósito
+        // — es, según el propio comentario de `rechazarSiResuelto()` y el
+        // frontend (`pqr-admin.controller.js`: el botón "Eliminar" nunca se
+        // deshabilita, a diferencia de "Responder"/"Cambiar estado"), el
+        // único camino de eliminación de una PQR y debe seguir permitido
+        // incluso cuando ya está resuelta.
+        if ($isWrite && $table === 'pqr' && in_array($method, ['PATCH', 'PUT'], true)) {
+            $this->assertPqrNoResuelta($query);
+        }
 
         // Lecturas NO públicas: si la tabla restringe `read`, el usuario debe
         // tener uno de esos roles, salvo que el `select` solicitado coincida
@@ -284,6 +351,210 @@ final class DataGatewayController
             . ($exito ? '.' : ' (la operación falló).');
 
         AuditLogger::registrar($claims, $accion, $table, $registroId, $descripcion, $exito ? 'exito' : 'error');
+    }
+
+    /**
+     * RT-02 — Restringe la escritura de 'actividades' para el rol Voluntario
+     * a lo que realmente le corresponde: marcar su PROPIA actividad como
+     * completada/pendiente. Nada más.
+     *
+     * Relación de propiedad confirmada en el esquema (`fase05_llaves.sql`):
+     * `actividades.voluntario_id` referencia DIRECTAMENTE `usuarios.id`, sin
+     * tabla intermedia — y ese mismo id es el que `AuthService::login()`
+     * emite como `sub` del JWT (`'id' => $profile['id']` de `usuarios`). La
+     * comparación es directa, sin resolver ninguna relación adicional.
+     *
+     * Crear y eliminar quedan bloqueados por completo para este rol (el
+     * frontend del voluntario nunca los usa: `voluntario.actividades.controller.js`
+     * solo llama a `toggleCompletada`). En PATCH/PUT, cualquier campo que no
+     * sea `completada` se rechaza — así no puede reasignarse la actividad
+     * (`voluntario_id`) ni tocar `nombre`/`descripcion`/`prioridad`.
+     *
+     * Limitación conocida y aceptada: la verificación de propiedad y el
+     * `UPDATE` no son atómicos (podría, en teoría, cambiar el propietario
+     * entre el `SELECT` y el `UPDATE`); dado que solo un Administrador puede
+     * reasignar actividades y es una operación humana poco frecuente, el
+     * riesgo de esa ventana de carrera es despreciable y no justifica una
+     * transacción o un bloqueo adicional.
+     *
+     * @param array<string,mixed> $body
+     * @throws ApiException 403 si crea/elimina, toca un campo fuera de
+     *         `completada`, o la actividad no es suya · 404 si no existe.
+     */
+    private function assertActividadPropiaDeVoluntario(string $method, string $query, array $body, string $miId): void
+    {
+        if ($method === 'POST' || $method === 'DELETE') {
+            throw ApiException::forbidden('Un voluntario no puede crear ni eliminar actividades.');
+        }
+
+        if (array_diff(array_keys($body), ['completada']) !== []) {
+            throw ApiException::forbidden('Un voluntario solo puede marcar sus actividades como completadas.');
+        }
+
+        $id = $this->idFilterParam($query);
+        if ($id === null) {
+            throw ApiException::forbidden('Operación no permitida sin un identificador de actividad.');
+        }
+
+        $filas     = $this->sb->select('actividades', ['id' => 'eq.' . $id], 'voluntario_id');
+        $actividad = $filas[0] ?? null;
+        if ($actividad === null) {
+            throw new ApiException('Actividad no encontrada.', 404);
+        }
+        if ((string) ($actividad['voluntario_id'] ?? '') !== $miId) {
+            throw ApiException::forbidden('No puedes modificar actividades de otro voluntario.');
+        }
+    }
+
+    /**
+     * Extrae el valor (decodificado) de un filtro `id=eq.<valor>` de una
+     * query string cruda en formato PostgREST, o `null` si no está presente.
+     */
+    private function idFilterParam(string $query): ?string
+    {
+        return $this->eqFilterParam($query, 'id');
+    }
+
+    /**
+     * RT-04 — Rechaza un PATCH/PUT sobre una PQR cuyo `estado` ya sea
+     * "Resuelto" (409, mismo código HTTP que usa `PqrController::rechazarSiResuelto`
+     * para la misma regla en el flujo oficial).
+     *
+     * Fail-closed por diseño: SOLO se permite continuar cuando la query
+     * string trae EXACTAMENTE un filtro `id=eq.<valor>` y ningún otro filtro
+     * sobre `id`. Cualquier otra cosa se rechaza sin intentar interpretarla
+     * — no se asume "sin filtro reconocido = nada que proteger". Esto cierra
+     * un vector encontrado en el propio Red Team de esta fase: una primera
+     * versión de este chequeo solo reconocía `id=eq.`, así que un filtro
+     * `id=neq.<uuid al azar>` no coincidía con ese patrón y se dejaba pasar
+     * como "sin id" — pero en PostgREST ese filtro afecta a TODAS las demás
+     * filas de la tabla, no a ninguna.
+     *
+     * Una sola consulta, acotada por `id` y limitada a la columna `estado` —
+     * y solo se ejecuta para esta tabla, en PATCH/PUT, nunca en GET/POST/DELETE
+     * ni para ninguna otra tabla del gateway.
+     *
+     * @throws ApiException 400 si el filtro no es un único `id=eq.<valor>` ·
+     *         409 si la PQR objetivo ya está resuelta.
+     */
+    private function assertPqrNoResuelta(string $query): void
+    {
+        if (preg_match_all('/(?:^|&)id=([^&]+)/', $query, $m) !== 1) {
+            throw new ApiException(
+                'Esta operación requiere identificar una única PQR mediante su id.',
+                400
+            );
+        }
+
+        $valor = $m[1][0];
+        if (!str_starts_with($valor, 'eq.')) {
+            throw new ApiException('Filtro no soportado para esta operación.', 400);
+        }
+        $id = urldecode(substr($valor, 3));
+
+        $filas = $this->sb->select('pqr', ['id' => 'eq.' . $id], 'estado');
+        $fila  = $filas[0] ?? null;
+        if ($fila !== null && ($fila['estado'] ?? '') === 'Resuelto') {
+            throw new ApiException(
+                'Esta PQR ya fue marcada como resuelta: no se puede responder ni cambiar su estado. Solo puede eliminarse.',
+                409
+            );
+        }
+    }
+
+    /**
+     * Extrae el valor (decodificado) de un filtro `<campo>=eq.<valor>` de una
+     * query string cruda en formato PostgREST, o `null` si no está presente.
+     */
+    private function eqFilterParam(string $query, string $campo): ?string
+    {
+        if (preg_match('/(?:^|&)' . preg_quote($campo, '/') . '=eq\.([^&]+)/', $query, $m) !== 1) {
+            return null;
+        }
+        return urldecode($m[1]);
+    }
+
+    /**
+     * RT-03 — Restringe la escritura de 'voluntarios_eventos' para el rol
+     * Voluntario a lo que realmente le corresponde: unirse a un evento como
+     * SÍ MISMO e indicar su propia disponibilidad. Nada más.
+     *
+     * Relación de propiedad: `voluntarios_eventos.usuario_id` referencia
+     * `usuarios.id` (mismo esquema que `actividades.voluntario_id`, ver
+     * `assertActividadPropiaDeVoluntario`), que es el mismo id emitido como
+     * `sub` del JWT.
+     *
+     * A diferencia de `actividades` (identificada siempre por `id`), el único
+     * flujo funcional descrito en el código para esta tabla
+     * (`VoluntariosModel.setDisponibilidad`, `voluntarios.model.js`) filtra
+     * por `evento_id`+`usuario_id`, no por `id` — así que aquí se acepta
+     * cualquiera de los dos patrones de filtro para resolver el propietario,
+     * sin asumir uno solo.
+     *
+     * - POST: el `usuario_id` del body debe ser el propio (se rechaza, no se
+     *   sobrescribe en silencio, igual que el resto de validaciones de este
+     *   sistema — ver `PqrController`/`AuthService`, que siempre devuelven un
+     *   error explícito en vez de corregir datos por el usuario). `evento_id`
+     *   y `disponible` son legítimos (unirse a un evento e indicar
+     *   disponibilidad); `rol_en_evento` NO — es la especialidad que asigna
+     *   Admin/Colaborador (`eventos.model.js`), no algo que el propio
+     *   voluntario deba fijarse.
+     * - PATCH/PUT: solo el campo `disponible`, y solo sobre su propio
+     *   registro (por `id` o por `usuario_id` en el filtro).
+     * - DELETE: sin evidencia en el código de que un Voluntario deba poder
+     *   eliminar su propia inscripción (el modelo no define una función
+     *   `eliminar` para esta tabla) — se bloquea por completo para este rol.
+     *
+     * @param array<string,mixed> $body
+     * @throws ApiException 403 si crea/edita/elimina para otro usuario, toca
+     *         un campo no permitido, o elimina · 404 si el registro no existe.
+     */
+    private function assertVoluntarioEventoPropio(string $method, string $query, array $body, string $miId): void
+    {
+        if ($method === 'DELETE') {
+            throw ApiException::forbidden('Un voluntario no puede eliminar su inscripción a un evento.');
+        }
+
+        if ($method === 'POST') {
+            $usuarioId = isset($body['usuario_id']) ? (string) $body['usuario_id'] : null;
+            if ($usuarioId !== $miId) {
+                throw ApiException::forbidden('No puedes inscribir a otro usuario en un evento.');
+            }
+            if (array_diff(array_keys($body), ['evento_id', 'usuario_id', 'disponible']) !== []) {
+                throw ApiException::forbidden('Solo puedes indicar el evento y tu disponibilidad.');
+            }
+            return;
+        }
+
+        // PATCH/PUT: whitelist de campos.
+        if (array_diff(array_keys($body), ['disponible']) !== []) {
+            throw ApiException::forbidden('Un voluntario solo puede actualizar su disponibilidad.');
+        }
+
+        // Resuelve el propietario del/de los registro(s) afectados, aceptando
+        // el filtro por `id` (como el resto del gateway) o por `usuario_id`
+        // directo (como usa el único flujo funcional real de esta tabla).
+        $usuarioIdFiltro = $this->eqFilterParam($query, 'usuario_id');
+        if ($usuarioIdFiltro !== null) {
+            if ($usuarioIdFiltro !== $miId) {
+                throw ApiException::forbidden('No puedes modificar la inscripción de otro usuario.');
+            }
+            return;
+        }
+
+        $id = $this->idFilterParam($query);
+        if ($id === null) {
+            throw ApiException::forbidden('Operación no permitida sin identificar el registro.');
+        }
+
+        $filas = $this->sb->select('voluntarios_eventos', ['id' => 'eq.' . $id], 'usuario_id');
+        $fila  = $filas[0] ?? null;
+        if ($fila === null) {
+            throw new ApiException('Registro no encontrado.', 404);
+        }
+        if ((string) ($fila['usuario_id'] ?? '') !== $miId) {
+            throw ApiException::forbidden('No puedes modificar la inscripción de otro usuario.');
+        }
     }
 
     /**

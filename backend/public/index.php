@@ -22,6 +22,7 @@ use App\Exceptions\ApiException;
 use App\Http\Request;
 use App\Http\Response;
 use App\Http\Router;
+use App\Security\RateLimiter;
 use App\Support\Logger;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
@@ -49,6 +50,8 @@ if (!headers_sent()) {
 Cors::apply();
 
 try {
+    RateLimiter::assertAllowed((string) ($_SERVER['REMOTE_ADDR'] ?? ''));
+
     $router = new Router();
     require dirname(__DIR__) . '/routes/api.php';
     $router->dispatch(new Request());
