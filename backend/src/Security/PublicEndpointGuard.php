@@ -128,9 +128,14 @@ final class PublicEndpointGuard
 
                 $data['conteo']++;
 
+                $json = json_encode($data);
+                if ($json === false) {
+                    return;
+                }
+
                 ftruncate($handle, 0);
                 rewind($handle);
-                fwrite($handle, json_encode($data));
+                fwrite($handle, $json);
                 fflush($handle);
 
                 if ((int) $data['conteo'] > $maxPorVentana) {

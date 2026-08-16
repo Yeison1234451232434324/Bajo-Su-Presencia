@@ -44,7 +44,6 @@ final class DataGatewayController
      *                      actividades). Cualquier otro valor de `select` es
      *                      rechazado para esos usuarios.
      *   - public_read    : si true, GET no requiere autenticación (home público).
-     *   - public_insert  : si true, POST no requiere autenticación (PQR público).
      *   - embed_select   : proyecciones EXACTAS permitidas cuando esta tabla
      *                      aparece EMBEBIDA dentro del `select` de OTRA tabla
      *                      (p. ej. `eventos?select=...,informes(...)`). Es
@@ -67,7 +66,7 @@ final class DataGatewayController
      * de la tabla embebida, sin importar cuál sea la tabla del path ni el rol
      * del solicitante: ver `validarEmbeds()`, invocado para TODO GET.
      *
-     * @var array<string,array{write:string[],read?:string[],read_select?:string[],embed_select?:string[],public_read?:bool,public_insert?:bool}>
+     * @var array<string,array{write:string[],read?:string[],read_select?:string[],embed_select?:string[],public_read?:bool}>
      */
     private const TABLES = [
         'recursos'               => [
@@ -173,18 +172,19 @@ final class DataGatewayController
         $cfg    = self::TABLES[$table];
         $method = $request->method();
 
-        // ¿Esta operación está abierta al público (sin JWT)?
-        $publicGet    = $method === 'GET'  && ($cfg['public_read'] ?? false);
-        $publicInsert = $method === 'POST' && ($cfg['public_insert'] ?? false);
-        $isPublic     = $publicGet || $publicInsert;
+        // ¿Esta lectura está abierta al público (sin JWT)? Ninguna tabla
+        // declara ya `public_insert` (RT-01: se eliminó de 'pqr', la única
+        // que lo tenía) — la creación pública pasa siempre por un controller
+        // dedicado (`PqrController::crear`), nunca por este gateway genérico.
+        $isPublic = $method === 'GET' && ($cfg['public_read'] ?? false);
 
         // Las operaciones no públicas requieren autenticación.
         $claims = $isPublic ? [] : AuthMiddleware::authenticate($request);
         $rol    = (string) ($claims['rol'] ?? '');
 
-        // Las escrituras NO públicas exigen un rol autorizado.
+        // Las escrituras exigen un rol autorizado.
         $isWrite = in_array($method, ['POST', 'PATCH', 'PUT', 'DELETE'], true);
-        if ($isWrite && !$publicInsert) {
+        if ($isWrite) {
             if ($cfg['write'] === [] || !in_array($rol, $cfg['write'], true)) {
                 throw ApiException::forbidden('No tienes permisos para modificar este recurso.');
             }

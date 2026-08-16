@@ -104,9 +104,14 @@ final class RateLimiter
 
             $data['conteo']++;
 
+            $json = json_encode($data);
+            if ($json === false) {
+                return 1;
+            }
+
             ftruncate($handle, 0);
             rewind($handle);
-            fwrite($handle, json_encode($data));
+            fwrite($handle, $json);
             fflush($handle);
 
             // Limpieza oportunista y barata (1/500 peticiones) de archivos
