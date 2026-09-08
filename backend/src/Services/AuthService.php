@@ -229,8 +229,8 @@ final class AuthService
                      style="width:100%;max-width:560px;background:#fff;border-radius:14px;overflow:hidden;
                             box-shadow:0 8px 30px rgba(15,30,90,.12)">
                 <tr><td style="background:#0F1E5A;padding:28px 24px;text-align:center">
-                  <img src="{$logoUrl}" alt="Bajo Su Presencia" width="56" height="56"
-                       style="display:block;margin:0 auto 12px;border-radius:12px;width:56px;height:56px">
+                  <img src="{$logoUrl}" alt="Bajo Su Presencia" width="72"
+                       style="display:block;margin:0 auto 12px;background:#ffffff;border-radius:12px;padding:8px;width:72px;height:auto">
                   <div style="color:#fff;font-size:22px;font-weight:700">
                     Bajo Su Presencia</div>
                   <div style="color:#cbd5e1;font-size:14px;margin-top:6px;letter-spacing:.02em">
