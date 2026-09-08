@@ -119,9 +119,6 @@ final class TableAccessPolicy
             'embed_select' => ['nombre:nombre_completo'],
         ],
         'roles' => ['write' => [], 'read' => ['Administrador', 'Colaborador']],
-        // Historial de donaciones: el backend inserta al procesar el pago
-        // (DonacionesController); solo el panel admin lee y elimina.
-        'donaciones' => ['write' => ['Administrador'], 'read' => ['Administrador']],
     ];
 
     public function existe(string $table): bool

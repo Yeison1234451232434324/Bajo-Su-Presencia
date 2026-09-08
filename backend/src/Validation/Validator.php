@@ -27,40 +27,6 @@ final class Validator
     /** Indicativo de país que se descarta si el usuario lo escribe. */
     private const INDICATIVO_PAIS = '57';
 
-    /** Monto mínimo admitido para una donación (COP). */
-    public const DONACION_MONTO_MIN = 1000;
-
-    /** Monto máximo admitido para una donación (COP) — tope de sensatez. */
-    public const DONACION_MONTO_MAX = 20000000;
-
-    /**
-     * Valida el monto de una donación: entero entre DONACION_MONTO_MIN y
-     * DONACION_MONTO_MAX (inclusive).
-     *
-     * Regla de negocio del módulo de Donaciones (antes en línea dentro de
-     * {@see \App\Controllers\DonacionesController::store}). Se extrae aquí para
-     * que sea reutilizable y probable con casos límite.
-     *
-     * @param mixed  $valor Valor recibido del formulario.
-     * @param string $campo Nombre del campo para el mensaje de error.
-     * @return int El monto normalizado a entero.
-     * @throws ApiException 422 si está fuera de rango.
-     */
-    public static function montoDonacion($valor, string $campo = 'monto'): int
-    {
-        $monto = (int) $valor;
-
-        if ($monto < self::DONACION_MONTO_MIN || $monto > self::DONACION_MONTO_MAX) {
-            throw ApiException::validation(
-                [$campo => 'Monto fuera de rango.'],
-                'El monto debe estar entre $' . number_format(self::DONACION_MONTO_MIN, 0, ',', '.')
-                    . ' y $' . number_format(self::DONACION_MONTO_MAX, 0, ',', '.') . ' COP.'
-            );
-        }
-
-        return $monto;
-    }
-
     /**
      * Normaliza y valida un número de teléfono.
      *

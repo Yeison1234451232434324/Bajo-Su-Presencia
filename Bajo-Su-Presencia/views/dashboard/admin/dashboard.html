@@ -62,7 +62,7 @@
     <!-- Guía de sección -->
     <div class="guia-seccion">
       <p class="guia-seccion-label"><i class="bx bx-info-circle" aria-hidden="true"></i> Guía de sección</p>
-      <p class="guia-seccion-texto">Este es tu centro de operaciones. Desde aquí ves el estado real de la comunidad: miembros, eventos, contenido publicado, voluntarios, PQR y donaciones — con acciones rápidas hacia cada módulo. Úsalo para tomar decisiones sin tener que entrar a cada sección por separado.</p>
+      <p class="guia-seccion-texto">Este es tu centro de operaciones. Desde aquí ves el estado real de la comunidad: miembros, eventos, contenido publicado, voluntarios y PQR — con acciones rápidas hacia cada módulo. Úsalo para tomar decisiones sin tener que entrar a cada sección por separado.</p>
     </div>
 
     <!-- ══ TARJETAS DE MÉTRICAS GENERALES (datos reales de Supabase) ═════ -->
@@ -143,17 +143,6 @@
       </div>
 
       <div class="stat-card">
-        <div class="stat-icon stat-icon--success">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-          </svg>
-        </div>
-        <div class="label">Donaciones Registradas</div>
-        <div class="value" id="kpi-donaciones">—</div>
-        <div class="sub" id="kpi-donaciones-sub">—</div>
-      </div>
-
-      <div class="stat-card">
         <div class="stat-icon stat-icon--warning">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M9 11l3 3L22 4"/>
@@ -189,10 +178,6 @@
       <a class="quick-action-btn" href="pqr.html">
         <span class="quick-action-icon"><i class="bx bx-message-detail" aria-hidden="true"></i></span>
         <span class="quick-action-label">Revisar PQR</span>
-      </a>
-      <a class="quick-action-btn" href="donaciones.html">
-        <span class="quick-action-icon"><i class="bx bx-donate-heart" aria-hidden="true"></i></span>
-        <span class="quick-action-label">Donaciones</span>
       </a>
     </div>
 
@@ -343,11 +328,10 @@
   <script src="../../../controllers/dashboard-admin-guard.controller.js?v=1"></script>
 
   <!-- Modelos con getEstadisticas() propio: se reutilizan en vez de reimplementar
-       el conteo de PQR/donaciones/actividades a mano (services/db.client.js →
+       el conteo de PQR/actividades a mano (services/db.client.js →
        Data Gateway PHP, igual que el resto del panel). -->
   <script src="../../../services/db.client.js"></script>
   <script src="../../../models/pqr.model.js"></script>
-  <script src="../../../models/donaciones.model.js"></script>
   <script src="../../../models/actividades.model.js"></script>
   <!-- Reutiliza el mismo modelo del módulo Auditoría (endpoint dedicado
        GET /api/auditoria, protegido para rol Administrador) — no se

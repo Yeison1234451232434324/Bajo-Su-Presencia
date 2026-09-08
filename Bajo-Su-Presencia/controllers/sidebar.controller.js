@@ -121,13 +121,6 @@ document.addEventListener("DOMContentLoaded", () => {
         </a>
         <span class="tooltip">PQR</span>
       </li>
-      <li id="li-donaciones" class="u-oculto">
-        <a href="donaciones.html" id="nav-donaciones">
-          <i class="bx bx-donate-heart" aria-hidden="true"></i>
-          <span class="nav-item">Donaciones</span>
-        </a>
-        <span class="tooltip">Donaciones</span>
-      </li>
       <li id="li-auditoria" class="u-oculto">
         <a href="auditoria.html" id="nav-auditoria">
           <i class="bx bx-shield-quarter" aria-hidden="true"></i>
@@ -220,7 +213,6 @@ document.addEventListener("DOMContentLoaded", () => {
   else if (path.includes("generar-reportes.html")) document.getElementById("nav-generar-reportes")?.parentElement.classList.add("active-item");
   else if (path.includes("sedes.html"))            document.getElementById("nav-sedes")?.parentElement.classList.add("active-item");
   else if (path.includes("pqr.html"))              document.getElementById("nav-pqr")?.parentElement.classList.add("active-item");
-  else if (path.includes("donaciones.html"))       document.getElementById("nav-donaciones")?.parentElement.classList.add("active-item");
   else if (path.includes("auditoria.html"))        document.getElementById("nav-auditoria")?.parentElement.classList.add("active-item");
 
   // ── Identidad y menú: SIEMPRE según el servidor ──────────────────────────
@@ -250,7 +242,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // vuelve a exigir el rol contra el servidor al abrirse.
     if (identidad.rol === 'Administrador') {
       ['li-usuarios', 'li-voluntarios', 'li-recursos',
-       'li-actividades', 'li-reporte', 'li-generar-reportes', 'li-sedes', 'li-pqr', 'li-donaciones', 'li-auditoria']
+       'li-actividades', 'li-reporte', 'li-generar-reportes', 'li-sedes', 'li-pqr', 'li-auditoria']
         .forEach((id) => {
           const el = document.getElementById(id);
           if (el) el.classList.remove('u-oculto');

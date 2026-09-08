@@ -78,7 +78,7 @@ final class AuthService
         $otp     = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
         $salt    = bin2hex(random_bytes(8));
         $otpHash = hash('sha256', $otp . $salt);
-        $expira  = (new DateTimeImmutable('+600 seconds', new DateTimeZone('UTC')))
+        $expira  = (new DateTimeImmutable('+300 seconds', new DateTimeZone('UTC')))
             ->format('Y-m-d\TH:i:s\Z');
 
         // Invalida solicitudes anteriores y crea la nueva (id = jti).
@@ -90,7 +90,7 @@ final class AuthService
             $this->mailer->send(
                 $email,
                 'Tu código de verificación — Bajo Su Presencia',
-                $this->otpEmailHtml((string) ($user['nombre_completo'] ?? $user['nombre'] ?? ''), $otp, 10)
+                $this->otpEmailHtml((string) ($user['nombre_completo'] ?? $user['nombre'] ?? ''), $otp, 5)
             );
             $this->logger->info('OTP de recuperación enviado', [
                 'usuario_id' => $user['id'], 'jti' => $jti, 'ip' => $ip, 'ua' => $userAgent,

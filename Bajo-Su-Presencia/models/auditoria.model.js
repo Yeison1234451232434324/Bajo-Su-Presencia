@@ -24,7 +24,7 @@ const AuditoriaModel = (() => {
     'usuarios', 'eventos', 'noticias', 'oraciones', 'actividades',
     'recursos', 'evento_recursos', 'voluntarios_eventos',
     'calificaciones_eventos', 'evaluaciones', 'informes', 'sedes',
-    'pqr', 'donaciones'
+    'pqr'
   ];
 
   const RESULTADOS = ['exito', 'error'];

@@ -33,15 +33,10 @@
     if (typeof sb === 'undefined') return;
 
     // ── Una sola consulta por tabla, en paralelo ────────────────────────────
-    // pqr/donaciones se leen UNA vez con getAll() y las estadísticas se
-    // calculan aquí mismo en memoria (antes: PQRModel.getEstadisticas() y
-    // DonacionesModel.getEstadisticas() hacían CADA UNA su propio getAll()
-    // interno, y más abajo el bloque de "Actividad reciente" volvía a llamar
-    // PQRModel.getAll()/DonacionesModel.getAll() por tercera vez — 3
-    // consultas a la misma tabla donde basta 1). auditoriaRows reutiliza el
-    // endpoint dedicado del módulo Auditoría (AuditoriaModel), sin duplicar
-    // su lógica de consulta.
-    const [usuariosRes, eventosRes, noticiasRes, oracionesRes, volEventosRes, actividades, pqrTodas, donTodas, auditoriaRows] =
+    // pqr se lee UNA vez con getAll() y las estadísticas se calculan aquí
+    // mismo en memoria. auditoriaRows reutiliza el endpoint dedicado del
+    // módulo Auditoría (AuditoriaModel), sin duplicar su lógica de consulta.
+    const [usuariosRes, eventosRes, noticiasRes, oracionesRes, volEventosRes, actividades, pqrTodas, auditoriaRows] =
       await Promise.all([
         sb.from('usuarios').select('nombre_completo, activo, creado_en, roles(nombre), usuario_especialidades(especialidades(nombre))'),
         sb.from('eventos').select('id, titulo, fecha, hora, hora_fin, ubicacion, estado, publicado_en'),
@@ -50,7 +45,6 @@
         sb.from('voluntarios_eventos').select('usuario_id, usuarios(nombre_completo, usuario_especialidades(especialidades(nombre)))'),
         (typeof ActividadesModel !== 'undefined' ? ActividadesModel.getAll() : Promise.resolve([])).catch(() => []),
         (typeof PQRModel !== 'undefined' ? PQRModel.getAll() : Promise.resolve([])).catch(() => []),
-        (typeof DonacionesModel !== 'undefined' ? DonacionesModel.getAll() : Promise.resolve([])).catch(() => []),
         (typeof AuditoriaModel !== 'undefined' ? AuditoriaModel.listar({ limite: 100 }) : Promise.resolve([])).catch(() => [])
       ]);
 
@@ -77,9 +71,6 @@
       resueltos:  pqrTodas.filter(p => p.estado === 'Resuelto').length,
       cerrados:   pqrTodas.filter(p => p.estado === 'Cerrado').length
     } : { total: 0, pendientes: 0, enProceso: 0, resueltos: 0, cerrados: 0 };
-
-    const donTotal = donTodas.reduce((acc, d) => acc + d.monto, 0);
-    const donStats = { total: donTotal, cantidad: donTodas.length, promedio: donTodas.length ? Math.round(donTotal / donTodas.length) : 0 };
 
     const activos     = usuarios.filter(u => u.activo !== false);
     const voluntarios = usuarios.filter(u => u.roles?.nombre === 'Voluntario');
@@ -117,9 +108,6 @@
     set('kpi-pqr', pqrStats.pendientes);
     set('kpi-pqr-sub', `de ${pqrStats.total} recibidas`);
 
-    set('kpi-donaciones', fmtCOP(donStats.total));
-    set('kpi-donaciones-sub', `${donStats.cantidad} registro${donStats.cantidad === 1 ? '' : 's'}`);
-
     const actPendientes  = (actividades || []).filter(a => !a.completada).length;
     const actCompletadas = (actividades || []).length - actPendientes;
     set('kpi-actividades', actPendientes);
@@ -154,8 +142,8 @@
         </a>`).join('');
     }
 
-    // ── Actividad reciente: noticias, eventos, voluntarios nuevos, PQR y
-    //    donaciones — todo con fecha real, ordenado y recortado a 6 ──────────
+    // ── Actividad reciente: noticias, eventos, voluntarios nuevos y PQR —
+    //    todo con fecha real, ordenado y recortado a 6 ──────────────────────
     const tiempoRelativo = (fechaISO) => {
       const d = new Date(fechaISO);
       const diffMs = Date.now() - d.getTime();
@@ -170,15 +158,14 @@
     };
     const activityEl = document.getElementById('activityList');
     if (activityEl) {
-      // pqrTodas/donTodas ya se cargaron una sola vez arriba: se reutilizan
-      // aquí en vez de volver a consultar las mismas tablas.
+      // pqrTodas ya se cargó una sola vez arriba: se reutiliza aquí en vez
+      // de volver a consultar la misma tabla.
       const items = [
         ...noticias.slice(0, 5).map(n => ({ fecha: n.publicado_en, dot: 'green', text: `Nueva noticia publicada: <strong>${esc(n.titulo || 'Sin título')}</strong>` })),
         ...eventos.slice(0, 5).map(e => ({ fecha: e.publicado_en, dot: 'blue', text: `Evento creado: <strong>${esc(e.titulo || 'Sin título')}</strong>` })),
         ...usuarios.filter(u => u.roles?.nombre === 'Voluntario').slice(0, 5)
           .map(u => ({ fecha: u.creado_en, dot: 'purple', text: `Nuevo voluntario registrado: <strong>${esc(u.nombre_completo || 'Sin nombre')}</strong>` })),
-        ...pqrTodas.slice(0, 5).map(p => ({ fecha: p.creadoEn, dot: 'amber', text: `PQR recibida: <strong>${esc(p.asunto || 'Sin asunto')}</strong>` })),
-        ...donTodas.slice(0, 5).map(d => ({ fecha: d.creadoEn, dot: 'green', text: `Donación registrada: <strong>${esc(d.nombre || 'Donante anónimo')}</strong>` }))
+        ...pqrTodas.slice(0, 5).map(p => ({ fecha: p.creadoEn, dot: 'amber', text: `PQR recibida: <strong>${esc(p.asunto || 'Sin asunto')}</strong>` }))
       ]
         .filter(it => it.fecha)
         .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))

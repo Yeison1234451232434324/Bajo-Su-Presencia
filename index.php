@@ -101,7 +101,6 @@ function tablaDeRutas(): array
         '/login'       => 'views/public/login/login.html',
         '/recuperar'   => 'views/public/login/recuperar.html',
         '/pqr'         => 'views/public/pqr/pqr.html',
-        '/donaciones'  => 'views/public/donaciones/donaciones.html',
         '/ayuda'       => 'views/ayuda/ayuda.html',
 
         // ── Panel · Administrador ────────────────────────────────
@@ -115,7 +114,6 @@ function tablaDeRutas(): array
         '/actividades'            => 'views/dashboard/admin/actividades.html',
         '/oracion'                => 'views/dashboard/admin/oracion.html',
         '/pqr-admin'              => 'views/dashboard/admin/pqr.html',
-        '/donaciones-admin'       => 'views/dashboard/admin/donaciones.html',
         '/reportes'               => 'views/dashboard/admin/reporte.html',
         '/generar-reportes'       => 'views/dashboard/admin/generar-reportes.html',
         '/auditoria'              => 'views/dashboard/admin/auditoria.html',

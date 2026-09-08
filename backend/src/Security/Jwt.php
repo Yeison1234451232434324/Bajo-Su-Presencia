@@ -27,8 +27,8 @@ final class Jwt
     /** Tope de seguridad: el TTL nunca excede 5 minutos (300 s). */
     private const MAX_TTL = 300;
 
-    /** TTL de los tokens de recuperación de contraseña (10 minutos). */
-    private const RESET_TTL = 600;
+    /** TTL de los tokens de recuperación de contraseña (5 minutos). */
+    private const RESET_TTL = 300;
 
     /**
      * Emite un token efímero para el flujo de recuperación de contraseña.
