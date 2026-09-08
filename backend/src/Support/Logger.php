@@ -168,5 +168,13 @@ final class Logger
             $context !== [] ? json_encode($context, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : ''
         );
         @file_put_contents($this->file, $line, FILE_APPEND | LOCK_EX);
+
+        // En un contenedor el archivo de log es invisible: se replica en
+        // STDERR (php.ini → error_log = /dev/stderr) para que el panel del
+        // host (Render, etc.) muestre WARNING/ERROR/CRITICAL en su stream.
+        if ($level !== 'INFO') {
+            error_log('[' . self::requestId() . '] ' . $level . ': ' . $message
+                . ($context !== [] ? ' ' . json_encode($context, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : ''));
+        }
     }
 }
