@@ -11,10 +11,11 @@
 // para el navegador 'localhost' y '127.0.0.1' son orígenes distintos).
 //
 // En PRODUCCIÓN el contenedor sirve la web y la API en el MISMO origen bajo
-// /api, así que API_BASE queda vacío (ruta relativa) y no hay CORS.
+// /api. Se usa location.origin (no cadena vacía): varios controladores validan
+// `if (!API_BASE)` o hacen `API_BASE || fallback`, y '' rompería ambos.
 window.API_BASE = ['localhost', '127.0.0.1', ''].includes(location.hostname)
   ? `http://${location.hostname}:8000`
-  : '';
+  : location.origin;
 
 /**
  * ============================================================
