@@ -6,13 +6,15 @@
  * Cámbiala por la URL de producción cuando despliegues el backend.
  * ============================================================
  */
-// El backend PHP corre en el puerto 8000 del MISMO host que sirve la web.
-// Se deriva de location.hostname en lugar de fijar 'localhost' o '127.0.0.1':
-// para el navegador esos dos son ORÍGENES DISTINTOS, y si la página se abre en
-// uno y la API apunta al otro, las peticiones fallan ("Failed to fetch") y no
-// carga ningún dato. Derivarlo del host garantiza que siempre coincidan.
-// En producción, sustituir por la URL del backend desplegado.
-window.API_BASE = `http://${location.hostname}:8000`;
+// En DESARROLLO el backend PHP corre en el puerto 8000 del MISMO host que
+// sirve la web (se deriva de location.hostname y no de 'localhost' fijo:
+// para el navegador 'localhost' y '127.0.0.1' son orígenes distintos).
+//
+// En PRODUCCIÓN el contenedor sirve la web y la API en el MISMO origen bajo
+// /api, así que API_BASE queda vacío (ruta relativa) y no hay CORS.
+window.API_BASE = ['localhost', '127.0.0.1', ''].includes(location.hostname)
+  ? `http://${location.hostname}:8000`
+  : '';
 
 /**
  * ============================================================

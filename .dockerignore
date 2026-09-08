@@ -1,0 +1,37 @@
+# Contexto de build: solo lo necesario para ejecutar la app.
+
+.git
+.github
+.claude
+.vscode
+.idea
+
+# Secretos — NUNCA deben entrar en la imagen.
+**/.env
+**/.env.*
+*.pem
+*.key
+
+# Dependencias: se reinstalan dentro del contenedor.
+**/vendor/
+**/node_modules/
+
+# Logs y temporales
+**/logs/*.log
+**/*.log
+
+# Documentación y evidencia (no se sirve)
+*.pdf
+*.docx
+*.md
+!Bajo-Su-Presencia/**/*.md
+AUDITORIA_FINAL_DOCUMENTO.txt
+evidencia*.html
+
+# Herramientas de calidad (no se ejecutan en producción)
+backend/tests/
+backend/phpstan.neon
+backend/psalm.xml
+backend/phpcs.xml
+backend/rector.php
+Bajo-Su-Presencia/dev/

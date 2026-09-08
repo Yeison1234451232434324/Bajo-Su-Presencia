@@ -11,6 +11,7 @@ use App\Security\PublicEndpointGuard;
 use App\Support\Logger;
 use App\Support\Mailer;
 use App\Supabase\SupabaseClient;
+use App\Validation\Validator;
 use Throwable;
 
 /**
@@ -33,8 +34,8 @@ use Throwable;
 final class DonacionesController
 {
     private const METODOS = ['PSE', 'Nequi', 'Tarjeta'];
-    private const MONTO_MIN = 1000;      // $1.000 COP
-    private const MONTO_MAX = 20000000;  // $20.000.000 COP (tope de sensatez)
+    // El rango admitido del monto vive en Validator::DONACION_MONTO_MIN/MAX
+    // (regla de negocio reutilizable y con pruebas de límites).
 
     /**
      * POST /api/donaciones — registra la donación (simulada) y envía comprobante.
@@ -67,13 +68,9 @@ final class DonacionesController
                 'Selecciona un método de pago: PSE, Nequi o Tarjeta.'
             );
         }
-        if ($monto < self::MONTO_MIN || $monto > self::MONTO_MAX) {
-            throw ApiException::validation(
-                ['monto' => 'Monto fuera de rango.'],
-                'El monto debe estar entre $' . number_format(self::MONTO_MIN, 0, ',', '.')
-                    . ' y $' . number_format(self::MONTO_MAX, 0, ',', '.') . ' COP.'
-            );
-        }
+        // Regla de negocio del monto: extraída a Validator::montoDonacion para
+        // que sea reutilizable y probable con casos límite (MontoDonacionTest).
+        $monto = Validator::montoDonacion($monto);
 
         // ── Referencia única de la donación ─────────────────────────────────
         $referencia = 'BSP-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)));

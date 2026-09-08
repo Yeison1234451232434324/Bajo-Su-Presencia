@@ -1,0 +1,186 @@
+================================================================================
+AUDITORIA FINAL DEL DOCUMENTO — Bajo Su Presencia (Documentacion Tecnica SENA)
+================================================================================
+Archivo final:  Bajo_Su_Presencia_Documentacion_Tecnica_SENA_FINAL.pdf
+Fecha de auditoria: 2026-09-02
+Metodo: extraccion de texto (pypdf), renderizado pagina por pagina (PyMuPDF),
+        revision visual dirigida de portada, tablas y diagramas, verificacion
+        cruzada contra el codigo fuente real del repositorio.
+
+--------------------------------------------------------------------------------
+1. CIFRAS FINALES (verificadas por conteo automatico sobre el PDF generado)
+--------------------------------------------------------------------------------
+Paginas totales:             74
+Encriptado:                  No
+RF-DEF (unicos, 001..077):   77   (0 duplicados, 0 faltantes)
+  Implementados:              74
+  Parcial:                     1  -> RF-DEF-050 (historial de reportes, solo localStorage)
+  No implementados:            2  -> RF-DEF-076 (asistencias), RF-DEF-077 (app movil)
+RNF:                          19  (14 implementados, 5 parciales)
+RN (reglas de negocio):       22
+HU (historias de usuario):    21
+CU (casos de uso):            24
+Diagramas vectoriales:        20
+Tablas base (BD):             23  (verificado por introspeccion en vivo PostgREST)
+Vistas (BD):                   3  (idem)
+Funciones RPC (BD):            4  (idem)
+Hallazgos Red Team:             5  (RT-01 a RT-05, todos CORREGIDO)
+Observaciones de seguridad:     3  (OBS-01, OBS-02, OBS-03)
+Mojibake / caracteres corruptos detectados: 0
+Paginas vacias o casi vacias (<15 palabras): 0
+
+--------------------------------------------------------------------------------
+2. ERRORES CORREGIDOS EN ESTA FASE (respecto de la version anterior del PDF)
+--------------------------------------------------------------------------------
+- Numeracion duplicada "7.3" (Casos de uso / Diagrama de contexto y casos de uso):
+  renumerado 7.1..7.7 sin colisiones. Verificado por analisis estatico de todos
+  los H2 del generador (0 duplicados tras el cambio).
+- Referencias a "seccion 23" y "seccion 25" (secciones inexistentes en la
+  estructura real de 20 secciones numeradas): corregidas a las secciones reales
+  que contienen ese contenido (19. Recomendaciones; 20. Inconsistencias
+  detectadas). Verificado: 0 apariciones de ambas cadenas en el PDF final.
+- Mencion suelta "RF-DEF-052 - historial de reportes" en el resumen de estado
+  de la seccion 6.1: corregida a RF-DEF-050 (el catalogo ya era correcto; solo
+  el texto de resumen citaba el ID equivocado).
+- 13 citas de "Evidencia" en el catalogo de 77 RF con texto de la siguiente
+  subseccion del documento v1.0 pegado al final (ej. "... helper.js 5.11 PQR
+  (Peticiones, Quejas y Reclamos)"): limpiadas con una expresion regular
+  dedicada; verificado 0 residuos de ese patron en el JSON fuente y en el PDF.
+- Texto de reconciliacion "16 metodos citados / 4 items fusionados": corregido
+  a "14 metodos citados / 5 items fusionados", alineado con la matriz de
+  reconciliacion RF-77-vs-38 realizada en la auditoria previa.
+- Matriz HU->RF y CU->RF: **reconstruida por completo**, no por desplazamiento
+  numerico. Se recalculo cada relacion contra el modulo real de cada RF-DEF
+  (autenticacion, usuarios, eventos, actividades, noticias, oracion, recursos,
+  voluntarios, reportes, sedes, PQR, donaciones, auditoria, perfil, panel
+  admin, ayuda, portal publico). Errores puntuales corregidos: HU-03 (tenia
+  RF-DEF-077 de app movil, ajeno a gestion de usuarios), HU-06/HU-12/HU-24
+  (RF-043 vs RF-044 intercambiados entre "disponibilidad propia del
+  voluntario" y "disponibilidad asignada por el staff"), HU-09/HU-10
+  (contenido administrado vs. visualizacion publica estaban mezclados),
+  HU-13 (contenia RF-DEF-052 de sedes, ajeno a reportes), HU-14 (le faltaba
+  RF-DEF-052 eliminar sede), HU-15/16/17/18/19 (desplazadas en bloque una
+  posicion), HU-20/21 (rango de RF de panel admin y ayuda desplazado y
+  mezclado). CU-06, CU-07, CU-10, CU-11, CU-13, CU-14, CU-15, CU-18, CU-20,
+  CU-24 corregidos por la misma causa raiz.
+- Caption de la figura del diagrama ER: "incluye PK/FK reales de cada tabla"
+  (sobre-alcance, el grafico no muestra las 23 tablas) corregido a "Modelo
+  Entidad-Relacion de las principales entidades del sistema, construido a
+  partir de las PK/FK verificadas en el esquema real de Supabase".
+- Parrafo de metodologia Red Team (seccion 15.2): "Ningun hallazgo fue
+  explotado de forma destructiva sobre datos reales sin revertir el cambio"
+  (contradecia el incidente real de RT-04) corregido a una redaccion honesta
+  que reconoce el incidente no intencionado sobre dos registros reales de PQR
+  y su cierre (uno restaurado via auditoria, el otro irrecuperable).
+- Figuras 4 a 7 (y las 20 en general): el bloque [diagrama + "Figura N. Titulo"
+  + Fuente] se envolvio en KeepTogether() en el generador (antes eran flowables
+  independientes que reportlab podia partir entre paginas). Verificado
+  renderizando las paginas 24-27: cada figura y su caption quedan en la misma
+  pagina.
+- OBS-01 y OBS-02 (contenido incorrecto en la version anterior, que los habia
+  sustituido por backups/PITR y cobertura de pruebas): reemplazados por los
+  hallazgos reales solicitados y verificados contra codigo:
+    OBS-01: ausencia de whitelist `read` en varias tablas staff-only del Data
+            Gateway (actividades, calificaciones_eventos, evaluaciones,
+            recursos, evento_recursos, voluntarios_eventos) — verificado en
+            DataGatewayController.php linea 263 (`isset($cfg['read'])`).
+    OBS-02: controles temporales (triggers de timestamp) documentados solo en
+            scripts SQL, no verificables via introspeccion PostgREST.
+  Backups/PITR permanecen documentados como LIMITACION/RIESGO (seccion 13.4 y
+  matriz de riesgo R-01), no como hallazgo de seguridad — tal como se pidio.
+- RN-19: la "Capa" decia "modulo descontinuado" (termino ya corregido en otra
+  parte del documento como incorrecto); alineado a "objeto presente en el
+  esquema, sin consumidor en el panel web", consistente con RF-DEF-076 y con
+  la seccion 20 (Inconsistencias detectadas).
+
+--------------------------------------------------------------------------------
+3. HALLAZGO NUEVO DE ESTA AUDITORIA (no solicitado explicitamente, detectado
+   por verificacion directa de codigo antes de "corregir" OBS-03)
+--------------------------------------------------------------------------------
+Se pidio implementar la proteccion server-side para "el usuario id=1". Antes
+de escribir codigo se verifico el tipo real de la columna `usuarios.id` en el
+esquema vivo (schema.json, introspeccion PostgREST): es UUID
+(`format: "uuid"`), no un entero secuencial. La linea real del frontend
+(`Bajo-Su-Presencia/controllers/usuarios.controller.js:118`) es:
+
+    const btnToggle = u.id === 1 ? ... : ...
+
+Esa comparacion (UUID string === numero 1) NUNCA es verdadera en JavaScript.
+Conclusion verificada: el control **nunca protegio a nadie**, ni siquiera
+visualmente — es codigo muerto, no una proteccion "solo frontend" como se
+penso originalmente. No se implemento una correccion de codigo en esta fase
+porque hacerlo exigiria inventar un identificador ("cual es LA cuenta
+protegida") que no existe en el esquema actual; eso es una decision de
+producto, no una correccion tecnica segura de aplicar unilateralmente.
+OBS-03 se documenta en el PDF con este alcance ampliado y permanece marcado
+SIN CORREGIR, con la recomendacion tecnica concreta (columna dedicada o lista
+de UUIDs protegidos por configuracion) para cuando se tome esa decision.
+NO SE MODIFICO CODIGO FUENTE DEL PROYECTO EN ESTA FASE.
+
+--------------------------------------------------------------------------------
+4. DIAGRAMAS
+--------------------------------------------------------------------------------
+Se mantienen los 20 diagramas vectoriales (matplotlib, sin ASCII) generados y
+validados visualmente en la iteracion anterior de este mismo trabajo de
+auditoria. No se regeneraron desde cero porque ninguno de los cambios de esta
+fase (numeracion, trazabilidad HU/CU, OBS, texto) afecta su contenido visual;
+regenerarlos sin motivo habria sido puramente cosmetico y arriesgaba introducir
+nuevas inconsistencias sin necesidad. Se corrigio unicamente el problema de
+paginacion (figura/caption separados) explicado en la seccion 2 de este informe,
+y el texto del caption del diagrama ER.
+
+--------------------------------------------------------------------------------
+5. TRAZABILIDAD
+--------------------------------------------------------------------------------
+CONFIRMADO: la matriz de trazabilidad (seccion 18.1, formato RF | Modulo | HU |
+CU | Evidencia | Prueba) fue reconstruida programaticamente desde el catalogo
+fuente de 77 RF (rf_def_final.json) en la auditoria previa, y sus diccionarios
+de mapeo modulo->HU y modulo->CU se revisaron y quedaron consistentes con las
+correcciones de HU/CU de esta fase (no requirieron cambios adicionales, ya que
+el mapeo es por modulo, no por RF individual desplazado).
+
+--------------------------------------------------------------------------------
+6. LIMITACIONES REALES DEL PROYECTO (documentadas en el PDF, no inventadas)
+--------------------------------------------------------------------------------
+- Sin evidencia de entrevistas/encuestas formales de elicitacion de requisitos.
+- HU y CU son reconstruccion documental a partir del codigo, no actas
+  originales de usuario.
+- Cobertura de pruebas automatizadas: 2 casos confirmados (LoggerTest,
+  ValidatorTest); el resto de la validacion de seguridad es manual/Red Team,
+  no una suite automatizada exhaustiva — no se afirma ningun porcentaje de
+  cobertura.
+- Dependencia total de Supabase (plan Free, sin backups programados ni PITR
+  confirmados) — documentado como riesgo/limitacion, no como OBS de seguridad.
+- CHECK constraints, triggers y politicas RLS: su definicion viene de scripts
+  SQL de auditoria; NO se afirma verificacion en vivo de su ejecucion actual
+  (la introspeccion PostgREST solo confirma tablas, columnas, tipos y RPC).
+- Modulo de asistencias: objeto de BD presente y activo, sin consumidor
+  confirmado en el panel web de este repositorio (no se afirma que este
+  "implementado" ni que este "descontinuado" sin mas contexto).
+- OBS-03 permanece sin corregir (ver seccion 3 de este informe).
+- Instructor, integrantes, ficha SENA, fechas oficiales, hosting de
+  produccion: [PENDIENTE DE COMPLETAR] — 3 apariciones confirmadas en el PDF,
+  todas en la portada/control de versiones, ninguna inventada.
+
+--------------------------------------------------------------------------------
+7. VALIDACION VISUAL REALIZADA
+--------------------------------------------------------------------------------
+- Portada: tabla ajustada a margenes, sin desbordamiento (Paragraph con
+  wordwrap en vez de string plano).
+- Pagina 10 (catalogo de 77 RF, inicio): verificado visualmente, sin texto
+  residual de subsecciones.
+- Pagina 16 (reglas de negocio RN-11 a RN-22, incluye RN-14, RN-19, RN-20):
+  verificado visualmente.
+- Pagina 20 (Casos de uso CU-01 a CU-20): verificado visualmente, RF
+  coincidentes con las correcciones pedidas (CU-07=RF-DEF-056,
+  CU-11=RF-DEF-062/063, CU-14=RF-DEF-066..071, CU-15=RF-DEF-060/061).
+- Paginas 24-27 (Figuras 4-7, diagramas de actividad): verificado que cada
+  figura y su caption quedan en la misma pagina tras el fix de KeepTogether.
+- Pagina 63 (Tabla de OBS-01/02/03 y seccion 15.4): verificado visualmente,
+  contenido correcto y consistente entre la tabla y el texto de cierre.
+- Barrido completo de las 74 paginas: 0 paginas con menos de 15 palabras
+  (ninguna pagina vacia o casi vacia).
+
+================================================================================
+FIN DEL INFORME
+================================================================================
