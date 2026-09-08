@@ -121,15 +121,25 @@ Gmail (`smtp.gmail.com:587`) **fallará** con error 500 en:
 - comprobante de donación,
 - confirmación de PQR.
 
-**El resto de la aplicación funciona con normalidad.** Opciones:
+**El resto de la aplicación funciona con normalidad.**
 
-| Opción | Coste | Trabajo |
-|---|---|---|
-| **A.** Subir el Web Service a plan **Starter** ($7/mes) | $7/mes | Ninguno, el SMTP se desbloquea |
-| **B.** Cambiar el envío a una **API HTTP** (Brevo: 300 correos/día gratis; o Resend: 3 000/mes) | $0 | Yo modifico `src/Support/Mailer.php`; tú creas la cuenta y me pasas la API key |
-| **C.** Dejarlo así por ahora | $0 | Las 3 funciones de correo quedan caídas |
+**Solución aplicada:** `src/Support/Mailer.php` usa la **API HTTP de Brevo**
+(300 correos/día gratis) cuando existe la variable `BREVO_API_KEY`; viaja por
+HTTPS (443), no por SMTP. Si esa variable no está, cae al SMTP de Gmail (para
+desarrollo local).
 
-Si eliges **B**, dímelo y lo preparo.
+Para activarlo:
+
+1. Crear cuenta en <https://www.brevo.com> y **verificar el teléfono**.
+2. **Verificar el remitente**: Settings → Senders → añadir `Bajo Su Presencia`
+   + el correo de `MAIL_USERNAME` y confirmar desde el email que llega.
+3. **Generar una API key**: Settings → SMTP & API → API Keys.
+4. **Desactivar el filtro de IP**: Settings → Security → «Blocking unauthorized
+   IP addresses» → *Deactivate for API keys* (la IP de Render es dinámica).
+5. En Render → Environment, añadir `BREVO_API_KEY = xkeysib-...`.
+
+Alternativa sin Brevo: subir el Web Service a plan **Starter** ($7/mes) y el
+SMTP de Gmail (puerto 587) funciona sin tocar nada.
 
 ---
 

@@ -53,16 +53,20 @@ services:
       - key: RESET_URL_BASE
         sync: false                  # https://<tu-dominio>/recuperar
 
-      # ── Correo (Gmail SMTP) ───────────────────────────────
-      #  OJO: el plan free de Render BLOQUEA los puertos SMTP
-      #  (25/465/587). Ver DESPLIEGUE.md → sección «Correo».
+      # ── Correo ────────────────────────────────────────────
+      #  Producción: Brevo por API HTTP (los puertos SMTP están
+      #  bloqueados en el plan free de Render). El remitente
+      #  MAIL_USERNAME debe estar verificado en Brevo.
+      - key: BREVO_API_KEY
+        sync: false                  # xkeysib-...
+      - key: MAIL_USERNAME
+        sync: false                  # remitente verificado en Brevo
+      - key: MAIL_FROM_NAME
+        value: "Bajo Su Presencia"
+      #  Respaldo SMTP (solo si NO hay BREVO_API_KEY; útil en local).
       - key: MAIL_HOST
         value: smtp.gmail.com
       - key: MAIL_PORT
         value: "587"
-      - key: MAIL_USERNAME
-        sync: false
       - key: MAIL_APP_PASSWORD
         sync: false
-      - key: MAIL_FROM_NAME
-        value: "Bajo Su Presencia"
