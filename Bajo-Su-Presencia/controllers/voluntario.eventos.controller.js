@@ -246,6 +246,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
+    // El voluntario solo ve eventos a los que todavía puede inscribirse:
+    // se ocultan los ya finalizados (fecha pasada).
+    eventos = eventos.filter(ev => _estadoMostrar(ev) !== 'Finalizado');
+
     // Orden: más próximos/recientes primero (fecha descendente).
     eventos.sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)));
 
