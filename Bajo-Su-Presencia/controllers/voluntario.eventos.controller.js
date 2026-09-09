@@ -113,9 +113,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   /** Construye la tarjeta de un evento. */
   function _crearTarjeta(evento) {
-    const inscrito  = _estoyInscrito(evento);
-    const cancelado = evento.estado === 'Cancelado';
-    const cupos     = _cupos(evento);
+    const inscrito   = _estoyInscrito(evento);
+    const cancelado  = evento.estado === 'Cancelado';
+    const finalizado = _estadoMostrar(evento) === 'Finalizado';
+    // Un evento cancelado o ya finalizado no admite nuevas inscripciones.
+    const cerrado    = cancelado || finalizado;
+    const cupos      = _cupos(evento);
 
     const card = document.createElement('article');
     card.className = 'vev-card' + (inscrito ? ' is-inscrito' : '');
@@ -172,6 +175,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const hueco = document.createElement('span');
       hueco.className = 'vev-meta-item is-muted';
       hueco.textContent = cancelado ? 'Evento cancelado'
+                        : finalizado ? 'Evento finalizado'
                         : cupos.lleno ? 'Sin cupos disponibles'
                         : 'Aún no te has inscrito';
       foot.appendChild(hueco);
@@ -179,7 +183,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       btn.className = 'vev-btn vev-btn-inscribir';
       btn.innerHTML = '<i class="bx bx-user-plus" aria-hidden="true"></i>';
       btn.append(document.createTextNode('Inscribirme'));
-      btn.disabled = cancelado || cupos.lleno;
+      btn.disabled = cerrado || cupos.lleno;
       btn.addEventListener('click', () => _inscribir(evento, btn));
     }
     foot.appendChild(btn);
@@ -190,6 +194,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   /** Inscribe al voluntario y recarga la vista. */
   async function _inscribir(evento, btn) {
+    if (evento.estado === 'Cancelado' || _estadoMostrar(evento) === 'Finalizado') {
+      showAlertError('Este evento ya no admite inscripciones.');
+      return;
+    }
     btn.disabled = true;
     const res = await EventosModel.inscribir(evento.id, volId);
     if (!res.ok) {

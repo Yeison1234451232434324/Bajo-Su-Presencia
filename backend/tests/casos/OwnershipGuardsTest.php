@@ -90,10 +90,18 @@ return static function (Corredor $c): void {
             );
         });
     });
-    $c->prueba('POST propio con campos permitidos no lanza (self-service correcto)', function (Corredor $c) use ($voluntarioEvento) {
-        $voluntarioEvento->assertPermitido('POST', '', ['usuario_id' => 'u-1', 'evento_id' => 5, 'disponible' => true], 'u-1');
-        $c->asegurarCierto(true);
+    $c->prueba('POST propio sin evento_id se rechaza (sin tocar Supabase)', function (Corredor $c) use ($voluntarioEvento) {
+        $c->asegurarLanza(ApiException::class, function () use ($voluntarioEvento) {
+            $voluntarioEvento->assertPermitido('POST', '', ['usuario_id' => 'u-1', 'disponible' => true], 'u-1');
+        });
     });
+    $c->prueba(
+        '[INTEGRACIÓN, NO CUBIERTA AQUÍ] POST propio bien formado consulta Supabase '
+        . 'para exigir que el evento no esté cancelado ni finalizado — no testeable sin Supabase real.',
+        function (Corredor $c) {
+            $c->asegurarCierto(true, 'documentado como pendiente de prueba de integración');
+        }
+    );
     $c->prueba('PATCH con campo distinto de "disponible" se rechaza', function (Corredor $c) use ($voluntarioEvento) {
         $c->asegurarLanza(ApiException::class, function () use ($voluntarioEvento) {
             $voluntarioEvento->assertPermitido('PATCH', 'usuario_id=eq.u-1', ['disponible' => true, 'rol_en_evento' => 'x'], 'u-1');
