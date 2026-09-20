@@ -330,6 +330,37 @@ function servirActivo(string $ruta): bool
     return true;
 }
 
+/**
+ * Sirve robots.txt y sitemap.xml en la raíz del dominio, tal como Google y
+ * demás buscadores los esperan (no bajo /Bajo-Su-Presencia/...).
+ *
+ * @return bool false si la ruta no corresponde a uno de estos dos archivos.
+ */
+function servirArchivoSeo(string $ruta): bool
+{
+    $archivos = [
+        '/robots.txt'  => ['seo/robots.txt', 'text/plain; charset=utf-8'],
+        '/sitemap.xml' => ['seo/sitemap.xml', 'application/xml; charset=utf-8'],
+    ];
+
+    if (!isset($archivos[$ruta])) {
+        return false;
+    }
+
+    [$relativa, $mime] = $archivos[$ruta];
+    $absoluta = APP_DIR . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relativa);
+    $real     = realpath($absoluta);
+
+    if ($real === false || !is_file($real) || !estaContenidoEn($real, APP_DIR)) {
+        return false;
+    }
+
+    header('Content-Type: ' . $mime);
+    header('Cache-Control: public, max-age=3600');
+    readfile($real);
+    return true;
+}
+
 // ============================================================================
 //  Despacho
 // ============================================================================
@@ -350,21 +381,26 @@ if ($ruta === '/') {
     $ruta = '/';
 }
 
-// 1) ¿Es una ruta de la aplicación?
+// 1) ¿Es un archivo de SEO en la raíz (robots.txt, sitemap.xml)?
+if (servirArchivoSeo($ruta)) {
+    exit;
+}
+
+// 2) ¿Es una ruta de la aplicación?
 $rutas = tablaDeRutas();
 if (isset($rutas[$ruta])) {
     servirVista($rutas[$ruta]);
 }
 
-// 2) ¿Es una ruta antigua de vista? Se redirige a su URL limpia (compatibilidad
+// 3) ¿Es una ruta antigua de vista? Se redirige a su URL limpia (compatibilidad
 //    con la navegación interna de la aplicación y con marcadores existentes).
 redirigirRutaAntigua($ruta);
 
-// 3) ¿Es un activo estático autorizado?
+// 4) ¿Es un activo estático autorizado?
 if (servirActivo($ruta)) {
     exit;
 }
 
-// 4) Cualquier otra cosa no existe. Incluye .env, código fuente, vendor,
+// 5) Cualquier otra cosa no existe. Incluye .env, código fuente, vendor,
 //    logs y el directorio backend: nunca se sirven porque no están listados.
 responderError(404, 'Página no encontrada', 'La dirección solicitada no existe en este sitio.');
