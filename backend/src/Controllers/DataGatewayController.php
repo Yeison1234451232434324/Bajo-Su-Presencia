@@ -10,6 +10,7 @@ use App\DataGateway\GatewayAuditor;
 use App\DataGateway\OwnershipGuardInterface;
 use App\DataGateway\PostgrestQuery;
 use App\DataGateway\PqrWriteGuard;
+use App\DataGateway\PublicReadCache;
 use App\DataGateway\TableAccessPolicy;
 use App\DataGateway\VoluntarioEventoOwnershipGuard;
 use App\Exceptions\ApiException;
@@ -60,6 +61,7 @@ final class DataGatewayController
     private readonly EmbedAccessValidator $embeds;
     private readonly PqrWriteGuard $pqrGuard;
     private readonly GatewayAuditor $auditor;
+    private readonly PublicReadCache $cache;
 
     /** @var array<string,OwnershipGuardInterface> Guard de ownership por tabla, solo para escrituras del rol Voluntario. */
     private readonly array $ownershipGuards;
@@ -75,7 +77,8 @@ final class DataGatewayController
         ?EmbedAccessValidator $embeds = null,
         ?PqrWriteGuard $pqrGuard = null,
         ?GatewayAuditor $auditor = null,
-        ?array $ownershipGuards = null
+        ?array $ownershipGuards = null,
+        ?PublicReadCache $cache = null
     ) {
         $this->sb       = $sb ?? new SupabaseClient();
         $this->policy   = $policy ?? new TableAccessPolicy();
@@ -83,6 +86,7 @@ final class DataGatewayController
         $this->embeds   = $embeds ?? new EmbedAccessValidator($this->policy, $this->query);
         $this->pqrGuard = $pqrGuard ?? new PqrWriteGuard($this->sb, $this->query);
         $this->auditor  = $auditor ?? new GatewayAuditor($this->query);
+        $this->cache    = $cache ?? new PublicReadCache();
 
         $this->ownershipGuards = $ownershipGuards ?? [
             // RT-02
@@ -175,6 +179,18 @@ final class DataGatewayController
             }
         }
 
+        // Lecturas públicas: se sirven desde la caché de corta duración si hay
+        // una respuesta vigente (ver PublicReadCache). Va DESPUÉS de las
+        // validaciones de arriba: una consulta rechazada nunca llega a la caché.
+        if ($isPublic) {
+            $enCache = $this->cache->obtener($table, $queryString);
+            if ($enCache !== null) {
+                $this->marcarCache('HIT');
+                Response::success($enCache);
+                return;
+            }
+        }
+
         switch ($method) {
             case 'GET':
                 [$status, $data] = $this->sb->rest('GET', $table, $queryString);
@@ -217,6 +233,24 @@ final class DataGatewayController
         if ($status >= 400) {
             throw new ApiException('Error en la operación de datos.', 502);
         }
-        Response::success(is_array($data) ? $data : []);
+
+        // Una escritura exitosa deja obsoletas las lecturas públicas guardadas.
+        if ($isWrite) {
+            $this->cache->invalidar();
+        }
+        $respuesta = is_array($data) ? $data : [];
+        if ($isPublic) {
+            $this->cache->guardar($table, $queryString, $respuesta);
+            $this->marcarCache('MISS');
+        }
+        Response::success($respuesta);
+    }
+
+    /** Cabecera informativa para verificar la caché (solo si está activa). */
+    private function marcarCache(string $estado): void
+    {
+        if ($this->cache->activa() && !headers_sent()) {
+            header('X-Cache: ' . $estado);
+        }
     }
 }
