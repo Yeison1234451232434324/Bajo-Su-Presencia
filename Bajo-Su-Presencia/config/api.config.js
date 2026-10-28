@@ -13,9 +13,9 @@
 // En PRODUCCIÓN el contenedor sirve la web y la API en el MISMO origen bajo
 // /api. Se usa location.origin (no cadena vacía): varios controladores validan
 // `if (!API_BASE)` o hacen `API_BASE || fallback`, y '' rompería ambos.
-window.API_BASE = ['localhost', '127.0.0.1', ''].includes(location.hostname)
-  ? `http://${location.hostname}:8000`
-  : location.origin;
+window.API_BASE = ['localhost', '127.0.0.1', ''].includes(window.location.hostname)
+  ? `http://${window.location.hostname}:8000`
+  : window.location.origin;
 
 /**
  * ============================================================
@@ -35,10 +35,10 @@ window.API_BASE = ['localhost', '127.0.0.1', ''].includes(location.hostname)
  * En ambos casos se avisa al usuario UNA vez, para que un fallo nunca se
  * confunda con una lista vacía.
  */
-window.BSPLog = (function () {
+window.BSPLog = (function crearBSPLog() {
   'use strict';
 
-  const ES_DESARROLLO = ['localhost', '127.0.0.1', ''].includes(location.hostname);
+  const ES_DESARROLLO = ['localhost', '127.0.0.1', ''].includes(window.location.hostname);
   const yaAvisado = new Set();
 
   /**
@@ -51,7 +51,7 @@ window.BSPLog = (function () {
       console.error('[BSP]', origen, detalle);
     } else {
       // Sin detalles del esquema ni trazas en producción.
-      console.error('[BSP] Fallo al cargar datos (' + origen + ').');
+      console.error(`[BSP] Fallo al cargar datos (${origen}).`);
     }
     avisar(origen);
   }
@@ -68,7 +68,7 @@ window.BSPLog = (function () {
   }
 
   return { error, esDesarrollo: ES_DESARROLLO };
-})();
+}());
 
 /**
  * Claves de sesión que la aplicación escribe en el navegador.
@@ -76,17 +76,17 @@ window.BSPLog = (function () {
  * cada vez que se agregue una clave nueva, debe registrarse en esta lista.
  */
 window.BSP_SESSION_KEYS = Object.freeze([
-  'bspToken',          // JWT propio (5 min)
-  'bspRefresh',        // refresh token de Supabase
-  'usuarioLogueado',   // nombre y rol mostrados en el panel
+  'bspToken', // JWT propio (5 min)
+  'bspRefresh', // refresh token de Supabase
+  'usuarioLogueado', // nombre y rol mostrados en el panel
 ]);
 
 /** Helpers de almacenamiento del token propio de la app (JWT de 5 min). */
 window.bspAuth = {
   setToken(token) { localStorage.setItem('bspToken', token); },
-  getToken()      { return localStorage.getItem('bspToken'); },
-  getRefresh()    { return localStorage.getItem('bspRefresh'); },
-  clear()         { localStorage.removeItem('bspToken'); localStorage.removeItem('bspRefresh'); },
+  getToken() { return localStorage.getItem('bspToken'); },
+  getRefresh() { return localStorage.getItem('bspRefresh'); },
+  clear() { localStorage.removeItem('bspToken'); localStorage.removeItem('bspRefresh'); },
 
   /**
    * Cierre de sesión COMPLETO. Elimina todo rastro de la sesión para que un
@@ -110,11 +110,11 @@ window.bspAuth = {
 
     // 2 y 3. Limpieza de almacenamiento local.
     try {
-      window.BSP_SESSION_KEYS.forEach(k => localStorage.removeItem(k));
+      window.BSP_SESSION_KEYS.forEach((k) => localStorage.removeItem(k));
       // Claves que el SDK de Supabase crea con prefijo sb-<proyecto>-auth-token
       Object.keys(localStorage)
-        .filter(k => k.startsWith('sb-') || k.startsWith('bsp'))
-        .forEach(k => localStorage.removeItem(k));
+        .filter((k) => k.startsWith('sb-') || k.startsWith('bsp'))
+        .forEach((k) => localStorage.removeItem(k));
       sessionStorage.clear();
     } catch (_) { /* almacenamiento no disponible */ }
 
@@ -123,8 +123,7 @@ window.bspAuth = {
       document.cookie.split(';').forEach((c) => {
         const nombre = c.split('=')[0].trim();
         if (!nombre) return;
-        document.cookie =
-          `${nombre}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Strict`;
+        document.cookie = `${nombre}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Strict`;
       });
     } catch (_) { /* sin cookies */ }
 
@@ -142,7 +141,7 @@ window.bspAuth = {
  *
  * @param {string} [redirectTo] Ruta del login.
  */
-window.bspBindLogout = function (redirectTo) {
+window.bspBindLogout = function bspBindLogout(redirectTo) {
   const enlace = document.getElementById('nav-logout');
   if (!enlace || enlace.dataset.bspLogoutBound === '1') return;
   enlace.dataset.bspLogoutBound = '1';
@@ -171,18 +170,18 @@ window.bspBindLogout = function (redirectTo) {
  *
  * @returns {Promise<boolean>} true si se renovó correctamente.
  */
-window._bspRefreshEnCurso = null;
-window.bspRefreshToken = async function () {
-  if (window._bspRefreshEnCurso) return window._bspRefreshEnCurso;
+window.localBspRefreshEnCurso = null;
+window.bspRefreshToken = async function bspRefreshToken() {
+  if (window.localBspRefreshEnCurso) return window.localBspRefreshEnCurso;
 
-  window._bspRefreshEnCurso = (async () => {
+  window.localBspRefreshEnCurso = (async () => {
     const refresh = window.bspAuth.getRefresh();
     if (!refresh) return false;
     try {
       const r = await fetch(`${window.API_BASE}/api/auth/refresh`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refresh_token: refresh })
+        body: JSON.stringify({ refresh_token: refresh }),
       });
       const b = await r.json();
       if (r.ok && b.status === 'success' && b.data?.token?.access_token) {
@@ -195,9 +194,9 @@ window.bspRefreshToken = async function () {
   })();
 
   try {
-    return await window._bspRefreshEnCurso;
+    return await window.localBspRefreshEnCurso;
   } finally {
-    window._bspRefreshEnCurso = null;
+    window.localBspRefreshEnCurso = null;
   }
 };
 
@@ -210,7 +209,7 @@ window.bspRefreshToken = async function () {
  * @param {object} [opts] Opciones: { method, body, auth }.
  * @returns {Promise<any>} El campo `data` de la respuesta.
  */
-window.apiFetch = async function (path, opts = {}) {
+window.apiFetch = async function apiFetch(path, opts = {}) {
   const { method = 'GET', body = null, auth = true } = opts;
 
   const doFetch = () => fetch(`${window.API_BASE}${path}`, {
@@ -218,12 +217,12 @@ window.apiFetch = async function (path, opts = {}) {
     headers: {
       'Content-Type': 'application/json',
       ...(auth && window.bspAuth.getToken()
-        ? { Authorization: `Bearer ${window.bspAuth.getToken()}` } : {})
+        ? { Authorization: `Bearer ${window.bspAuth.getToken()}` } : {}),
     },
-    ...(body !== null ? { body: JSON.stringify(body) } : {})
+    ...(body !== null ? { body: JSON.stringify(body) } : {}),
   });
 
-  let res  = await doFetch();
+  let res = await doFetch();
   // Token expirado (5 min): intenta refrescar una vez y reintenta.
   if (res.status === 401 && auth && await window.bspRefreshToken()) {
     res = await doFetch();

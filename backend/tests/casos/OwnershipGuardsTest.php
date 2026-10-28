@@ -43,9 +43,15 @@ return static function (Corredor $c): void {
     $c->prueba('POST se rechaza: un voluntario no puede crear actividades', function (Corredor $c) use ($actividad) {
         $c->asegurarLanza(ApiException::class, fn () => $actividad->assertPermitido('POST', '', [], 'u-1'));
     });
-    $c->prueba('DELETE se rechaza: un voluntario no puede eliminar actividades', function (Corredor $c) use ($actividad) {
-        $c->asegurarLanza(ApiException::class, fn () => $actividad->assertPermitido('DELETE', 'id=eq.1', [], 'u-1'));
-    });
+    $c->prueba(
+        'DELETE se rechaza: un voluntario no puede eliminar actividades',
+        function (Corredor $c) use ($actividad) {
+            $c->asegurarLanza(
+                ApiException::class,
+                fn () => $actividad->assertPermitido('DELETE', 'id=eq.1', [], 'u-1')
+            );
+        }
+    );
     $c->prueba('PATCH con un campo distinto de "completada" se rechaza', function (Corredor $c) use ($actividad) {
         $c->asegurarLanza(ApiException::class, function () use ($actividad) {
             $actividad->assertPermitido('PATCH', 'id=eq.1', ['completada' => true, 'nombre' => 'otro'], 'u-1');
@@ -80,21 +86,27 @@ return static function (Corredor $c): void {
             $voluntarioEvento->assertPermitido('POST', '', ['usuario_id' => 'u-2', 'evento_id' => 5], 'u-1');
         });
     });
-    $c->prueba('POST con campo no permitido (rol_en_evento) se rechaza', function (Corredor $c) use ($voluntarioEvento) {
-        $c->asegurarLanza(ApiException::class, function () use ($voluntarioEvento) {
-            $voluntarioEvento->assertPermitido(
-                'POST',
-                '',
-                ['usuario_id' => 'u-1', 'evento_id' => 5, 'rol_en_evento' => 'Ujier'],
-                'u-1'
-            );
-        });
-    });
-    $c->prueba('POST propio sin evento_id se rechaza (sin tocar Supabase)', function (Corredor $c) use ($voluntarioEvento) {
-        $c->asegurarLanza(ApiException::class, function () use ($voluntarioEvento) {
-            $voluntarioEvento->assertPermitido('POST', '', ['usuario_id' => 'u-1', 'disponible' => true], 'u-1');
-        });
-    });
+    $c->prueba(
+        'POST con campo no permitido (rol_en_evento) se rechaza',
+        function (Corredor $c) use ($voluntarioEvento) {
+            $c->asegurarLanza(ApiException::class, function () use ($voluntarioEvento) {
+                $voluntarioEvento->assertPermitido(
+                    'POST',
+                    '',
+                    ['usuario_id' => 'u-1', 'evento_id' => 5, 'rol_en_evento' => 'Ujier'],
+                    'u-1'
+                );
+            });
+        }
+    );
+    $c->prueba(
+        'POST propio sin evento_id se rechaza (sin tocar Supabase)',
+        function (Corredor $c) use ($voluntarioEvento) {
+            $c->asegurarLanza(ApiException::class, function () use ($voluntarioEvento) {
+                $voluntarioEvento->assertPermitido('POST', '', ['usuario_id' => 'u-1', 'disponible' => true], 'u-1');
+            });
+        }
+    );
     $c->prueba(
         '[INTEGRACIÓN, NO CUBIERTA AQUÍ] POST propio bien formado consulta Supabase '
         . 'para exigir que el evento no esté cancelado ni finalizado — no testeable sin Supabase real.',
@@ -104,18 +116,29 @@ return static function (Corredor $c): void {
     );
     $c->prueba('PATCH con campo distinto de "disponible" se rechaza', function (Corredor $c) use ($voluntarioEvento) {
         $c->asegurarLanza(ApiException::class, function () use ($voluntarioEvento) {
-            $voluntarioEvento->assertPermitido('PATCH', 'usuario_id=eq.u-1', ['disponible' => true, 'rol_en_evento' => 'x'], 'u-1');
+            $voluntarioEvento->assertPermitido(
+                'PATCH',
+                'usuario_id=eq.u-1',
+                ['disponible' => true, 'rol_en_evento' => 'x'],
+                'u-1'
+            );
         });
     });
-    $c->prueba('PATCH filtrado por usuario_id=eq.<otro> se rechaza sin tocar Supabase (filtro directo, no requiere SELECT)', function (Corredor $c) use ($voluntarioEvento) {
-        $c->asegurarLanza(ApiException::class, function () use ($voluntarioEvento) {
-            $voluntarioEvento->assertPermitido('PATCH', 'usuario_id=eq.u-2', ['disponible' => true], 'u-1');
-        });
-    });
-    $c->prueba('PATCH filtrado por usuario_id=eq.<propio> no lanza, sin tocar Supabase', function (Corredor $c) use ($voluntarioEvento) {
-        $voluntarioEvento->assertPermitido('PATCH', 'usuario_id=eq.u-1', ['disponible' => true], 'u-1');
-        $c->asegurarCierto(true);
-    });
+    $c->prueba(
+        'PATCH filtrado por usuario_id=eq.<otro> se rechaza sin tocar Supabase (filtro directo, no requiere SELECT)',
+        function (Corredor $c) use ($voluntarioEvento) {
+            $c->asegurarLanza(ApiException::class, function () use ($voluntarioEvento) {
+                $voluntarioEvento->assertPermitido('PATCH', 'usuario_id=eq.u-2', ['disponible' => true], 'u-1');
+            });
+        }
+    );
+    $c->prueba(
+        'PATCH filtrado por usuario_id=eq.<propio> no lanza, sin tocar Supabase',
+        function (Corredor $c) use ($voluntarioEvento) {
+            $voluntarioEvento->assertPermitido('PATCH', 'usuario_id=eq.u-1', ['disponible' => true], 'u-1');
+            $c->asegurarCierto(true);
+        }
+    );
     $c->prueba(
         '[INTEGRACIÓN, NO CUBIERTA AQUÍ] PATCH filtrado por id (no por usuario_id) '
         . 'requiere consultar Supabase para resolver el propietario — no testeable sin Supabase real.',

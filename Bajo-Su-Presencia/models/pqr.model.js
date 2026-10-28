@@ -1,3 +1,5 @@
+/* global DB */
+/* exported PQRModel */
 /**
  * ============================================================
  * MODELO: pqr.model.js  (Supabase)
@@ -16,7 +18,6 @@
  */
 
 const PQRModel = (() => {
-
   const TABLA = 'pqr';
   const TIPOS = ['Petición', 'Queja', 'Reclamo'];
   const ESTADOS = ['Pendiente', 'En proceso', 'Resuelto', 'Cerrado'];
@@ -24,37 +25,44 @@ const PQRModel = (() => {
   // el embed se desambigua con el nombre de la columna.
   const SEL = '*, respondido:usuarios!respondido_por_id(nombre:nombre_completo)';
 
-  function _fromRow(r) {
+  function localFromRow(r) {
     return {
-      id:           r.id,
-      tipo:         r.tipo || 'Petición',
-      nombre:       r.nombre || '',
-      email:        r.correo || '',
-      telefono:     r.telefono || '',
-      asunto:       r.asunto || '',
-      descripcion:  r.descripcion || '',
-      estado:       r.estado || 'Pendiente',
-      prioridad:    r.prioridad || 'Media',
-      creadoEn:     r.creado_en || '',
-      respuesta:    r.respuesta || '',
+      id: r.id,
+      tipo: r.tipo || 'Petición',
+      nombre: r.nombre || '',
+      email: r.correo || '',
+      telefono: r.telefono || '',
+      asunto: r.asunto || '',
+      descripcion: r.descripcion || '',
+      estado: r.estado || 'Pendiente',
+      prioridad: r.prioridad || 'Media',
+      creadoEn: r.creado_en || '',
+      respuesta: r.respuesta || '',
       respondidoEn: r.respondido_en || null,
-      respondidoPor:r.respondido?.nombre || ''
+      respondidoPor: r.respondido?.nombre || '',
     };
   }
 
   // Traducción de errores centralizada en db.client.js (window.DB.mensajeError).
-  function _msg(error) { return DB.mensajeError(error); }
+  function localMsg(error) { return DB.mensajeError(error); }
 
   async function getAll() {
     const { data, error } = await DB.from(TABLA).select(SEL).order('creado_en', { ascending: false });
-    if (error) { (window.BSPLog ? window.BSPLog.error('PQRModel.getAll', error) : console.error('PQRModel.getAll')); return []; }
-    return (data || []).map(_fromRow);
+    if (error) {
+      if (window.BSPLog) {
+        window.BSPLog.error('PQRModel.getAll', error);
+      } else {
+        console.error('PQRModel.getAll');
+      }
+      return [];
+    }
+    return (data || []).map(localFromRow);
   }
 
   async function getById(id) {
     const { data, error } = await DB.from(TABLA).select(SEL).eq('id', id).single();
     if (error || !data) return null;
-    return _fromRow(data);
+    return localFromRow(data);
   }
 
   // Pasa por el backend PHP (no por el Data Gateway) porque, además de
@@ -62,9 +70,9 @@ const PQRModel = (() => {
   // (requiere Mailer/SMTP, solo disponible en el servidor). Es la única
   // escritura pública en `pqr`, así que no exige JWT (auth:false).
   async function crear(data) {
-    if (!data.nombre?.trim())      return { ok: false, error: 'El nombre es obligatorio.' };
-    if (!data.email?.trim())       return { ok: false, error: 'El correo electrónico es obligatorio.' };
-    if (!data.asunto?.trim())      return { ok: false, error: 'El asunto es obligatorio.' };
+    if (!data.nombre?.trim()) return { ok: false, error: 'El nombre es obligatorio.' };
+    if (!data.email?.trim()) return { ok: false, error: 'El correo electrónico es obligatorio.' };
+    if (!data.asunto?.trim()) return { ok: false, error: 'El asunto es obligatorio.' };
     if (!data.descripcion?.trim()) return { ok: false, error: 'La descripción es obligatoria.' };
 
     try {
@@ -72,15 +80,15 @@ const PQRModel = (() => {
         method: 'POST',
         auth: false,
         body: {
-          tipo:        TIPOS.includes(data.tipo) ? data.tipo : 'Petición',
-          nombre:      data.nombre.trim(),
-          correo:      data.email.trim().toLowerCase(),
-          telefono:    data.telefono?.trim() || null,
-          asunto:      data.asunto.trim(),
-          descripcion: data.descripcion.trim()
-        }
+          tipo: TIPOS.includes(data.tipo) ? data.tipo : 'Petición',
+          nombre: data.nombre.trim(),
+          correo: data.email.trim().toLowerCase(),
+          telefono: data.telefono?.trim() || null,
+          asunto: data.asunto.trim(),
+          descripcion: data.descripcion.trim(),
+        },
       });
-      return { ok: true, pqr: _fromRow(creada) };
+      return { ok: true, pqr: localFromRow(creada) };
     } catch (e) {
       return { ok: false, error: e.message || 'Ocurrió un error al procesar la solicitud.' };
     }
@@ -96,9 +104,9 @@ const PQRModel = (() => {
     try {
       const data = await window.apiFetch(`/api/pqr/${encodeURIComponent(id)}/estado`, {
         method: 'PATCH',
-        body: { estado: nuevoEstado }
+        body: { estado: nuevoEstado },
       });
-      return { ok: true, pqr: _fromRow(data) };
+      return { ok: true, pqr: localFromRow(data) };
     } catch (e) {
       return { ok: false, error: e.message || 'Ocurrió un error al procesar la solicitud.' };
     }
@@ -110,17 +118,17 @@ const PQRModel = (() => {
   // Pasa por el backend PHP (no por el Data Gateway) porque, además de
   // actualizar la fila, envía la respuesta al correo que la persona registró
   // al radicar la PQR (requiere Mailer/SMTP, solo disponible en el servidor).
-  async function responder(id, respuesta, nuevoEstado, _respondidoPor) {
+  async function responder(id, respuesta, nuevoEstado) {
     if (!respuesta || !respuesta.trim()) return { ok: false, error: 'La respuesta no puede estar vacía.' };
     try {
       const data = await window.apiFetch(`/api/pqr/${encodeURIComponent(id)}/responder`, {
         method: 'PATCH',
         body: {
           respuesta: respuesta.trim(),
-          estado: ESTADOS.includes(nuevoEstado) ? nuevoEstado : undefined
-        }
+          estado: ESTADOS.includes(nuevoEstado) ? nuevoEstado : undefined,
+        },
       });
-      return { ok: true, pqr: _fromRow(data) };
+      return { ok: true, pqr: localFromRow(data) };
     } catch (e) {
       return { ok: false, error: e.message || 'Ocurrió un error al procesar la solicitud.' };
     }
@@ -128,21 +136,22 @@ const PQRModel = (() => {
 
   async function eliminar(id) {
     const { error } = await DB.from(TABLA).delete().eq('id', id);
-    if (error) return { ok: false, error: _msg(error) };
+    if (error) return { ok: false, error: localMsg(error) };
     return { ok: true };
   }
 
   async function getEstadisticas() {
     const lista = await getAll();
     return {
-      total:      lista.length,
-      pendientes: lista.filter(p => p.estado === 'Pendiente').length,
-      enProceso:  lista.filter(p => p.estado === 'En proceso').length,
-      resueltos:  lista.filter(p => p.estado === 'Resuelto').length,
-      cerrados:   lista.filter(p => p.estado === 'Cerrado').length
+      total: lista.length,
+      pendientes: lista.filter((p) => p.estado === 'Pendiente').length,
+      enProceso: lista.filter((p) => p.estado === 'En proceso').length,
+      resueltos: lista.filter((p) => p.estado === 'Resuelto').length,
+      cerrados: lista.filter((p) => p.estado === 'Cerrado').length,
     };
   }
 
-  return { getAll, getById, crear, cambiarEstado, responder, eliminar, getEstadisticas };
-
+  return {
+    getAll, getById, crear, cambiarEstado, responder, eliminar, getEstadisticas,
+  };
 })();

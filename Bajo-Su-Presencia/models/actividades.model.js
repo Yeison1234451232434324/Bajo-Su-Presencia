@@ -1,3 +1,5 @@
+/* global DB */
+/* exported ActividadesModel */
 /**
  * ============================================================
  * MODELO: actividades.model.js  (Supabase)
@@ -18,44 +20,57 @@
  */
 
 const ActividadesModel = (() => {
-
   const TABLA = 'actividades';
-  // Columnas realmente usadas por _fromRow — evita traer filas completas.
+  // Columnas realmente usadas por localFromRow — evita traer filas completas.
   // "usuarios!voluntario_id" desambigua el embed por esa FK específica
   // (mismo patrón que ya usan pqr.model.js y reportes.model.js).
-  const SEL = 'id, evento_id, nombre, descripcion, prioridad, voluntario_id, completada, ' +
-              'usuarios!voluntario_id(nombre:nombre_completo)';
+  const SEL = 'id, evento_id, nombre, descripcion, prioridad, voluntario_id, completada, '
+              + 'usuarios!voluntario_id(nombre:nombre_completo)';
 
-  function _fromRow(r) {
+  function localFromRow(r) {
     return {
-      id:               r.id,
-      eventoId:         r.evento_id,
-      titulo:           r.nombre || '',
-      descripcion:      r.descripcion || '',
-      prioridad:        r.prioridad || 'media',
-      voluntarioId:     r.voluntario_id,
+      id: r.id,
+      eventoId: r.evento_id,
+      titulo: r.nombre || '',
+      descripcion: r.descripcion || '',
+      prioridad: r.prioridad || 'media',
+      voluntarioId: r.voluntario_id,
       // FK con ON DELETE SET NULL: si el voluntario fue eliminado,
       // voluntario_id y el embed quedan en null → mismo fallback a ''
       // que antes daba el mapa de nombres cuando el id no aparecía.
       voluntarioNombre: r.usuarios?.nombre || '',
-      completada:       r.completada === true,
-      creadaEn:         ''
+      completada: r.completada === true,
+      creadaEn: '',
     };
   }
 
   // Traducción de errores centralizada en db.client.js (window.DB.mensajeError).
-  function _msg(error) { return DB.mensajeError(error); }
+  function localMsg(error) { return DB.mensajeError(error); }
 
   async function getAll() {
     const { data, error } = await DB.from(TABLA).select(SEL);
-    if (error) { (window.BSPLog ? window.BSPLog.error('ActividadesModel.getAll', error) : console.error('ActividadesModel.getAll')); return []; }
-    return (data || []).map(_fromRow);
+    if (error) {
+      if (window.BSPLog) {
+        window.BSPLog.error('ActividadesModel.getAll', error);
+      } else {
+        console.error('ActividadesModel.getAll');
+      }
+      return [];
+    }
+    return (data || []).map(localFromRow);
   }
 
   async function getByEvento(eventoId) {
     const { data, error } = await DB.from(TABLA).select(SEL).eq('evento_id', eventoId);
-    if (error) { (window.BSPLog ? window.BSPLog.error('ActividadesModel.getByEvento', error) : console.error('ActividadesModel.getByEvento')); return []; }
-    return (data || []).map(_fromRow);
+    if (error) {
+      if (window.BSPLog) {
+        window.BSPLog.error('ActividadesModel.getByEvento', error);
+      } else {
+        console.error('ActividadesModel.getByEvento');
+      }
+      return [];
+    }
+    return (data || []).map(localFromRow);
   }
 
   // Actividades de varios eventos en una sola consulta (WHERE evento_id IN (...)),
@@ -64,67 +79,84 @@ const ActividadesModel = (() => {
     const uniq = [...new Set((eventoIds || []).filter(Boolean))];
     if (!uniq.length) return [];
     const { data, error } = await DB.from(TABLA).select(SEL).in('evento_id', uniq);
-    if (error) { (window.BSPLog ? window.BSPLog.error('ActividadesModel.getByEventos', error) : console.error('ActividadesModel.getByEventos')); return []; }
-    return (data || []).map(_fromRow);
+    if (error) {
+      if (window.BSPLog) {
+        window.BSPLog.error('ActividadesModel.getByEventos', error);
+      } else {
+        console.error('ActividadesModel.getByEventos');
+      }
+      return [];
+    }
+    return (data || []).map(localFromRow);
   }
 
   async function getById(id) {
     const { data, error } = await DB.from(TABLA).select(SEL).eq('id', id).single();
     if (error || !data) return null;
-    return _fromRow(data);
+    return localFromRow(data);
   }
 
   async function crear(data) {
     if (!data.titulo?.trim()) return { ok: false, error: 'El título es obligatorio.' };
-    if (!data.eventoId)       return { ok: false, error: 'El evento es obligatorio.' };
-    if (!data.voluntarioId)   return { ok: false, error: 'Debes asignar un voluntario.' };
+    if (!data.eventoId) return { ok: false, error: 'El evento es obligatorio.' };
+    if (!data.voluntarioId) return { ok: false, error: 'Debes asignar un voluntario.' };
 
     const fila = {
-      evento_id:     data.eventoId,
-      nombre:        data.titulo.trim(),
-      descripcion:   data.descripcion?.trim() || null,
-      prioridad:     ['alta','media','baja'].includes(data.prioridad) ? data.prioridad : 'media',
+      evento_id: data.eventoId,
+      nombre: data.titulo.trim(),
+      descripcion: data.descripcion?.trim() || null,
+      prioridad: ['alta', 'media', 'baja'].includes(data.prioridad) ? data.prioridad : 'media',
       voluntario_id: data.voluntarioId,
-      completada:    false
+      completada: false,
     };
     const { data: ins, error } = await DB.from(TABLA).insert(fila).select(SEL).single();
-    if (error) return { ok: false, error: _msg(error) };
-    return { ok: true, actividad: _fromRow(ins) };
+    if (error) return { ok: false, error: localMsg(error) };
+    return { ok: true, actividad: localFromRow(ins) };
   }
 
   async function actualizar(id, data) {
     if (!data.titulo?.trim()) return { ok: false, error: 'El título es obligatorio.' };
-    if (!data.voluntarioId)   return { ok: false, error: 'Debes asignar un voluntario.' };
+    if (!data.voluntarioId) return { ok: false, error: 'Debes asignar un voluntario.' };
 
     const fila = {
-      nombre:        data.titulo.trim(),
-      descripcion:   data.descripcion?.trim() || null,
-      prioridad:     ['alta','media','baja'].includes(data.prioridad) ? data.prioridad : 'media',
-      voluntario_id: data.voluntarioId
+      nombre: data.titulo.trim(),
+      descripcion: data.descripcion?.trim() || null,
+      prioridad: ['alta', 'media', 'baja'].includes(data.prioridad) ? data.prioridad : 'media',
+      voluntario_id: data.voluntarioId,
     };
-    const { data: upd, error } = await DB.from(TABLA).update(fila).eq('id', id).select(SEL).single();
-    if (error) return { ok: false, error: _msg(error) };
-    return { ok: true, actividad: _fromRow(upd) };
+    const { data: upd, error } = await DB.from(TABLA).update(fila).eq('id', id).select(SEL)
+      .single();
+    if (error) return { ok: false, error: localMsg(error) };
+    return { ok: true, actividad: localFromRow(upd) };
   }
 
   async function toggleCompletada(id, completada) {
     const { error } = await DB.from(TABLA).update({ completada: !!completada }).eq('id', id);
-    if (error) return { ok: false, error: _msg(error) };
+    if (error) return { ok: false, error: localMsg(error) };
     return { ok: true };
   }
 
   async function eliminar(id) {
     const { error } = await DB.from(TABLA).delete().eq('id', id);
-    if (error) return { ok: false, error: _msg(error) };
+    if (error) return { ok: false, error: localMsg(error) };
     return { ok: true };
   }
 
   async function getResumenEvento(eventoId) {
     const acts = await getByEvento(eventoId);
-    const completadas = acts.filter(a => a.completada).length;
+    const completadas = acts.filter((a) => a.completada).length;
     return { total: acts.length, completadas, pendientes: acts.length - completadas };
   }
 
-  return { getAll, getByEvento, getByEventos, getById, crear, actualizar, toggleCompletada, eliminar, getResumenEvento };
-
+  return {
+    getAll,
+    getByEvento,
+    getByEventos,
+    getById,
+    crear,
+    actualizar,
+    toggleCompletada,
+    eliminar,
+    getResumenEvento,
+  };
 })();

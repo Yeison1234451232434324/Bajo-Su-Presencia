@@ -180,11 +180,23 @@ final class DataGatewayController
                 [$status, $data] = $this->sb->rest('GET', $table, $queryString);
                 break;
             case 'POST':
-                [$status, $data] = $this->sb->rest('POST', $table, $queryString, $request->all(), ['return=representation']);
+                [$status, $data] = $this->sb->rest(
+                    'POST',
+                    $table,
+                    $queryString,
+                    $request->all(),
+                    ['return=representation']
+                );
                 break;
             case 'PUT':
             case 'PATCH':
-                [$status, $data] = $this->sb->rest('PATCH', $table, $queryString, $request->all(), ['return=representation']);
+                [$status, $data] = $this->sb->rest(
+                    'PATCH',
+                    $table,
+                    $queryString,
+                    $request->all(),
+                    ['return=representation']
+                );
                 break;
             case 'DELETE':
                 [$status, $data] = $this->sb->rest('DELETE', $table, $queryString);

@@ -1,7 +1,7 @@
 // Menú hamburguesa (index.html / home público)
-(function () {
-  const btn   = document.getElementById('header-hamburger');
-  const menu  = document.getElementById('header-mobile-menu');
+(function menuMovilInicio() {
+  const btn = document.getElementById('header-hamburger');
+  const menu = document.getElementById('header-mobile-menu');
 
   function cerrarMenuMovil() {
     menu.classList.remove('header-mobile-menu--open');
@@ -21,12 +21,12 @@
 
   // Delegación: cierra el menú al hacer clic en cualquier enlace de la lista
   // (antes cada <a> tenía onclick="cerrarMenuMovil()").
-  menu.addEventListener('click', e => {
+  menu.addEventListener('click', (e) => {
     if (e.target.closest('a')) cerrarMenuMovil();
   });
 
   // Cerrar al hacer clic fuera
-  document.addEventListener('click', e => {
+  document.addEventListener('click', (e) => {
     if (!e.target.closest('.site-header')) cerrarMenuMovil();
   });
 
@@ -37,10 +37,10 @@
   // lugar de contra la URL limpia /inicio, provocando un 404. Se interceptan los
   // clics de todos los enlaces de ancla y se hace scroll suave dentro de la
   // misma página, sin navegar.
-  document.querySelectorAll('a[href^="#"]').forEach(enlace => {
-    enlace.addEventListener('click', e => {
+  document.querySelectorAll('a[href^="#"]').forEach((enlace) => {
+    enlace.addEventListener('click', (e) => {
       const id = enlace.getAttribute('href').slice(1);
-      e.preventDefault();                       // nunca navegar (evita el 404 por <base>)
+      e.preventDefault(); // nunca navegar (evita el 404 por <base>)
       const destino = id ? document.getElementById(id) : null;
       if (destino) {
         destino.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -49,4 +49,4 @@
       }
     });
   });
-})();
+}());

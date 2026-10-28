@@ -6,12 +6,11 @@
 // El control de acceso —y su revalidación al restaurar la página con
 // Atrás/Adelante— vive ahora EXCLUSIVAMENTE en session.manager.js.
 
-document.addEventListener("DOMContentLoaded", () => {
-
+document.addEventListener('DOMContentLoaded', () => {
   // ── Inyectar Boxicons si no está cargado ──────────────────────────────────
   if (!document.querySelector('link[href*="boxicons"]')) {
     const link = document.createElement('link');
-    link.rel  = 'stylesheet';
+    link.rel = 'stylesheet';
     link.href = 'https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css';
     document.head.appendChild(link);
   }
@@ -100,14 +99,14 @@ document.addEventListener("DOMContentLoaded", () => {
   // ── Overlay para móvil ────────────────────────────────────────────────────
   const overlay = document.createElement('div');
   overlay.className = 'sidebar-overlay';
-  overlay.id        = 'sidebar-overlay';
+  overlay.id = 'sidebar-overlay';
   document.body.appendChild(overlay);
 
   // ── Toggle ────────────────────────────────────────────────────────────────
   /** Refleja en el botón chevron el estado real del sidebar (a11y). */
   function actualizarEstadoBtn() {
     const btn = document.getElementById('btn');
-    const sb  = document.getElementById('sidebar');
+    const sb = document.getElementById('sidebar');
     if (!btn || !sb) return;
     const expandido = sb.classList.contains('active');
     btn.setAttribute('aria-expanded', String(expandido));
@@ -115,8 +114,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   document.getElementById('btn').addEventListener('click', () => {
-    const sidebar  = document.getElementById('sidebar');
-    const main     = document.getElementById('main');
+    const sidebar = document.getElementById('sidebar');
+    const main = document.getElementById('main');
     const isMobile = window.innerWidth <= 768;
     sidebar.classList.toggle('active');
     if (isMobile) {
@@ -134,12 +133,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ── Marcar ítem activo ────────────────────────────────────────────────────
   const path = window.location.pathname;
-  if      (path.includes("eventos.html"))  document.getElementById("nav-eventos")?.parentElement.classList.add("active-item");
-  else if (path.includes("oracion.html"))  document.getElementById("nav-oracion")?.parentElement.classList.add("active-item");
-  else if (path.includes("noticias.html"))   document.getElementById("nav-noticias")?.parentElement.classList.add("active-item");
-  else if (path.includes("actividades.html")) document.getElementById("nav-actividades")?.parentElement.classList.add("active-item");
-  else if (path.includes("reporte.html"))     document.getElementById("nav-reporte")?.parentElement.classList.add("active-item");
-  else if (path.includes("perfil.html"))      document.getElementById("nav-perfil")?.parentElement.classList.add("active-item");
+  if (path.includes('eventos.html')) document.getElementById('nav-eventos')?.parentElement.classList.add('active-item');
+  else if (path.includes('oracion.html')) document.getElementById('nav-oracion')?.parentElement.classList.add('active-item');
+  else if (path.includes('noticias.html')) document.getElementById('nav-noticias')?.parentElement.classList.add('active-item');
+  else if (path.includes('actividades.html')) document.getElementById('nav-actividades')?.parentElement.classList.add('active-item');
+  else if (path.includes('reporte.html')) document.getElementById('nav-reporte')?.parentElement.classList.add('active-item');
+  else if (path.includes('perfil.html')) document.getElementById('nav-perfil')?.parentElement.classList.add('active-item');
 
   // ── Cargar usuario desde localStorage ────────────────────────────────────
   // ── Identidad mostrada: SIEMPRE la verificada por el servidor ─────────────
@@ -150,16 +149,16 @@ document.addEventListener("DOMContentLoaded", () => {
   // Ahora se espera a la identidad del JWT verificado en /api/auth/me.
   (async () => {
     const nombreEl = document.getElementById('sidebar-name');
-    const rolEl    = document.getElementById('sidebar-role');
+    const rolEl = document.getElementById('sidebar-role');
     const avatarEl = document.getElementById('sidebar-avatar');
     if (!nombreEl || !rolEl || !avatarEl) return;
 
     const identidad = await window.BSPSession?.identidad();
-    if (!identidad) return;   // sin sesión válida, el guard ya expulsa
+    if (!identidad) return; // sin sesión válida, el guard ya expulsa
 
     const nombre = identidad.nombre || identidad.correo || '';
     nombreEl.textContent = nombre;
-    rolEl.textContent    = identidad.rol || '';
+    rolEl.textContent = identidad.rol || '';
     avatarEl.textContent = nombre.charAt(0).toUpperCase();
   })();
 });

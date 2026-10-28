@@ -128,7 +128,9 @@ final class Request
         // la envía; `getallheaders()`/`apache_request_headers()` sí la ven. Sin este
         // respaldo, todas las rutas protegidas por JWT quedan inaccesibles bajo Apache.
         if (!isset($headers['authorization'])) {
-            $all = function_exists('getallheaders') ? getallheaders() : (function_exists('apache_request_headers') ? apache_request_headers() : false);
+            $all = function_exists('getallheaders')
+                ? getallheaders()
+                : (function_exists('apache_request_headers') ? apache_request_headers() : false);
             foreach ((is_array($all) ? $all : []) as $name => $value) {
                 if (strtolower($name) === 'authorization') {
                     $headers['authorization'] = (string) $value;

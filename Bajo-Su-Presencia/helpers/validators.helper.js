@@ -1,9 +1,10 @@
+/* global showAlertError */
 /**
  * ================================================================
  *  BSP VALIDATORS — Módulo de validación y sanitización compartido
  * ================================================================
  *  Expone el objeto global window.BSPVal con:
- *    · Helpers de DOM (_err / _ok) con aria-invalid incluido
+ *    · Helpers de DOM (localErr / localOk) con aria-invalid incluido
  *    · Funciones de validación por tipo de campo
  *    · Sanitización básica anti-XSS
  *    · Bloqueo de teclas peligrosas en inputs numéricos
@@ -14,7 +15,7 @@
  *    <script src="../../../controllers/validators.helper.js"></script>
  * ================================================================
  */
-(function (global) {
+(function validatorsHelper(global) {
   'use strict';
 
   /* ══════════════════════════════════════════════════════════════
@@ -23,8 +24,13 @@
         cualquier dato de usuario en el DOM con innerHTML.
   ══════════════════════════════════════════════════════════════ */
   const HTML_ESCAPE_MAP = {
-    '&': '&amp;', '<': '&lt;', '>': '&gt;',
-    '"': '&quot;', "'": '&#39;', '/': '&#x2F;', '`': '&#x60;'
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+    '/': '&#x2F;',
+    '`': '&#x60;',
   };
 
   /**
@@ -33,7 +39,7 @@
    */
   function sanitize(str) {
     if (typeof str !== 'string') return '';
-    return str.replace(/[&<>"'`/]/g, c => HTML_ESCAPE_MAP[c]);
+    return str.replace(/[&<>"'`/]/g, (c) => HTML_ESCAPE_MAP[c]);
   }
 
   /**
@@ -55,14 +61,14 @@
    *  · Muestra el mensaje de error bajo el campo
    *  · Asigna aria-describedby apuntando al span de error
    */
-  function _err(id, msg) {
+  function localErr(id, msg) {
     const el = document.getElementById(id);
     if (!el) return;
     el.classList.add('campo-invalido');
     el.setAttribute('aria-invalid', 'true');
 
     const box = el.closest(
-      '.form-group, .sed-field, .pqr-form-group, .act-form-group, .or-form-group'
+      '.form-group, .sed-field, .pqr-form-group, .act-form-group, .or-form-group',
     ) || el.parentElement;
 
     const errorId = `${id}-error`;
@@ -85,14 +91,14 @@
    *  · Establece aria-invalid="false"
    *  · Elimina el span de mensaje de error
    */
-  function _ok(...ids) {
-    ids.forEach(id => {
+  function localOk(...ids) {
+    ids.forEach((id) => {
       const el = document.getElementById(id);
       if (!el) return;
       el.classList.remove('campo-invalido');
       el.setAttribute('aria-invalid', 'false');
       const box = el.closest(
-        '.form-group, .sed-field, .pqr-form-group, .act-form-group, .or-form-group'
+        '.form-group, .sed-field, .pqr-form-group, .act-form-group, .or-form-group',
       ) || el.parentElement;
       const s = box.querySelector('.campo-error');
       if (s) s.remove();
@@ -110,31 +116,28 @@
      Aplica: títulos, nombres, descripciones, asuntos, comentarios.
   ────────────────────────────────────────────────────────────── */
   function txt(val, {
-    min    = 1,
-    max    = 500,
-    label  = 'El campo',
-    regex  = null,         // regex adicional a comprobar
-    regexMsg = null,       // mensaje si regex falla
-    iniciaLetra = false    // obliga a comenzar con letra
+    min = 1,
+    max = 500,
+    label = 'El campo',
+    regex = null, // regex adicional a comprobar
+    regexMsg = null, // mensaje si regex falla
+    iniciaLetra = false, // obliga a comenzar con letra
   } = {}) {
     const v = cleanText(val);
     if (!v) return `${label} es obligatorio.`;
     if (v.length < min) return `${label} debe tener al menos ${min} carácter${min !== 1 ? 'es' : ''}.`;
     if (v.length > max) return `${label} no puede superar ${max} caracteres.`;
-    if (iniciaLetra && !/^[a-zA-ZÀ-ÿñÑ]/.test(v))
-      return `${label} debe comenzar con una letra, no con un número o símbolo.`;
-    if (regex && !regex.test(v))
-      return regexMsg || `${label} contiene caracteres no permitidos.`;
+    if (iniciaLetra && !/^[a-zA-ZÀ-ÿñÑ]/.test(v)) return `${label} debe comenzar con una letra, no con un número o símbolo.`;
+    if (regex && !regex.test(v)) return regexMsg || `${label} contiene caracteres no permitidos.`;
     return null;
   }
 
   /* ── 3b. Solo letras (nombres de personas, ciudades, pastores) ─ */
-  const RX_SOLO_LETRAS = /^[a-zA-ZÀ-ÿñÑ\s'\-\.]+$/;
+  const RX_SOLO_LETRAS = /^[a-zA-ZÀ-ÿñÑ\s'.-]+$/;
   function soloLetras(val, { label = 'El campo' } = {}) {
     const v = cleanText(val);
     if (!v) return null; // obligatoriedad se valida con txt()
-    if (!RX_SOLO_LETRAS.test(v))
-      return `${label} solo puede contener letras, espacios, apóstrofes o guiones. Sin números.`;
+    if (!RX_SOLO_LETRAS.test(v)) return `${label} solo puede contener letras, espacios, apóstrofes o guiones. Sin números.`;
     return null;
   }
 
@@ -145,7 +148,7 @@
        · TLD de al menos 2 caracteres
      Rechaza: a@b.c, test@.com, @domain.com, doble punto, etc.
   ────────────────────────────────────────────────────────────── */
-  const RX_EMAIL = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9\-]+(\.[a-zA-Z0-9\-]+)*\.[a-zA-Z]{2,}$/;
+  const RX_EMAIL = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$/;
   function email(val) {
     const v = (val || '').trim().toLowerCase();
     if (!v) return 'El correo electrónico es obligatorio.';
@@ -173,17 +176,17 @@
      Bloquea: NaN, negativos (si min=0), decimales (si entero=true)
   ────────────────────────────────────────────────────────────── */
   function num(val, {
-    min    = 0,
-    max    = Infinity,
+    min = 0,
+    max = Infinity,
     entero = true,
-    label  = 'El valor'
+    label = 'El valor',
   } = {}) {
     const raw = String(val ?? '').trim();
     if (raw === '') return `${label} es obligatorio.`;
     /* Bloquea notación científica (1e5) y signos (parseFloat los acepta) */
     if (/[eE+]/.test(raw)) return `${label} no puede contener exponentes ni signos.`;
     const n = entero ? parseInt(raw, 10) : parseFloat(raw);
-    if (isNaN(n)) return `${label} debe ser un número válido.`;
+    if (Number.isNaN(Number(n))) return `${label} debe ser un número válido.`;
     if (entero && !Number.isInteger(n)) return `${label} debe ser un número entero sin decimales.`;
     if (n < min) return `${label} no puede ser menor que ${min}.`;
     if (n > max) return `${label} no puede ser mayor que ${max.toLocaleString()}.`;
@@ -194,7 +197,7 @@
      Acepta: dígitos, espacios, +, -, () — entre 7 y 20 chars.
      Valida que haya al menos 7 dígitos reales.
   ────────────────────────────────────────────────────────────── */
-  const TEL_DIGITOS   = 10;    // longitud exacta exigida (Colombia)
+  const TEL_DIGITOS = 10; // longitud exacta exigida (Colombia)
   const TEL_INDICATIVO = '57'; // se descarta si el usuario escribe +57
 
   /**
@@ -266,14 +269,14 @@
      Valida formato, coherencia del calendario y rango permitido.
   ────────────────────────────────────────────────────────────── */
   function fecha(val, {
-    minDate = null,   // 'YYYY-MM-DD' — fecha mínima permitida
-    maxDate = null,   // 'YYYY-MM-DD' — fecha máxima permitida
-    label   = 'La fecha'
+    minDate = null, // 'YYYY-MM-DD' — fecha mínima permitida
+    maxDate = null, // 'YYYY-MM-DD' — fecha máxima permitida
+    label = 'La fecha',
   } = {}) {
     if (!val) return `${label} es obligatoria.`;
     if (!/^\d{4}-\d{2}-\d{2}$/.test(val)) return `${label} tiene un formato inválido.`;
     const d = new Date(`${val}T00:00:00`);
-    if (isNaN(d.getTime())) return `${label} no corresponde a una fecha real del calendario.`;
+    if (Number.isNaN(d.getTime())) return `${label} no corresponde a una fecha real del calendario.`;
     if (minDate && val < minDate) return `${label} no puede ser anterior a ${minDate}.`;
     if (maxDate && val > maxDate) return `${label} no puede ser posterior a ${maxDate}.`;
     return null;
@@ -285,8 +288,7 @@
   ────────────────────────────────────────────────────────────── */
   function select(val, allowed = null, { label = 'Este campo' } = {}) {
     if (!val || val.trim() === '') return `${label}: debes seleccionar una opción válida.`;
-    if (allowed !== null && !allowed.includes(val))
-      return `${label}: valor no reconocido. Por favor recarga la página.`;
+    if (allowed !== null && !allowed.includes(val)) return `${label}: valor no reconocido. Por favor recarga la página.`;
     return null;
   }
 
@@ -324,13 +326,13 @@
       ? new Set(['e', 'E', '+', '-'])
       : BLOCKED_KEYS; // bloquea '.' también para enteros
 
-    el.addEventListener('keydown', e => {
+    el.addEventListener('keydown', (e) => {
       if (blockedSet.has(e.key)) e.preventDefault();
     });
 
-    el.addEventListener('paste', e => {
+    el.addEventListener('paste', (e) => {
       const pasted = (e.clipboardData || global.clipboardData).getData('text');
-      if (/[eE+\-]/.test(pasted) || (!allowDecimal && pasted.includes('.'))) {
+      if (/[eE+-]/.test(pasted) || (!allowDecimal && pasted.includes('.'))) {
         e.preventDefault();
       }
     });
@@ -339,7 +341,7 @@
       const raw = el.value;
       if (raw === '' || raw === null) return;
       const n = allowDecimal ? parseFloat(raw) : parseInt(raw, 10);
-      if (isNaN(n)) { el.value = el.min || '0'; return; }
+      if (Number.isNaN(Number(n))) { el.value = el.min || '0'; return; }
       const minVal = el.min !== '' ? parseFloat(el.min) : -Infinity;
       const maxVal = el.max !== '' ? parseFloat(el.max) : Infinity;
       if (n < minVal) el.value = el.min;
@@ -381,19 +383,30 @@
   ══════════════════════════════════════════════════════════════ */
   global.BSPVal = {
     /* DOM */
-    _err, _ok,
+    localErr,
+    localOk,
     /* Sanitización */
-    sanitize, cleanText,
+    sanitize,
+    cleanText,
     /* Alias explícito para uso en plantillas (innerHTML) */
     escapeHtml: sanitize,
     /* Validators */
-    txt, soloLetras, email, url, num, tel, fecha, select, password,
+    txt,
+    soloLetras,
+    email,
+    url,
+    num,
+    tel,
+    fecha,
+    select,
+    password,
     /* Teléfono */
-    normalizarTel, bindTelInput,
+    normalizarTel,
+    bindTelInput,
     /* Numérico */
     blockNumericChars,
     /* Try-catch */
-    safeCall
+    safeCall,
   };
 
   /**
@@ -421,10 +434,10 @@
       String(val ?? '')
         .replace(/\\/g, '\\\\')
         .replace(/'/g, "\\'")
-        .replace(/\r?\n/g, ' ')
+        .replace(/\r?\n/g, ' '),
     );
   }
-  global.escJs        = escJs;
+  global.escJs = escJs;
   global.BSPVal.escJs = escJs;
 
   /* ══════════════════════════════════════════════════════════════
@@ -449,5 +462,4 @@
   } else {
     autoBindTelefonos();
   }
-
-})(window);
+}(window));

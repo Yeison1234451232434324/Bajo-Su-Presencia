@@ -83,7 +83,10 @@ final class PublicEndpointGuard
             if ($e->httpStatus() === 423) {
                 throw $e;
             }
-            $this->logger->critical('Límite de solicitudes públicas no disponible; usando respaldo local', ['error' => $e->getMessage()]);
+            $this->logger->critical(
+                'Límite de solicitudes públicas no disponible; usando respaldo local',
+                ['error' => $e->getMessage()]
+            );
             self::assertAllowedLocal($key, $maxPorVentana, $ventanaMinutos);
         }
     }
@@ -120,9 +123,13 @@ final class PublicEndpointGuard
                 $contenido = stream_get_contents($handle);
                 $data      = $contenido !== false && $contenido !== '' ? json_decode($contenido, true) : null;
 
-                $ahora         = time();
+                $ahora = time();
                 $ventanaSegundos = $ventanaMinutos * 60;
-                if (!is_array($data) || !isset($data['inicio'], $data['conteo']) || ($ahora - (int) $data['inicio']) >= $ventanaSegundos) {
+                if (
+                    !is_array($data)
+                    || !isset($data['inicio'], $data['conteo'])
+                    || ($ahora - (int) $data['inicio']) >= $ventanaSegundos
+                ) {
                     $data = ['inicio' => $ahora, 'conteo' => 0];
                 }
 

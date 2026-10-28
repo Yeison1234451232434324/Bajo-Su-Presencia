@@ -1,3 +1,4 @@
+/* global supabase */
 /**
  * ============================================================
  * CLIENTE SUPABASE COMPARTIDO
@@ -14,7 +15,7 @@
  * ============================================================
  */
 
-const SUPABASE_URL      = 'https://jjpbmkydbdbqlynvqvcj.supabase.co';
+const SUPABASE_URL = 'https://jjpbmkydbdbqlynvqvcj.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpqcGJta3lkYmRicWx5bnZxdmNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3ODM5OTksImV4cCI6MjA5MjM1OTk5OX0.TeWVnAZx1AZ3T4Z_fB1D39g9QImVbe17jEhX6ZSXug4';
 
 // El SDK UMD expone el global `supabase`; creamos el cliente como `sb`.
@@ -28,9 +29,9 @@ window.SUPABASE_ANON_KEY = SUPABASE_ANON_KEY;
  * admin actual. Usa persistSession:false para no sobrescribir el token guardado.
  * Lo usa el módulo de usuarios al crear cuentas desde el panel.
  */
-window.sbAuthTmp = function () {
+window.sbAuthTmp = function sbAuthTmp() {
   return supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth: { persistSession: false, autoRefreshToken: false }
+    auth: { persistSession: false, autoRefreshToken: false },
   });
 };
 
@@ -38,7 +39,7 @@ window.sbAuthTmp = function () {
  * Devuelve el id (de la tabla usuarios) del usuario logueado, o null.
  * Lo usan los modelos para setear usuario_id al crear registros.
  */
-window.miUsuarioId = async function () {
+window.miUsuarioId = async function miUsuarioId() {
   // 1) Preferir el id del JWT propio (sub = usuarios.id). Es fiable y no depende
   //    de la sesión de Supabase.
   try {

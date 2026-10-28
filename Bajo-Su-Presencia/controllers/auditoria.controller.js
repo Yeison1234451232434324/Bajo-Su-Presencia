@@ -1,19 +1,26 @@
+/* global AuditoriaModel, BSPDataTable, BSPModal */
 /**
  * Auditoría Controller — listado, filtros y detalle de la bitácora.
  */
 document.addEventListener('DOMContentLoaded', async () => {
-
   const esc = (v) => (window.BSPVal?.escapeHtml
     ? window.BSPVal.escapeHtml(String(v ?? ''))
-    : String(v ?? '').replace(/[&<>"'`/]/g, c => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;',
-        '"': '&quot;', "'": '&#39;', '/': '&#x2F;', '`': '&#x60;'
-      }[c])));
+    : String(v ?? '').replace(/[&<>"'`/]/g, (c) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+      '/': '&#x2F;',
+      '`': '&#x60;',
+    }[c])));
 
   const fmtFechaHora = (iso) => {
     if (!iso) return '—';
     const d = new Date(iso);
-    return isNaN(d) ? '—' : d.toLocaleString('es-CO', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    return Number.isNaN(Number(d)) ? '—' : d.toLocaleString('es-CO', {
+      day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
+    });
   };
 
   // Control de acceso contra el SERVIDOR (mismo patrón que donaciones.controller.js).
@@ -24,14 +31,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!sesion) return;
 
   // ── Referencias DOM ──────────────────────────────────────────────────────
-  const modalOverlay     = document.getElementById('modal-overlay');
-  const modalDetalle     = document.getElementById('modal-au-detalle');
+  const modalOverlay = document.getElementById('modal-overlay');
+  const modalDetalle = document.getElementById('modal-au-detalle');
   const btnCerrarDetalle = document.getElementById('btn-cerrar-au-detalle');
   const btnDetalleCerrar = document.getElementById('btn-au-detalle-cerrar');
   const detalleContenido = document.getElementById('au-detalle-contenido');
 
-  const contTotal   = document.getElementById('cont-au-total');
-  const contExitos  = document.getElementById('cont-au-exitos');
+  const contTotal = document.getElementById('cont-au-total');
+  const contExitos = document.getElementById('cont-au-exitos');
   const contErrores = document.getElementById('cont-au-errores');
 
   // ── Badges ────────────────────────────────────────────────────────────────
@@ -42,9 +49,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   const ACCION_LABELS = {
-    crear: 'Crear', editar: 'Editar', eliminar: 'Eliminar',
-    activar: 'Activar', desactivar: 'Desactivar',
-    responder: 'Responder', cambiar_estado: 'Cambiar estado'
+    crear: 'Crear',
+    editar: 'Editar',
+    eliminar: 'Eliminar',
+    activar: 'Activar',
+    desactivar: 'Desactivar',
+    responder: 'Responder',
+    cambiar_estado: 'Cambiar estado',
   };
   function accionBadge(accion) {
     const label = ACCION_LABELS[accion] || esc(accion);
@@ -58,9 +69,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   async function renderTabla() {
     cache = await AuditoriaModel.listar({ limite: 500 });
 
-    contTotal.textContent   = String(cache.length);
-    contExitos.textContent  = String(cache.filter(a => a.resultado !== 'error').length);
-    contErrores.textContent = String(cache.filter(a => a.resultado === 'error').length);
+    contTotal.textContent = String(cache.length);
+    contExitos.textContent = String(cache.filter((a) => a.resultado !== 'error').length);
+    contErrores.textContent = String(cache.filter((a) => a.resultado === 'error').length);
 
     function renderRow(a) {
       return `
@@ -84,16 +95,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (!dtAuditoria) {
       dtAuditoria = new BSPDataTable({
-        containerId:  'dt-auditoria',
-        data:         cache,
-        pageSize:     10,
+        containerId: 'dt-auditoria',
+        data: cache,
+        pageSize: 10,
         searchFields: ['usuarioCorreo', 'descripcion', 'modulo'],
         filters: [
-          { key: 'modulo',    label: 'Módulo',    type: 'select', options: AuditoriaModel.MODULOS },
-          { key: 'accion',    label: 'Acción',     type: 'select', options: AuditoriaModel.ACCIONES },
-          { key: 'resultado', label: 'Resultado',  type: 'select', options: AuditoriaModel.RESULTADOS },
-          { key: 'fecha',     label: 'Desde',      type: 'date-from' },
-          { key: 'fecha',     label: 'Hasta',      type: 'date-to'   },
+          {
+            key: 'modulo', label: 'Módulo', type: 'select', options: AuditoriaModel.MODULOS,
+          },
+          {
+            key: 'accion', label: 'Acción', type: 'select', options: AuditoriaModel.ACCIONES,
+          },
+          {
+            key: 'resultado', label: 'Resultado', type: 'select', options: AuditoriaModel.RESULTADOS,
+          },
+          { key: 'fecha', label: 'Desde', type: 'date-from' },
+          { key: 'fecha', label: 'Hasta', type: 'date-to' },
         ],
         renderRow,
         headerHTML: `
@@ -105,13 +122,13 @@ document.addEventListener('DOMContentLoaded', async () => {
           <span>Resultado</span>
           <span class="acciones-cell">Ver</span>
         `,
-        exportable:   true,
-        exportName:   'auditoria',
+        exportable: true,
+        exportName: 'auditoria',
         exportFields: ['fecha', 'usuarioCorreo', 'usuarioRol', 'modulo', 'accion', 'descripcion', 'resultado'],
         exportLabels: ['Fecha', 'Usuario', 'Rol', 'Módulo', 'Acción', 'Descripción', 'Resultado'],
-        emptyHTML: `<div class="dt-empty"><i class="bx bx-shield-quarter" aria-hidden="true"></i><p>Aún no hay registros de auditoría.</p></div>`
+        emptyHTML: '<div class="dt-empty"><i class="bx bx-shield-quarter" aria-hidden="true"></i><p>Aún no hay registros de auditoría.</p></div>',
       });
-      window.__bspDT['dt-auditoria'] = dtAuditoria;
+      window.bspDataTables['dt-auditoria'] = dtAuditoria;
       dtAuditoria.init();
       // Delegación: fila generada dinámicamente por BSPDataTable (antes
       // onclick="verDetalleAuditoria(...)" inline en el template).
@@ -126,7 +143,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // ── Detalle ───────────────────────────────────────────────────────────────
   function verDetalleAuditoria(id) {
-    const a = cache.find(x => x.id === id);
+    const a = cache.find((x) => x.id === id);
     if (!a) return;
 
     detalleContenido.innerHTML = `

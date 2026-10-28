@@ -1,3 +1,4 @@
+/* global EventosModel, ReportesModel, esc, showAlertError, showAlertSuccess */
 /**
  * ============================================================
  * CONTROLADOR: reporte.controller.js
@@ -19,11 +20,10 @@
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
-
   // Control de acceso verificado contra el SERVIDOR (rol tomado del JWT).
   // Unifica el criterio con el resto del panel: antes esta vista solo
   // dependía de localStorage, que el usuario puede editar.
-  const sesion = await window.BSPSession.exigir(['Administrador','Colaborador']);
+  const sesion = await window.BSPSession.exigir(['Administrador', 'Colaborador']);
   if (!sesion) return;
 
   // ── Estado ───────────────────────────────────────────────────────────────
@@ -33,20 +33,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   let enviandoReporte = false;
 
   // ── Referencias DOM ──────────────────────────────────────────────────────
-  const vistaEventos  = document.getElementById('rep-vista-eventos');
+  const vistaEventos = document.getElementById('rep-vista-eventos');
   const vistaFormulario = document.getElementById('rep-vista-formulario');
-  const gridEventos   = document.getElementById('rep-grid-eventos');
-  const banner        = document.getElementById('rep-banner');
-  const formReporte   = document.getElementById('form-reporte');
+  const gridEventos = document.getElementById('rep-grid-eventos');
+  const banner = document.getElementById('rep-banner');
+  const formReporte = document.getElementById('form-reporte');
   const reporteExistente = document.getElementById('rep-existente');
-  const btnGuardar    = document.getElementById('rep-btn-guardar');
+  const btnGuardar = document.getElementById('rep-btn-guardar');
 
   // ── Obtener usuario logueado ─────────────────────────────────────────────
-  function _getNombreUsuario() {
+  function localGetNombreUsuario() {
     try {
       const u = JSON.parse(localStorage.getItem('usuarioLogueado') || '{}');
       return u.nombre || 'Colaborador';
-    } catch(_) { return 'Colaborador'; }
+    } catch (_) { return 'Colaborador'; }
   }
 
   // ════════════════════════════════════════════════════════════════
@@ -55,12 +55,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   async function renderEventos() {
     let eventos = [];
-    try { eventos = await EventosModel.getAll(); }
-    catch (e) { window.BSPLog?.error('reporte.eventos', e); }
+    try { eventos = await EventosModel.getAll(); } catch (e) { window.BSPLog?.error('reporte.eventos', e); }
 
     const hoy = new Date().toISOString().split('T')[0];
     // Solo eventos cuya fecha ya pasó
-    const pasados = eventos.filter(ev => ev.fecha < hoy);
+    const pasados = eventos.filter((ev) => ev.fecha < hoy);
 
     gridEventos.innerHTML = '';
 
@@ -78,18 +77,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     // vez de traer toda la tabla de informes con getAll().
     let reportesPorEvento = {};
     try {
-      const informesPasados = await ReportesModel.getByEventos(pasados.map(ev => ev.id));
-      reportesPorEvento = Object.fromEntries(informesPasados.map(r => [String(r.eventoId), r]));
+      const informesPasados = await ReportesModel.getByEventos(pasados.map((ev) => ev.id));
+      reportesPorEvento = Object.fromEntries(informesPasados.map((r) => [String(r.eventoId), r]));
     } catch (e) { window.BSPLog?.error('reporte.informes', e); }
 
     // Separados en dos grupos: primero los pendientes (lo que hay que hacer),
     // luego los que ya tienen reporte — en vez de una sola lista mezclada.
-    const sinReporte = pasados.filter(ev => !reportesPorEvento[String(ev.id)]);
-    const conReporte = pasados.filter(ev => reportesPorEvento[String(ev.id)]);
+    const sinReporte = pasados.filter((ev) => !reportesPorEvento[String(ev.id)]);
+    const conReporte = pasados.filter((ev) => reportesPorEvento[String(ev.id)]);
 
-    function _crearCard(ev, reporte) {
+    function localCrearCard(ev, reporte) {
       const tieneRep = !!reporte;
-      const fechaFmt = _formatFecha(ev.fecha);
+      const fechaFmt = localFormatFecha(ev.fecha);
 
       const card = document.createElement('div');
       card.className = `rep-evento-card${tieneRep ? ' rep-evento-card--con-reporte' : ''}`;
@@ -101,18 +100,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="rep-ev-body">
           <h3 class="rep-ev-titulo">${esc(ev.titulo)}</h3>
           <p class="rep-ev-meta"><i class="bx bx-calendar" aria-hidden="true"></i> ${fechaFmt}</p>
-          ${ev.horario   ? `<p class="rep-ev-meta"><i class="bx bx-time" aria-hidden="true"></i> ${esc(ev.horario)}</p>` : ''}
+          ${ev.horario ? `<p class="rep-ev-meta"><i class="bx bx-time" aria-hidden="true"></i> ${esc(ev.horario)}</p>` : ''}
           ${ev.ubicacion ? `<p class="rep-ev-meta"><i class="bx bx-map-pin u-icono-rojo" aria-hidden="true"></i> ${esc(ev.ubicacion)}</p>` : ''}
           ${tieneRep
-            ? `<p class="rep-ev-cargado"><i class="bx bx-check-circle" aria-hidden="true"></i> Reporte cargado</p>`
-            : ''}
+    ? '<p class="rep-ev-cargado"><i class="bx bx-check-circle" aria-hidden="true"></i> Reporte cargado</p>'
+    : ''}
         </div>`;
 
       card.addEventListener('click', () => seleccionarEvento(ev));
       return card;
     }
 
-    function _crearSubgrupo(titulo, iconoClase, modificador, lista) {
+    function localCrearSubgrupo(titulo, iconoClase, modificador, lista) {
       const wrap = document.createElement('div');
       wrap.className = 'rep-subgrupo';
 
@@ -123,7 +122,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const grid = document.createElement('div');
       grid.className = 'rep-grid-eventos';
-      lista.forEach(ev => grid.appendChild(_crearCard(ev, reportesPorEvento[String(ev.id)] || null)));
+      lista.forEach((ev) => {
+        grid.appendChild(localCrearCard(ev, reportesPorEvento[String(ev.id)] || null));
+      });
       wrap.appendChild(grid);
 
       return wrap;
@@ -131,10 +132,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     gridEventos.classList.add('rep-grid-eventos--agrupado');
     if (sinReporte.length) {
-      gridEventos.appendChild(_crearSubgrupo('Pendientes de reporte', 'bx-time-five', null, sinReporte));
+      gridEventos.appendChild(localCrearSubgrupo('Pendientes de reporte', 'bx-time-five', null, sinReporte));
     }
     if (conReporte.length) {
-      gridEventos.appendChild(_crearSubgrupo('Reporte ya cargado', 'bx-check-circle', 'rep-subgrupo-titulo--ok', conReporte));
+      gridEventos.appendChild(localCrearSubgrupo('Reporte ya cargado', 'bx-check-circle', 'rep-subgrupo-titulo--ok', conReporte));
     }
   }
 
@@ -146,33 +147,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     eventoActual = ev;
 
     // Actualizar banner
-    banner.querySelector('.rep-banner-titulo').textContent  = ev.titulo;
-    banner.querySelector('.rep-banner-fecha').textContent   = _formatFecha(ev.fecha);
-    banner.querySelector('.rep-banner-hora').textContent    = ev.horario || '';
-    banner.querySelector('.rep-banner-lugar').textContent   = ev.ubicacion || '';
+    banner.querySelector('.rep-banner-titulo').textContent = ev.titulo;
+    banner.querySelector('.rep-banner-fecha').textContent = localFormatFecha(ev.fecha);
+    banner.querySelector('.rep-banner-hora').textContent = ev.horario || '';
+    banner.querySelector('.rep-banner-lugar').textContent = ev.ubicacion || '';
 
     // Pre-llenar formulario si ya existe reporte
     const reporte = await ReportesModel.getByEvento(ev.id);
     if (reporte) {
-      document.getElementById('rep-ofrenda').value      = reporte.ofrenda;
-      document.getElementById('rep-incidentes').value   = reporte.incidentes === 'Ninguno' ? '' : reporte.incidentes;
-      document.getElementById('rep-observaciones').value= reporte.observaciones;
+      document.getElementById('rep-ofrenda').value = reporte.ofrenda;
+      document.getElementById('rep-incidentes').value = reporte.incidentes === 'Ninguno' ? '' : reporte.incidentes;
+      document.getElementById('rep-observaciones').value = reporte.observaciones;
       btnGuardar.textContent = 'Actualizar Reporte';
     } else {
       formReporte.reset();
       btnGuardar.textContent = 'Cargar Reporte';
     }
 
-    _renderReporteExistente(reporte);
+    localRenderReporteExistente(reporte);
 
-    vistaEventos.style.display    = 'none';
+    vistaEventos.style.display = 'none';
     vistaFormulario.style.display = 'block';
   }
 
   function volverAEventosReporte() {
     eventoActual = null;
     vistaFormulario.style.display = 'none';
-    vistaEventos.style.display    = 'block';
+    vistaEventos.style.display = 'block';
     renderEventos();
   }
   document.querySelector('.rep-btn-volver')?.addEventListener('click', volverAEventosReporte);
@@ -181,26 +182,25 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 3. GUARDAR REPORTE
   // ════════════════════════════════════════════════════════════════
 
-  formReporte.addEventListener('submit', async e => {
+  formReporte.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!eventoActual) return;
     if (enviandoReporte) return;
 
     const data = {
-      eventoId:     eventoActual.id,
+      eventoId: eventoActual.id,
       eventoTitulo: eventoActual.titulo,
-      ofrenda:      document.getElementById('rep-ofrenda').value,
-      incidentes:   document.getElementById('rep-incidentes').value,
-      observaciones:document.getElementById('rep-observaciones').value,
-      creadoPor:    _getNombreUsuario()
+      ofrenda: document.getElementById('rep-ofrenda').value,
+      incidentes: document.getElementById('rep-incidentes').value,
+      observaciones: document.getElementById('rep-observaciones').value,
+      creadoPor: localGetNombreUsuario(),
     };
 
     enviandoReporte = true;
     if (btnGuardar) { btnGuardar.disabled = true; btnGuardar.setAttribute('aria-busy', 'true'); }
 
     let resultado;
-    try { resultado = await ReportesModel.guardar(data); }
-    catch (ex) {
+    try { resultado = await ReportesModel.guardar(data); } catch (ex) {
       showAlertError('Error de conexión. Intenta de nuevo.');
       enviandoReporte = false;
       if (btnGuardar) { btnGuardar.disabled = false; btnGuardar.removeAttribute('aria-busy'); }
@@ -217,7 +217,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     btnGuardar.textContent = 'Actualizar Reporte';
     enviandoReporte = false;
     if (btnGuardar) { btnGuardar.disabled = false; btnGuardar.removeAttribute('aria-busy'); }
-    _renderReporteExistente(resultado.reporte);
+    localRenderReporteExistente(resultado.reporte);
     showAlertSuccess(`El reporte de "${eventoActual.titulo}" fue guardado correctamente.`);
   });
 
@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 4. MOSTRAR REPORTE EXISTENTE
   // ════════════════════════════════════════════════════════════════
 
-  function _renderReporteExistente(reporte) {
+  function localRenderReporteExistente(reporte) {
     if (!reporte) {
       reporteExistente.style.display = 'none';
       return;
@@ -239,10 +239,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     reporteExistente.style.display = 'block';
 
     const ofrendaFmt = new Intl.NumberFormat('es-CO', {
-      style: 'currency', currency: 'COP', maximumFractionDigits: 0
+      style: 'currency', currency: 'COP', maximumFractionDigits: 0,
     }).format(reporte.ofrenda);
 
-    const fechaFmt = _formatFechaLarga(reporte.creadoEn);
+    const fechaFmt = localFormatFechaLarga(reporte.creadoEn);
 
     reporteExistente.innerHTML = `
       <div class="rep-existente-header">
@@ -261,28 +261,28 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 5. HELPERS DE FECHA
   // ════════════════════════════════════════════════════════════════
 
-  function _formatFecha(fechaStr) {
+  function localFormatFecha(fechaStr) {
     if (!fechaStr) return '—';
     try {
       const [y, m, d] = fechaStr.split('-');
-      const dias  = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-      const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
-                     'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-      const fecha = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
-      return `${dias[fecha.getDay()]} ${parseInt(d)} ${meses[parseInt(m) - 1]}`;
-    } catch(_) { return fechaStr; }
+      const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+      const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+      const fecha = new Date(parseInt(y, 10), parseInt(m, 10) - 1, parseInt(d, 10));
+      return `${dias[fecha.getDay()]} ${parseInt(d, 10)} ${meses[parseInt(m, 10) - 1]}`;
+    } catch (_) { return fechaStr; }
   }
 
-  function _formatFechaLarga(fechaStr) {
+  function localFormatFechaLarga(fechaStr) {
     if (!fechaStr) return '—';
     try {
       const [y, m, d] = fechaStr.split('-');
-      const dias  = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
-      const meses = ['enero','febrero','marzo','abril','mayo','junio',
-                     'julio','agosto','septiembre','octubre','noviembre','diciembre'];
-      const fecha = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
-      return `${dias[fecha.getDay()]}, ${parseInt(d)} de ${meses[parseInt(m) - 1]} de ${y}`;
-    } catch(_) { return fechaStr; }
+      const dias = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+      const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+        'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+      const fecha = new Date(parseInt(y, 10), parseInt(m, 10) - 1, parseInt(d, 10));
+      return `${dias[fecha.getDay()]}, ${parseInt(d, 10)} de ${meses[parseInt(m, 10) - 1]} de ${y}`;
+    } catch (_) { return fechaStr; }
   }
 
   // ── Inicialización ───────────────────────────────────────────────────────

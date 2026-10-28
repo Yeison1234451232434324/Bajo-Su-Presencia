@@ -1,3 +1,5 @@
+/* global XLSX, showToast */
+/* exported BSPDataTable */
 /**
  * ============================================================
  * BSP DataTable v3.0 — 2026
@@ -41,43 +43,43 @@
 
 class BSPDataTable {
   constructor(opts = {}) {
-    this.containerId   = opts.containerId;
-    this.allData       = opts.data || [];
-    this.filteredData  = [...this.allData];
-    this.pageSize      = opts.pageSize || 10;
-    this.currentPage   = 1;
-    this.searchFields  = opts.searchFields || [];
-    this.filters       = opts.filters || [];          // filtros dinámicos
-    this.renderRow     = opts.renderRow || (() => '');
-    this.emptyHTML     = opts.emptyHTML || this._defaultEmpty();
-    this.exportable    = opts.exportable !== false;
-    this.exportName    = opts.exportName || 'datos';
-    this.exportFields  = opts.exportFields || this.searchFields;
-    this.exportLabels  = opts.exportLabels || this.exportFields;
-    this.searchQuery   = '';
-    this.activeFilters = {};                          // { key: value }
-    this._wrapId       = this.containerId + '-bsp-dt';
-    this._debounce     = null;
-    this._xlsxLoaded   = false;
-    this.tableMode     = opts.tableMode || false;     // true = renderRow devuelve <tr>
-    this.tableClass    = opts.tableClass || '';       // clase CSS de la tabla
-    this.headerHTML    = opts.headerHTML || '';       // fila de títulos de columna, opcional
+    this.containerId = opts.containerId;
+    this.allData = opts.data || [];
+    this.filteredData = [...this.allData];
+    this.pageSize = opts.pageSize || 10;
+    this.currentPage = 1;
+    this.searchFields = opts.searchFields || [];
+    this.filters = opts.filters || []; // filtros dinámicos
+    this.renderRow = opts.renderRow || (() => '');
+    this.emptyHTML = opts.emptyHTML || BSPDataTable.localDefaultEmpty();
+    this.exportable = opts.exportable !== false;
+    this.exportName = opts.exportName || 'datos';
+    this.exportFields = opts.exportFields || this.searchFields;
+    this.exportLabels = opts.exportLabels || this.exportFields;
+    this.searchQuery = '';
+    this.activeFilters = {}; // { key: value }
+    this.localWrapId = `${this.containerId}-bsp-dt`;
+    this.localDebounce = null;
+    this.localXlsxLoaded = false;
+    this.tableMode = opts.tableMode || false; // true = renderRow devuelve <tr>
+    this.tableClass = opts.tableClass || ''; // clase CSS de la tabla
+    this.headerHTML = opts.headerHTML || ''; // fila de títulos de columna, opcional
   }
 
   // ── Inicializar ──────────────────────────────────────────────────────────
   init() {
     const container = document.getElementById(this.containerId);
     if (!container) return;
-    if (document.getElementById(this._wrapId)) return;
+    if (document.getElementById(this.localWrapId)) return;
 
     const wrap = document.createElement('div');
-    wrap.id        = this._wrapId;
+    wrap.id = this.localWrapId;
     wrap.className = 'bsp-dt';
 
     // Construir HTML de filtros dinámicos
     const filtersHTML = this.filters.length ? `
       <div class="bsp-dt-filters" id="${this.containerId}-filters">
-        ${this.filters.map((f, i) => this._buildFilterHTML(f, i)).join('')}
+        ${this.filters.map((f, i) => this.localBuildFilterHTML(f, i)).join('')}
         <button class="bsp-dt-filter-clear" id="${this.containerId}-fclear" title="Limpiar filtros">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
             <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
@@ -95,7 +97,7 @@ class BSPDataTable {
             <span class="bsp-dt-label">Mostrar</span>
             <select class="bsp-dt-page-select" id="${this.containerId}-ps">
               <option value="5">5</option>
-              <option value="10" ${this.pageSize===10?'selected':''}>10</option>
+              <option value="10" ${this.pageSize === 10 ? 'selected' : ''}>10</option>
               <option value="25">25</option>
               <option value="50">50</option>
             </select>
@@ -158,21 +160,19 @@ class BSPDataTable {
     container.parentNode.insertBefore(wrap, container);
     container.remove();
 
-    this._bindEvents();
-    this._applyFilter();
-    this._render();
+    this.localBindEvents();
+    this.localApplyFilter();
+    this.localRender();
 
-    window.__bspDT = window.__bspDT || {};
-    window.__bspDT[this.containerId] = this;
+    window.bspDataTables = window.bspDataTables || {};
+    window.bspDataTables[this.containerId] = this;
   }
 
   // ── Construir HTML de un filtro ──────────────────────────────────────────
-  _buildFilterHTML(f, i) {
+  localBuildFilterHTML(f, i) {
     const id = `${this.containerId}-f${i}`;
     if (f.type === 'select') {
-      const opts = (f.options || []).map(o =>
-        `<option value="${o}">${o}</option>`
-      ).join('');
+      const opts = (f.options || []).map((o) => `<option value="${o}">${o}</option>`).join('');
       return `
         <div class="bsp-dt-filter-item">
           <label class="bsp-dt-filter-label">${f.label}</label>
@@ -196,9 +196,7 @@ class BSPDataTable {
         </div>`;
     }
     if (f.type === 'stars') {
-      const opts = ['', '1', '2', '3', '4', '5'].map((v, i) =>
-        `<option value="${v}">${v ? '★'.repeat(Number(v)) + ' (' + v + ')' : 'Todas'}</option>`
-      ).join('');
+      const opts = ['', '1', '2', '3', '4', '5'].map((v) => `<option value="${v}">${v ? `${'★'.repeat(Number(v))} (${v})` : 'Todas'}</option>`).join('');
       return `
         <div class="bsp-dt-filter-item">
           <label class="bsp-dt-filter-label">${f.label}</label>
@@ -211,22 +209,22 @@ class BSPDataTable {
   }
 
   // ── Eventos ──────────────────────────────────────────────────────────────
-  _bindEvents() {
+  localBindEvents() {
     const searchEl = document.getElementById(`${this.containerId}-search`);
-    const clearEl  = document.getElementById(`${this.containerId}-clear`);
-    const psEl     = document.getElementById(`${this.containerId}-ps`);
-    const csvEl    = document.getElementById(`${this.containerId}-csv`);
-    const xlsxEl   = document.getElementById(`${this.containerId}-xlsx`);
+    const clearEl = document.getElementById(`${this.containerId}-clear`);
+    const psEl = document.getElementById(`${this.containerId}-ps`);
+    const csvEl = document.getElementById(`${this.containerId}-csv`);
+    const xlsxEl = document.getElementById(`${this.containerId}-xlsx`);
     const fclearEl = document.getElementById(`${this.containerId}-fclear`);
 
     searchEl?.addEventListener('input', () => {
-      clearTimeout(this._debounce);
-      this._debounce = setTimeout(() => {
+      clearTimeout(this.localDebounce);
+      this.localDebounce = setTimeout(() => {
         this.searchQuery = searchEl.value.trim().toLowerCase();
         clearEl.style.display = this.searchQuery ? 'flex' : 'none';
         this.currentPage = 1;
-        this._applyFilter();
-        this._render();
+        this.localApplyFilter();
+        this.localRender();
       }, 220);
     });
 
@@ -235,48 +233,48 @@ class BSPDataTable {
       this.searchQuery = '';
       clearEl.style.display = 'none';
       this.currentPage = 1;
-      this._applyFilter();
-      this._render();
+      this.localApplyFilter();
+      this.localRender();
       searchEl.focus();
     });
 
     psEl?.addEventListener('change', () => {
-      this.pageSize = parseInt(psEl.value);
+      this.pageSize = parseInt(psEl.value, 10);
       this.currentPage = 1;
-      this._render();
+      this.localRender();
     });
 
-    csvEl?.addEventListener('click', () => this._exportCSV());
-    xlsxEl?.addEventListener('click', () => this._exportXLSX());
+    csvEl?.addEventListener('click', () => this.localExportCSV());
+    xlsxEl?.addEventListener('click', () => this.localExportXLSX());
 
     // Filtros dinámicos
     this.filters.forEach((f, i) => {
       const el = document.getElementById(`${this.containerId}-f${i}`);
       if (!el) return;
       el.addEventListener('change', () => {
-        const key  = el.dataset.key;
-        const type = el.dataset.type;
-        const val  = el.value;
+        const { key } = el.dataset;
+        const { type } = el.dataset;
+        const val = el.value;
         if (!val) {
           delete this.activeFilters[`${key}_${type}`];
         } else {
           this.activeFilters[`${key}_${type}`] = { key, type, val };
         }
         this.currentPage = 1;
-        this._applyFilter();
-        this._render();
-        this._renderActiveFilters();
+        this.localApplyFilter();
+        this.localRender();
+        this.localRenderActiveFilters();
       });
     });
 
-    fclearEl?.addEventListener('click', () => this._clearAllFilters());
+    fclearEl?.addEventListener('click', () => this.localClearAllFilters());
 
     // Delegación: chip "Limpiar todo" (antes onclick inline) y paginación
-    // (antes onclick="window.__bspDT['id'].goPage(n)" inline). Los wraps
-    // existen desde init(); su contenido se re-renderiza en cada _render().
-    const afEl  = document.getElementById(`${this.containerId}-af`);
+    // (antes onclick="window.bspDataTables['id'].goPage(n)" inline). Los wraps
+    // existen desde init(); su contenido se re-renderiza en cada localRender().
+    const afEl = document.getElementById(`${this.containerId}-af`);
     afEl?.addEventListener('click', (e) => {
-      if (e.target.closest('[data-action="clear-all-filters"]')) this._clearAllFilters();
+      if (e.target.closest('[data-action="clear-all-filters"]')) this.localClearAllFilters();
     });
     const pagEl = document.getElementById(`${this.containerId}-pag`);
     pagEl?.addEventListener('click', (e) => {
@@ -286,25 +284,25 @@ class BSPDataTable {
   }
 
   // ── Limpiar todos los filtros ────────────────────────────────────────────
-  _clearAllFilters() {
+  localClearAllFilters() {
     this.activeFilters = {};
     this.filters.forEach((f, i) => {
       const el = document.getElementById(`${this.containerId}-f${i}`);
       if (el) el.value = '';
     });
     const searchEl = document.getElementById(`${this.containerId}-search`);
-    const clearEl  = document.getElementById(`${this.containerId}-clear`);
+    const clearEl = document.getElementById(`${this.containerId}-clear`);
     if (searchEl) { searchEl.value = ''; }
-    if (clearEl)  { clearEl.style.display = 'none'; }
+    if (clearEl) { clearEl.style.display = 'none'; }
     this.searchQuery = '';
     this.currentPage = 1;
-    this._applyFilter();
-    this._render();
-    this._renderActiveFilters();
+    this.localApplyFilter();
+    this.localRender();
+    this.localRenderActiveFilters();
   }
 
   // ── Mostrar chips de filtros activos ─────────────────────────────────────
-  _renderActiveFilters() {
+  localRenderActiveFilters() {
     const wrap = document.getElementById(`${this.containerId}-af`);
     if (!wrap) return;
     const activos = Object.values(this.activeFilters);
@@ -318,57 +316,60 @@ class BSPDataTable {
     // usuario que ve la tabla, pero se escapan igual: es un componente
     // compartido por todas las tablas del panel y no debe depender de que
     // cada controlador recuerde hacerlo.
-    const _escChip = (v) => (window.BSPVal?.escapeHtml
+    const localEscChip = (v) => (window.BSPVal?.escapeHtml
       ? window.BSPVal.escapeHtml(String(v ?? ''))
-      : String(v ?? '').replace(/[&<>"'`/]/g, c => ({
-          '&': '&amp;', '<': '&lt;', '>': '&gt;',
-          '"': '&quot;', "'": '&#39;', '/': '&#x2F;', '`': '&#x60;'
-        }[c])));
+      : String(v ?? '').replace(/[&<>"'`/]/g, (c) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+        '/': '&#x2F;',
+        '`': '&#x60;',
+      }[c])));
     const chips = [];
     if (this.searchQuery) {
-      chips.push(`<span class="bsp-dt-chip">🔍 "${_escChip(this.searchQuery)}"</span>`);
+      chips.push(`<span class="bsp-dt-chip">🔍 "${localEscChip(this.searchQuery)}"</span>`);
     }
-    activos.forEach(f => {
-      const label = this.filters.find(fi => fi.key === f.key)?.label || f.key;
-      chips.push(`<span class="bsp-dt-chip">${_escChip(label)}: <strong>${_escChip(f.val)}</strong></span>`);
+    activos.forEach((f) => {
+      const label = this.filters.find((fi) => fi.key === f.key)?.label || f.key;
+      chips.push(`<span class="bsp-dt-chip">${localEscChip(label)}: <strong>${localEscChip(f.val)}</strong></span>`);
     });
-    wrap.innerHTML = chips.join('') +
-      `<button class="bsp-dt-chip-clear" data-action="clear-all-filters">
+    wrap.innerHTML = `${chips.join('')
+    }<button class="bsp-dt-chip-clear" data-action="clear-all-filters">
         Limpiar todo ×
       </button>`;
   }
 
   // ── Filtrar datos ────────────────────────────────────────────────────────
-  _applyFilter() {
+  localApplyFilter() {
     let data = [...this.allData];
 
     // Búsqueda de texto
     if (this.searchQuery) {
-      data = data.filter(item =>
-        this.searchFields.some(f => {
-          const v = item[f];
-          return v && String(v).toLowerCase().includes(this.searchQuery);
-        })
-      );
+      data = data.filter((item) => this.searchFields.some((f) => {
+        const v = item[f];
+        return v && String(v).toLowerCase().includes(this.searchQuery);
+      }));
     }
 
     // Filtros dinámicos
     Object.values(this.activeFilters).forEach(({ key, type, val }) => {
       if (!val) return;
       if (type === 'select') {
-        data = data.filter(item => String(item[key] || '') === val);
+        data = data.filter((item) => String(item[key] || '') === val);
       } else if (type === 'date-from') {
-        data = data.filter(item => {
-          const d = item[key] || item['fechaISO'] || item['fecha'];
+        data = data.filter((item) => {
+          const d = item[key] || item.fechaISO || item.fecha;
           return d && d >= val;
         });
       } else if (type === 'date-to') {
-        data = data.filter(item => {
-          const d = item[key] || item['fechaISO'] || item['fecha'];
+        data = data.filter((item) => {
+          const d = item[key] || item.fechaISO || item.fecha;
           return d && d <= val;
         });
       } else if (type === 'stars') {
-        data = data.filter(item => String(item[key]) === val);
+        data = data.filter((item) => String(item[key]) === val);
       }
     });
 
@@ -376,24 +377,24 @@ class BSPDataTable {
   }
 
   // ── Renderizar ───────────────────────────────────────────────────────────
-  _render() {
-    const body    = document.getElementById(`${this.containerId}-body`);
+  localRender() {
+    const body = document.getElementById(`${this.containerId}-body`);
     const pagWrap = document.getElementById(`${this.containerId}-pag`);
-    const info    = document.getElementById(`${this.containerId}-info`);
+    const info = document.getElementById(`${this.containerId}-info`);
     if (!body) return;
 
-    const total      = this.filteredData.length;
-    const totalAll   = this.allData.length;
+    const total = this.filteredData.length;
+    const totalAll = this.allData.length;
     const totalPages = Math.max(1, Math.ceil(total / this.pageSize));
     this.currentPage = Math.min(this.currentPage, totalPages);
 
     const start = (this.currentPage - 1) * this.pageSize;
-    const end   = Math.min(start + this.pageSize, total);
-    const page  = this.filteredData.slice(start, end);
+    const end = Math.min(start + this.pageSize, total);
+    const page = this.filteredData.slice(start, end);
 
     // Info
     if (total === 0) {
-      info.innerHTML = `<span class="bsp-dt-info-zero">Sin resultados para los filtros aplicados</span>`;
+      info.innerHTML = '<span class="bsp-dt-info-zero">Sin resultados para los filtros aplicados</span>';
     } else if (total < totalAll) {
       info.innerHTML = `Mostrando <strong>${start + 1}–${end}</strong> de <strong>${total}</strong> filtrados <span class="bsp-dt-info-total">(${totalAll} total)</span>`;
     } else {
@@ -408,55 +409,50 @@ class BSPDataTable {
       // La animación escalonada por fila se aplica DESPUÉS por JS
       // (element.style.animationDelay, no requiere unsafe-inline).
       body.innerHTML = `<table class="${this.tableClass} u-dt-tabla">
-        <tbody>${page.map((item) =>
-          `<tr class="bsp-dt-row-fade">${
-            this.renderRow(item).replace(/^\s*<tr[^>]*>|<\/tr>\s*$/gi, '')
-          }</tr>`
-        ).join('')}</tbody>
+        <tbody>${page.map((item) => `<tr class="bsp-dt-row-fade">${
+    this.renderRow(item).replace(/^\s*<tr[^>]*>|<\/tr>\s*$/gi, '')
+  }</tr>`).join('')}</tbody>
       </table>`;
       body.querySelectorAll('.bsp-dt-row-fade').forEach((el, i) => {
         el.style.animation = `bspDtFadeIn 0.25s ease ${i * 25}ms both`;
       });
     } else {
       // Modo tarjetas (default) — mismo criterio: delay aplicado por JS.
-      body.innerHTML = page.map((item) =>
-        `<div class="bsp-dt-row-wrap">${this.renderRow(item)}</div>`
-      ).join('');
+      body.innerHTML = page.map((item) => `<div class="bsp-dt-row-wrap">${this.renderRow(item)}</div>`).join('');
       body.querySelectorAll(':scope > .bsp-dt-row-wrap').forEach((el, i) => {
         el.style.animationDelay = `${i * 25}ms`;
       });
     }
 
-    this._renderPag(pagWrap, totalPages);
+    this.localRenderPag(pagWrap, totalPages);
   }
 
   // ── Paginación ───────────────────────────────────────────────────────────
-  _renderPag(wrap, total) {
+  localRenderPag(wrap, total) {
     if (total <= 1) { wrap.innerHTML = ''; return; }
     const cur = this.currentPage;
-    const id  = this.containerId;
-    let html  = '<div class="bsp-dt-pag-inner">';
+    let html = '<div class="bsp-dt-pag-inner">';
 
-    html += `<button class="bsp-dt-pag-btn bsp-dt-pag-nav" ${cur===1?'disabled':''} data-action="goto-page" data-page="1" title="Primera">
+    html += `<button class="bsp-dt-pag-btn bsp-dt-pag-nav" ${cur === 1 ? 'disabled' : ''} data-action="goto-page" data-page="1" title="Primera">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg>
     </button>`;
-    html += `<button class="bsp-dt-pag-btn bsp-dt-pag-nav" ${cur===1?'disabled':''} data-action="goto-page" data-page="${cur-1}" title="Anterior">
+    html += `<button class="bsp-dt-pag-btn bsp-dt-pag-nav" ${cur === 1 ? 'disabled' : ''} data-action="goto-page" data-page="${cur - 1}" title="Anterior">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><polyline points="15 18 9 12 15 6"/></svg>
     </button>`;
 
-    this._pageRange(cur, total).forEach(p => {
+    BSPDataTable.localPageRange(cur, total).forEach((p) => {
       if (p === '…') {
-        html += `<span class="bsp-dt-pag-ellipsis">…</span>`;
+        html += '<span class="bsp-dt-pag-ellipsis">…</span>';
       } else {
-        html += `<button class="bsp-dt-pag-btn ${p===cur?'bsp-dt-pag-active':''}"
+        html += `<button class="bsp-dt-pag-btn ${p === cur ? 'bsp-dt-pag-active' : ''}"
           data-action="goto-page" data-page="${p}">${p}</button>`;
       }
     });
 
-    html += `<button class="bsp-dt-pag-btn bsp-dt-pag-nav" ${cur===total?'disabled':''} data-action="goto-page" data-page="${cur+1}" title="Siguiente">
+    html += `<button class="bsp-dt-pag-btn bsp-dt-pag-nav" ${cur === total ? 'disabled' : ''} data-action="goto-page" data-page="${cur + 1}" title="Siguiente">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><polyline points="9 18 15 12 9 6"/></svg>
     </button>`;
-    html += `<button class="bsp-dt-pag-btn bsp-dt-pag-nav" ${cur===total?'disabled':''} data-action="goto-page" data-page="${total}" title="Última">
+    html += `<button class="bsp-dt-pag-btn bsp-dt-pag-nav" ${cur === total ? 'disabled' : ''} data-action="goto-page" data-page="${total}" title="Última">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
     </button>`;
 
@@ -464,11 +460,11 @@ class BSPDataTable {
     wrap.innerHTML = html;
   }
 
-  _pageRange(cur, total) {
+  static localPageRange(cur, total) {
     if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
     const pages = [1];
     if (cur > 3) pages.push('…');
-    for (let i = Math.max(2, cur - 1); i <= Math.min(total - 1, cur + 1); i++) pages.push(i);
+    for (let i = Math.max(2, cur - 1); i <= Math.min(total - 1, cur + 1); i += 1) pages.push(i);
     if (cur < total - 2) pages.push('…');
     pages.push(total);
     return pages;
@@ -477,57 +473,58 @@ class BSPDataTable {
   goPage(n) {
     const max = Math.ceil(this.filteredData.length / this.pageSize);
     this.currentPage = Math.max(1, Math.min(n, max));
-    this._render();
-    const wrap = document.getElementById(this._wrapId);
+    this.localRender();
+    const wrap = document.getElementById(this.localWrapId);
     if (wrap) wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   // ── Exportar CSV ─────────────────────────────────────────────────────────
-  _exportCSV() {
-    const data   = this.filteredData;
+  localExportCSV() {
+    const data = this.filteredData;
     if (!data.length) return;
     const fields = this.exportFields.length ? this.exportFields : Object.keys(data[0]);
     const labels = this.exportLabels.length ? this.exportLabels : fields;
     const header = labels.join(',');
-    const rows   = data.map(item =>
-      fields.map(f => `"${String(item[f] ?? '').replace(/"/g, '""')}"`).join(',')
-    );
-    const csv  = [header, ...rows].join('\n');
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href     = url;
+    const rows = data.map((item) => fields.map((f) => `"${String(item[f] ?? '').replace(/"/g, '""')}"`).join(','));
+    const csv = [header, ...rows].join('\n');
+    const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
     a.download = `${this.exportName}_${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   }
 
   // ── Exportar Excel con SheetJS ───────────────────────────────────────────
-  _exportXLSX() {
+  localExportXLSX() {
     const data = this.filteredData;
-    if (!data.length) { showToast && showToast('Sin datos', 'No hay registros para exportar.'); return; }
+    if (!data.length) {
+      if (showToast) showToast('Sin datos', 'No hay registros para exportar.');
+      return;
+    }
 
     // Cargar SheetJS desde CDN si no está disponible
     if (typeof XLSX === 'undefined') {
       const script = document.createElement('script');
-      script.src   = 'https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js';
-      script.onload = () => this._doExportXLSX(data);
+      script.src = 'https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js';
+      script.onload = () => this.localDoExportXLSX(data);
       document.head.appendChild(script);
     } else {
-      this._doExportXLSX(data);
+      this.localDoExportXLSX(data);
     }
   }
 
-  _doExportXLSX(data) {
+  localDoExportXLSX(data) {
     const fields = this.exportFields.length ? this.exportFields : Object.keys(data[0]);
     const labels = this.exportLabels.length ? this.exportLabels : fields;
     const nombre = this.exportName;
-    const fecha  = new Date().toLocaleDateString('es-CO');
+    const fecha = new Date().toLocaleDateString('es-CO');
 
     // ── Hoja 1: Datos ──────────────────────────────────────────────────────
     const wsData = [
       labels,
-      ...data.map(item => fields.map(f => item[f] ?? ''))
+      ...data.map((item) => fields.map((f) => item[f] ?? '')),
     ];
     const ws = XLSX.utils.aoa_to_sheet(wsData);
 
@@ -535,21 +532,21 @@ class BSPDataTable {
     const colWidths = labels.map((l, i) => {
       const maxLen = Math.max(
         l.length,
-        ...data.map(item => String(item[fields[i]] ?? '').length)
+        ...data.map((item) => String(item[fields[i]] ?? '').length),
       );
       return { wch: Math.min(maxLen + 4, 40) };
     });
     ws['!cols'] = colWidths;
 
     // ── Hoja 2: Resumen estadístico ────────────────────────────────────────
-    const stats = this._calcStats(data, fields);
+    const stats = BSPDataTable.localCalcStats(data, fields);
     const wsStats = XLSX.utils.aoa_to_sheet([
       [`Reporte: ${nombre.toUpperCase()}`],
       [`Generado: ${fecha}`],
       [`Total registros: ${data.length}`],
       [],
       ['Campo', 'Valores únicos', 'Más frecuente'],
-      ...stats
+      ...stats,
     ]);
     wsStats['!cols'] = [{ wch: 25 }, { wch: 15 }, { wch: 30 }];
 
@@ -562,28 +559,28 @@ class BSPDataTable {
   }
 
   // Calcula estadísticas básicas por campo para la hoja de resumen
-  _calcStats(data, fields) {
-    return fields.map(f => {
-      const vals = data.map(item => String(item[f] ?? '')).filter(Boolean);
+  static localCalcStats(data, fields) {
+    return fields.map((f) => {
+      const vals = data.map((item) => String(item[f] ?? '')).filter(Boolean);
       const freq = {};
-      vals.forEach(v => { freq[v] = (freq[v] || 0) + 1; });
+      vals.forEach((v) => { freq[v] = (freq[v] || 0) + 1; });
       const masFrec = Object.entries(freq).sort((a, b) => b[1] - a[1])[0];
-      const unicos  = Object.keys(freq).length;
+      const unicos = Object.keys(freq).length;
       return [f, unicos, masFrec ? `${masFrec[0]} (${masFrec[1]}x)` : '—'];
     });
   }
 
   // ── Actualizar datos ─────────────────────────────────────────────────────
   refresh(newData) {
-    this.allData     = newData || [];
+    this.allData = newData || [];
     this.currentPage = 1;
-    this._applyFilter();
-    this._render();
-    this._renderActiveFilters();
+    this.localApplyFilter();
+    this.localRender();
+    this.localRenderActiveFilters();
   }
 
   // ── Estado vacío ─────────────────────────────────────────────────────────
-  _defaultEmpty() {
+  static localDefaultEmpty() {
     return `<div class="bsp-dt-empty">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="52" height="52">
         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -595,4 +592,4 @@ class BSPDataTable {
   }
 }
 
-window.__bspDT = window.__bspDT || {};
+window.bspDataTables = window.bspDataTables || {};

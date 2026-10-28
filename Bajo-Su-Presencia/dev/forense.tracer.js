@@ -1,3 +1,4 @@
+/* eslint-disable no-console -- herramienta de diagnóstico: su salida ES la consola */
 /**
  * ============================================================
  * TRAZADOR FORENSE DE SESIÓN  —  herramienta de diagnóstico
@@ -26,12 +27,12 @@
  *
  * @module BSPForense
  */
-(function (global) {
+(function forenseTracer(global) {
   'use strict';
 
-  const CLAVE_ACTIVO   = '__bsp_forense_activo';
+  const CLAVE_ACTIVO = '__bsp_forense_activo';
   const CLAVE_REGISTRO = '__bsp_forense_registro';
-  const MAX_EVENTOS    = 500;
+  const MAX_EVENTOS = 500;
 
   /** Claves cuyo valor NO debe registrarse íntegro (se resume). */
   const SENSIBLES = /token|password|contrasena|secret|refresh/i;
@@ -41,9 +42,9 @@
 
     /* ─────────── Registro persistente ─────────── */
 
+    // eslint-disable-next-line class-methods-use-this
     #leerRegistro() {
-      try { return JSON.parse(sessionStorage.getItem(CLAVE_REGISTRO) || '[]'); }
-      catch (_) { return []; }
+      try { return JSON.parse(sessionStorage.getItem(CLAVE_REGISTRO) || '[]'); } catch (_) { return []; }
     }
 
     #anotar(evento) {
@@ -51,33 +52,35 @@
       registro.push(evento);
       // Se conserva una ventana acotada para no agotar sessionStorage.
       while (registro.length > MAX_EVENTOS) registro.shift();
-      try { sessionStorage.setItem(CLAVE_REGISTRO, JSON.stringify(registro)); }
-      catch (_) { /* cuota agotada: se deja de registrar */ }
+      try {
+        sessionStorage.setItem(CLAVE_REGISTRO, JSON.stringify(registro));
+      } catch (_) { /* cuota agotada: se deja de registrar */ }
     }
 
     /** Resume un valor largo o sensible para que el informe sea legible. */
+    // eslint-disable-next-line class-methods-use-this
     #resumir(clave, valor) {
       if (valor === null || valor === undefined) return null;
       const texto = String(valor);
       if (SENSIBLES.test(clave)) return `«${texto.length} caracteres, no se muestra»`;
-      return texto.length > 120 ? texto.slice(0, 120) + '…' : texto;
+      return texto.length > 120 ? `${texto.slice(0, 120)}…` : texto;
     }
 
     /**
      * Devuelve la línea de código que originó la llamada, saltándose
      * los marcos internos de este propio trazador.
      */
+    // eslint-disable-next-line class-methods-use-this
     #origen() {
-      const pila = (new Error().stack || '').split('\n').map(l => l.trim());
-      const util = pila.find(l =>
-        l.includes('.js') && !l.includes('forense.tracer') && !l.includes('Error'));
+      const pila = (new Error().stack || '').split('\n').map((l) => l.trim());
+      const util = pila.find((l) => l.includes('.js') && !l.includes('forense.tracer') && !l.includes('Error'));
       return util || '(origen no determinable)';
     }
 
     #registrar(tipo, detalle) {
       this.#anotar({
         t: new Date().toISOString().slice(11, 23),
-        url: location.pathname + location.hash,
+        url: window.location.pathname + window.location.hash,
         tipo,
         ...detalle,
         origen: this.#origen(),
@@ -89,16 +92,16 @@
     /** Intercepta escrituras y borrados de localStorage y sessionStorage. */
     #instrumentarAlmacenamiento() {
       [['localStorage', localStorage], ['sessionStorage', sessionStorage]].forEach(([nombre, almacen]) => {
-        const setOriginal    = almacen.setItem.bind(almacen);
+        const setOriginal = almacen.setItem.bind(almacen);
         const removeOriginal = almacen.removeItem.bind(almacen);
-        const clearOriginal  = almacen.clear.bind(almacen);
+        const clearOriginal = almacen.clear.bind(almacen);
 
         almacen.setItem = (clave, valor) => {
           if (String(clave).startsWith('__bsp_forense')) return setOriginal(clave, valor);
           this.#registrar('ESCRIBE', {
             almacen: nombre,
             clave,
-            antes:   this.#resumir(clave, almacen.getItem(clave)),
+            antes: this.#resumir(clave, almacen.getItem(clave)),
             despues: this.#resumir(clave, valor),
           });
           return setOriginal(clave, valor);
@@ -107,7 +110,8 @@
         almacen.removeItem = (clave) => {
           if (String(clave).startsWith('__bsp_forense')) return removeOriginal(clave);
           this.#registrar('BORRA', {
-            almacen: nombre, clave,
+            almacen: nombre,
+            clave,
             antes: this.#resumir(clave, almacen.getItem(clave)),
           });
           return removeOriginal(clave);
@@ -116,11 +120,11 @@
         almacen.clear = () => {
           this.#registrar('LIMPIA_TODO', { almacen: nombre, claves: Object.keys(almacen) });
           const registro = sessionStorage.getItem(CLAVE_REGISTRO);
-          const activo   = sessionStorage.getItem(CLAVE_ACTIVO);
+          const activo = sessionStorage.getItem(CLAVE_ACTIVO);
           clearOriginal();
           // El propio registro sobrevive al borrado, o perderíamos la evidencia.
           if (registro) setOriginal.call(sessionStorage, CLAVE_REGISTRO, registro);
-          if (activo)   setOriginal.call(sessionStorage, CLAVE_ACTIVO, activo);
+          if (activo) setOriginal.call(sessionStorage, CLAVE_ACTIVO, activo);
         };
       });
     }
@@ -128,14 +132,14 @@
     /** Registra los eventos del navegador implicados en la navegación. */
     #instrumentarEventos() {
       const eventos = ['pageshow', 'pagehide', 'popstate', 'visibilitychange',
-                       'storage', 'beforeunload', 'hashchange'];
+        'storage', 'beforeunload', 'hashchange'];
       eventos.forEach((nombre) => {
         window.addEventListener(nombre, (e) => {
           const extra = {};
           if (nombre === 'pageshow' || nombre === 'pagehide') extra.persisted = e.persisted;
           if (nombre === 'storage') { extra.clave = e.key; extra.nuevo = this.#resumir(e.key, e.newValue); }
           if (nombre === 'visibilitychange') extra.estado = document.visibilityState;
-          this.#registrar('EVENTO:' + nombre, extra);
+          this.#registrar(`EVENTO:${nombre}`, extra);
         }, true);
       });
     }
@@ -144,7 +148,7 @@
     #instrumentarSupabase() {
       if (!global.sb?.auth?.onAuthStateChange) return;
       global.sb.auth.onAuthStateChange((evento, sesion) => {
-        this.#registrar('SUPABASE:' + evento, {
+        this.#registrar(`SUPABASE:${evento}`, {
           usuario: sesion?.user?.email || null,
           expira: sesion?.expires_at || null,
         });
@@ -172,8 +176,10 @@
     activar() {
       sessionStorage.setItem(CLAVE_ACTIVO, '1');
       this.instalar();
-      console.log('%c[FORENSE] Trazado ACTIVO. Reproduce el fallo y ejecuta BSPForense.informe()',
-        'background:#1E3A8A;color:#fff;padding:3px 8px;border-radius:4px');
+      console.log(
+        '%c[FORENSE] Trazado ACTIVO. Reproduce el fallo y ejecuta BSPForense.informe()',
+        'background:#1E3A8A;color:#fff;padding:3px 8px;border-radius:4px',
+      );
       return 'activo';
     }
 
@@ -190,6 +196,7 @@
     }
 
     /** Detiene el trazado y borra el registro. */
+    // eslint-disable-next-line class-methods-use-this
     desactivar() {
       sessionStorage.removeItem(CLAVE_ACTIVO);
       sessionStorage.removeItem(CLAVE_REGISTRO);
@@ -204,8 +211,10 @@
         console.log('[FORENSE] Sin eventos. ¿Ejecutaste BSPForense.activar() antes de reproducir el fallo?');
         return [];
       }
-      console.log(`%c[FORENSE] ${registro.length} eventos registrados`,
-        'background:#1E3A8A;color:#fff;padding:3px 8px;border-radius:4px');
+      console.log(
+        `%c[FORENSE] ${registro.length} eventos registrados`,
+        'background:#1E3A8A;color:#fff;padding:3px 8px;border-radius:4px',
+      );
       console.table(registro);
       return registro;
     }
@@ -213,7 +222,7 @@
     /** Devuelve el registro como texto, listo para pegar en el informe. */
     texto() {
       return this.#leerRegistro()
-        .map(e => `${e.t} | ${e.url} | ${e.tipo} | ${e.clave || e.usuario || e.evento || ''} `
+        .map((e) => `${e.t} | ${e.url} | ${e.tipo} | ${e.clave || e.usuario || e.evento || ''} `
                 + `| antes=${e.antes ?? '-'} | despues=${e.despues ?? '-'} | ${e.origen}`)
         .join('\n');
     }
@@ -229,4 +238,4 @@
   global.BSPForense = new TrazadorForense();
   // Si quedó activo en una navegación anterior, se reinstala solo.
   global.BSPForense.instalar();
-})(window);
+}(window));

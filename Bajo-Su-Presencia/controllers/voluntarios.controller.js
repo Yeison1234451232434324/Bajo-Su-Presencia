@@ -1,3 +1,4 @@
+/* global BSPDataTable, BSPModal, BSPVal, VoluntariosModel, esc, showToast */
 /**
  * ============================================================
  * CONTROLADOR: voluntarios.controller.js
@@ -15,7 +16,6 @@
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
-
   // ── Verificar que sea admin ──────────────────────────────────────────────
   // Control de acceso contra el SERVIDOR: el rol procede del JWT
   // verificado en /api/auth/me, no de localStorage (editable por el usuario).
@@ -23,39 +23,39 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!sesion) return;
 
   // ── Referencias DOM principales ──────────────────────────────────────────
-  const vistaEventosVol   = document.getElementById('vista-eventos-vol');
+  const vistaEventosVol = document.getElementById('vista-eventos-vol');
   const vistaCalificarVol = document.getElementById('vista-calificar-vol');
-  const gridEventosVol    = document.getElementById('grid-eventos-vol');
-  const eventoInfo        = document.getElementById('evento-info');
-  const tablaWrap         = document.getElementById('tabla-wrap');
+  const gridEventosVol = document.getElementById('grid-eventos-vol');
+  const eventoInfo = document.getElementById('evento-info');
+  const tablaWrap = document.getElementById('tabla-wrap');
 
   // Modal de calificación
-  const modal            = document.getElementById('modal-calif');
-  const modalOverlay     = document.getElementById('modal-overlay-vol');
-  const modalVolNombre   = document.getElementById('modal-vol-nombre');
-  const modalEventoNombre= document.getElementById('modal-evento-nombre');
-  const modalError       = document.getElementById('modal-error-vol');
-  const formCalif        = document.getElementById('form-calificacion');
-  const btnCerrarModal   = document.getElementById('btn-cerrar-modal-vol');
+  const modal = document.getElementById('modal-calif');
+  const modalOverlay = document.getElementById('modal-overlay-vol');
+  const modalVolNombre = document.getElementById('modal-vol-nombre');
+  const modalEventoNombre = document.getElementById('modal-evento-nombre');
+  const modalError = document.getElementById('modal-error-vol');
+  const formCalif = document.getElementById('form-calificacion');
+  const btnCerrarModal = document.getElementById('btn-cerrar-modal-vol');
   const btnCancelarModal = document.getElementById('btn-cancelar-vol');
-  const inputComentario  = document.getElementById('campo-comentario');
-  const charCount        = document.getElementById('char-count');
+  const inputComentario = document.getElementById('campo-comentario');
+  const charCount = document.getElementById('char-count');
 
   // Panel historial
-  const panelHistorial   = document.getElementById('panel-historial');
-  const historialNombre  = document.getElementById('historial-nombre');
-  const historialLista   = document.getElementById('historial-lista');
-  const btnCerrarHist    = document.getElementById('btn-cerrar-historial');
+  const panelHistorial = document.getElementById('panel-historial');
+  const historialNombre = document.getElementById('historial-nombre');
+  const historialLista = document.getElementById('historial-lista');
+  const btnCerrarHist = document.getElementById('btn-cerrar-historial');
 
   // Panel resumen estadístico
-  const panelResumen     = document.getElementById('panel-resumen');
-  const resumenNombre    = document.getElementById('resumen-nombre');
+  const panelResumen = document.getElementById('panel-resumen');
+  const resumenNombre = document.getElementById('resumen-nombre');
   const btnCerrarResumen = document.getElementById('btn-cerrar-resumen');
 
   // Estado interno del controlador
-  let eventoActualId    = null; // ID del evento seleccionado
-  let califVolId        = null; // ID del voluntario que se está calificando
-  let califEstrellas    = 0;    // Estrellas seleccionadas en el modal
+  let eventoActualId = null; // ID del evento seleccionado
+  let califVolId = null; // ID del voluntario que se está calificando
+  let califEstrellas = 0; // Estrellas seleccionadas en el modal
 
   // ════════════════════════════════════════════════════════════════
   // 1. GRID DE EVENTOS (mismo patrón que "Subir Reporte" y "Actividades":
@@ -67,23 +67,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     gridEventosVol.innerHTML = '';
     if (!eventos.length) {
-      gridEventosVol.innerHTML = `<div class="act-empty"><i class="bx bx-calendar-x" aria-hidden="true"></i><p>No hay eventos publicados aún.</p></div>`;
+      gridEventosVol.innerHTML = '<div class="act-empty"><i class="bx bx-calendar-x" aria-hidden="true"></i><p>No hay eventos publicados aún.</p></div>';
       return;
     }
 
     let calificaciones = [];
-    try { calificaciones = await VoluntariosModel.getCalificaciones(); }
-    catch (e) { window.BSPLog?.error('voluntarios.calificaciones', e); }
+    try { calificaciones = await VoluntariosModel.getCalificaciones(); } catch (e) { window.BSPLog?.error('voluntarios.calificaciones', e); }
     const califPorEvento = {};
-    calificaciones.forEach(c => {
+    calificaciones.forEach((c) => {
       const s = califPorEvento[c.eventoId] || (califPorEvento[c.eventoId] = new Set());
       s.add(c.voluntarioId);
     });
 
-    function _crearCardEvento(ev) {
+    function localCrearCardEvento(ev) {
       const calificados = califPorEvento[ev.id] ? califPorEvento[ev.id].size : 0;
-      const total        = ev.voluntarios.length;
-      const fechaFmt      = _formatFecha(ev.fecha);
+      const total = ev.voluntarios.length;
+      const fechaFmt = localFormatFecha(ev.fecha);
 
       const card = document.createElement('div');
       card.className = 'vol-evento-card';
@@ -100,7 +99,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       return card;
     }
 
-    function _crearSubgrupo(titulo, iconoClase, modificador, lista) {
+    function localCrearSubgrupo(titulo, iconoClase, modificador, lista) {
       const wrap = document.createElement('div');
       wrap.className = 'vol-subgrupo';
 
@@ -111,7 +110,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const grid = document.createElement('div');
       grid.className = 'vol-grid-eventos';
-      lista.forEach(ev => grid.appendChild(_crearCardEvento(ev)));
+      lista.forEach((ev) => grid.appendChild(localCrearCardEvento(ev)));
       wrap.appendChild(grid);
 
       return wrap;
@@ -120,27 +119,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Dos grupos: eventos con voluntarios aún sin calificar, y eventos donde
     // ya se calificó a todos (o que no tienen voluntarios asignados, así que
     // no hay nada pendiente por calificar).
-    const pendientes  = [];
+    const pendientes = [];
     const completados = [];
-    for (const ev of eventos) {
+    eventos.forEach((ev) => {
       const calificados = califPorEvento[ev.id] ? califPorEvento[ev.id].size : 0;
       if (ev.voluntarios.length > 0 && calificados < ev.voluntarios.length) pendientes.push(ev);
       else completados.push(ev);
-    }
+    });
 
     gridEventosVol.classList.add('vol-grid-eventos--agrupado');
     if (pendientes.length) {
-      gridEventosVol.appendChild(_crearSubgrupo('Con voluntarios sin calificar', 'bx-time-five', null, pendientes));
+      gridEventosVol.appendChild(localCrearSubgrupo('Con voluntarios sin calificar', 'bx-time-five', null, pendientes));
     }
     if (completados.length) {
-      gridEventosVol.appendChild(_crearSubgrupo('Todos calificados', 'bx-check-circle', 'act-subgrupo-titulo--ok', completados));
+      gridEventosVol.appendChild(localCrearSubgrupo('Todos calificados', 'bx-check-circle', 'act-subgrupo-titulo--ok', completados));
     }
   }
 
   /** Selecciona un evento desde el grid y pasa a la vista de calificación */
   function seleccionarEventoVol(ev) {
     eventoActualId = ev.id;
-    vistaEventosVol.style.display   = 'none';
+    vistaEventosVol.style.display = 'none';
     vistaCalificarVol.style.display = 'block';
     ocultarPaneles();
     renderTablaVoluntarios();
@@ -150,7 +149,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   function volverAEventosVol() {
     eventoActualId = null;
     vistaCalificarVol.style.display = 'none';
-    vistaEventosVol.style.display   = 'block';
+    vistaEventosVol.style.display = 'block';
     ocultarPaneles();
     renderGridEventosVol();
   }
@@ -169,34 +168,35 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!evento) return;
 
     // Pre-cargar calificaciones del evento (para que renderRow sea síncrono)
-    const califsEvento = (await VoluntariosModel.getCalificaciones()).filter(c => c.eventoId === eventoActualId);
+    const califsEvento = (await VoluntariosModel.getCalificaciones())
+      .filter((c) => c.eventoId === eventoActualId);
     const califMap = {};
-    califsEvento.forEach(c => { califMap[c.voluntarioId] = c; });
+    califsEvento.forEach((c) => { califMap[c.voluntarioId] = c; });
 
     // Mostrar info del evento y la tabla (arrancan en display:none por CSS
     // hasta que hay un evento seleccionado — ver voluntarios.css: "se muestra por JS").
     eventoInfo.style.display = 'flex';
     if (tablaWrap) tablaWrap.style.display = 'block';
     document.getElementById('info-nombre').textContent = evento.nombre;
-    document.getElementById('info-fecha').textContent  = evento.fecha;
-    document.getElementById('info-lugar').textContent  = evento.lugar;
-    document.getElementById('info-total').textContent  = `${evento.voluntarios.length} voluntario(s)`;
+    document.getElementById('info-fecha').textContent = evento.fecha;
+    document.getElementById('info-lugar').textContent = evento.lugar;
+    document.getElementById('info-total').textContent = `${evento.voluntarios.length} voluntario(s)`;
 
-    const data = evento.voluntarios.map(vol => {
-      const calif        = califMap[vol.id] || null;
+    const data = evento.voluntarios.map((vol) => {
+      const calif = califMap[vol.id] || null;
       const yaCalificado = !!calif;
       return {
         ...vol,
         yaCalificado,
         califEstrellas: yaCalificado ? calif.estrellas : 0,
         califComentario: yaCalificado ? (calif.comentario || '') : '',
-        estadoCalif: yaCalificado ? 'Calificado' : 'Sin calificar'
+        estadoCalif: yaCalificado ? 'Calificado' : 'Sin calificar',
       };
     });
 
     function renderRow(vol) {
-      const yaCalificado = vol.yaCalificado;
-      const avatar       = esc(String(vol.nombre ?? '').charAt(0).toUpperCase());
+      const { yaCalificado } = vol;
+      const avatar = esc(String(vol.nombre ?? '').charAt(0).toUpperCase());
 
       const estrellasMostrar = yaCalificado
         ? renderEstrellasFijas(vol.califEstrellas)
@@ -235,8 +235,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           <div class="vol-row-estrellas">${estrellasMostrar}</div>
           <div class="comentario-cell">
             ${yaCalificado && vol.califComentario
-              ? `<span class="comentario-preview" title="${esc(vol.califComentario)}">${esc(vol.califComentario)}</span>`
-              : '<span class="sin-calif">—</span>'}
+    ? `<span class="comentario-preview" title="${esc(vol.califComentario)}">${esc(vol.califComentario)}</span>`
+    : '<span class="sin-calif">—</span>'}
           </div>
           <div class="acciones-cell">
             ${btnCalif}${btnHist}${btnResumen}
@@ -246,26 +246,28 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (!dtVoluntarios) {
       dtVoluntarios = new BSPDataTable({
-        containerId:  'dt-voluntarios',
+        containerId: 'dt-voluntarios',
         data,
-        pageSize:     8,
+        pageSize: 8,
         searchFields: ['nombre', 'rol'],
         filters: [
-          { key: 'estadoCalif', label: 'Calificación', type: 'select', options: ['Calificado', 'Sin calificar'] }
+          {
+            key: 'estadoCalif', label: 'Calificación', type: 'select', options: ['Calificado', 'Sin calificar'],
+          },
         ],
         renderRow,
-        exportable:   true,
-        exportName:   'voluntarios',
+        exportable: true,
+        exportName: 'voluntarios',
         exportFields: ['nombre', 'rol', 'estadoCalif', 'califEstrellas', 'califComentario'],
         exportLabels: ['Nombre', 'Rol', 'Calificado', 'Estrellas', 'Comentario'],
-        emptyHTML: `<div class="dt-empty"><i class="bx bx-user-x" aria-hidden="true"></i><p>No hay voluntarios en este evento.</p></div>`
+        emptyHTML: '<div class="dt-empty"><i class="bx bx-user-x" aria-hidden="true"></i><p>No hay voluntarios en este evento.</p></div>',
       });
-      window.__bspDT['dt-voluntarios'] = dtVoluntarios;
+      window.bspDataTables['dt-voluntarios'] = dtVoluntarios;
       dtVoluntarios.init();
       document.getElementById('dt-voluntarios-body')?.addEventListener('click', (e) => {
         const btn = e.target.closest('[data-action]');
         if (!btn) return;
-        const id = btn.dataset.id;
+        const { id } = btn.dataset;
         if (btn.dataset.action === 'abrir-modal-calif') abrirModalCalif(id);
         else if (btn.dataset.action === 'ver-historial') verHistorial(id, btn.dataset.nombre);
         else if (btn.dataset.action === 'ver-resumen') verResumen(id, btn.dataset.nombre);
@@ -278,7 +280,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   /** Genera HTML de estrellas fijas (solo lectura) */
   function renderEstrellasFijas(n) {
     let html = '<div class="estrellas-fijas">';
-    for (let i = 1; i <= 5; i++) {
+    for (let i = 1; i <= 5; i += 1) {
       html += `<i class="bx bxs-star ${i <= n ? 'star-on' : 'star-off'}"></i>`;
     }
     html += `<span class="estrella-num">${n}/5</span></div>`;
@@ -294,23 +296,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!eventoActualId) return;
 
     const evento = await VoluntariosModel.getEventoById(eventoActualId);
-    const vol    = evento?.voluntarios.find(v => String(v.id) === String(voluntarioId));
+    const vol = evento?.voluntarios.find((v) => String(v.id) === String(voluntarioId));
     if (!vol) return;
 
     califVolId = voluntarioId;
     califEstrellas = 0;
 
     // Llenar datos del modal
-    modalVolNombre.textContent    = vol.nombre;
+    modalVolNombre.textContent = vol.nombre;
     modalEventoNombre.textContent = evento.nombre;
-    modalError.style.display      = 'none';
-    inputComentario.value         = '';
-    charCount.textContent         = '0 / 300';
+    modalError.style.display = 'none';
+    inputComentario.value = '';
+    charCount.textContent = '0 / 300';
 
     // Si ya existe calificación, pre-llenar el formulario
-    const existente = await VoluntariosModel.getCalifByEventoVoluntario(eventoActualId, voluntarioId);
+    const existente = await VoluntariosModel
+      .getCalifByEventoVoluntario(eventoActualId, voluntarioId);
     if (existente) {
-      califEstrellas        = existente.estrellas;
+      califEstrellas = existente.estrellas;
       inputComentario.value = existente.comentario;
       charCount.textContent = `${existente.comentario.length} / 300`;
     }
@@ -329,16 +332,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     const contenedor = document.getElementById('estrellas-modal');
     contenedor.innerHTML = '';
 
-    for (let i = 1; i <= 5; i++) {
+    for (let i = 1; i <= 5; i += 1) {
       const star = document.createElement('i');
       star.className = `bx bxs-star estrella-modal ${i <= n ? 'star-on' : 'star-off'}`;
       star.dataset.valor = i;
 
       // Al pasar el mouse, iluminar hasta esa estrella (hover preview)
       star.addEventListener('mouseenter', () => resaltarEstrellas(i));
+      // eslint-disable-next-line no-loop-func
       star.addEventListener('mouseleave', () => resaltarEstrellas(califEstrellas));
 
       // Al hacer clic, fijar la calificación
+      // eslint-disable-next-line no-loop-func
       star.addEventListener('click', () => {
         califEstrellas = i;
         resaltarEstrellas(i);
@@ -354,7 +359,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   /** Ilumina las primeras `n` estrellas del modal */
   function resaltarEstrellas(n) {
     document.querySelectorAll('.estrella-modal').forEach((s, idx) => {
-      s.classList.toggle('star-on',  idx < n);
+      s.classList.toggle('star-on', idx < n);
       s.classList.toggle('star-off', idx >= n);
     });
     actualizarTextoEstrellas(n);
@@ -368,7 +373,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       2: '⭐⭐ Regular',
       3: '⭐⭐⭐ Bueno',
       4: '⭐⭐⭐⭐ Muy bueno',
-      5: '⭐⭐⭐⭐⭐ Excelente'
+      5: '⭐⭐⭐⭐⭐ Excelente',
     };
     document.getElementById('texto-estrellas').textContent = textos[n] || '';
   }
@@ -393,20 +398,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     const comentario = BSPVal.cleanText(inputComentario.value);
 
     /* Validar estrellas: entero entre 1 y 5 */
-    if (!califEstrellas || califEstrellas < 1 || califEstrellas > 5 || !Number.isInteger(califEstrellas)) {
-      modalError.textContent   = 'Debes seleccionar una calificación de 1 a 5 estrellas.';
+    if (
+      !califEstrellas
+      || califEstrellas < 1
+      || califEstrellas > 5
+      || !Number.isInteger(califEstrellas)
+    ) {
+      modalError.textContent = 'Debes seleccionar una calificación de 1 a 5 estrellas.';
       modalError.style.display = 'block';
       return;
     }
 
     /* Comentario: opcional, pero si se escribe mínimo 3 chars */
     if (comentario.length > 0 && comentario.length < 3) {
-      modalError.textContent   = 'El comentario debe tener al menos 3 caracteres o dejarse vacío.';
+      modalError.textContent = 'El comentario debe tener al menos 3 caracteres o dejarse vacío.';
       modalError.style.display = 'block';
       return;
     }
     if (comentario.length > 300) {
-      modalError.textContent   = 'El comentario no puede superar 300 caracteres.';
+      modalError.textContent = 'El comentario no puede superar 300 caracteres.';
       modalError.style.display = 'block';
       return;
     }
@@ -419,10 +429,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     let resultado;
     try {
       resultado = await VoluntariosModel.guardarCalificacion({
-        eventoId:     eventoActualId,
+        eventoId: eventoActualId,
         voluntarioId: califVolId,
-        estrellas:    califEstrellas,
-        comentario
+        estrellas: califEstrellas,
+        comentario,
       });
     } catch (ex) {
       modalError.textContent = 'Error de conexión. Intenta de nuevo.';
@@ -432,7 +442,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
     if (!resultado.ok) {
-      modalError.textContent   = resultado.error;
+      modalError.textContent = resultado.error;
       modalError.style.display = 'block';
       enviandoCalif = false;
       if (btnSubmitCalif) { btnSubmitCalif.disabled = false; btnSubmitCalif.removeAttribute('aria-busy'); }
@@ -443,13 +453,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (btnSubmitCalif) { btnSubmitCalif.disabled = false; btnSubmitCalif.removeAttribute('aria-busy'); }
     cerrarModal();
     await renderTablaVoluntarios();
-    showToast('Calificación guardada', `La calificación fue registrada exitosamente.`);
+    showToast('Calificación guardada', 'La calificación fue registrada exitosamente.');
   });
 
   /** Cierra el modal de calificación */
   function cerrarModal() {
     BSPModal.cerrar({ overlay: modalOverlay, modal });
-    califVolId     = null;
+    califVolId = null;
     califEstrellas = 0;
   }
 
@@ -466,7 +476,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const historial = await VoluntariosModel.getHistorialVoluntario(voluntarioId);
 
     historialNombre.textContent = nombre;
-    historialLista.innerHTML    = '';
+    historialLista.innerHTML = '';
 
     if (historial.length === 0) {
       historialLista.innerHTML = `
@@ -476,7 +486,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         </div>`;
     } else {
       // Ordenar del más reciente al más antiguo
-      [...historial].sort((a, b) => b.fecha.localeCompare(a.fecha)).forEach(c => {
+      [...historial].sort((a, b) => b.fecha.localeCompare(a.fecha)).forEach((c) => {
         historialLista.innerHTML += `
           <div class="historial-item">
             <div class="historial-header">
@@ -485,14 +495,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>
             <div class="historial-estrellas">${renderEstrellasFijas(c.estrellas)}</div>
             ${c.comentario
-              ? `<p class="historial-comentario">"${esc(c.comentario)}"</p>`
-              : '<p class="historial-comentario sin-calif">Sin comentario.</p>'}
+    ? `<p class="historial-comentario">"${esc(c.comentario)}"</p>`
+    : '<p class="historial-comentario sin-calif">Sin comentario.</p>'}
           </div>`;
       });
     }
 
     // Ocultar resumen si estaba abierto y mostrar historial
-    panelResumen.style.display  = 'none';
+    panelResumen.style.display = 'none';
     panelHistorial.style.display = 'block';
   }
 
@@ -512,10 +522,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Promedio con estrellas visuales
     const promedioRedondeado = Math.round(resumen.promedio);
-    document.getElementById('res-promedio-num').textContent  = resumen.promedio || '—';
-    document.getElementById('res-promedio-stars').innerHTML  =
-      resumen.total > 0 ? renderEstrellasFijas(promedioRedondeado) : '<span class="sin-calif">Sin datos</span>';
-    document.getElementById('res-total').textContent         = resumen.total;
+    document.getElementById('res-promedio-num').textContent = resumen.promedio || '—';
+    document.getElementById('res-promedio-stars').innerHTML = resumen.total > 0 ? renderEstrellasFijas(promedioRedondeado) : '<span class="sin-calif">Sin datos</span>';
+    document.getElementById('res-total').textContent = resumen.total;
 
     // Mejor y peor calificación
     document.getElementById('res-mejor').innerHTML = resumen.mejor
@@ -536,9 +545,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const maxVal = Math.max(...Object.values(resumen.distribucion), 1); // evitar división por 0
 
     let distHtml = '';
-    for (let i = 5; i >= 1; i--) {
-      const cant    = resumen.distribucion[i];
-      const pct     = Math.round((cant / maxVal) * 100);
+    for (let i = 5; i >= 1; i -= 1) {
+      const cant = resumen.distribucion[i];
+      const pct = Math.round((cant / maxVal) * 100);
       distHtml += `
         <div class="dist-fila">
           <span class="dist-label">${i} <i class="bx bxs-star star-on" aria-hidden="true"></i></span>
@@ -552,7 +561,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Ocultar historial si estaba abierto y mostrar resumen
     panelHistorial.style.display = 'none';
-    panelResumen.style.display   = 'block';
+    panelResumen.style.display = 'block';
   }
 
   btnCerrarResumen.addEventListener('click', () => {
@@ -566,7 +575,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   /** Oculta ambos paneles laterales */
   function ocultarPaneles() {
     panelHistorial.style.display = 'none';
-    panelResumen.style.display   = 'none';
+    panelResumen.style.display = 'none';
   }
 
   // La notificación de error usa la API central showToastError/showAlertError de
@@ -574,14 +583,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   // y no llegó a llamarse desde ninguna parte del controlador (código muerto).
 
   // ── Inicialización ───────────────────────────────────────────────────────
-  function _formatFecha(fechaStr) {
+  function localFormatFecha(fechaStr) {
     if (!fechaStr) return '—';
     try {
       const [y, m, d] = fechaStr.split('-');
-      const dias  = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-      const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-      const fecha = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
-      return `${dias[fecha.getDay()]} ${parseInt(d)} ${meses[parseInt(m) - 1]}`;
+      const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+      const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+      const fecha = new Date(parseInt(y, 10), parseInt(m, 10) - 1, parseInt(d, 10));
+      return `${dias[fecha.getDay()]} ${parseInt(d, 10)} ${meses[parseInt(m, 10) - 1]}`;
     } catch (_) { return fechaStr; }
   }
 

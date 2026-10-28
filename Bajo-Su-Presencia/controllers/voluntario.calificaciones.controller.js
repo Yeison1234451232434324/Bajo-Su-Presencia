@@ -1,4 +1,5 @@
-﻿/**
+/* global BSPDataTable, VoluntariosModel, esc */
+/**
  * ============================================================
  * CONTROLADOR: voluntario.calificaciones.controller.js
  * ============================================================
@@ -13,7 +14,6 @@
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
-
   // ── Verificar que sea voluntario ─────────────────────────────────────────
   // Control de acceso contra el SERVIDOR: el rol procede del JWT
   // verificado en /api/auth/me, no de localStorage (editable por el usuario).
@@ -41,10 +41,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!voluntarioId) {
       // Sin datos: mostrar estado vacío en todas las tarjetas
       document.getElementById('res-promedio').textContent = '—';
-      document.getElementById('res-total').textContent    = '0';
-      document.getElementById('res-mejor').innerHTML      = '<span class="sin-dato">Sin datos</span>';
-      document.getElementById('res-peor').innerHTML       = '<span class="sin-dato">Sin datos</span>';
-      document.getElementById('res-dist').innerHTML       = '<p class="sin-dato">Aún no tienes calificaciones registradas.</p>';
+      document.getElementById('res-total').textContent = '0';
+      document.getElementById('res-mejor').innerHTML = '<span class="sin-dato">Sin datos</span>';
+      document.getElementById('res-peor').innerHTML = '<span class="sin-dato">Sin datos</span>';
+      document.getElementById('res-dist').innerHTML = '<p class="sin-dato">Aún no tienes calificaciones registradas.</p>';
       return;
     }
 
@@ -52,8 +52,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Promedio con estrellas visuales
     document.getElementById('res-promedio').textContent = resumen.promedio || '—';
-    document.getElementById('res-promedio-stars').innerHTML =
-      resumen.total > 0 ? renderEstrellasFijas(Math.round(resumen.promedio)) : '';
+    document.getElementById('res-promedio-stars').innerHTML = resumen.total > 0 ? renderEstrellasFijas(Math.round(resumen.promedio)) : '';
 
     // Total de eventos calificados
     document.getElementById('res-total').textContent = resumen.total;
@@ -81,9 +80,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const maxVal = Math.max(...Object.values(resumen.distribucion), 1);
 
     let distHtml = '';
-    for (let i = 5; i >= 1; i--) {
+    for (let i = 5; i >= 1; i -= 1) {
       const cant = resumen.distribucion[i];
-      const pct  = Math.round((cant / maxVal) * 100);
+      const pct = Math.round((cant / maxVal) * 100);
       distHtml += `
         <div class="dist-fila">
           <span class="dist-label">
@@ -110,10 +109,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       : [];
 
     // Extraer eventos únicos para el filtro
-    const eventos = [...new Set(historial.map(c => c.eventoNombre).filter(Boolean))].sort();
+    const eventos = [...new Set(historial.map((c) => c.eventoNombre).filter(Boolean))].sort();
 
     function renderCard(c) {
-      const claseTier = c.estrellas >= 4 ? 'hist-card--alta' : c.estrellas === 3 ? 'hist-card--media' : 'hist-card--baja';
+      let claseTier = 'hist-card--baja';
+      if (c.estrellas >= 4) claseTier = 'hist-card--alta';
+      else if (c.estrellas === 3) claseTier = 'hist-card--media';
       return `
         <div class="hist-card ${claseTier}">
           <div class="hist-card-header">
@@ -127,11 +128,11 @@ document.addEventListener('DOMContentLoaded', async () => {
           </div>
           <div class="hist-estrellas">${renderEstrellasFijas(c.estrellas)}</div>
           ${c.comentario
-            ? `<div class="hist-observacion">
+    ? `<div class="hist-observacion">
                  <i class="bx bx-comment-detail hist-obs-icon" aria-hidden="true"></i>
                  <p>"${esc(c.comentario)}"</p>
                </div>`
-            : `<p class="sin-dato u-mt-05">Sin observaciones registradas.</p>`}
+    : '<p class="sin-dato u-mt-05">Sin observaciones registradas.</p>'}
         </div>`;
     }
 
@@ -139,24 +140,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (!dtCalif) {
       dtCalif = new BSPDataTable({
-        containerId:  'historial-lista',
-        data:         ordenado,
-        pageSize:     5,
+        containerId: 'historial-lista',
+        data: ordenado,
+        pageSize: 5,
         searchFields: ['eventoNombre', 'fecha', 'comentario'],
         filters: [
-          { key: 'eventoNombre', label: 'Evento',        type: 'select', options: eventos },
-          { key: 'estrellas',    label: 'Calificación',  type: 'stars' },
-          { key: 'fecha',        label: 'Desde',         type: 'date-from' },
-          { key: 'fecha',        label: 'Hasta',         type: 'date-to' },
+          {
+            key: 'eventoNombre', label: 'Evento', type: 'select', options: eventos,
+          },
+          { key: 'estrellas', label: 'Calificación', type: 'stars' },
+          { key: 'fecha', label: 'Desde', type: 'date-from' },
+          { key: 'fecha', label: 'Hasta', type: 'date-to' },
         ],
-        renderRow:    renderCard,
-        exportable:   true,
-        exportName:   'mis_calificaciones',
+        renderRow: renderCard,
+        exportable: true,
+        exportName: 'mis_calificaciones',
         exportFields: ['eventoNombre', 'fecha', 'estrellas', 'comentario'],
         exportLabels: ['Evento', 'Fecha', 'Estrellas', 'Comentario'],
-        emptyHTML:    `<div class="dt-empty"><i class="bx bx-star" aria-hidden="true"></i><p>Aún no tienes calificaciones registradas.</p><small>El administrador calificará tu desempeño después de cada evento.</small></div>`
+        emptyHTML: '<div class="dt-empty"><i class="bx bx-star" aria-hidden="true"></i><p>Aún no tienes calificaciones registradas.</p><small>El administrador calificará tu desempeño después de cada evento.</small></div>',
       });
-      window.__bspDT['historial-lista'] = dtCalif;
+      window.bspDataTables['historial-lista'] = dtCalif;
       dtCalif.init();
     } else {
       dtCalif.refresh(ordenado);
@@ -166,7 +169,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ── Helper: estrellas fijas (solo lectura) ────────────────────────────────
   function renderEstrellasFijas(n) {
     let html = '<div class="estrellas-fijas">';
-    for (let i = 1; i <= 5; i++) {
+    for (let i = 1; i <= 5; i += 1) {
       html += `<i class="bx bxs-star ${i <= n ? 'star-on' : 'star-off'}"></i>`;
     }
     html += '</div>';

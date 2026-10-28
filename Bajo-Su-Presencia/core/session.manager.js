@@ -26,7 +26,7 @@
  *
  * @module SessionManager
  */
-(function (global) {
+(function sessionManager(global) {
   'use strict';
 
   /** Ruta del login relativa a las vistas del panel. */
@@ -100,15 +100,16 @@
     }
 
     /** Token de acceso vigente, o null si no hay ninguno. */
+    // eslint-disable-next-line class-methods-use-this
     #tokenActual() {
-      try { return global.bspAuth?.getToken() || null; }
-      catch (_) { return null; }
+      try { return global.bspAuth?.getToken() || null; } catch (_) { return null; }
     }
 
     /**
      * Consulta `/api/auth/me`. Devuelve null si no hay sesión válida.
      * @returns {Promise<object|null>}
      */
+    // eslint-disable-next-line class-methods-use-this
     async #consultarServidor() {
       try {
         // apiFetch adjunta el JWT y renueva el token una vez si expiró.
@@ -178,8 +179,8 @@
       this.#revalidacionInstalada = true;
 
       window.addEventListener('pageshow', (evento) => {
-        if (!evento.persisted) return;          // carga normal: ya se validó
-        this.#identidad = null;                 // invalidar memoria
+        if (!evento.persisted) return; // carga normal: ya se validó
+        this.#identidad = null; // invalidar memoria
         this.#peticionEnCurso = null;
         this.exigir(this.#rolesExigidos, this.#rutaLogin);
       });
@@ -190,6 +191,7 @@
      * @param {string} mensaje  Texto para el usuario.
      * @param {string} rutaLogin Destino de la redirección.
      */
+    // eslint-disable-next-line class-methods-use-this
     #negar(mensaje, rutaLogin) {
       // Se limpia la caché para que un valor obsoleto no vuelva a conceder
       // acceso aparente en la siguiente carga.
@@ -224,4 +226,4 @@
 
   /** Instancia compartida: una sola verificación por carga de página. */
   global.BSPSession = new SessionManager();
-})(window);
+}(window));

@@ -1,4 +1,4 @@
-(function () {
+(function ayudaPage() {
   'use strict';
 
   /* ══════════════════════════════════════════════════════════════
@@ -8,7 +8,7 @@
     try {
       const d = localStorage.getItem('usuarioLogueado');
       if (d) return JSON.parse(d).rol || 'Administrador';
-    } catch (_) {}
+    } catch (_) { /* sin acción: el fallo es tolerable */ }
     return 'Administrador';
   }
 
@@ -16,11 +16,11 @@
     try {
       const d = localStorage.getItem('usuarioLogueado');
       if (d) return JSON.parse(d).nombre || '';
-    } catch (_) {}
+    } catch (_) { /* sin acción: el fallo es tolerable */ }
     return '';
   }
 
-  const ROL    = getRol();
+  const ROL = getRol();
   const NOMBRE = getNombre();
 
   /* ══════════════════════════════════════════════════════════════
@@ -41,33 +41,33 @@
           id: 'q-01',
           pregunta: '¿Cómo inicio sesión en el sistema?',
           respuesta: 'Ve a la pantalla de inicio e ingresa tu <strong>nombre de usuario</strong>, <strong>correo</strong> y <strong>contraseña</strong>. Si olvidaste la contraseña, usa el enlace "Recuperar contraseña" debajo del formulario.',
-          roles: ['Administrador', 'Colaborador', 'Voluntario']
+          roles: ['Administrador', 'Colaborador', 'Voluntario'],
         },
         {
           id: 'q-02',
           pregunta: '¿Qué puede hacer cada rol en el sistema?',
           respuesta: '<strong>Administrador:</strong> acceso completo — gestiona usuarios, eventos, noticias, sedes, recursos, reportes y PQR.<br><strong>Colaborador:</strong> publica eventos, noticias, oraciones, gestiona actividades y sube reportes.<br><strong>Voluntario:</strong> consulta calificaciones, se inscribe en eventos y revisa sus actividades.',
-          roles: ['Administrador']
+          roles: ['Administrador'],
         },
         {
           id: 'q-02b',
           pregunta: '¿Qué módulos tengo disponibles como Colaborador?',
           respuesta: 'Como Colaborador puedes: <strong>Publicar Eventos</strong>, publicar la <strong>Oración del Día</strong>, publicar <strong>Noticias</strong>, gestionar <strong>Actividades</strong> y <strong>Subir Reportes</strong>. Para acceso adicional, contacta al Administrador.',
-          roles: ['Colaborador']
+          roles: ['Colaborador'],
         },
         {
           id: 'q-02c',
           pregunta: '¿Qué módulos tengo disponibles como Voluntario?',
           respuesta: 'Como Voluntario tienes acceso a: <strong>Mis Calificaciones</strong> (ver tu desempeño), <strong>Mi Disponibilidad</strong> (indicar cuándo puedes servir) y <strong>Mis Actividades</strong> (tareas asignadas).',
-          roles: ['Voluntario']
+          roles: ['Voluntario'],
         },
         {
           id: 'q-03',
           pregunta: '¿Qué hago si no puedo acceder a mi cuenta?',
           respuesta: 'Verifica que tu nombre de usuario, correo y contraseña sean correctos. Si persiste, contacta al Administrador a través del formulario de soporte de este panel o el módulo PQR.',
-          roles: ['Administrador', 'Colaborador', 'Voluntario']
-        }
-      ]
+          roles: ['Administrador', 'Colaborador', 'Voluntario'],
+        },
+      ],
     },
     {
       id: 'eventos',
@@ -81,21 +81,21 @@
           id: 'q-04',
           pregunta: '¿Cómo creo un nuevo evento?',
           respuesta: 'Ve a <strong>"Publicar Evento"</strong> en el menú lateral. Completa título, descripción, fecha y sede. Haz clic en "Publicar" para que el evento sea visible en la comunidad.',
-          roles: ['Administrador', 'Colaborador']
+          roles: ['Administrador', 'Colaborador'],
         },
         {
           id: 'q-05',
           pregunta: '¿Puedo editar o eliminar un evento publicado?',
           respuesta: 'Sí. En la lista de eventos usa el botón de <strong>editar</strong> (lápiz) o <strong>eliminar</strong> (papelera) de cada fila. Confirma la acción en el diálogo que aparece.',
-          roles: ['Administrador', 'Colaborador']
+          roles: ['Administrador', 'Colaborador'],
         },
         {
           id: 'q-06a',
           pregunta: '¿Cómo gestiono las actividades del sistema?',
           respuesta: 'Ve a <strong>"Actividades"</strong> en el menú. Puedes crear actividades, asignarlas a voluntarios y hacer seguimiento del estado de cada una desde la tabla principal.',
-          roles: ['Administrador', 'Colaborador']
-        }
-      ]
+          roles: ['Administrador', 'Colaborador'],
+        },
+      ],
     },
     {
       id: 'voluntario-trabajo',
@@ -109,21 +109,21 @@
           id: 'q-vol-01',
           pregunta: '¿Cómo registro mi disponibilidad?',
           respuesta: 'Ve a <strong>"Eventos"</strong> en el menú lateral e inscríbete en los eventos donde puedas servir. El coordinador verá tu inscripción al asignarte actividades. Si ya no puedes asistir, cancela tu inscripción desde la misma tarjeta del evento.',
-          roles: ['Voluntario']
+          roles: ['Voluntario'],
         },
         {
           id: 'q-vol-02',
           pregunta: '¿Cómo veo las actividades que me han asignado?',
           respuesta: 'En <strong>"Mis Actividades"</strong> aparece la lista de tareas asignadas, con su fecha, descripción y estado. Puedes marcar actividades como completadas desde esa vista.',
-          roles: ['Voluntario']
+          roles: ['Voluntario'],
         },
         {
           id: 'q-vol-03',
           pregunta: '¿Dónde veo mis calificaciones y evaluaciones?',
           respuesta: 'En <strong>"Mis Calificaciones"</strong> puedes ver la valoración de tu desempeño en cada actividad, incluyendo las observaciones del coordinador.',
-          roles: ['Voluntario']
-        }
-      ]
+          roles: ['Voluntario'],
+        },
+      ],
     },
     {
       id: 'noticias',
@@ -137,21 +137,21 @@
           id: 'q-07',
           pregunta: '¿Cómo publico una noticia?',
           respuesta: 'Ve a <strong>"Publicar Noticia"</strong> en el menú. Escribe el título y contenido, adjunta una imagen si lo deseas y haz clic en "Publicar".',
-          roles: ['Administrador', 'Colaborador']
+          roles: ['Administrador', 'Colaborador'],
         },
         {
           id: 'q-07b',
           pregunta: '¿Cómo publico la Oración del Día?',
           respuesta: 'Ve a <strong>"Oración del Día"</strong> en el menú. Escribe el texto, una referencia bíblica opcional y haz clic en "Publicar". Solo se muestra una oración activa a la vez.',
-          roles: ['Administrador', 'Colaborador']
+          roles: ['Administrador', 'Colaborador'],
         },
         {
           id: 'q-08',
           pregunta: '¿Dónde aparece el contenido publicado?',
           respuesta: 'Las noticias y oraciones aparecen en el panel y en el <strong>Dashboard</strong> como resumen del contenido publicado este mes.',
-          roles: ['Administrador', 'Colaborador']
-        }
-      ]
+          roles: ['Administrador', 'Colaborador'],
+        },
+      ],
     },
     {
       id: 'reportes',
@@ -165,21 +165,21 @@
           id: 'q-rep-01',
           pregunta: '¿Cómo subo un reporte de actividad?',
           respuesta: 'Ve a <strong>"Subir Reporte"</strong> en el menú. Selecciona el archivo, completa los campos requeridos y haz clic en "Subir". El reporte quedará disponible para revisión del Administrador.',
-          roles: ['Administrador', 'Colaborador']
+          roles: ['Administrador', 'Colaborador'],
         },
         {
           id: 'q-11',
           pregunta: '¿Cómo genero reportes consolidados del sistema?',
           respuesta: 'Ve a <strong>"Generar Reportes"</strong> (solo Administrador). Selecciona rango de fechas y tipo de reporte. Haz clic en "Exportar" para descargar el archivo.',
-          roles: ['Administrador']
+          roles: ['Administrador'],
         },
         {
           id: 'q-12',
           pregunta: '¿Qué información muestra el Dashboard?',
           respuesta: 'El Dashboard muestra: miembros activos, eventos del mes, noticias, oraciones, voluntarios, asistencia promedio y <strong>gráficas de crecimiento</strong> de los últimos 6 meses.',
-          roles: ['Administrador']
-        }
-      ]
+          roles: ['Administrador'],
+        },
+      ],
     },
     {
       id: 'pqr',
@@ -193,15 +193,15 @@
           id: 'q-09',
           pregunta: '¿Qué es un PQR y para qué sirve?',
           respuesta: '<strong>PQR</strong> son Peticiones, Quejas y Reclamos. Úsalo para comunicarte formalmente con la administración. Tu solicitud quedará registrada y recibirás seguimiento.',
-          roles: ['Administrador', 'Colaborador', 'Voluntario']
+          roles: ['Administrador', 'Colaborador', 'Voluntario'],
         },
         {
           id: 'q-10',
           pregunta: '¿Cómo reviso y gestiono las PQR recibidas?',
           respuesta: 'Ve a <strong>"PQR"</strong> en el menú del Administrador para ver todas las solicitudes, filtrarlas por estado (pendiente, en proceso, resuelto) y actualizar cada caso.',
-          roles: ['Administrador']
-        }
-      ]
+          roles: ['Administrador'],
+        },
+      ],
     },
     {
       id: 'admin-gestion',
@@ -215,37 +215,37 @@
           id: 'q-adm-01',
           pregunta: '¿Cómo creo o edito un usuario del sistema?',
           respuesta: 'Ve a <strong>"Gestión de Usuarios"</strong>. Haz clic en "Nuevo Usuario", completa nombre, username, email, rol y contraseña. Para editar, usa el botón de lápiz en la fila del usuario.',
-          roles: ['Administrador']
+          roles: ['Administrador'],
         },
         {
           id: 'q-adm-02',
           pregunta: '¿Cómo califico el desempeño de un voluntario?',
           respuesta: 'Ve a <strong>"Calificar Voluntarios"</strong>. Selecciona el voluntario, asigna una puntuación y escribe observaciones. El voluntario verá su evaluación desde su panel.',
-          roles: ['Administrador']
+          roles: ['Administrador'],
         },
         {
           id: 'q-adm-03',
           pregunta: '¿Cómo gestiono las sedes de la comunidad?',
           respuesta: 'En <strong>"Gestión de Sedes"</strong> crea, edita y elimina sedes con nombre, dirección y capacidad. Las sedes aparecen como opciones al crear eventos.',
-          roles: ['Administrador']
+          roles: ['Administrador'],
         },
         {
           id: 'q-adm-04',
           pregunta: '¿Cómo gestiono los recursos disponibles?',
           respuesta: 'En <strong>"Gestión de Recursos"</strong> registra equipos, materiales y espacios. Asígnalos a eventos o actividades para llevar control del inventario.',
-          roles: ['Administrador']
-        }
-      ]
-    }
+          roles: ['Administrador'],
+        },
+      ],
+    },
   ];
 
   /* ══════════════════════════════════════════════════════════════
      3. FILTRADO POR ROL
   ══════════════════════════════════════════════════════════════ */
   const DATA_ROL = KB_DATA
-    .filter(cat => cat.roles.includes(ROL))
-    .map(cat => ({ ...cat, preguntas: cat.preguntas.filter(q => q.roles.includes(ROL)) }))
-    .filter(cat => cat.preguntas.length > 0);
+    .filter((cat) => cat.roles.includes(ROL))
+    .map((cat) => ({ ...cat, preguntas: cat.preguntas.filter((q) => q.roles.includes(ROL)) }))
+    .filter((cat) => cat.preguntas.length > 0);
 
   const totalArticulos = DATA_ROL.reduce((s, c) => s + c.preguntas.length, 0);
 
@@ -257,11 +257,9 @@
   }
 
   function buildChips() {
-    return DATA_ROL.map(cat =>
-      `<a href="#cat-${cat.id}" class="ac-hero-chip">
+    return DATA_ROL.map((cat) => `<a href="#cat-${cat.id}" class="ac-hero-chip">
         <i class="bx ${cat.icono}" aria-hidden="true"></i> ${cat.categoria}
-      </a>`
-    ).join('');
+      </a>`).join('');
   }
 
   function buildCard(cat) {
@@ -275,8 +273,7 @@
         <div class="ac-card-acc-panel ${i === 0 ? 'is-open' : ''}" id="acp-${q.id}" role="region">
           <div class="ac-card-acc-inner">${q.respuesta}</div>
         </div>
-      </div>`
-    ).join('');
+      </div>`).join('');
 
     return `
       <article class="ac-cat-card" id="cat-${cat.id}" aria-labelledby="cat-title-${cat.id}">
@@ -401,17 +398,16 @@
      6. INICIALIZAR EVENTOS — después del render
   ══════════════════════════════════════════════════════════════ */
   function initEvents() {
-
     /* Volver al panel / a la página anterior */
-    document.querySelectorAll('[data-action="volver"]').forEach(enlace => {
-      enlace.addEventListener('click', e => {
+    document.querySelectorAll('[data-action="volver"]').forEach((enlace) => {
+      enlace.addEventListener('click', (e) => {
         e.preventDefault();
-        history.back();
+        window.history.back();
       });
     });
 
     /* Acordeones de tarjetas */
-    document.querySelectorAll('.ac-card-acc-trigger').forEach(trigger => {
+    document.querySelectorAll('.ac-card-acc-trigger').forEach((trigger) => {
       const item = trigger.closest('.ac-card-acc-item');
       /* Inicializar estado del primer ítem (abierto por defecto) */
       if (trigger.getAttribute('aria-expanded') === 'true') {
@@ -422,7 +418,7 @@
       trigger.addEventListener('click', () => {
         const expanded = trigger.getAttribute('aria-expanded') === 'true';
         /* Cerrar los demás ítems de la misma tarjeta */
-        item.closest('.ac-card-accordion').querySelectorAll('.ac-card-acc-item').forEach(el => {
+        item.closest('.ac-card-accordion').querySelectorAll('.ac-card-acc-item').forEach((el) => {
           el.classList.remove('is-open');
           el.querySelector('.ac-card-acc-trigger').setAttribute('aria-expanded', 'false');
           el.querySelector('.ac-card-acc-panel').classList.remove('is-open');
@@ -436,8 +432,8 @@
     });
 
     /* Chips: scroll suave a la sección */
-    document.querySelectorAll('.ac-hero-chip').forEach(chip => {
-      chip.addEventListener('click', e => {
+    document.querySelectorAll('.ac-hero-chip').forEach((chip) => {
+      chip.addEventListener('click', (e) => {
         e.preventDefault();
         const target = document.getElementById(chip.getAttribute('href').slice(1));
         if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -445,12 +441,12 @@
     });
 
     /* Búsqueda global */
-    const searchInput       = document.getElementById('ac-search-main');
-    const searchResults     = document.getElementById('ac-search-results');
-    const searchHits        = document.getElementById('ac-search-hits');
-    const noResults         = document.getElementById('ac-no-results');
+    const searchInput = document.getElementById('ac-search-main');
+    const searchResults = document.getElementById('ac-search-results');
+    const searchHits = document.getElementById('ac-search-hits');
+    const noResults = document.getElementById('ac-no-results');
     const categoriesSection = document.getElementById('ac-categories-section');
-    const resultsLabel      = document.getElementById('ac-results-label');
+    const resultsLabel = document.getElementById('ac-results-label');
 
     searchInput.addEventListener('input', () => {
       const q = searchInput.value.trim().toLowerCase();
@@ -465,11 +461,13 @@
       noResults.classList.remove('is-visible');
 
       const hits = [];
-      DATA_ROL.forEach(cat => {
-        cat.preguntas.forEach(item => {
-          const texto = (cat.categoria + ' ' + item.pregunta + ' ' + item.respuesta)
+      DATA_ROL.forEach((cat) => {
+        cat.preguntas.forEach((item) => {
+          const texto = (`${cat.categoria} ${item.pregunta} ${item.respuesta}`)
             .toLowerCase().replace(/<[^>]+>/g, '');
-          if (texto.includes(q)) hits.push({ cat: cat.categoria, q: item.pregunta, r: item.respuesta });
+          if (texto.includes(q)) {
+            hits.push({ cat: cat.categoria, q: item.pregunta, r: item.respuesta });
+          }
         });
       });
 
@@ -480,7 +478,7 @@
       }
       resultsLabel.textContent = `${hits.length} resultado${hits.length !== 1 ? 's' : ''} para "${searchInput.value.trim()}"`;
 
-      hits.forEach(hit => {
+      hits.forEach((hit) => {
         const el = document.createElement('div');
         el.className = 'ac-hit-item';
         el.setAttribute('role', 'button');
@@ -491,12 +489,12 @@
           <p class="ac-hit-a">${hit.r}</p>`;
         const toggle = () => el.classList.toggle('is-open');
         el.addEventListener('click', toggle);
-        el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
+        el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
         searchHits.appendChild(el);
       });
     });
 
-    searchInput.addEventListener('keydown', e => {
+    searchInput.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         searchInput.value = '';
         searchInput.dispatchEvent(new Event('input'));
@@ -526,5 +524,4 @@
     render();
     initEvents();
   });
-
-})();
+}());

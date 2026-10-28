@@ -1,4 +1,6 @@
-﻿/**
+/* global BSPDataTable, BSPModal, BSPVal, OracionModel, esc, showAlertConfirm,
+   showAlertError, showAlertSuccess */
+/**
  * ============================================================
  * CONTROLADOR: oracion.controller.js
  * ============================================================
@@ -16,28 +18,27 @@
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
-
   // Control de acceso verificado contra el SERVIDOR (rol tomado del JWT).
   // Unifica el criterio con el resto del panel: antes esta vista solo
   // dependía de localStorage, que el usuario puede editar.
-  const sesion = await window.BSPSession.exigir(['Administrador','Colaborador']);
+  const sesion = await window.BSPSession.exigir(['Administrador', 'Colaborador']);
   if (!sesion) return;
 
   // ── Rol del usuario activo ────────────────────────────────────────────────
-  const _esColaborador = ((JSON.parse(localStorage.getItem('usuarioLogueado') || '{}')).rol || '') === 'Colaborador';
+  const localEsColaborador = ((JSON.parse(localStorage.getItem('usuarioLogueado') || '{}')).rol || '') === 'Colaborador';
 
   // ── Referencias DOM del formulario ──────────────────────────────────────
-  const form        = document.getElementById('form-oracion');
-  const txtTexto    = document.getElementById('prayerText');
-  const txtVersiculo= document.getElementById('prayerVerse');
-  const txtImagen   = document.getElementById('prayerImage');
-  const spanCount   = document.getElementById('prayerCount');
-  const preview     = document.getElementById('prayerPreview');
+  const form = document.getElementById('form-oracion');
+  const txtTexto = document.getElementById('prayerText');
+  const txtVersiculo = document.getElementById('prayerVerse');
+  const txtImagen = document.getElementById('prayerImage');
+  const spanCount = document.getElementById('prayerCount');
+  const preview = document.getElementById('prayerPreview');
   const previewText = document.getElementById('previewText');
-  const previewVerse= document.getElementById('previewVerse');
+  const previewVerse = document.getElementById('previewVerse');
   const previewImgW = document.getElementById('previewImgWrap');
-  const previewImg  = document.getElementById('previewImg');
-  const btnSubmit   = document.getElementById('btn-submit-oracion');
+  const previewImg = document.getElementById('previewImg');
+  const btnSubmit = document.getElementById('btn-submit-oracion');
   const btnCancelar = document.getElementById('btn-cancelar-edicion');
 
   // ID de la oración que se está editando (null = modo crear)
@@ -47,8 +48,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   let enviandoOracion = false;
 
   // ── Helpers de validación DOM (delegados a BSPVal) ──────────────────────
-  const _err = (id, msg) => BSPVal._err(id, msg);
-  const _ok  = (...ids)  => BSPVal._ok(...ids);
+  const localErr = (id, msg) => BSPVal.localErr(id, msg);
+  const localOk = (...ids) => BSPVal.localOk(...ids);
 
   // ════════════════════════════════════════════════════════════════
   // 1. VISTA PREVIA EN TIEMPO REAL
@@ -58,7 +59,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   function updatePrayerPreview() {
     const texto = txtTexto.value;
     const verso = txtVersiculo.value;
-    const img   = txtImagen.value;
+    const img = txtImagen.value;
 
     // Contador de caracteres
     spanCount.textContent = texto.length;
@@ -66,18 +67,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!texto) { preview.style.display = 'none'; return; }
 
     preview.style.display = 'block';
-    previewText.textContent  = texto;
+    previewText.textContent = texto;
     previewVerse.textContent = verso;
 
     // Mostrar imagen si se proporcionó una URL
     if (img) {
-      previewImg.src         = img;
+      previewImg.src = img;
       previewImgW.style.display = 'block';
     } else {
       previewImgW.style.display = 'none';
     }
   }
-  [txtTexto, txtVersiculo, txtImagen].forEach(el => el?.addEventListener('input', updatePrayerPreview));
+  [txtTexto, txtVersiculo, txtImagen].forEach((el) => el?.addEventListener('input', updatePrayerPreview));
 
   // ════════════════════════════════════════════════════════════════
   // 2. PUBLICAR / ACTUALIZAR ORACIÓN
@@ -88,31 +89,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (enviandoOracion) return;
 
     /* Leer y limpiar todos los valores */
-    const texto    = BSPVal.cleanText(txtTexto.value);
-    const versiculo= BSPVal.cleanText(txtVersiculo.value);
-    const imagenUrl= txtImagen.value.trim();
+    const texto = BSPVal.cleanText(txtTexto.value);
+    const versiculo = BSPVal.cleanText(txtVersiculo.value);
+    const imagenUrl = txtImagen.value.trim();
 
     // ── Limpiar estado previo ─────────────────────────────────────────────
-    _ok('prayerText','prayerVerse','prayerImage');
+    localOk('prayerText', 'prayerVerse', 'prayerImage');
     let valido = true;
     let err;
 
     /* Texto de oración: mínimo 10, máximo 2000, no puede ser solo números */
     err = BSPVal.txt(texto, { min: 10, max: 2000, label: 'La oración' });
-    if (err) { _err('prayerText', err); valido = false; }
-    else if (/^\d[\d\s]*$/.test(texto)) {
-      _err('prayerText', 'La oración no puede ser solo números.'); valido = false;
+    if (err) { localErr('prayerText', err); valido = false; } else if (/^\d[\d\s]*$/.test(texto)) {
+      localErr('prayerText', 'La oración no puede ser solo números.'); valido = false;
     }
 
     /* Versículo: opcional, pero si se escribe máximo 200 chars */
     if (versiculo.length > 0) {
       err = BSPVal.txt(versiculo, { min: 2, max: 200, label: 'El versículo de referencia' });
-      if (err) { _err('prayerVerse', err); valido = false; }
+      if (err) { localErr('prayerVerse', err); valido = false; }
     }
 
     /* Imagen: URL válida si se proporciona (campo opcional) */
     err = BSPVal.url(imagenUrl, { required: false, label: 'La URL de imagen' });
-    if (err) { _err('prayerImage', err); valido = false; }
+    if (err) { localErr('prayerImage', err); valido = false; }
 
     if (!valido) return;
     // ─────────────────────────────────────────────────────────────────────
@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     showAlertSuccess(
       editandoId === null
         ? 'La oración fue guardada en el historial.'
-        : 'Los cambios fueron guardados correctamente.'
+        : 'Los cambios fueron guardados correctamente.',
     );
 
     editandoId = null;
@@ -172,9 +172,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     editandoId = id;
 
     // Llenar campos del formulario
-    txtTexto.value     = oracion.texto;
+    txtTexto.value = oracion.texto;
     txtVersiculo.value = oracion.versiculo;
-    txtImagen.value    = oracion.imagen;
+    txtImagen.value = oracion.imagen;
 
     // Actualizar vista previa con los datos cargados
     updatePrayerPreview();
@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ════════════════════════════════════════════════════════════════
 
   async function eliminarOracion(id) {
-    if (_esColaborador) { showAlertError('Los colaboradores no tienen permiso para eliminar oraciones.'); return; }
+    if (localEsColaborador) { showAlertError('Los colaboradores no tienen permiso para eliminar oraciones.'); return; }
     const oracion = await OracionModel.getById(id);
     if (!oracion) return;
 
@@ -213,7 +213,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     showAlertConfirm(
       'Eliminar oración',
       `¿Eliminar la oración del ${oracion.fecha}?\n\n"${oracion.texto.substring(0, 80)}..."`,
-      async function() {
+      async () => {
         // Si se estaba editando esta misma oración, limpiar el formulario
         if (editandoId === id) {
           limpiarFormulario();
@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!res.ok) { showAlertError(res.error); return; }
         await renderHistorial();
         showAlertSuccess('La oración fue eliminada del historial.');
-      }
+      },
     );
   }
 
@@ -237,8 +237,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const oracion = await OracionModel.getById(id);
     if (!oracion) return;
 
-    document.getElementById('modal-oracion-fecha').textContent    = oracion.fecha;
-    document.getElementById('modal-oracion-texto').textContent    = oracion.texto;
+    document.getElementById('modal-oracion-fecha').textContent = oracion.fecha;
+    document.getElementById('modal-oracion-texto').textContent = oracion.texto;
     document.getElementById('modal-oracion-versiculo').textContent = oracion.versiculo || '';
 
     const imgWrap = document.getElementById('modal-oracion-img-wrap');
@@ -251,7 +251,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     BSPModal.abrir({
       overlay: document.getElementById('modal-overlay-oracion'),
-      modal:   document.getElementById('modal-ver-oracion')
+      modal: document.getElementById('modal-ver-oracion'),
     });
   }
 
@@ -262,7 +262,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   function cerrarModalVer() {
     BSPModal.cerrar({
       overlay: document.getElementById('modal-overlay-oracion'),
-      modal:   document.getElementById('modal-ver-oracion')
+      modal: document.getElementById('modal-ver-oracion'),
     });
   }
 
@@ -277,16 +277,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function renderCard(oracion) {
       const textoCorto = oracion.texto.length > 160
-        ? oracion.texto.substring(0, 160) + '…'
+        ? `${oracion.texto.substring(0, 160)}…`
         : oracion.texto;
 
       return `
         <div class="or-card" id="or-card-${oracion.id}">
           ${oracion.imagen
-            ? `<div class="or-card-img-wrap">
+    ? `<div class="or-card-img-wrap">
                  <img src="${esc(oracion.imagen)}" alt="Imagen de la oración" class="or-card-img" />
                </div>`
-            : ''}
+    : ''}
           <div class="or-card-body">
             <div class="or-card-header">
               <span class="or-card-fecha">
@@ -301,7 +301,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                   data-action="editar-oracion" data-id="${oracion.id}" title="Editar oración">
                   <i class="bx bx-edit" aria-hidden="true"></i>
                 </button>
-                ${!_esColaborador ? `
+                ${!localEsColaborador ? `
                 <button class="btn-accion-or btn-eliminar-or"
                   data-action="eliminar-oracion" data-id="${oracion.id}" title="Eliminar oración">
                   <i class="bx bx-trash" aria-hidden="true"></i>
@@ -310,38 +310,38 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>
             <p class="or-card-texto">"${esc(textoCorto)}"</p>
             ${oracion.versiculo
-              ? `<p class="or-card-versiculo">
+    ? `<p class="or-card-versiculo">
                    <i class="bx bx-book-open" aria-hidden="true"></i> ${oracion.versiculo}
                  </p>`
-              : ''}
+    : ''}
           </div>
         </div>`;
     }
 
     if (!dtOraciones) {
       dtOraciones = new BSPDataTable({
-        containerId:  'lista-oraciones',
-        data:         oraciones,
-        pageSize:     6,
+        containerId: 'lista-oraciones',
+        data: oraciones,
+        pageSize: 6,
         searchFields: ['texto', 'versiculo', 'fecha'],
         filters: [
           { key: 'fechaISO', label: 'Desde', type: 'date-from' },
           { key: 'fechaISO', label: 'Hasta', type: 'date-to' },
         ],
-        renderRow:    renderCard,
-        exportable:   true,
-        exportName:   'oraciones',
+        renderRow: renderCard,
+        exportable: true,
+        exportName: 'oraciones',
         exportFields: ['fecha', 'texto', 'versiculo'],
         exportLabels: ['Fecha', 'Texto', 'Versículo'],
-        emptyHTML:    `<div class="dt-empty"><i class="bx bx-church" aria-hidden="true"></i><p>Aún no hay oraciones publicadas.</p></div>`
+        emptyHTML: '<div class="dt-empty"><i class="bx bx-church" aria-hidden="true"></i><p>Aún no hay oraciones publicadas.</p></div>',
       });
-      window.__bspDT['lista-oraciones'] = dtOraciones;
+      window.bspDataTables['lista-oraciones'] = dtOraciones;
       dtOraciones.init();
       const body = document.getElementById('lista-oraciones-body');
       body?.addEventListener('click', (e) => {
         const btn = e.target.closest('[data-action]');
         if (!btn) return;
-        const id = btn.dataset.id;
+        const { id } = btn.dataset;
         if (btn.dataset.action === 'ver-oracion') verOracion(id);
         else if (btn.dataset.action === 'editar-oracion') editarOracion(id);
         else if (btn.dataset.action === 'eliminar-oracion') eliminarOracion(id);
@@ -361,8 +361,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   /** Limpia el formulario y restaura el botón al modo crear */
   function limpiarFormulario() {
     form.reset();
-    preview.style.display    = 'none';
-    spanCount.textContent    = '0';
+    preview.style.display = 'none';
+    spanCount.textContent = '0';
     btnCancelar.style.display = 'none';
     btnSubmit.innerHTML = `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"

@@ -24,9 +24,12 @@ return static function (Corredor $c): void {
     $c->prueba('idFilterParam devuelve null si no hay filtro id', function (Corredor $c) use ($q) {
         $c->asegurarIgual(null, $q->idFilterParam('select=*'));
     });
-    $c->prueba('idFilterParam devuelve null si el filtro id no es "eq." (p. ej. neq.)', function (Corredor $c) use ($q) {
-        $c->asegurarIgual(null, $q->idFilterParam('id=neq.999'));
-    });
+    $c->prueba(
+        'idFilterParam devuelve null si el filtro id no es "eq." (p. ej. neq.)',
+        function (Corredor $c) use ($q) {
+            $c->asegurarIgual(null, $q->idFilterParam('id=neq.999'));
+        }
+    );
 
     $c->grupo('PostgrestQuery — countIdFilters (defensa RT-04 contra bypass con neq./otros operadores)');
     $c->prueba('cuenta 0 cuando no hay filtro id', function (Corredor $c) use ($q) {
@@ -35,9 +38,12 @@ return static function (Corredor $c): void {
     $c->prueba('cuenta 1 con un único id=eq.', function (Corredor $c) use ($q) {
         $c->asegurarIgual(1, $q->countIdFilters('id=eq.abc'));
     });
-    $c->prueba('cuenta 1 también con id=neq. (el filtro existe, aunque no sea eq — así se detecta el intento de bypass)', function (Corredor $c) use ($q) {
-        $c->asegurarIgual(1, $q->countIdFilters('id=neq.abc'));
-    });
+    $c->prueba(
+        'cuenta 1 también con id=neq. (el filtro existe, aunque no sea eq — así se detecta el intento de bypass)',
+        function (Corredor $c) use ($q) {
+            $c->asegurarIgual(1, $q->countIdFilters('id=neq.abc'));
+        }
+    );
     $c->prueba('cuenta 2 cuando hay dos filtros distintos sobre id', function (Corredor $c) use ($q) {
         $c->asegurarIgual(2, $q->countIdFilters('id=eq.abc&id=neq.def'));
     });
@@ -78,10 +84,13 @@ return static function (Corredor $c): void {
     $c->prueba('select sin embeds devuelve arreglo vacío', function (Corredor $c) use ($q) {
         $c->asegurarIgual([], $q->extraerEmbeds('id,nombre,creado_en'));
     });
-    $c->prueba('paréntesis sin cerrar se marca como "malformado" (fail-closed, nunca coincide con ninguna whitelist)', function (Corredor $c) use ($q) {
-        $embeds = $q->extraerEmbeds('informes(monto');
-        $c->asegurarIgual("\0malformado\0", $embeds[0]['inner']);
-    });
+    $c->prueba(
+        'paréntesis sin cerrar se marca como "malformado" (fail-closed, nunca coincide con ninguna whitelist)',
+        function (Corredor $c) use ($q) {
+            $embeds = $q->extraerEmbeds('informes(monto');
+            $c->asegurarIgual("\0malformado\0", $embeds[0]['inner']);
+        }
+    );
 
     $c->grupo('PostgrestQuery — normalizarSelect (tolerancia a espacios)');
     $c->prueba('quita todos los espacios para comparar de forma tolerante', function (Corredor $c) use ($q) {

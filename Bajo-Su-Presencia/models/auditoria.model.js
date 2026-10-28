@@ -1,3 +1,4 @@
+/* exported AuditoriaModel */
 /**
  * ============================================================
  * MODELO: auditoria.model.js  (backend PHP dedicado)
@@ -14,34 +15,33 @@
  */
 
 const AuditoriaModel = (() => {
-
   const ACCIONES = [
     'crear', 'editar', 'eliminar', 'activar', 'desactivar',
-    'responder', 'cambiar_estado'
+    'responder', 'cambiar_estado',
   ];
 
   const MODULOS = [
     'usuarios', 'eventos', 'noticias', 'oraciones', 'actividades',
     'recursos', 'evento_recursos', 'voluntarios_eventos',
     'calificaciones_eventos', 'evaluaciones', 'informes', 'sedes',
-    'pqr'
+    'pqr',
   ];
 
   const RESULTADOS = ['exito', 'error'];
 
-  function _fromRow(r) {
+  function localFromRow(r) {
     return {
-      id:             r.id,
-      usuarioId:      r.usuario_id,
-      usuarioCorreo:  r.usuario_correo || '—',
-      usuarioRol:     r.usuario_rol || '—',
-      accion:         r.accion || '',
-      modulo:         r.modulo || '',
-      registroId:     r.registro_id,
-      descripcion:    r.descripcion || '',
-      resultado:      r.resultado || 'exito',
-      creadoEn:       r.creado_en || '',
-      fecha:          (r.creado_en || '').toString().slice(0, 10)
+      id: r.id,
+      usuarioId: r.usuario_id,
+      usuarioCorreo: r.usuario_correo || '—',
+      usuarioRol: r.usuario_rol || '—',
+      accion: r.accion || '',
+      modulo: r.modulo || '',
+      registroId: r.registro_id,
+      descripcion: r.descripcion || '',
+      resultado: r.resultado || 'exito',
+      creadoEn: r.creado_en || '',
+      fecha: (r.creado_en || '').toString().slice(0, 10),
     };
   }
 
@@ -56,14 +56,19 @@ const AuditoriaModel = (() => {
     });
     const qs = params.toString();
     try {
-      const data = await window.apiFetch(`/api/auditoria${qs ? '?' + qs : ''}`);
-      return (data || []).map(_fromRow);
+      const data = await window.apiFetch(`/api/auditoria${qs ? `?${qs}` : ''}`);
+      return (data || []).map(localFromRow);
     } catch (e) {
-      (window.BSPLog ? window.BSPLog.error('AuditoriaModel.listar', e) : console.error('AuditoriaModel.listar'));
+      if (window.BSPLog) {
+        window.BSPLog.error('AuditoriaModel.listar', e);
+      } else {
+        console.error('AuditoriaModel.listar');
+      }
       return [];
     }
   }
 
-  return { listar, ACCIONES, MODULOS, RESULTADOS };
-
+  return {
+    listar, ACCIONES, MODULOS, RESULTADOS,
+  };
 })();

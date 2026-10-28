@@ -1,3 +1,6 @@
+/* global alertify */
+/* exported showAlert, showAlertConfirm, showAlertInfo, showAlertWarning, showToast,
+   showToastError */
 /**
  * ============================================================
  * ALERTIFY HELPER — Configuración Global de Alertas
@@ -30,6 +33,7 @@ function showAlertSuccess(message) {
   if (typeof alertify !== 'undefined') {
     alertify.success(message);
   } else {
+    // eslint-disable-next-line no-console
     console.log('✓ SUCCESS:', message);
   }
 }
@@ -67,6 +71,7 @@ function showAlertInfo(message) {
   if (typeof alertify !== 'undefined') {
     alertify.notify(message, 'info', 4);
   } else {
+    // eslint-disable-next-line no-console
     console.info('ℹ INFO:', message);
   }
 }
@@ -80,20 +85,15 @@ function showAlertInfo(message) {
  */
 function showAlertConfirm(title, message, onConfirm, onCancel) {
   if (typeof alertify !== 'undefined') {
-    alertify.confirm(message, function(e) {
+    alertify.confirm(message, (e) => {
       if (e) {
         if (typeof onConfirm === 'function') onConfirm();
-      } else {
-        if (typeof onCancel === 'function') onCancel();
-      }
+      } else if (typeof onCancel === 'function') onCancel();
     }).set('title', title).set('labels', { ok: '✓ Confirmar', cancel: '✕ Cancelar' });
-  } else {
-    if (confirm(message)) {
-      if (typeof onConfirm === 'function') onConfirm();
-    } else {
-      if (typeof onCancel === 'function') onCancel();
-    }
-  }
+  // eslint-disable-next-line no-alert
+  } else if (window.confirm(message)) {
+    if (typeof onConfirm === 'function') onConfirm();
+  } else if (typeof onCancel === 'function') onCancel();
 }
 
 /**
@@ -104,11 +104,12 @@ function showAlertConfirm(title, message, onConfirm, onCancel) {
  */
 function showAlert(title, message, onOk) {
   if (typeof alertify !== 'undefined') {
-    alertify.alert(message, function() {
+    alertify.alert(message, () => {
       if (typeof onOk === 'function') onOk();
     }).set('title', title).set('labels', { ok: '✓ Ok' });
   } else {
-    alert(message);
+    // eslint-disable-next-line no-alert
+    window.alert(message);
     if (typeof onOk === 'function') onOk();
   }
 }

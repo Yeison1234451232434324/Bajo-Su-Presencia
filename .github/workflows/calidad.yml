@@ -6,11 +6,11 @@
 #  ejecutarlas a mano.
 #
 #  Política de fallo:
-#    · BLOQUEAN la integración: sintaxis, PHPStan, pruebas, validación de
-#      Composer y auditoría de seguridad de dependencias.
-#    · INFORMAN sin bloquear: PHPCS y Rector, porque su incumplimiento es de
-#      estilo o de modernización y no compromete el funcionamiento. Conviene
-#      endurecerlos a bloqueantes una vez saneada la deuda existente.
+#    · BLOQUEAN la integración: sintaxis, PHPStan, PHPCS (PSR-12), ESLint
+#      (Airbnb), pruebas, validación de Composer y auditoría de seguridad de
+#      dependencias.
+#    · INFORMA sin bloquear: Rector, porque sus propuestas son de modernización
+#      y no comprometen el funcionamiento.
 # ============================================================================
 
 name: Calidad
@@ -76,9 +76,8 @@ jobs:
       - name: PHPStan (nivel 8)
         run: vendor/bin/phpstan analyse --no-progress --error-format=github
 
-      # ── 5. Estilo de código (informativo) ─────────────────────────────
+      # ── 5. Estilo de código PHP (BLOQUEANTE) ──────────────────────────
       - name: PHP_CodeSniffer (PSR-12)
-        continue-on-error: true
         run: |
           if [ -f vendor/bin/phpcs ]; then
             vendor/bin/phpcs --standard=phpcs.xml --report=full
@@ -95,6 +94,20 @@ jobs:
           else
             echo "Rector no instalado; se omite."
           fi
+
+      # ── 6b. Estilo de código JavaScript (BLOQUEANTE) ─────────────────
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: ESLint (Airbnb)
+        working-directory: .
+        run: |
+          npm ci --no-audit --no-fund
+          npm run lint
 
       # ── 7. Pruebas (BLOQUEANTE) ───────────────────────────────────────
       - name: Ejecutar la suite de pruebas

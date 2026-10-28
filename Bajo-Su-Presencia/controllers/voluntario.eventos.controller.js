@@ -1,3 +1,4 @@
+/* global EventosModel, showAlertConfirm, showAlertError, showAlertSuccess, showAlertWarning */
 /**
  * ============================================================
  * CONTROLADOR: voluntario.eventos.controller.js  (Supabase)
@@ -16,20 +17,19 @@
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
-
   // Control de acceso verificado contra el SERVIDOR (rol tomado del JWT).
   const sesion = await window.BSPSession.exigir(['Voluntario']);
   if (!sesion) return;
 
-  const volId    = String(sesion.id);
-  const lista     = document.getElementById('vev-lista');
-  const contBox   = document.getElementById('vev-count');
-  const contNum   = document.getElementById('vev-count-num');
+  const volId = String(sesion.id);
+  const lista = document.getElementById('vev-lista');
+  const contBox = document.getElementById('vev-count');
+  const contNum = document.getElementById('vev-count-num');
 
   const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 
   /** 'YYYY-MM-DD' → '15 may 2026' (sin depender de zona horaria). */
-  function _fechaLegible(iso) {
+  function localFechaLegible(iso) {
     if (!iso) return 'Fecha por confirmar';
     const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso));
     if (!m) return String(iso);
@@ -42,30 +42,30 @@ document.addEventListener('DOMContentLoaded', async () => {
    * en BD — así nunca se desactualiza. "Cancelado" es la única excepción
    * que sigue viniendo del campo `estado` de la BD.
    */
-  function _estadoMostrar(evento) {
+  function localEstadoMostrar(evento) {
     if (evento.estado === 'Cancelado') return 'Cancelado';
     const hoy = new Date().toISOString().split('T')[0];
     return evento.fecha && evento.fecha < hoy ? 'Finalizado' : 'Publicado';
   }
 
   /** Clase de badge según el estado del evento. */
-  function _badgeEstado(estado) {
+  function localBadgeEstado(estado) {
     switch (estado) {
       case 'Finalizado': return 'badge-muted';
-      case 'Cancelado':  return 'badge-red';
-      default:            return 'badge-blue';   // Publicado
+      case 'Cancelado': return 'badge-red';
+      default: return 'badge-blue'; // Publicado
     }
   }
 
   /** ¿El voluntario logueado ya está inscrito en este evento? */
-  function _estoyInscrito(evento) {
-    return (evento.especialistas || []).some(e => String(e.usuarioId) === volId);
+  function localEstoyInscrito(evento) {
+    return (evento.especialistas || []).some((e) => String(e.usuarioId) === volId);
   }
 
   /** Crea un <div> con icono + texto para la zona de metadatos. */
-  function _meta(icono, texto, muted = false) {
+  function localMeta(icono, texto, muted = false) {
     const div = document.createElement('div');
-    div.className = 'vev-meta-item' + (muted ? ' is-muted' : '');
+    div.className = `vev-meta-item${muted ? ' is-muted' : ''}`;
     const i = document.createElement('i');
     i.className = icono;
     i.setAttribute('aria-hidden', 'true');
@@ -80,16 +80,22 @@ document.addEventListener('DOMContentLoaded', async () => {
    * @returns {{necesarios:number, inscritos:number, restantes:number|null, lleno:boolean}}
    *          restantes = null cuando el evento no define un límite (necesarios <= 0).
    */
-  function _cupos(evento) {
+  function localCupos(evento) {
     const necesarios = Number(evento.voluntariosNecesarios) || 0;
-    const inscritos  = (evento.especialistas || []).length;
-    if (necesarios <= 0) return { necesarios: 0, inscritos, restantes: null, lleno: false };
+    const inscritos = (evento.especialistas || []).length;
+    if (necesarios <= 0) {
+      return {
+        necesarios: 0, inscritos, restantes: null, lleno: false,
+      };
+    }
     const restantes = Math.max(0, necesarios - inscritos);
-    return { necesarios, inscritos, restantes, lleno: restantes === 0 };
+    return {
+      necesarios, inscritos, restantes, lleno: restantes === 0,
+    };
   }
 
   /** Línea de metadatos que muestra los cupos de voluntario restantes. */
-  function _metaCupos(cupos) {
+  function localMetaCupos(cupos) {
     const div = document.createElement('div');
     div.className = 'vev-meta-item vev-cupos';
     const i = document.createElement('i');
@@ -112,16 +118,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   /** Construye la tarjeta de un evento. */
-  function _crearTarjeta(evento) {
-    const inscrito   = _estoyInscrito(evento);
-    const cancelado  = evento.estado === 'Cancelado';
-    const finalizado = _estadoMostrar(evento) === 'Finalizado';
+  function localCrearTarjeta(evento) {
+    const inscrito = localEstoyInscrito(evento);
+    const cancelado = evento.estado === 'Cancelado';
+    const finalizado = localEstadoMostrar(evento) === 'Finalizado';
     // Un evento cancelado o ya finalizado no admite nuevas inscripciones.
-    const cerrado    = cancelado || finalizado;
-    const cupos      = _cupos(evento);
+    const cerrado = cancelado || finalizado;
+    const cupos = localCupos(evento);
 
     const card = document.createElement('article');
-    card.className = 'vev-card' + (inscrito ? ' is-inscrito' : '');
+    card.className = `vev-card${inscrito ? ' is-inscrito' : ''}`;
     card.dataset.id = evento.id;
 
     // ── Cabecera: título + estado ──
@@ -132,9 +138,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const h3 = document.createElement('h3');
     h3.className = 'vev-card-titulo';
     h3.textContent = evento.titulo || 'Evento sin título';
-    const estadoMostrar = _estadoMostrar(evento);
+    const estadoMostrar = localEstadoMostrar(evento);
     const badge = document.createElement('span');
-    badge.className = 'badge ' + _badgeEstado(estadoMostrar);
+    badge.className = `badge ${localBadgeEstado(estadoMostrar)}`;
     badge.textContent = estadoMostrar;
     titRow.append(h3, badge);
     top.appendChild(titRow);
@@ -148,10 +154,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ── Metadatos ──
     const meta = document.createElement('div');
     meta.className = 'vev-card-meta';
-    meta.appendChild(_meta('bx bx-calendar', _fechaLegible(evento.fecha)));
-    meta.appendChild(_meta('bx bx-time-five', evento.horario || 'Horario por confirmar', !evento.horario));
-    meta.appendChild(_meta('bx bx-map', evento.ubicacion || 'Lugar por confirmar', !evento.ubicacion));
-    meta.appendChild(_metaCupos(cupos));
+    meta.appendChild(localMeta('bx bx-calendar', localFechaLegible(evento.fecha)));
+    meta.appendChild(localMeta('bx bx-time-five', evento.horario || 'Horario por confirmar', !evento.horario));
+    meta.appendChild(localMeta('bx bx-map', evento.ubicacion || 'Lugar por confirmar', !evento.ubicacion));
+    meta.appendChild(localMetaCupos(cupos));
 
     // ── Pie: estado de inscripción + acción ──
     const foot = document.createElement('div');
@@ -170,21 +176,22 @@ document.addEventListener('DOMContentLoaded', async () => {
       btn.className = 'vev-btn vev-btn-cancelar';
       btn.innerHTML = '<i class="bx bx-x" aria-hidden="true"></i>';
       btn.append(document.createTextNode('Cancelar'));
-      btn.addEventListener('click', () => _cancelar(evento, btn));
+      btn.addEventListener('click', () => localCancelar(evento, btn));
     } else {
       const hueco = document.createElement('span');
       hueco.className = 'vev-meta-item is-muted';
-      hueco.textContent = cancelado ? 'Evento cancelado'
-                        : finalizado ? 'Evento finalizado'
-                        : cupos.lleno ? 'Sin cupos disponibles'
-                        : 'Aún no te has inscrito';
+      let textoHueco = 'Aún no te has inscrito';
+      if (cancelado) textoHueco = 'Evento cancelado';
+      else if (finalizado) textoHueco = 'Evento finalizado';
+      else if (cupos.lleno) textoHueco = 'Sin cupos disponibles';
+      hueco.textContent = textoHueco;
       foot.appendChild(hueco);
 
       btn.className = 'vev-btn vev-btn-inscribir';
       btn.innerHTML = '<i class="bx bx-user-plus" aria-hidden="true"></i>';
       btn.append(document.createTextNode('Inscribirme'));
       btn.disabled = cerrado || cupos.lleno;
-      btn.addEventListener('click', () => _inscribir(evento, btn));
+      btn.addEventListener('click', () => localInscribir(evento, btn));
     }
     foot.appendChild(btn);
 
@@ -193,8 +200,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   /** Inscribe al voluntario y recarga la vista. */
-  async function _inscribir(evento, btn) {
-    if (evento.estado === 'Cancelado' || _estadoMostrar(evento) === 'Finalizado') {
+  async function localInscribir(evento, btn) {
+    if (evento.estado === 'Cancelado' || localEstadoMostrar(evento) === 'Finalizado') {
       showAlertError('Este evento ya no admite inscripciones.');
       return;
     }
@@ -210,7 +217,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   /** Pide confirmación y cancela la inscripción. */
-  function _cancelar(evento, btn) {
+  function localCancelar(evento, btn) {
     showAlertConfirm(
       'Cancelar inscripción',
       `¿Seguro que quieres cancelar tu inscripción en «${evento.titulo}»?`,
@@ -224,7 +231,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         showAlertWarning('Cancelaste tu inscripción.');
         await render();
-      }
+      },
     );
   }
 
@@ -248,7 +255,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // El voluntario solo ve eventos a los que todavía puede inscribirse:
     // se ocultan los ya finalizados (fecha pasada).
-    eventos = eventos.filter(ev => _estadoMostrar(ev) !== 'Finalizado');
+    eventos = eventos.filter((ev) => localEstadoMostrar(ev) !== 'Finalizado');
 
     // Orden: más próximos/recientes primero (fecha descendente).
     eventos.sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)));
@@ -268,9 +275,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     let inscritos = 0;
-    eventos.forEach(ev => {
-      if (_estoyInscrito(ev)) inscritos++;
-      lista.appendChild(_crearTarjeta(ev));
+    eventos.forEach((ev) => {
+      if (localEstoyInscrito(ev)) inscritos += 1;
+      lista.appendChild(localCrearTarjeta(ev));
     });
 
     // Contador de inscripciones activas.

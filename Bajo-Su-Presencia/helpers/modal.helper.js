@@ -32,13 +32,11 @@
  */
 
 const BSPModal = (() => {
+  let abiertos = 0; // contador de modales abiertos (bloqueo de scroll anidado)
+  const activos = new Map(); // modalEl -> { overlay, modal, trigger, onKeydown }
 
-  let abiertos = 0;                 // contador de modales abiertos (bloqueo de scroll anidado)
-  const activos = new Map();        // modalEl -> { overlay, modal, trigger, onKeydown }
-
-  const SELECTOR_ENFOCABLE =
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), ' +
-    'select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+  const SELECTOR_ENFOCABLE = 'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), '
+    + 'select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
   /**
    * Muestra/oculta un elemento del modal. Dos patrones conviven en el
@@ -50,7 +48,7 @@ const BSPModal = (() => {
    *      sedes, actividades, generar-reportes).
    * Se indica con cfg.modoDisplay = true al llamar a abrir()/cerrar().
    */
-  function _muestra(el, mostrar, modoDisplay) {
+  function localMuestra(el, mostrar, modoDisplay) {
     if (!el) return;
     if (modoDisplay) {
       el.style.display = mostrar ? 'flex' : 'none';
@@ -59,9 +57,9 @@ const BSPModal = (() => {
     }
   }
 
-  function _elementosEnfocables(modal) {
+  function localElementosEnfocables(modal) {
     return Array.from(modal.querySelectorAll(SELECTOR_ENFOCABLE))
-      .filter(el => el.offsetParent !== null); // visibles
+      .filter((el) => el.offsetParent !== null); // visibles
   }
 
   /**
@@ -81,17 +79,17 @@ const BSPModal = (() => {
 
     const trigger = cfg.trigger || document.activeElement;
 
-    _muestra(overlay, true, modoDisplay);
-    if (overlay !== modal) _muestra(modal, true, modoDisplay);
+    localMuestra(overlay, true, modoDisplay);
+    if (overlay !== modal) localMuestra(modal, true, modoDisplay);
 
     if (abiertos === 0) document.body.style.overflow = 'hidden';
-    abiertos++;
+    abiertos += 1;
 
     // Foco inicial: primer campo enfocable, o el propio modal.
     // setTimeout (no requestAnimationFrame): rAF no se ejecuta si la pestaña
     // está en segundo plano o no está compositando frames, y el foco inicial
     // nunca llegaría a aplicarse. setTimeout sí se ejecuta en ese caso.
-    const enfocables = _elementosEnfocables(modal);
+    const enfocables = localElementosEnfocables(modal);
     setTimeout(() => {
       (enfocables[0] || modal).focus?.();
     }, 0);
@@ -103,10 +101,10 @@ const BSPModal = (() => {
         return;
       }
       if (e.key === 'Tab') {
-        const items = _elementosEnfocables(modal);
+        const items = localElementosEnfocables(modal);
         if (items.length === 0) return;
         const primero = items[0];
-        const ultimo  = items[items.length - 1];
+        const ultimo = items[items.length - 1];
         if (e.shiftKey && document.activeElement === primero) {
           e.preventDefault(); ultimo.focus();
         } else if (!e.shiftKey && document.activeElement === ultimo) {
@@ -116,7 +114,9 @@ const BSPModal = (() => {
     };
     document.addEventListener('keydown', onKeydown, true);
 
-    activos.set(modal, { overlay, modal, trigger, onKeydown });
+    activos.set(modal, {
+      overlay, modal, trigger, onKeydown,
+    });
   }
 
   /**
@@ -132,8 +132,8 @@ const BSPModal = (() => {
     const estado = activos.get(modal);
     if (!estado) return; // este modal no estaba abierto: no-op
 
-    _muestra(overlay, false, modoDisplay);
-    if (overlay !== modal) _muestra(modal, false, modoDisplay);
+    localMuestra(overlay, false, modoDisplay);
+    if (overlay !== modal) localMuestra(modal, false, modoDisplay);
 
     document.removeEventListener('keydown', estado.onKeydown, true);
     activos.delete(modal);

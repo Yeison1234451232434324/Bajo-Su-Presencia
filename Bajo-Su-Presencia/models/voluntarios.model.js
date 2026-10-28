@@ -1,3 +1,5 @@
+/* global DB */
+/* exported VoluntariosModel */
 /**
  * ============================================================
  * MODELO: voluntarios.model.js  (Supabase)
@@ -12,74 +14,88 @@
  */
 
 const VoluntariosModel = (() => {
-
   const EVENTOS = 'eventos';
-  const VE      = 'voluntarios_eventos';
-  const EVAL    = 'evaluaciones';
+  const VE = 'voluntarios_eventos';
+  const EVAL = 'evaluaciones';
 
-  const SEL_EV = 'id, titulo, fecha, ubicacion, voluntarios_necesarios, ' +
-                 'voluntarios_eventos(usuario_id, rol_en_evento, disponible, usuarios(nombre:nombre_completo))';
+  const SEL_EV = 'id, titulo, fecha, ubicacion, voluntarios_necesarios, '
+                 + 'voluntarios_eventos(usuario_id, rol_en_evento, disponible, usuarios(nombre:nombre_completo))';
 
   // Traducción de errores centralizada en db.client.js (window.DB.mensajeError).
-  function _msg(error) { return DB.mensajeError(error); }
+  function localMsg(error) { return DB.mensajeError(error); }
 
   // evaluaciones tiene DOS FKs a usuarios (usuario_id y evaluador_id):
   // el embed debe desambiguarse con el nombre de la columna.
   const SEL_EVAL = '*, eventos(titulo), voluntario:usuarios!usuario_id(nombre:nombre_completo)';
 
-  function _evToVol(e) {
+  function localEvToVol(e) {
     return {
-      id:                    e.id,
-      nombre:                e.titulo || '',
-      fecha:                 e.fecha || '',
-      lugar:                 e.ubicacion || '',
+      id: e.id,
+      nombre: e.titulo || '',
+      fecha: e.fecha || '',
+      lugar: e.ubicacion || '',
       voluntariosNecesarios: e.voluntarios_necesarios || 0,
-      voluntarios: (e.voluntarios_eventos || []).map(v => ({
-        id:         v.usuario_id,
-        nombre:     v.usuarios?.nombre || '',
-        rol:        v.rol_en_evento || 'Voluntario',
-        disponible: v.disponible !== false
-      }))
+      voluntarios: (e.voluntarios_eventos || []).map((v) => ({
+        id: v.usuario_id,
+        nombre: v.usuarios?.nombre || '',
+        rol: v.rol_en_evento || 'Voluntario',
+        disponible: v.disponible !== false,
+      })),
     };
   }
 
-  function _calif(c) {
+  function localCalif(c) {
     return {
-      id:               c.id,
-      eventoId:         c.evento_id,
-      eventoNombre:     c.eventos?.titulo || '',
-      voluntarioId:     c.usuario_id,
+      id: c.id,
+      eventoId: c.evento_id,
+      eventoNombre: c.eventos?.titulo || '',
+      voluntarioId: c.usuario_id,
       voluntarioNombre: c.voluntario?.nombre || '',
-      estrellas:        c.estrellas || 0,
-      comentario:       c.comentarios || '',
-      fecha:            (c.evaluado_en || '').toString().slice(0, 10)
+      estrellas: c.estrellas || 0,
+      comentario: c.comentarios || '',
+      fecha: (c.evaluado_en || '').toString().slice(0, 10),
     };
   }
 
   // ── EVENTOS + voluntarios ──────────────────────────────────────────────────
   async function getEventos() {
     const { data, error } = await DB.from(EVENTOS).select(SEL_EV).order('fecha', { ascending: true });
-    if (error) { (window.BSPLog ? window.BSPLog.error('VoluntariosModel.getEventos', error) : console.error('VoluntariosModel.getEventos')); return []; }
-    return (data || []).map(_evToVol);
+    if (error) {
+      if (window.BSPLog) {
+        window.BSPLog.error('VoluntariosModel.getEventos', error);
+      } else {
+        console.error('VoluntariosModel.getEventos');
+      }
+      return [];
+    }
+    return (data || []).map(localEvToVol);
   }
 
   async function getEventoById(id) {
     const { data, error } = await DB.from(EVENTOS).select(SEL_EV).eq('id', id).single();
     if (error || !data) return null;
-    return _evToVol(data);
+    return localEvToVol(data);
   }
 
   // ── CALIFICACIONES ──────────────────────────────────────────────────────────
   async function getCalificaciones() {
     const { data, error } = await DB.from(EVAL).select(SEL_EVAL);
-    if (error) { (window.BSPLog ? window.BSPLog.error('VoluntariosModel.getCalificaciones', error) : console.error('VoluntariosModel.getCalificaciones')); return []; }
-    return (data || []).map(_calif);
+    if (error) {
+      if (window.BSPLog) {
+        window.BSPLog.error('VoluntariosModel.getCalificaciones', error);
+      } else {
+        console.error('VoluntariosModel.getCalificaciones');
+      }
+      return [];
+    }
+    return (data || []).map(localCalif);
   }
 
   async function getCalifByEventoVoluntario(eventoId, voluntarioId) {
     const { data } = await DB.from(EVAL).select('*, eventos(titulo)')
-      .eq('evento_id', eventoId).eq('usuario_id', voluntarioId).maybeSingle();
-    return data ? _calif(data) : null;
+      .eq('evento_id', eventoId).eq('usuario_id', voluntarioId)
+      .maybeSingle();
+    return data ? localCalif(data) : null;
   }
 
   async function guardarCalificacion(data) {
@@ -87,65 +103,90 @@ const VoluntariosModel = (() => {
     // evaluador_id: FK real al usuario logueado (ya no un nombre editable)
     const evaluadorId = (typeof window.miUsuarioId === 'function') ? await window.miUsuarioId() : null;
     const fila = {
-      evento_id:    data.eventoId,
-      usuario_id:   data.voluntarioId,
+      evento_id: data.eventoId,
+      usuario_id: data.voluntarioId,
       evaluador_id: evaluadorId,
-      estrellas:    data.estrellas,
-      comentarios:  data.comentario || null,
-      evaluado_en:  new Date().toISOString()
+      estrellas: data.estrellas,
+      comentarios: data.comentario || null,
+      evaluado_en: new Date().toISOString(),
     };
     const { data: ya } = await DB.from(EVAL).select('id')
-      .eq('evento_id', data.eventoId).eq('usuario_id', data.voluntarioId).maybeSingle();
+      .eq('evento_id', data.eventoId).eq('usuario_id', data.voluntarioId)
+      .maybeSingle();
     let error;
     if (ya) ({ error } = await DB.from(EVAL).update(fila).eq('id', ya.id));
-    else    ({ error } = await DB.from(EVAL).insert(fila));
-    if (error) return { ok: false, error: _msg(error) };
+    else ({ error } = await DB.from(EVAL).insert(fila));
+    if (error) return { ok: false, error: localMsg(error) };
     return { ok: true };
   }
 
   async function getHistorialVoluntario(voluntarioId) {
     const { data } = await DB.from(EVAL).select(SEL_EVAL).eq('usuario_id', voluntarioId);
-    return (data || []).map(_calif);
+    return (data || []).map(localCalif);
   }
 
   async function getResumenVoluntario(voluntarioId) {
     const historial = await getHistorialVoluntario(voluntarioId);
-    if (!historial.length) return { promedio: 0, total: 0, distribucion: {1:0,2:0,3:0,4:0,5:0}, mejor: null, peor: null };
+    if (!historial.length) {
+      return {
+        promedio: 0,
+        total: 0,
+        distribucion: {
+          1: 0, 2: 0, 3: 0, 4: 0, 5: 0,
+        },
+        mejor: null,
+        peor: null,
+      };
+    }
     const suma = historial.reduce((a, c) => a + c.estrellas, 0);
-    const distribucion = {1:0,2:0,3:0,4:0,5:0};
-    historial.forEach(c => { distribucion[c.estrellas] = (distribucion[c.estrellas] || 0) + 1; });
-    const mejor = historial.reduce((a, b) => a.estrellas >= b.estrellas ? a : b);
-    const peor  = historial.reduce((a, b) => a.estrellas <= b.estrellas ? a : b);
-    return { promedio: Math.round((suma / historial.length) * 10) / 10, total: historial.length, distribucion, mejor, peor };
+    const distribucion = {
+      1: 0, 2: 0, 3: 0, 4: 0, 5: 0,
+    };
+    historial.forEach((c) => { distribucion[c.estrellas] = (distribucion[c.estrellas] || 0) + 1; });
+    const mejor = historial.reduce((a, b) => (a.estrellas >= b.estrellas ? a : b));
+    const peor = historial.reduce((a, b) => (a.estrellas <= b.estrellas ? a : b));
+    return {
+      promedio: Math.round((suma / historial.length) * 10) / 10,
+      total: historial.length,
+      distribucion,
+      mejor,
+      peor,
+    };
   }
 
   // ── DISPONIBILIDAD ──────────────────────────────────────────────────────────
   async function estaInscrito(eventoId, voluntarioId) {
     const { data } = await DB.from(VE).select('id, disponible')
-      .eq('evento_id', eventoId).eq('usuario_id', voluntarioId).maybeSingle();
+      .eq('evento_id', eventoId).eq('usuario_id', voluntarioId)
+      .maybeSingle();
     return data || null;
   }
 
   async function unirseEvento(eventoId, voluntarioId, rol) {
     const { error } = await DB.from(VE).insert({
-      evento_id: eventoId, usuario_id: voluntarioId, rol_en_evento: rol || 'Voluntario General', disponible: true
+      evento_id: eventoId, usuario_id: voluntarioId, rol_en_evento: rol || 'Voluntario General', disponible: true,
     });
-    if (error) return { ok: false, error: _msg(error) };
+    if (error) return { ok: false, error: localMsg(error) };
     return { ok: true };
   }
 
   async function setDisponibilidad(eventoId, voluntarioId, disponible) {
     const { error } = await DB.from(VE).update({ disponible })
       .eq('evento_id', eventoId).eq('usuario_id', voluntarioId);
-    if (error) return { ok: false, error: _msg(error) };
+    if (error) return { ok: false, error: localMsg(error) };
     return { ok: true };
   }
 
   return {
-    getEventos, getEventoById,
-    getCalificaciones, getCalifByEventoVoluntario, guardarCalificacion,
-    getHistorialVoluntario, getResumenVoluntario,
-    estaInscrito, unirseEvento, setDisponibilidad
+    getEventos,
+    getEventoById,
+    getCalificaciones,
+    getCalifByEventoVoluntario,
+    guardarCalificacion,
+    getHistorialVoluntario,
+    getResumenVoluntario,
+    estaInscrito,
+    unirseEvento,
+    setDisponibilidad,
   };
-
 })();

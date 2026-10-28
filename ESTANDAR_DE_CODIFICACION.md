@@ -34,7 +34,7 @@ Se usa para **variables y funciones/métodos** en JavaScript y PHP.
 |---|---|---|
 | Variables | `camelCase` | `usuarioActual`, `tokenAcceso` |
 | Funciones / métodos | `camelCase` | `cargarRecursos()`, `signInWithPassword()` |
-| Funciones privadas (JS) | `_camelCase` (guion bajo inicial) | `_fromRow()`, `_syncRecursos()` |
+| Funciones internas (JS) | `camelCase` (sin guion bajo: Airbnb prohíbe `_` inicial) | `localFromRow()`, `localSyncRecursos()` |
 | Clases (PHP) | `PascalCase` | `AuthController`, `SupabaseClient` |
 | "Módulos" (objetos JS) | `PascalCase` | `UsuariosModel`, `EventosModel` |
 | Constantes | `UPPER_SNAKE_CASE` | `MAX_LOGIN_ATTEMPTS`, `RUTAS_POR_ROL`, `SUPABASE_URL` |
@@ -60,14 +60,37 @@ Se usa para **variables y funciones/métodos** en JavaScript y PHP.
   ```js
   const UsuariosModel = (() => { ... })();
   ```
-- **Funciones internas/privadas** del módulo: prefijo `_`.
+- **Funciones internas** del módulo: `camelCase` sin guion bajo inicial (Airbnb,
+  regla `no-underscore-dangle`). Su carácter interno lo da el ámbito (dentro del
+  IIFE), no el nombre.
   ```js
-  function _fromRow(r) { ... }   // mapea fila de BD → objeto de la vista
+  function localFromRow(r) { ... }   // mapea fila de BD → objeto de la vista
   ```
-- **Indentación:** 2 espacios. **Comillas:** simples `'...'`. **Punto y coma** al
-  final de cada sentencia.
-- **`const` por defecto**, `let` solo si la variable cambia. Nunca `var`.
+- **Guía de estilo: Airbnb JavaScript Style Guide**, verificada con ESLint
+  (`eslint-config-airbnb-base`). Indentación de 2 espacios, comillas simples,
+  punto y coma, máximo 100 columnas, comas finales en listas multilínea,
+  `===`, sin `var`, `prefer-const`, funciones flecha en callbacks.
+- **Ejecutar la comprobación:** `npm install` (una vez) y luego `npm run lint`
+  (o `npm run lint:fix` para corregir lo automático). La CI la ejecuta en cada
+  cambio y bloquea si hay errores.
+- **Scripts clásicos, sin módulos:** cada archivo declara al inicio las
+  dependencias globales que usa (`/* global DB, BSPVal */`) y los símbolos que
+  publica para otros archivos (`/* exported UsuariosModel */`).
 - **Comentarios de cabecera** en cada archivo describiendo qué hace y qué usa.
+
+### 3.1 Excepciones a Airbnb (configuradas en `.eslintrc.cjs`)
+
+| Regla | Ajuste | Motivo |
+|---|---|---|
+| `strict` | desactivada | Quitar `'use strict'` de un script clásico lo dejaría en modo no estricto; Airbnb la prohíbe porque asume módulos ES. |
+| `no-use-before-define` | `functions: false` | Las funciones declaradas se elevan; reordenar ~120 usos obligaba a reescribir el orden de archivos enteros. Clases y variables siguen sujetas a la regla. |
+| `no-param-reassign` | `props: false` | Los callbacks de DOM mutan el nodo recibido por diseño. Reasignar el parámetro sigue prohibido. |
+| `no-console` | permite `warn` y `error` | Son el canal de diagnóstico de la app; `log`/`info` siguen avisando. |
+| `sb.js` | excluido | Copia local de supabase-js (terceros, ya minificado). |
+
+Además hay `eslint-disable` puntuales y comentados (`no-alert` en el respaldo de
+`alertify`, `no-new` en `new Chart(...)`, `no-loop-func`, `class-methods-use-this`
+en métodos privados, `no-console` en `dev/forense.tracer.js`).
 
 ## 4. PHP (backend) — PSR-12
 
@@ -91,6 +114,10 @@ Se usa para **variables y funciones/métodos** en JavaScript y PHP.
     control (`if`, `for`) en la **misma línea**.
   - Visibilidad explícita (`public`/`private`/`protected`) en todo método/propiedad.
   - Tipado de argumentos, retornos y propiedades siempre que sea posible.
+  - Líneas de hasta 120 columnas (límite blando de PSR-12).
+  - Fin de línea `LF`.
+  - Verificación: `composer cs` (PHPCS, incluye `index.php`); `composer cs:fix`
+    corrige lo automático. La CI la ejecuta y bloquea si hay errores.
 - **PHPDoc** en todas las clases y métodos públicos: descripción + `@param`,
   `@return`, `@throws`.
 
@@ -121,7 +148,6 @@ Se usa para **variables y funciones/métodos** en JavaScript y PHP.
 camelCase        → variables y funciones        (cargarRecursos, tokenAcceso)
 PascalCase       → clases y módulos              (AuthController, UsuariosModel)
 UPPER_SNAKE_CASE → constantes                    (MAX_TTL, RUTAS_POR_ROL)
-_camelCase       → funciones privadas en JS      (_fromRow, _syncRecursos)
 kebab-case       → archivos, ids y clases CSS    (db.client.js, campo-password)
 snake_case       → columnas de la base de datos  (correo_electronico)
 ```

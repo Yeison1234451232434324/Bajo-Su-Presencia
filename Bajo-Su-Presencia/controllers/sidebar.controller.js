@@ -6,12 +6,11 @@
 // El control de acceso —y su revalidación al restaurar la página con
 // Atrás/Adelante— vive ahora EXCLUSIVAMENTE en session.manager.js.
 
-document.addEventListener("DOMContentLoaded", () => {
-
+document.addEventListener('DOMContentLoaded', () => {
   // ── Inyectar Boxicons si no está cargado ──────────────────────────────────
   if (!document.querySelector('link[href*="boxicons"]')) {
     const link = document.createElement('link');
-    link.rel  = 'stylesheet';
+    link.rel = 'stylesheet';
     link.href = 'https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css';
     document.head.appendChild(link);
   }
@@ -150,23 +149,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ── Botón flotante móvil ──────────────────────────────────────────────────
   const mobileBtn = document.createElement('button');
-  mobileBtn.className   = 'sidebar-toggle-mobile';
-  mobileBtn.id          = 'sidebar-toggle-mobile';
+  mobileBtn.className = 'sidebar-toggle-mobile';
+  mobileBtn.id = 'sidebar-toggle-mobile';
   mobileBtn.setAttribute('aria-label', 'Abrir menú');
-  mobileBtn.innerHTML   = '<span></span><span></span><span></span>';
+  mobileBtn.innerHTML = '<span></span><span></span><span></span>';
   document.body.appendChild(mobileBtn);
 
   // ── Overlay para móvil ────────────────────────────────────────────────────
   const overlay = document.createElement('div');
   overlay.className = 'sidebar-overlay';
-  overlay.id        = 'sidebar-overlay';
+  overlay.id = 'sidebar-overlay';
   document.body.appendChild(overlay);
 
   // ── Toggle ────────────────────────────────────────────────────────────────
   /** Refleja en el botón chevron el estado real del sidebar (a11y). */
   function actualizarEstadoBtn() {
     const btn = document.getElementById('btn');
-    const sb  = document.getElementById('sidebar');
+    const sb = document.getElementById('sidebar');
     if (!btn || !sb) return;
     const expandido = sb.classList.contains('active');
     btn.setAttribute('aria-expanded', String(expandido));
@@ -174,10 +173,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function toggleSidebar() {
-    const sidebar  = document.getElementById('sidebar');
-    const main     = document.getElementById('main');
+    const sidebar = document.getElementById('sidebar');
+    const main = document.getElementById('main');
     const isMobile = window.innerWidth <= 768;
-    const abierto  = sidebar.classList.toggle('active');
+    const abierto = sidebar.classList.toggle('active');
 
     if (isMobile) {
       overlay.classList.toggle('active', abierto);
@@ -201,19 +200,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ── Marcar ítem activo ────────────────────────────────────────────────────
   const path = window.location.pathname;
-  if      (path.includes("dashboard.html"))  document.getElementById("nav-dashboard")?.parentElement.classList.add("active-item");
-  else if (path.includes("eventos.html"))    document.getElementById("nav-eventos")?.parentElement.classList.add("active-item");
-  else if (path.includes("oracion.html"))    document.getElementById("nav-oracion")?.parentElement.classList.add("active-item");
-  else if (path.includes("noticias.html"))   document.getElementById("nav-noticias")?.parentElement.classList.add("active-item");
-  else if (path.includes("usuarios.html"))   document.getElementById("nav-usuarios")?.parentElement.classList.add("active-item");
-  else if (path.includes("voluntarios.html")) document.getElementById("nav-voluntarios")?.parentElement.classList.add("active-item");
-  else if (path.includes("recursos.html"))    document.getElementById("nav-recursos")?.parentElement.classList.add("active-item");
-  else if (path.includes("actividades.html")) document.getElementById("nav-actividades")?.parentElement.classList.add("active-item");
-  else if (path.includes("reporte.html"))          document.getElementById("nav-reporte")?.parentElement.classList.add("active-item");
-  else if (path.includes("generar-reportes.html")) document.getElementById("nav-generar-reportes")?.parentElement.classList.add("active-item");
-  else if (path.includes("sedes.html"))            document.getElementById("nav-sedes")?.parentElement.classList.add("active-item");
-  else if (path.includes("pqr.html"))              document.getElementById("nav-pqr")?.parentElement.classList.add("active-item");
-  else if (path.includes("auditoria.html"))        document.getElementById("nav-auditoria")?.parentElement.classList.add("active-item");
+  if (path.includes('dashboard.html')) document.getElementById('nav-dashboard')?.parentElement.classList.add('active-item');
+  else if (path.includes('eventos.html')) document.getElementById('nav-eventos')?.parentElement.classList.add('active-item');
+  else if (path.includes('oracion.html')) document.getElementById('nav-oracion')?.parentElement.classList.add('active-item');
+  else if (path.includes('noticias.html')) document.getElementById('nav-noticias')?.parentElement.classList.add('active-item');
+  else if (path.includes('usuarios.html')) document.getElementById('nav-usuarios')?.parentElement.classList.add('active-item');
+  else if (path.includes('voluntarios.html')) document.getElementById('nav-voluntarios')?.parentElement.classList.add('active-item');
+  else if (path.includes('recursos.html')) document.getElementById('nav-recursos')?.parentElement.classList.add('active-item');
+  else if (path.includes('actividades.html')) document.getElementById('nav-actividades')?.parentElement.classList.add('active-item');
+  else if (path.includes('reporte.html')) document.getElementById('nav-reporte')?.parentElement.classList.add('active-item');
+  else if (path.includes('generar-reportes.html')) document.getElementById('nav-generar-reportes')?.parentElement.classList.add('active-item');
+  else if (path.includes('sedes.html')) document.getElementById('nav-sedes')?.parentElement.classList.add('active-item');
+  else if (path.includes('pqr.html')) document.getElementById('nav-pqr')?.parentElement.classList.add('active-item');
+  else if (path.includes('auditoria.html')) document.getElementById('nav-auditoria')?.parentElement.classList.add('active-item');
 
   // ── Identidad y menú: SIEMPRE según el servidor ──────────────────────────
   // Antes esto se resolvía leyendo `usuarioLogueado` de localStorage de forma
@@ -225,24 +224,24 @@ document.addEventListener("DOMContentLoaded", () => {
   // Ahora ambas cosas dependen del rol firmado en el JWT.
   (async () => {
     const nombreEl = document.getElementById('sidebar-name');
-    const rolEl    = document.getElementById('sidebar-role');
+    const rolEl = document.getElementById('sidebar-role');
     const avatarEl = document.getElementById('sidebar-avatar');
 
     const identidad = await window.BSPSession?.identidad();
-    if (!identidad) return;   // sin sesión válida el guard ya expulsa al login
+    if (!identidad) return; // sin sesión válida el guard ya expulsa al login
 
     const nombre = identidad.nombre || identidad.correo || '';
     // title: para correos largos, recortados con "…" por CSS, el usuario
     // puede ver el valor completo dejando el mouse encima (tooltip nativo).
     if (nombreEl) { nombreEl.textContent = nombre; nombreEl.title = nombre; }
-    if (rolEl)    rolEl.textContent    = identidad.rol || '';
+    if (rolEl) rolEl.textContent = identidad.rol || '';
     if (avatarEl) avatarEl.textContent = nombre.charAt(0).toUpperCase();
 
     // Secciones exclusivas del Administrador. Es solo cosmética: cada vista
     // vuelve a exigir el rol contra el servidor al abrirse.
     if (identidad.rol === 'Administrador') {
       ['li-usuarios', 'li-voluntarios', 'li-recursos',
-       'li-actividades', 'li-reporte', 'li-generar-reportes', 'li-sedes', 'li-pqr', 'li-auditoria']
+        'li-actividades', 'li-reporte', 'li-generar-reportes', 'li-sedes', 'li-pqr', 'li-auditoria']
         .forEach((id) => {
           const el = document.getElementById(id);
           if (el) el.classList.remove('u-oculto');

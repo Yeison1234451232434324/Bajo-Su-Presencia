@@ -1,6 +1,6 @@
 // Menú hamburguesa (pqr.html)
-(function () {
-  const btn  = document.getElementById('header-hamburger');
+(function menuMovilPqr() {
+  const btn = document.getElementById('header-hamburger');
   const menu = document.getElementById('header-mobile-menu');
 
   function cerrarMenuMovil() {
@@ -21,11 +21,11 @@
 
   // Delegación: cierra el menú al hacer clic en cualquier enlace de la lista
   // (antes cada <a> tenía onclick="cerrarMenuMovil()").
-  menu.addEventListener('click', e => {
+  menu.addEventListener('click', (e) => {
     if (e.target.closest('a')) cerrarMenuMovil();
   });
 
-  document.addEventListener('click', e => {
+  document.addEventListener('click', (e) => {
     if (!e.target.closest('.site-header')) cerrarMenuMovil();
   });
-})();
+}());

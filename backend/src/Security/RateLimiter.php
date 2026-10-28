@@ -98,7 +98,11 @@ final class RateLimiter
             $data      = $contenido !== false && $contenido !== '' ? json_decode($contenido, true) : null;
 
             $ahora = time();
-            if (!is_array($data) || !isset($data['inicio'], $data['conteo']) || ($ahora - (int) $data['inicio']) >= self::VENTANA_SEGUNDOS) {
+            if (
+                !is_array($data)
+                || !isset($data['inicio'], $data['conteo'])
+                || ($ahora - (int) $data['inicio']) >= self::VENTANA_SEGUNDOS
+            ) {
                 $data = ['inicio' => $ahora, 'conteo' => 0];
             }
 

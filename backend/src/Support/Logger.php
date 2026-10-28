@@ -173,8 +173,8 @@ final class Logger
         // STDERR (php.ini → error_log = /dev/stderr) para que el panel del
         // host (Render, etc.) muestre WARNING/ERROR/CRITICAL en su stream.
         if ($level !== 'INFO') {
-            error_log('[' . self::requestId() . '] ' . $level . ': ' . $message
-                . ($context !== [] ? ' ' . json_encode($context, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : ''));
+            $json = json_encode($context, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            error_log('[' . self::requestId() . '] ' . $level . ': ' . $message . ($context !== [] ? ' ' . $json : ''));
         }
     }
 }

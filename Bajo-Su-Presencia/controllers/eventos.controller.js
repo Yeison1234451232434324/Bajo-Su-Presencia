@@ -1,3 +1,5 @@
+/* global BSPDataTable, BSPHorario, BSPModal, BSPVal, EventosModel, RecursosModel,
+   SedesModel, UsuariosModel, showAlertConfirm, showAlertError, showAlertSuccess */
 /**
  * ============================================================
  * CONTROLADOR: eventos.controller.js  (Supabase)
@@ -14,11 +16,10 @@
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
-
   // Control de acceso verificado contra el SERVIDOR (rol tomado del JWT).
   // Unifica el criterio con el resto del panel: antes esta vista solo
   // dependía de localStorage, que el usuario puede editar.
-  const sesion = await window.BSPSession.exigir(['Administrador','Colaborador']);
+  const sesion = await window.BSPSession.exigir(['Administrador', 'Colaborador']);
   if (!sesion) return;
 
   /**
@@ -30,46 +31,50 @@ document.addEventListener('DOMContentLoaded', async () => {
    */
   const esc = (v) => (window.BSPVal?.escapeHtml
     ? window.BSPVal.escapeHtml(String(v ?? ''))
-    : String(v ?? '').replace(/[&<>"'`/]/g, c => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;',
-        '"': '&quot;', "'": '&#39;', '/': '&#x2F;', '`': '&#x60;'
-      }[c])));
+    : String(v ?? '').replace(/[&<>"'`/]/g, (c) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+      '/': '&#x2F;',
+      '`': '&#x60;',
+    }[c])));
 
-  const form             = document.getElementById('form-evento');
-  const recursosGrid     = document.getElementById('recursos-grid');
-  const sinRecursos      = document.getElementById('sin-recursos-msg');
+  const form = document.getElementById('form-evento');
+  const recursosGrid = document.getElementById('recursos-grid');
+  const sinRecursos = document.getElementById('sin-recursos-msg');
 
   // Cerrojos anti-doble-submit (mismo patrón que auth.controller.js).
   let enviandoEvento = false;
   let enviandoEdicionEvento = false;
-  const listaEventos     = document.getElementById('lista-eventos-publicados');
+  const listaEventos = document.getElementById('lista-eventos-publicados');
   const contadorRecursos = document.getElementById('contador-recursos');
 
-  const _rolActual = (JSON.parse(localStorage.getItem('usuarioLogueado') || '{}')).rol || '';
-  const _esColaborador = _rolActual === 'Colaborador';
+  const localRolActual = (JSON.parse(localStorage.getItem('usuarioLogueado') || '{}')).rol || '';
+  const localEsColaborador = localRolActual === 'Colaborador';
 
-  const seleccionados        = {};   // creación: { [recursoId]: cantidad }
-  const seleccionadosEdicion = {};   // edición
-  const especialistasSel        = {}; // { [usuarioId]: {usuarioId, nombre, especialidad} }
+  const seleccionados = {}; // creación: { [recursoId]: cantidad }
+  const seleccionadosEdicion = {}; // edición
+  const especialistasSel = {}; // { [usuarioId]: {usuarioId, nombre, especialidad} }
   const especialistasSelEdicion = {};
 
   // Cachés (poblados al cargar; permiten que los onchange sean síncronos)
-  let _recursosCache     = [];
-  let _especialistasCache = [];
+  let localRecursosCache = [];
+  let localEspecialistasCache = [];
 
-  const H_MIN = '06:00', H_MAX = '21:00';
+  const H_MIN = '06:00'; const
+    H_MAX = '21:00';
 
-  const _err = (id, msg) => BSPVal._err(id, msg);
-  const _ok  = (...ids)  => BSPVal._ok(...ids);
+  const localErr = (id, msg) => BSPVal.localErr(id, msg);
+  const localOk = (...ids) => BSPVal.localOk(...ids);
 
-  ['ev-voluntarios', 'ev-asistentes'].forEach(id =>
-    BSPVal.blockNumericChars(document.getElementById(id))
-  );
+  ['ev-voluntarios', 'ev-asistentes'].forEach((id) => BSPVal.blockNumericChars(document.getElementById(id)));
 
   // ── Restricción dinámica hora de fin ────────────────────────────────────
-  function _sincronizarHoraFin(idInicio, idFin) {
+  function localSincronizarHoraFin(idInicio, idFin) {
     const inpInicio = document.getElementById(idInicio);
-    const inpFin    = document.getElementById(idFin);
+    const inpFin = document.getElementById(idFin);
     if (!inpInicio || !inpFin) return;
     inpInicio.addEventListener('change', () => {
       const valorInicio = inpInicio.value;
@@ -85,18 +90,22 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       if (inpFin.value && valorInicio && inpFin.value <= valorInicio) {
         inpFin.value = '';
-        _err(idFin, 'La hora de fin debe ser posterior a la hora de inicio.');
+        localErr(idFin, 'La hora de fin debe ser posterior a la hora de inicio.');
       } else {
-        _ok(idFin);
+        localOk(idFin);
       }
     });
   }
-  _sincronizarHoraFin('ev-hora-inicio',   'ev-hora-fin');
-  _sincronizarHoraFin('edit-hora-inicio', 'edit-hora-fin');
+  localSincronizarHoraFin('ev-hora-inicio', 'ev-hora-fin');
+  localSincronizarHoraFin('edit-hora-inicio', 'edit-hora-fin');
 
   const ICON_MAP = {
-    'Mobiliario':'bx-chair','Audio y Video':'bx-microphone','Iluminación':'bx-bulb',
-    'Papelería':'bx-file','Cocina':'bx-bowl-hot','Otros':'bx-package'
+    Mobiliario: 'bx-chair',
+    'Audio y Video': 'bx-microphone',
+    Iluminación: 'bx-bulb',
+    Papelería: 'bx-file',
+    Cocina: 'bx-bowl-hot',
+    Otros: 'bx-package',
   };
 
   // Las utilidades de horario (combinar / convertir a 24 h / parsear) viven en
@@ -109,16 +118,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ════════════════════════════════════════════════════════════════
   async function cargarRecursos() {
     if (!recursosGrid) return;
-    _recursosCache = (typeof RecursosModel !== 'undefined') ? await RecursosModel.getAll() : [];
-    const todos = _recursosCache.filter(r => r.disponible && r.cantidad > 0);
+    localRecursosCache = (typeof RecursosModel !== 'undefined') ? await RecursosModel.getAll() : [];
+    const todos = localRecursosCache.filter((r) => r.disponible && r.cantidad > 0);
 
     recursosGrid.innerHTML = '';
     if (todos.length === 0) { if (sinRecursos) sinRecursos.style.display = 'block'; return; }
     if (sinRecursos) sinRecursos.style.display = 'none';
 
-    todos.forEach(r => {
+    todos.forEach((r) => {
       const icono = ICON_MAP[r.categoria] || 'bx-package';
-      const card  = document.createElement('div');
+      const card = document.createElement('div');
       card.className = 'ev-recurso-card';
       card.id = `ev-rec-${r.id}`;
       card.dataset.id = r.id;
@@ -146,12 +155,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function toggleRecursoEvento(id) {
     const card = document.getElementById(`ev-rec-${id}`);
-    const chk  = document.getElementById(`chk-rec-${id}`);
+    const chk = document.getElementById(`chk-rec-${id}`);
     const qtyDiv = document.getElementById(`ev-qty-${id}`);
     const qtyInput = document.getElementById(`qty-rec-${id}`);
     if (chk.checked) {
       card.classList.add('ev-rec-selected'); qtyDiv.style.display = 'flex';
-      seleccionados[id] = parseInt(qtyInput.value) || 1;
+      seleccionados[id] = parseInt(qtyInput.value, 10) || 1;
     } else {
       card.classList.remove('ev-rec-selected'); qtyDiv.style.display = 'none';
       delete seleccionados[id];
@@ -160,7 +169,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function actualizarCantidad(id, valor, max) {
-    let cant = parseInt(valor) || 1;
+    let cant = parseInt(valor, 10) || 1;
     if (cant < 1) cant = 1; if (cant > max) cant = max;
     const input = document.getElementById(`qty-rec-${id}`);
     if (input) input.value = cant;
@@ -196,22 +205,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 3. RECURSOS DEL MODAL DE EDICIÓN
   // ════════════════════════════════════════════════════════════════
   async function cargarRecursosEdicion(eventoRecursos) {
-    const grid   = document.getElementById('edit-recursos-grid');
+    const grid = document.getElementById('edit-recursos-grid');
     const sinMsg = document.getElementById('edit-sin-recursos-msg');
     if (!grid) return;
 
-    Object.keys(seleccionadosEdicion).forEach(k => delete seleccionadosEdicion[k]);
-    _recursosCache = (typeof RecursosModel !== 'undefined') ? await RecursosModel.getAll() : [];
-    const todos = _recursosCache.filter(r => r.disponible && r.cantidad > 0);
+    Object.keys(seleccionadosEdicion).forEach((k) => delete seleccionadosEdicion[k]);
+    localRecursosCache = (typeof RecursosModel !== 'undefined') ? await RecursosModel.getAll() : [];
+    const todos = localRecursosCache.filter((r) => r.disponible && r.cantidad > 0);
 
     grid.innerHTML = '';
     if (todos.length === 0) { if (sinMsg) sinMsg.style.display = 'block'; actualizarContadorEdicion(); return; }
     if (sinMsg) sinMsg.style.display = 'none';
 
     const asignados = {};
-    (eventoRecursos || []).forEach(r => { asignados[r.recursoId] = r.cantidad; });
+    (eventoRecursos || []).forEach((r) => { asignados[r.recursoId] = r.cantidad; });
 
-    todos.forEach(r => {
+    todos.forEach((r) => {
       const icono = ICON_MAP[r.categoria] || 'bx-package';
       const cantPre = asignados[r.id];
       const seleccionado = cantPre !== undefined;
@@ -262,12 +271,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function toggleRecursoEdicion(id) {
     const card = document.getElementById(`edit-ev-rec-${id}`);
-    const chk  = document.getElementById(`edit-chk-rec-${id}`);
+    const chk = document.getElementById(`edit-chk-rec-${id}`);
     const qtyDiv = document.getElementById(`edit-ev-qty-${id}`);
     const qtyInput = document.getElementById(`edit-qty-rec-${id}`);
     if (chk.checked) {
       card.classList.add('ev-rec-selected'); qtyDiv.style.display = 'flex';
-      seleccionadosEdicion[id] = parseInt(qtyInput.value) || 1;
+      seleccionadosEdicion[id] = parseInt(qtyInput.value, 10) || 1;
     } else {
       card.classList.remove('ev-rec-selected'); qtyDiv.style.display = 'none';
       delete seleccionadosEdicion[id];
@@ -276,7 +285,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function actualizarCantidadEdicion(id, valor, max) {
-    let cant = parseInt(valor) || 1;
+    let cant = parseInt(valor, 10) || 1;
     if (cant < 1) cant = 1; if (cant > max) cant = max;
     const input = document.getElementById(`edit-qty-rec-${id}`);
     if (input) input.value = cant;
@@ -294,13 +303,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ════════════════════════════════════════════════════════════════
   // 3b. ESPECIALISTAS
   // ════════════════════════════════════════════════════════════════
-  async function _cargarEspecialistasCache() {
-    _especialistasCache = (typeof UsuariosModel !== 'undefined' && UsuariosModel.getEspecialistas)
+  async function localCargarEspecialistasCache() {
+    localEspecialistasCache = (typeof UsuariosModel !== 'undefined' && UsuariosModel.getEspecialistas)
       ? await UsuariosModel.getEspecialistas() : [];
-    return _especialistasCache;
+    return localEspecialistasCache;
   }
 
-  function _cardEspecialista(u, { prefix, checked }) {
+  function localCardEspecialista(u, { prefix, checked }) {
     const card = document.createElement('div');
     card.className = `ev-recurso-card${checked ? ' ev-rec-selected' : ''}`;
     card.id = `${prefix}-esp-${u.id}`;
@@ -325,12 +334,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const grid = document.getElementById('especialistas-grid');
     const sinMsg = document.getElementById('sin-especialistas-msg');
     if (!grid) return;
-    Object.keys(especialistasSel).forEach(k => delete especialistasSel[k]);
-    const todos = await _cargarEspecialistasCache();
+    Object.keys(especialistasSel).forEach((k) => delete especialistasSel[k]);
+    const todos = await localCargarEspecialistasCache();
     grid.innerHTML = '';
     if (todos.length === 0) { if (sinMsg) sinMsg.style.display = 'block'; actualizarContadorEspecialistas(); return; }
     if (sinMsg) sinMsg.style.display = 'none';
-    todos.forEach(u => grid.appendChild(_cardEspecialista(u, { prefix: 'ev', checked: false })));
+    todos.forEach((u) => grid.appendChild(localCardEspecialista(u, { prefix: 'ev', checked: false })));
     actualizarContadorEspecialistas();
   }
   document.getElementById('especialistas-grid')?.addEventListener('change', (e) => {
@@ -343,17 +352,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     const grid = document.getElementById('edit-especialistas-grid');
     const sinMsg = document.getElementById('edit-sin-especialistas-msg');
     if (!grid) return;
-    Object.keys(especialistasSelEdicion).forEach(k => delete especialistasSelEdicion[k]);
-    const todos = await _cargarEspecialistasCache();
+    Object.keys(especialistasSelEdicion).forEach((k) => delete especialistasSelEdicion[k]);
+    const todos = await localCargarEspecialistasCache();
     grid.innerHTML = '';
     if (todos.length === 0) { if (sinMsg) sinMsg.style.display = 'block'; actualizarContadorEspecialistasEdicion(); return; }
     if (sinMsg) sinMsg.style.display = 'none';
 
-    const asignados = new Set((eventoEspecialistas || []).map(e => e.usuarioId));
-    todos.forEach(u => {
+    const asignados = new Set((eventoEspecialistas || []).map((e) => e.usuarioId));
+    todos.forEach((u) => {
       const checked = asignados.has(u.id);
-      if (checked) especialistasSelEdicion[u.id] = { usuarioId: u.id, nombre: u.nombre, especialidad: u.especialidad };
-      grid.appendChild(_cardEspecialista(u, { prefix: 'edit', checked }));
+      if (checked) {
+        especialistasSelEdicion[u.id] = {
+          usuarioId: u.id, nombre: u.nombre, especialidad: u.especialidad,
+        };
+      }
+      grid.appendChild(localCardEspecialista(u, { prefix: 'edit', checked }));
     });
     actualizarContadorEspecialistasEdicion();
   }
@@ -364,9 +377,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   function toggleEspecialista(id) {
-    const u = _especialistasCache.find(x => String(x.id) === String(id));
+    const u = localEspecialistasCache.find((x) => String(x.id) === String(id));
     const card = document.getElementById(`ev-esp-${id}`);
-    const chk  = document.getElementById(`ev-chk-esp-${id}`);
+    const chk = document.getElementById(`ev-chk-esp-${id}`);
     if (chk.checked && u) {
       card.classList.add('ev-rec-selected');
       especialistasSel[id] = { usuarioId: u.id, nombre: u.nombre, especialidad: u.especialidad };
@@ -378,12 +391,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function toggleEspecialistaEdicion(id) {
-    const u = _especialistasCache.find(x => String(x.id) === String(id));
+    const u = localEspecialistasCache.find((x) => String(x.id) === String(id));
     const card = document.getElementById(`edit-esp-${id}`);
-    const chk  = document.getElementById(`edit-chk-esp-${id}`);
+    const chk = document.getElementById(`edit-chk-esp-${id}`);
     if (chk.checked && u) {
       card.classList.add('ev-rec-selected');
-      especialistasSelEdicion[id] = { usuarioId: u.id, nombre: u.nombre, especialidad: u.especialidad };
+      especialistasSelEdicion[id] = {
+        usuarioId: u.id, nombre: u.nombre, especialidad: u.especialidad,
+      };
     } else {
       card.classList.remove('ev-rec-selected');
       delete especialistasSelEdicion[id];
@@ -413,60 +428,71 @@ document.addEventListener('DOMContentLoaded', async () => {
     e.preventDefault();
     if (enviandoEvento) return;
 
-    const titulo        = BSPVal.cleanText(document.getElementById('ev-titulo')?.value || '');
-    const fechaVal      = document.getElementById('ev-fecha')?.value || '';
-    const horaInicio    = document.getElementById('ev-hora-inicio')?.value || '';
-    const horaFin       = document.getElementById('ev-hora-fin')?.value || '';
-    const ubicacion     = BSPVal.cleanText(document.getElementById('ev-ubicacion')?.value || '');
-    const descripcion   = BSPVal.cleanText(document.getElementById('ev-descripcion')?.value || '');
-    const voluntariosRaw= document.getElementById('ev-voluntarios')?.value || '';
+    const titulo = BSPVal.cleanText(document.getElementById('ev-titulo')?.value || '');
+    const fechaVal = document.getElementById('ev-fecha')?.value || '';
+    const horaInicio = document.getElementById('ev-hora-inicio')?.value || '';
+    const horaFin = document.getElementById('ev-hora-fin')?.value || '';
+    const ubicacion = BSPVal.cleanText(document.getElementById('ev-ubicacion')?.value || '');
+    const descripcion = BSPVal.cleanText(document.getElementById('ev-descripcion')?.value || '');
+    const voluntariosRaw = document.getElementById('ev-voluntarios')?.value || '';
     const asistentesRaw = document.getElementById('ev-asistentes')?.value || '';
 
-    _ok('ev-titulo','ev-fecha','ev-hora-inicio','ev-hora-fin','ev-ubicacion','ev-voluntarios','ev-asistentes','ev-descripcion');
-    let valido = true, err;
+    localOk('ev-titulo', 'ev-fecha', 'ev-hora-inicio', 'ev-hora-fin', 'ev-ubicacion', 'ev-voluntarios', 'ev-asistentes', 'ev-descripcion');
+    let valido = true; let
+      err;
     const hoy = new Date().toISOString().split('T')[0];
 
-    err = BSPVal.txt(titulo, { min: 3, max: 150, label: 'El título', iniciaLetra: true });
-    if (err) { _err('ev-titulo', err); valido = false; }
+    err = BSPVal.txt(titulo, {
+      min: 3, max: 150, label: 'El título', iniciaLetra: true,
+    });
+    if (err) { localErr('ev-titulo', err); valido = false; }
 
     err = BSPVal.fecha(fechaVal, { minDate: hoy, label: 'La fecha del evento' });
-    if (err) { _err('ev-fecha', err); valido = false; }
+    if (err) { localErr('ev-fecha', err); valido = false; }
 
-    if (!horaInicio) { _err('ev-hora-inicio', 'La hora de inicio es obligatoria.'); valido = false; }
-    else if (horaInicio < H_MIN || horaInicio > H_MAX) { _err('ev-hora-inicio', 'La hora debe estar entre 6:00 AM (06:00) y 9:00 PM (21:00).'); valido = false; }
+    if (!horaInicio) { localErr('ev-hora-inicio', 'La hora de inicio es obligatoria.'); valido = false; } else if (horaInicio < H_MIN || horaInicio > H_MAX) { localErr('ev-hora-inicio', 'La hora debe estar entre 6:00 AM (06:00) y 9:00 PM (21:00).'); valido = false; }
 
     if (horaFin) {
-      if (horaFin < H_MIN || horaFin > H_MAX) { _err('ev-hora-fin', 'La hora debe estar entre 6:00 AM (06:00) y 9:00 PM (21:00).'); valido = false; }
-      else if (horaInicio && horaFin <= horaInicio) { _err('ev-hora-fin', 'La hora de fin debe ser posterior a la hora de inicio.'); valido = false; }
+      if (horaFin < H_MIN || horaFin > H_MAX) { localErr('ev-hora-fin', 'La hora debe estar entre 6:00 AM (06:00) y 9:00 PM (21:00).'); valido = false; } else if (horaInicio && horaFin <= horaInicio) { localErr('ev-hora-fin', 'La hora de fin debe ser posterior a la hora de inicio.'); valido = false; }
     }
 
     err = BSPVal.txt(ubicacion, { min: 2, max: 200, label: 'La sede / ubicación' });
-    if (err) { _err('ev-ubicacion', err); valido = false; }
+    if (err) { localErr('ev-ubicacion', err); valido = false; }
 
-    err = BSPVal.num(voluntariosRaw, { min: 1, max: 9999, entero: true, label: 'El número de voluntarios' });
-    if (err) { _err('ev-voluntarios', err); valido = false; }
+    err = BSPVal.num(voluntariosRaw, {
+      min: 1, max: 9999, entero: true, label: 'El número de voluntarios',
+    });
+    if (err) { localErr('ev-voluntarios', err); valido = false; }
 
     if (asistentesRaw.trim() !== '') {
-      err = BSPVal.num(asistentesRaw, { min: 0, max: 999999, entero: true, label: 'Las personas esperadas' });
-      if (err) { _err('ev-asistentes', err); valido = false; }
+      err = BSPVal.num(asistentesRaw, {
+        min: 0, max: 999999, entero: true, label: 'Las personas esperadas',
+      });
+      if (err) { localErr('ev-asistentes', err); valido = false; }
     }
     if (descripcion.length > 0) {
       err = BSPVal.txt(descripcion, { min: 5, max: 1000, label: 'La descripción' });
-      if (err) { _err('ev-descripcion', err); valido = false; }
+      if (err) { localErr('ev-descripcion', err); valido = false; }
     }
     if (!valido) return;
 
     const recursosSeleccionados = Object.entries(seleccionados).map(([id, cantidad]) => {
-      const r = _recursosCache.find(x => String(x.id) === String(id));
-      return { recursoId: id, recursoNombre: r ? r.nombre : 'Recurso', cantidad: parseInt(cantidad, 10), unidad: r ? r.unidad : 'unidades' };
+      const r = localRecursosCache.find((x) => String(x.id) === String(id));
+      return {
+        recursoId: id, recursoNombre: r ? r.nombre : 'Recurso', cantidad: parseInt(cantidad, 10), unidad: r ? r.unidad : 'unidades',
+      };
     });
 
     const data = {
-      titulo, fecha: fechaVal, horario: BSPHorario.combinar(horaInicio, horaFin), ubicacion,
+      titulo,
+      fecha: fechaVal,
+      horario: BSPHorario.combinar(horaInicio, horaFin),
+      ubicacion,
       asistentes: asistentesRaw.trim() !== '' ? parseInt(asistentesRaw, 10) : '',
-      voluntariosNecesarios: parseInt(voluntariosRaw, 10), descripcion,
+      voluntariosNecesarios: parseInt(voluntariosRaw, 10),
+      descripcion,
       recursos: recursosSeleccionados,
-      especialistas: Object.values(especialistasSel)
+      especialistas: Object.values(especialistasSel),
     };
 
     const btnSubmitEvento = form ? form.querySelector('button[type="submit"]') : null;
@@ -474,8 +500,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (btnSubmitEvento) { btnSubmitEvento.disabled = true; btnSubmitEvento.setAttribute('aria-busy', 'true'); }
 
     let resultado;
-    try { resultado = await EventosModel.crear(data); }
-    catch (ex) {
+    try { resultado = await EventosModel.crear(data); } catch (ex) {
       showAlertError('Error de conexión. Intenta de nuevo.');
       enviandoEvento = false;
       if (btnSubmitEvento) { btnSubmitEvento.disabled = false; btnSubmitEvento.removeAttribute('aria-busy'); }
@@ -492,12 +517,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (btnSubmitEvento) { btnSubmitEvento.disabled = false; btnSubmitEvento.removeAttribute('aria-busy'); }
 
     e.target.reset();
-    Object.keys(seleccionados).forEach(k => delete seleccionados[k]);
-    Object.keys(especialistasSel).forEach(k => delete especialistasSel[k]);
-    document.querySelectorAll('.ev-recurso-card').forEach(c => c.classList.remove('ev-rec-selected'));
-    document.querySelectorAll('[id^="ev-qty-"]').forEach(d => d.style.display = 'none');
-    document.querySelectorAll('[id^="chk-rec-"]').forEach(c => c.checked = false);
-    document.querySelectorAll('[id^="ev-chk-esp-"]').forEach(c => c.checked = false);
+    Object.keys(seleccionados).forEach((k) => delete seleccionados[k]);
+    Object.keys(especialistasSel).forEach((k) => delete especialistasSel[k]);
+    document.querySelectorAll('.ev-recurso-card').forEach((c) => c.classList.remove('ev-rec-selected'));
+    document.querySelectorAll('[id^="ev-qty-"]').forEach((d) => { d.style.display = 'none'; });
+    document.querySelectorAll('[id^="chk-rec-"]').forEach((c) => { c.checked = false; });
+    document.querySelectorAll('[id^="ev-chk-esp-"]').forEach((c) => { c.checked = false; });
     actualizarContador(); actualizarContadorEspecialistas(); actualizarPreview();
     await renderEventosPublicados();
 
@@ -510,8 +535,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ════════════════════════════════════════════════════════════════
   // El estado ya no se elige manualmente al crear/editar: se calcula
   // automáticamente comparando la fecha del evento con la fecha de hoy.
-  const ESTADO_CLASE = { 'Publicado':'ev-badge--publicado','Finalizado':'ev-badge--finalizado' };
-  function _estadoAuto(ev) {
+  const ESTADO_CLASE = { Publicado: 'ev-badge--publicado', Finalizado: 'ev-badge--finalizado' };
+  function localEstadoAuto(ev) {
     const hoy = new Date().toISOString().split('T')[0];
     return ev.fecha && ev.fecha < hoy ? 'Finalizado' : 'Publicado';
   }
@@ -524,11 +549,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   async function renderEventosPublicados() {
     if (!listaEventos) return;
     const eventos = await EventosModel.getAll();
-    const ubicaciones = [...new Set(eventos.map(e => e.ubicacion).filter(Boolean))].sort();
+    const ubicaciones = [...new Set(eventos.map((e) => e.ubicacion).filter(Boolean))].sort();
 
     function renderCard(ev) {
       const chipsRecursos = ev.recursos && ev.recursos.length > 0
-        ? ev.recursos.map(r => `<span class="ev-chip-recurso"><i class="bx bx-package" aria-hidden="true"></i> ${esc(r.recursoNombre)} × ${esc(r.cantidad)}</span>`).join('')
+        ? ev.recursos.map((r) => `<span class="ev-chip-recurso"><i class="bx bx-package" aria-hidden="true"></i> ${esc(r.recursoNombre)} × ${esc(r.cantidad)}</span>`).join('')
         : '<span class="ev-sin-recursos">Sin recursos asignados</span>';
       const finalizado = ev.estadoAuto === 'Finalizado';
       const btnEditar = finalizado
@@ -549,7 +574,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             <div class="ev-pub-acciones">
               <button class="btn-ev-accion btn-ev-ver" data-action="ver-evento" data-id="${ev.id}" title="Ver detalle"><i class="bx bx-show" aria-hidden="true"></i></button>
               ${btnEditar}
-              ${!_esColaborador ? `<button class="btn-ev-accion btn-ev-eliminar" data-action="eliminar-evento" data-id="${ev.id}" title="Eliminar evento"><i class="bx bx-trash" aria-hidden="true"></i></button>` : ''}
+              ${!localEsColaborador ? `<button class="btn-ev-accion btn-ev-eliminar" data-action="eliminar-evento" data-id="${ev.id}" title="Eliminar evento"><i class="bx bx-trash" aria-hidden="true"></i></button>` : ''}
             </div>
           </div>
           ${ev.descripcion ? `<p class="ev-pub-desc">${esc(ev.descripcion)}</p>` : ''}
@@ -560,35 +585,45 @@ document.addEventListener('DOMContentLoaded', async () => {
           ${ev.especialistas && ev.especialistas.length > 0 ? `
           <div class="ev-pub-recursos">
             <span class="ev-pub-recursos-label"><i class="bx bx-user-voice" aria-hidden="true"></i> Especialistas:</span>
-            <div class="ev-chips-wrap">${ev.especialistas.map(e => `<span class="ev-chip-recurso"><i class="bx bx-user" aria-hidden="true"></i> ${esc(e.nombre)} — ${esc(e.especialidad)}</span>`).join('')}</div>
+            <div class="ev-chips-wrap">${ev.especialistas.map((e) => `<span class="ev-chip-recurso"><i class="bx bx-user" aria-hidden="true"></i> ${esc(e.nombre)} — ${esc(e.especialidad)}</span>`).join('')}</div>
           </div>` : ''}
           ${ev.publicado ? `<p class="ev-pub-fecha-pub">Publicado el ${esc(ev.publicado)}</p>` : ''}
         </div>`;
     }
 
-    const ordenados = [...eventos].reverse().map(ev => ({ ...ev, estadoAuto: _estadoAuto(ev) }));
+    const ordenados = [...eventos]
+      .reverse()
+      .map((ev) => ({ ...ev, estadoAuto: localEstadoAuto(ev) }));
     if (!dtEventos) {
       dtEventos = new BSPDataTable({
-        containerId: 'lista-eventos-publicados', data: ordenados, pageSize: 5,
-        searchFields: ['titulo','fecha','horario','ubicacion','descripcion','estadoAuto'],
+        containerId: 'lista-eventos-publicados',
+        data: ordenados,
+        pageSize: 5,
+        searchFields: ['titulo', 'fecha', 'horario', 'ubicacion', 'descripcion', 'estadoAuto'],
         filters: [
-          { key:'estadoAuto', label:'Estado', type:'select', options: ['Publicado','Finalizado'] },
-          { key:'ubicacion', label:'Ubicación', type:'select', options: ubicaciones },
-          { key:'fecha', label:'Desde', type:'date-from' },
-          { key:'fecha', label:'Hasta', type:'date-to' },
+          {
+            key: 'estadoAuto', label: 'Estado', type: 'select', options: ['Publicado', 'Finalizado'],
+          },
+          {
+            key: 'ubicacion', label: 'Ubicación', type: 'select', options: ubicaciones,
+          },
+          { key: 'fecha', label: 'Desde', type: 'date-from' },
+          { key: 'fecha', label: 'Hasta', type: 'date-to' },
         ],
-        renderRow: renderCard, exportable: true, exportName: 'eventos',
-        exportFields: ['titulo','fecha','horario','ubicacion','estadoAuto','asistentes','descripcion','publicado'],
-        exportLabels: ['Título','Fecha','Horario','Ubicación','Estado','Asistentes','Descripción','Publicado'],
-        emptyHTML: `<div class="dt-empty"><i class="bx bx-calendar-x" aria-hidden="true"></i><p>Aún no hay eventos publicados.</p></div>`
+        renderRow: renderCard,
+        exportable: true,
+        exportName: 'eventos',
+        exportFields: ['titulo', 'fecha', 'horario', 'ubicacion', 'estadoAuto', 'asistentes', 'descripcion', 'publicado'],
+        exportLabels: ['Título', 'Fecha', 'Horario', 'Ubicación', 'Estado', 'Asistentes', 'Descripción', 'Publicado'],
+        emptyHTML: '<div class="dt-empty"><i class="bx bx-calendar-x" aria-hidden="true"></i><p>Aún no hay eventos publicados.</p></div>',
       });
-      window.__bspDT['lista-eventos-publicados'] = dtEventos;
+      window.bspDataTables['lista-eventos-publicados'] = dtEventos;
       dtEventos.init();
       // Delegación: acciones de cada tarjeta de evento (antes onclick inline).
       document.getElementById('lista-eventos-publicados-body')?.addEventListener('click', (e) => {
         const btn = e.target.closest('[data-action]');
         if (!btn) return;
-        const id = btn.dataset.id;
+        const { id } = btn.dataset;
         if (btn.dataset.action === 'ver-evento') verEvento(id);
         else if (btn.dataset.action === 'editar-evento') abrirEditar(id);
         else if (btn.dataset.action === 'eliminar-evento') eliminarEvento(id);
@@ -604,9 +639,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   async function verEvento(id) {
     const ev = await EventosModel.getById(id);
     if (!ev) return;
-    document.getElementById('modal-ver-titulo').innerHTML = `${esc(ev.titulo)} ${badgeEstado(_estadoAuto(ev))}`;
+    document.getElementById('modal-ver-titulo').innerHTML = `${esc(ev.titulo)} ${badgeEstado(localEstadoAuto(ev))}`;
     const chipsRecursos = ev.recursos && ev.recursos.length > 0
-      ? ev.recursos.map(r => `<span class="ev-chip-recurso"><i class="bx bx-package" aria-hidden="true"></i> ${esc(r.recursoNombre)} × ${esc(r.cantidad)} ${esc(r.unidad || '')}</span>`).join('')
+      ? ev.recursos.map((r) => `<span class="ev-chip-recurso"><i class="bx bx-package" aria-hidden="true"></i> ${esc(r.recursoNombre)} × ${esc(r.cantidad)} ${esc(r.unidad || '')}</span>`).join('')
       : '<span class="ev-sin-recursos">Sin recursos asignados</span>';
     document.getElementById('modal-ver-body').innerHTML = `
       <div class="ev-detalle-grid">
@@ -616,15 +651,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-user" aria-hidden="true"></i> Asistentes</span><span class="ev-detalle-valor">${esc(ev.asistentes || '—')}</span></div>
         <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-group" aria-hidden="true"></i> Voluntarios necesarios</span><span class="ev-detalle-valor">${esc(ev.voluntariosNecesarios || 0)}</span></div>
         <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-calendar-plus" aria-hidden="true"></i> Publicado</span><span class="ev-detalle-valor">${esc(ev.publicado || '—')}</span></div>
-        <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-flag" aria-hidden="true"></i> Estado</span><span class="ev-detalle-valor">${badgeEstado(_estadoAuto(ev))}</span></div>
+        <div class="ev-detalle-item"><span class="ev-detalle-label"><i class="bx bx-flag" aria-hidden="true"></i> Estado</span><span class="ev-detalle-valor">${badgeEstado(localEstadoAuto(ev))}</span></div>
       </div>
       ${ev.descripcion ? `<div class="ev-detalle-desc"><span class="ev-detalle-label"><i class="bx bx-note" aria-hidden="true"></i> Descripción</span><p>${esc(ev.descripcion)}</p></div>` : ''}
       <div class="ev-detalle-recursos"><span class="ev-detalle-label"><i class="bx bx-package" aria-hidden="true"></i> Recursos asignados</span><div class="ev-chips-wrap">${chipsRecursos}</div></div>
       <div class="ev-detalle-recursos"><span class="ev-detalle-label"><i class="bx bx-user-voice" aria-hidden="true"></i> Especialistas requeridos</span><div class="ev-chips-wrap">${
-        ev.especialistas && ev.especialistas.length > 0
-          ? ev.especialistas.map(e => `<span class="ev-chip-recurso"><i class="bx bx-user" aria-hidden="true"></i> ${esc(e.nombre)} — ${esc(e.especialidad)}</span>`).join('')
-          : '<span class="ev-sin-recursos">Sin especialistas asignados</span>'
-      }</div></div>`;
+  ev.especialistas && ev.especialistas.length > 0
+    ? ev.especialistas.map((e) => `<span class="ev-chip-recurso"><i class="bx bx-user" aria-hidden="true"></i> ${esc(e.nombre)} — ${esc(e.especialidad)}</span>`).join('')
+    : '<span class="ev-sin-recursos">Sin especialistas asignados</span>'
+}</div></div>`;
     const modalVer = document.getElementById('modal-ver-evento');
     BSPModal.abrir({ overlay: modalVer, modal: modalVer, modoDisplay: true });
   }
@@ -641,23 +676,23 @@ document.addEventListener('DOMContentLoaded', async () => {
   async function abrirEditar(id) {
     const ev = await EventosModel.getById(id);
     if (!ev) return;
-    if (_estadoAuto(ev) === 'Finalizado') {
+    if (localEstadoAuto(ev) === 'Finalizado') {
       showAlertError('Este evento ya finalizó: no se puede editar.');
       return;
     }
-    document.getElementById('edit-id').value     = ev.id;
+    document.getElementById('edit-id').value = ev.id;
     document.getElementById('edit-titulo').value = ev.titulo;
-    const _editFecha = document.getElementById('edit-fecha');
-    _editFecha.min = new Date().toISOString().split('T')[0];
-    _editFecha.value = ev.fecha;
-    document.getElementById('edit-ubicacion').value   = ev.ubicacion;
-    document.getElementById('edit-asistentes').value  = ev.asistentes !== '—' ? ev.asistentes : '';
+    const localEditFecha = document.getElementById('edit-fecha');
+    [localEditFecha.min] = new Date().toISOString().split('T');
+    localEditFecha.value = ev.fecha;
+    document.getElementById('edit-ubicacion').value = ev.ubicacion;
+    document.getElementById('edit-asistentes').value = ev.asistentes !== '—' ? ev.asistentes : '';
     document.getElementById('edit-voluntarios').value = ev.voluntariosNecesarios || 1;
     document.getElementById('edit-descripcion').value = ev.descripcion || '';
 
     const { inicio, fin } = BSPHorario.parse(ev.horario);
     document.getElementById('edit-hora-inicio').value = inicio;
-    document.getElementById('edit-hora-fin').value    = fin;
+    document.getElementById('edit-hora-fin').value = fin;
 
     await cargarRecursosEdicion(ev.recursos || []);
     await cargarEspecialistasEdicion(ev.especialistas || []);
@@ -670,49 +705,50 @@ document.addEventListener('DOMContentLoaded', async () => {
   async function guardarEdicion(e) {
     e.preventDefault();
     if (enviandoEdicionEvento) return;
-    const id        = document.getElementById('edit-id').value;   // UUID (string)
-    const titulo    = document.getElementById('edit-titulo')?.value.trim() || '';
-    const fecha     = document.getElementById('edit-fecha')?.value || '';
-    const horaIni   = document.getElementById('edit-hora-inicio')?.value || '';
-    const horaFin   = document.getElementById('edit-hora-fin')?.value || '';
+    const id = document.getElementById('edit-id').value; // UUID (string)
+    const titulo = document.getElementById('edit-titulo')?.value.trim() || '';
+    const fecha = document.getElementById('edit-fecha')?.value || '';
+    const horaIni = document.getElementById('edit-hora-inicio')?.value || '';
+    const horaFin = document.getElementById('edit-hora-fin')?.value || '';
     const ubicacion = document.getElementById('edit-ubicacion')?.value.trim() || '';
-    const voluntarios = parseInt(document.getElementById('edit-voluntarios')?.value) || 0;
+    const voluntarios = parseInt(document.getElementById('edit-voluntarios')?.value, 10) || 0;
 
     const RX_INI_LETRA_EDIT = /^[a-zA-ZÀ-ÿñÑ]/;
-    _ok('edit-titulo','edit-fecha','edit-hora-inicio','edit-hora-fin','edit-ubicacion','edit-voluntarios');
+    localOk('edit-titulo', 'edit-fecha', 'edit-hora-inicio', 'edit-hora-fin', 'edit-ubicacion', 'edit-voluntarios');
     let valido = true;
 
-    if (!titulo || titulo.length < 3) { _err('edit-titulo', 'El título debe tener al menos 3 caracteres.'); valido = false; }
-    else if (!RX_INI_LETRA_EDIT.test(titulo)) { _err('edit-titulo', 'El título debe comenzar con una letra.'); valido = false; }
-    else if (titulo.length > 150) { _err('edit-titulo', 'El título no puede superar 150 caracteres.'); valido = false; }
+    if (!titulo || titulo.length < 3) { localErr('edit-titulo', 'El título debe tener al menos 3 caracteres.'); valido = false; } else if (!RX_INI_LETRA_EDIT.test(titulo)) { localErr('edit-titulo', 'El título debe comenzar con una letra.'); valido = false; } else if (titulo.length > 150) { localErr('edit-titulo', 'El título no puede superar 150 caracteres.'); valido = false; }
 
     const hoy = new Date().toISOString().split('T')[0];
     const errFecha = BSPVal.fecha(fecha, { minDate: hoy, label: 'La fecha del evento' });
-    if (errFecha) { _err('edit-fecha', errFecha); valido = false; }
-    if (!horaIni) { _err('edit-hora-inicio', 'La hora de inicio es obligatoria.'); valido = false; }
-    else if (horaIni < H_MIN || horaIni > H_MAX) { _err('edit-hora-inicio', 'Debe estar entre 6:00 AM y 9:00 PM.'); valido = false; }
+    if (errFecha) { localErr('edit-fecha', errFecha); valido = false; }
+    if (!horaIni) { localErr('edit-hora-inicio', 'La hora de inicio es obligatoria.'); valido = false; } else if (horaIni < H_MIN || horaIni > H_MAX) { localErr('edit-hora-inicio', 'Debe estar entre 6:00 AM y 9:00 PM.'); valido = false; }
     if (horaFin) {
-      if (horaFin < H_MIN || horaFin > H_MAX) { _err('edit-hora-fin', 'Debe estar entre 6:00 AM y 9:00 PM.'); valido = false; }
-      else if (horaIni && horaFin <= horaIni) { _err('edit-hora-fin', 'Debe ser posterior a la hora de inicio.'); valido = false; }
+      if (horaFin < H_MIN || horaFin > H_MAX) { localErr('edit-hora-fin', 'Debe estar entre 6:00 AM y 9:00 PM.'); valido = false; } else if (horaIni && horaFin <= horaIni) { localErr('edit-hora-fin', 'Debe ser posterior a la hora de inicio.'); valido = false; }
     }
     const editAsistentes = document.getElementById('edit-asistentes')?.value;
-    if (!ubicacion) { _err('edit-ubicacion', 'La sede / ubicación es obligatoria.'); valido = false; }
-    if (editAsistentes !== '' && editAsistentes !== null && parseInt(editAsistentes) < 0) { _err('edit-asistentes', 'Las personas esperadas no pueden ser negativas.'); valido = false; }
-    if (voluntarios < 1) { _err('edit-voluntarios','Mínimo 1 voluntario.'); valido = false; }
+    if (!ubicacion) { localErr('edit-ubicacion', 'La sede / ubicación es obligatoria.'); valido = false; }
+    if (editAsistentes !== '' && editAsistentes !== null && parseInt(editAsistentes, 10) < 0) { localErr('edit-asistentes', 'Las personas esperadas no pueden ser negativas.'); valido = false; }
+    if (voluntarios < 1) { localErr('edit-voluntarios', 'Mínimo 1 voluntario.'); valido = false; }
     if (!valido) return;
 
     const recursosSeleccionados = Object.entries(seleccionadosEdicion).map(([rid, cantidad]) => {
-      const r = _recursosCache.find(x => String(x.id) === String(rid));
-      return { recursoId: rid, recursoNombre: r ? r.nombre : 'Recurso', cantidad, unidad: r ? r.unidad : 'unidades' };
+      const r = localRecursosCache.find((x) => String(x.id) === String(rid));
+      return {
+        recursoId: rid, recursoNombre: r ? r.nombre : 'Recurso', cantidad, unidad: r ? r.unidad : 'unidades',
+      };
     });
 
     const data = {
-      titulo, fecha, horario: BSPHorario.combinar(horaIni, horaFin), ubicacion,
+      titulo,
+      fecha,
+      horario: BSPHorario.combinar(horaIni, horaFin),
+      ubicacion,
       asistentes: document.getElementById('edit-asistentes')?.value || '',
       voluntariosNecesarios: voluntarios,
       descripcion: document.getElementById('edit-descripcion')?.value || '',
       recursos: recursosSeleccionados,
-      especialistas: Object.values(especialistasSelEdicion)
+      especialistas: Object.values(especialistasSelEdicion),
     };
 
     const formEditarEl = document.getElementById('form-editar-evento');
@@ -721,8 +757,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (btnSubmitEdicion) { btnSubmitEdicion.disabled = true; btnSubmitEdicion.setAttribute('aria-busy', 'true'); }
 
     let resultado;
-    try { resultado = await EventosModel.actualizar(id, data); }
-    catch (ex) {
+    try { resultado = await EventosModel.actualizar(id, data); } catch (ex) {
       showAlertError('Error de conexión. Intenta de nuevo.');
       enviandoEdicionEvento = false;
       if (btnSubmitEdicion) { btnSubmitEdicion.disabled = false; btnSubmitEdicion.removeAttribute('aria-busy'); }
@@ -752,18 +787,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 8. ELIMINAR EVENTO
   // ════════════════════════════════════════════════════════════════
   async function eliminarEvento(id) {
-    if (_esColaborador) { showAlertError('Los colaboradores no tienen permiso para eliminar eventos.'); return; }
+    if (localEsColaborador) { showAlertError('Los colaboradores no tienen permiso para eliminar eventos.'); return; }
     const ev = await EventosModel.getById(id);
     if (!ev) return;
     showAlertConfirm(
       'Eliminar evento',
       `¿Eliminar el evento "${ev.titulo}"? Esta acción no se puede deshacer.`,
-      async function() {
+      async () => {
         const res = await EventosModel.eliminar(id);
         if (!res.ok) { showAlertError(res.error); return; }
         await renderEventosPublicados();
         showAlertSuccess(`"${ev.titulo}" fue eliminado.`);
-      }
+      },
     );
   }
 
@@ -774,11 +809,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const datalistIds = ['ev-sedes-lista', 'edit-sedes-lista'];
     if (typeof SedesModel === 'undefined') return;
     const sedes = await SedesModel.getAll();
-    datalistIds.forEach(id => {
+    datalistIds.forEach((id) => {
       const dl = document.getElementById(id);
       if (!dl) return;
       dl.innerHTML = '';
-      sedes.forEach(s => {
+      sedes.forEach((s) => {
         const opt = document.createElement('option');
         opt.value = `${s.nombre} — ${s.direccion}, ${s.ciudad}`;
         dl.appendChild(opt);
@@ -788,21 +823,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // ── Plantillas ───────────────────────────────────────────────────────────
   function aplicarPlantilla(btnEl, titulo, horaInicio, horaFin) {
-    document.querySelectorAll('.ev-plantilla-btn').forEach(b => b.classList.remove('activa'));
+    document.querySelectorAll('.ev-plantilla-btn').forEach((b) => b.classList.remove('activa'));
     btnEl.classList.add('activa');
     const tituloInput = document.getElementById('ev-titulo');
-    const iniInput    = document.getElementById('ev-hora-inicio');
-    const finInput    = document.getElementById('ev-hora-fin');
+    const iniInput = document.getElementById('ev-hora-inicio');
+    const finInput = document.getElementById('ev-hora-fin');
     if (tituloInput) tituloInput.value = titulo;
-    if (iniInput)    iniInput.value    = horaInicio || '';
-    if (finInput)    finInput.value    = horaFin    || '';
+    if (iniInput) iniInput.value = horaInicio || '';
+    if (finInput) finInput.value = horaFin || '';
     actualizarPreview();
   }
 
   // ── Inicialización ───────────────────────────────────────────────────────
-  const _hoy = new Date().toISOString().split('T')[0];
-  const _fechaInput = document.getElementById('ev-fecha');
-  if (_fechaInput) _fechaInput.min = _hoy;
+  const localHoy = new Date().toISOString().split('T')[0];
+  const localFechaInput = document.getElementById('ev-fecha');
+  if (localFechaInput) localFechaInput.min = localHoy;
 
   [['ev-titulo', 150], ['ev-ubicacion', 150], ['ev-asistentes', 50]].forEach(([id, max]) => {
     const el = document.getElementById(id); if (el) el.maxLength = max;
@@ -811,18 +846,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ── Wiring de eventos (antes manejadores inline on*= en el HTML) ─────────
   if (form) form.addEventListener('submit', submitEvent);
 
-  document.querySelectorAll('.ev-plantilla-btn').forEach(btn => {
-    btn.addEventListener('click', function () {
+  document.querySelectorAll('.ev-plantilla-btn').forEach((btn) => {
+    btn.addEventListener('click', function alHacerClic() {
       aplicarPlantilla(this, this.dataset.titulo, this.dataset.inicio, this.dataset.fin);
     });
   });
 
-  const _previewInputIds = ['ev-titulo', 'ev-hora-inicio', 'ev-hora-fin', 'ev-ubicacion', 'ev-asistentes', 'ev-voluntarios', 'ev-descripcion'];
-  _previewInputIds.forEach(id => {
+  const localPreviewInputIds = ['ev-titulo', 'ev-hora-inicio', 'ev-hora-fin', 'ev-ubicacion', 'ev-asistentes', 'ev-voluntarios', 'ev-descripcion'];
+  localPreviewInputIds.forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('input', actualizarPreview);
   });
-  if (_fechaInput) _fechaInput.addEventListener('change', actualizarPreview);
+  if (localFechaInput) localFechaInput.addEventListener('change', actualizarPreview);
 
   const modalVerEl = document.getElementById('modal-ver-evento');
   if (modalVerEl) {
@@ -844,7 +879,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // datalist de sedes, lista de eventos publicados) y ninguna lee el
     // resultado de otra — renderEventosPublicados() usa ev.recursos/
     // ev.especialistas ya embebidos en la respuesta de EventosModel.getAll(),
-    // no _recursosCache/_especialistasCache. Se piden en paralelo en vez de
+    // no localRecursosCache/localEspecialistasCache. Se piden en paralelo en vez de
     // en serie para no sumar sus latencias. allSettled: cada función ya
     // resuelve sus propios errores internamente (los modelos devuelven []
     // ante fallo), así que ninguna debería rechazar, pero se usa allSettled
@@ -853,7 +888,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       cargarRecursos(),
       cargarEspecialistas(),
       cargarSedes(),
-      renderEventosPublicados()
+      renderEventosPublicados(),
     ]);
     actualizarContador();
     actualizarContadorEspecialistas();
@@ -865,18 +900,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   function actualizarPreview() {
     const previewCol = document.getElementById('ev-preview-col');
     if (!previewCol) return;
-    const titulo      = document.getElementById('ev-titulo')?.value.trim() || '';
-    const fecha       = document.getElementById('ev-fecha')?.value || '';
-    const horaInicio  = document.getElementById('ev-hora-inicio')?.value || '';
-    const horaFin     = document.getElementById('ev-hora-fin')?.value || '';
-    const ubicacion   = document.getElementById('ev-ubicacion')?.value.trim() || '';
-    const asistentes  = document.getElementById('ev-asistentes')?.value.trim() || '';
+    const titulo = document.getElementById('ev-titulo')?.value.trim() || '';
+    const fecha = document.getElementById('ev-fecha')?.value || '';
+    const horaInicio = document.getElementById('ev-hora-inicio')?.value || '';
+    const horaFin = document.getElementById('ev-hora-fin')?.value || '';
+    const ubicacion = document.getElementById('ev-ubicacion')?.value.trim() || '';
+    const asistentes = document.getElementById('ev-asistentes')?.value.trim() || '';
     const voluntarios = document.getElementById('ev-voluntarios')?.value || '';
     const descripcion = document.getElementById('ev-descripcion')?.value.trim() || '';
 
-    const horario  = BSPHorario.combinar(horaInicio, horaFin);
-    const empty    = document.getElementById('ev-preview-empty');
-    const content  = document.getElementById('ev-preview-content');
+    const horario = BSPHorario.combinar(horaInicio, horaFin);
+    const empty = document.getElementById('ev-preview-empty');
+    const content = document.getElementById('ev-preview-content');
     const hayDatos = titulo || fecha || horario || ubicacion;
 
     if (hayDatos) previewCol.classList.add('ev-preview-col--visible');
@@ -887,26 +922,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (fecha) {
       const [y, m, d] = fecha.split('-');
-      const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-      document.getElementById('prev-ev-fecha').textContent = `${parseInt(d)} ${meses[parseInt(m)-1]} ${y}`;
+      const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+      document.getElementById('prev-ev-fecha').textContent = `${parseInt(d, 10)} ${meses[parseInt(m, 10) - 1]} ${y}`;
       document.getElementById('prev-row-fecha').style.display = 'flex';
     } else { document.getElementById('prev-row-fecha').style.display = 'none'; }
 
-    if (horario) { document.getElementById('prev-ev-horario').textContent = horario; document.getElementById('prev-row-horario').style.display = 'flex'; }
-    else { document.getElementById('prev-row-horario').style.display = 'none'; }
+    if (horario) { document.getElementById('prev-ev-horario').textContent = horario; document.getElementById('prev-row-horario').style.display = 'flex'; } else { document.getElementById('prev-row-horario').style.display = 'none'; }
 
-    if (ubicacion) { document.getElementById('prev-ev-ubicacion').textContent = ubicacion; document.getElementById('prev-row-ubicacion').style.display = 'flex'; }
-    else { document.getElementById('prev-row-ubicacion').style.display = 'none'; }
+    if (ubicacion) { document.getElementById('prev-ev-ubicacion').textContent = ubicacion; document.getElementById('prev-row-ubicacion').style.display = 'flex'; } else { document.getElementById('prev-row-ubicacion').style.display = 'none'; }
 
-    if (asistentes) { document.getElementById('prev-ev-asistentes').textContent = `${asistentes} asistentes esperados`; document.getElementById('prev-row-asistentes').style.display = 'flex'; }
-    else { document.getElementById('prev-row-asistentes').style.display = 'none'; }
+    if (asistentes) { document.getElementById('prev-ev-asistentes').textContent = `${asistentes} asistentes esperados`; document.getElementById('prev-row-asistentes').style.display = 'flex'; } else { document.getElementById('prev-row-asistentes').style.display = 'none'; }
 
-    if (voluntarios && parseInt(voluntarios) > 0) { document.getElementById('prev-ev-voluntarios').textContent = `${voluntarios} voluntario(s) necesario(s)`; document.getElementById('prev-row-voluntarios').style.display = 'flex'; }
-    else { document.getElementById('prev-row-voluntarios').style.display = 'none'; }
+    if (voluntarios && parseInt(voluntarios, 10) > 0) { document.getElementById('prev-ev-voluntarios').textContent = `${voluntarios} voluntario(s) necesario(s)`; document.getElementById('prev-row-voluntarios').style.display = 'flex'; } else { document.getElementById('prev-row-voluntarios').style.display = 'none'; }
 
     const descEl = document.getElementById('prev-ev-desc');
-    if (descripcion) { descEl.textContent = descripcion; descEl.style.display = 'block'; }
-    else { descEl.style.display = 'none'; }
+    if (descripcion) { descEl.textContent = descripcion; descEl.style.display = 'block'; } else { descEl.style.display = 'none'; }
   }
 
   actualizarPreview();

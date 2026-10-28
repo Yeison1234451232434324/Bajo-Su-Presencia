@@ -1,3 +1,5 @@
+/* global DB */
+/* exported RecursosModel */
 /**
  * ============================================================
  * MODELO: recursos.model.js  (Supabase)
@@ -13,73 +15,80 @@
  */
 
 const RecursosModel = (() => {
-
   const TABLA = 'recursos';
   const PUENTE = 'evento_recursos';
-  // Columnas realmente usadas por _fromRow — evita traer filas completas.
+  // Columnas realmente usadas por localFromRow — evita traer filas completas.
   const SEL = 'id, nombre, categoria, descripcion, cantidad, unidad, disponible, creado_en';
 
-  function _fromRow(r) {
+  function localFromRow(r) {
     return {
-      id:          r.id,
-      nombre:      r.nombre || '',
-      categoria:   r.categoria || '',
+      id: r.id,
+      nombre: r.nombre || '',
+      categoria: r.categoria || '',
       descripcion: r.descripcion || '',
-      cantidad:    r.cantidad ?? 0,
-      unidad:      r.unidad || 'unidades',
-      disponible:  r.disponible !== false,
-      creado:      (r.creado_en || '').toString().slice(0, 10)
+      cantidad: r.cantidad ?? 0,
+      unidad: r.unidad || 'unidades',
+      disponible: r.disponible !== false,
+      creado: (r.creado_en || '').toString().slice(0, 10),
     };
   }
 
   // Traducción de errores centralizada en db.client.js (window.DB.mensajeError).
   // El código 23505 (nombre duplicado) lleva mensaje propio de esta tabla.
-  function _msg(error) {
-    return DB.mensajeError(error, { '23505': 'Ya existe un recurso con ese nombre.' });
+  function localMsg(error) {
+    return DB.mensajeError(error, { 23505: 'Ya existe un recurso con ese nombre.' });
   }
 
   // ── Inventario ─────────────────────────────────────────────────────────────
   async function getAll() {
     const { data, error } = await DB.from(TABLA).select(SEL).order('nombre', { ascending: true });
-    if (error) { (window.BSPLog ? window.BSPLog.error('RecursosModel.getAll', error) : console.error('RecursosModel.getAll')); return []; }
-    return (data || []).map(_fromRow);
+    if (error) {
+      if (window.BSPLog) {
+        window.BSPLog.error('RecursosModel.getAll', error);
+      } else {
+        console.error('RecursosModel.getAll');
+      }
+      return [];
+    }
+    return (data || []).map(localFromRow);
   }
 
   async function getById(id) {
     const { data, error } = await DB.from(TABLA).select(SEL).eq('id', id).single();
     if (error || !data) return null;
-    return _fromRow(data);
+    return localFromRow(data);
   }
 
   async function crear(data) {
     if (!data.nombre?.trim()) return { ok: false, error: 'El nombre es obligatorio.' };
-    if (data.cantidad < 0)    return { ok: false, error: 'La cantidad no puede ser negativa.' };
+    if (data.cantidad < 0) return { ok: false, error: 'La cantidad no puede ser negativa.' };
 
     const fila = {
-      nombre:      data.nombre.trim(),
-      categoria:   data.categoria,
+      nombre: data.nombre.trim(),
+      categoria: data.categoria,
       descripcion: data.descripcion?.trim() || null,
-      cantidad:    parseInt(data.cantidad) || 0,
-      unidad:      data.unidad?.trim() || 'unidades',
-      disponible:  true
+      cantidad: parseInt(data.cantidad, 10) || 0,
+      unidad: data.unidad?.trim() || 'unidades',
+      disponible: true,
     };
     const { data: ins, error } = await DB.from(TABLA).insert(fila).select().single();
-    if (error) return { ok: false, error: _msg(error) };
-    return { ok: true, recurso: _fromRow(ins) };
+    if (error) return { ok: false, error: localMsg(error) };
+    return { ok: true, recurso: localFromRow(ins) };
   }
 
   async function actualizar(id, data) {
     if (data.cantidad < 0) return { ok: false, error: 'La cantidad no puede ser negativa.' };
     const fila = {
-      nombre:      data.nombre.trim(),
-      categoria:   data.categoria,
+      nombre: data.nombre.trim(),
+      categoria: data.categoria,
       descripcion: data.descripcion?.trim() || null,
-      cantidad:    parseInt(data.cantidad) || 0,
-      unidad:      data.unidad?.trim() || 'unidades'
+      cantidad: parseInt(data.cantidad, 10) || 0,
+      unidad: data.unidad?.trim() || 'unidades',
     };
-    const { data: upd, error } = await DB.from(TABLA).update(fila).eq('id', id).select().single();
-    if (error) return { ok: false, error: _msg(error) };
-    return { ok: true, recurso: _fromRow(upd) };
+    const { data: upd, error } = await DB.from(TABLA).update(fila).eq('id', id).select()
+      .single();
+    if (error) return { ok: false, error: localMsg(error) };
+    return { ok: true, recurso: localFromRow(upd) };
   }
 
   async function toggleDisponible(id) {
@@ -90,24 +99,24 @@ const RecursosModel = (() => {
     }
     const nuevo = !r.disponible;
     const { error } = await DB.from(TABLA).update({ disponible: nuevo }).eq('id', id);
-    if (error) return { ok: false, error: _msg(error) };
+    if (error) return { ok: false, error: localMsg(error) };
     return { ok: true, disponible: nuevo };
   }
 
   async function eliminar(id) {
     // La FK con ON DELETE CASCADE limpia evento_recursos automáticamente
     const { error } = await DB.from(TABLA).delete().eq('id', id);
-    if (error) return { ok: false, error: _msg(error) };
+    if (error) return { ok: false, error: localMsg(error) };
     return { ok: true };
   }
 
   async function getEstadisticas() {
     const recursos = await getAll();
     return {
-      total:         recursos.length,
-      disponibles:   recursos.filter(r => r.disponible).length,
-      noDisponibles: recursos.filter(r => !r.disponible).length,
-      sinStock:      recursos.filter(r => r.cantidad === 0).length
+      total: recursos.length,
+      disponibles: recursos.filter((r) => r.disponible).length,
+      noDisponibles: recursos.filter((r) => !r.disponible).length,
+      sinStock: recursos.filter((r) => r.cantidad === 0).length,
     };
   }
 
@@ -117,49 +126,64 @@ const RecursosModel = (() => {
       .from(PUENTE)
       .select('id, recurso_id, cantidad, recursos(nombre, unidad)')
       .eq('evento_id', eventoId);
-    if (error) { (window.BSPLog ? window.BSPLog.error('getAsignacionesPorEvento', error) : console.error('getAsignacionesPorEvento')); return []; }
-    return (data || []).map(a => ({
-      id:            a.id,
-      eventoId:      eventoId,
-      recursoId:     a.recurso_id,
+    if (error) {
+      if (window.BSPLog) {
+        window.BSPLog.error('getAsignacionesPorEvento', error);
+      } else {
+        console.error('getAsignacionesPorEvento');
+      }
+      return [];
+    }
+    return (data || []).map((a) => ({
+      id: a.id,
+      eventoId,
+      recursoId: a.recurso_id,
       recursoNombre: a.recursos?.nombre || '',
-      unidad:        a.recursos?.unidad || 'unidades',
-      cantidad:      a.cantidad
+      unidad: a.recursos?.unidad || 'unidades',
+      cantidad: a.cantidad,
     }));
   }
 
   async function asignarRecurso(data) {
     const recurso = await getById(data.recursoId);
-    if (!recurso)            return { ok: false, error: 'Recurso no encontrado.' };
+    if (!recurso) return { ok: false, error: 'Recurso no encontrado.' };
     if (!recurso.disponible) return { ok: false, error: 'El recurso no está disponible.' };
-    if (data.cantidad < 1)   return { ok: false, error: 'La cantidad debe ser al menos 1.' };
+    if (data.cantidad < 1) return { ok: false, error: 'La cantidad debe ser al menos 1.' };
     if (data.cantidad > recurso.cantidad) {
       return { ok: false, error: `Solo hay ${recurso.cantidad} ${recurso.unidad} disponibles.` };
     }
     // upsert por (evento_id, recurso_id)
     const { data: ya } = await DB.from(PUENTE).select('id')
-      .eq('evento_id', data.eventoId).eq('recurso_id', data.recursoId).maybeSingle();
+      .eq('evento_id', data.eventoId).eq('recurso_id', data.recursoId)
+      .maybeSingle();
     let error;
     if (ya) {
-      ({ error } = await DB.from(PUENTE).update({ cantidad: parseInt(data.cantidad) }).eq('id', ya.id));
+      ({ error } = await DB.from(PUENTE).update({ cantidad: parseInt(data.cantidad, 10) }).eq('id', ya.id));
     } else {
       ({ error } = await DB.from(PUENTE).insert({
-        evento_id: data.eventoId, recurso_id: data.recursoId, cantidad: parseInt(data.cantidad)
+        evento_id: data.eventoId, recurso_id: data.recursoId, cantidad: parseInt(data.cantidad, 10),
       }));
     }
-    if (error) return { ok: false, error: _msg(error) };
+    if (error) return { ok: false, error: localMsg(error) };
     return { ok: true };
   }
 
   async function quitarAsignacion(eventoId, recursoId) {
     const { error } = await DB.from(PUENTE).delete().eq('evento_id', eventoId).eq('recurso_id', recursoId);
-    if (error) return { ok: false, error: _msg(error) };
+    if (error) return { ok: false, error: localMsg(error) };
     return { ok: true };
   }
 
   return {
-    getAll, getById, crear, actualizar, toggleDisponible, eliminar, getEstadisticas,
-    getAsignacionesPorEvento, asignarRecurso, quitarAsignacion
+    getAll,
+    getById,
+    crear,
+    actualizar,
+    toggleDisponible,
+    eliminar,
+    getEstadisticas,
+    getAsignacionesPorEvento,
+    asignarRecurso,
+    quitarAsignacion,
   };
-
 })();

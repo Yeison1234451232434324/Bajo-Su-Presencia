@@ -1,3 +1,4 @@
+/* global sb, showAlertError */
 /**
  * ============================================================
  * AUTH CONTROLLER — Login vía backend PHP (+ sesión Supabase)
@@ -14,9 +15,9 @@
  */
 
 const RUTAS_POR_ROL = {
-  'Administrador': '../../dashboard/admin/dashboard.html',
-  'Colaborador':   '../../dashboard/colaborador/eventos.html',
-  'Voluntario':    '../../dashboard/voluntario/calificaciones.html'
+  Administrador: '../../dashboard/admin/dashboard.html',
+  Colaborador: '../../dashboard/colaborador/eventos.html',
+  Voluntario: '../../dashboard/voluntario/calificaciones.html',
 };
 
 /**
@@ -48,12 +49,12 @@ const RECORDAR_KEY = 'bspRecordarLogin';
     const guardado = JSON.parse(localStorage.getItem(RECORDAR_KEY) || 'null');
     if (!guardado) return;
     document.getElementById('username').value = guardado.usuario || '';
-    document.getElementById('email').value    = guardado.correo  || '';
+    document.getElementById('email').value = guardado.correo || '';
     document.getElementById('recordar').checked = true;
   } catch (_) { /* dato corrupto: se ignora, no rompe el login */ }
-})();
+}());
 
-document.getElementById('loginForm').addEventListener('submit', async function (e) {
+document.getElementById('loginForm').addEventListener('submit', async function alEnviarLogin(e) {
   e.preventDefault();
 
   // Un solo inicio de sesión en vuelo a la vez.
@@ -77,9 +78,9 @@ document.getElementById('loginForm').addEventListener('submit', async function (
     }
   };
 
-  const userVal  = document.getElementById('username').value.trim();
+  const userVal = document.getElementById('username').value.trim();
   const emailVal = document.getElementById('email').value.trim();
-  const pass     = document.getElementById('password').value.trim();
+  const pass = document.getElementById('password').value.trim();
 
   if (!window.API_BASE) {
     showAlertError('Configuración del servidor ausente. Recarga la página e intenta de nuevo.');
@@ -93,12 +94,13 @@ document.getElementById('loginForm').addEventListener('submit', async function (
   }
 
   // ── 1. Autenticar contra el backend PHP (usuario + correo + contraseña) ──
-  let res, body;
+  let res; let
+    body;
   try {
     res = await fetch(`${window.API_BASE}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ usuario: userVal, correo: emailVal, contrasena: pass })
+      body: JSON.stringify({ usuario: userVal, correo: emailVal, contrasena: pass }),
     });
     body = await res.json();
   } catch (err) {
@@ -123,17 +125,17 @@ document.getElementById('loginForm').addEventListener('submit', async function (
       window.bspAuth.setToken(token.access_token);
       if (supabase?.refresh_token) localStorage.setItem('bspRefresh', supabase.refresh_token);
     }
-  } catch (e) { console.warn('[login] no se pudo guardar el token', e); }
+  } catch (errToken) { console.warn('[login] no se pudo guardar el token', errToken); }
 
   // ── 2b. Fijar la sesión de Supabase (NO bloquea el login: tope 1.5 s) ────
   if (typeof sb !== 'undefined' && supabase?.access_token && supabase?.refresh_token) {
     try {
       await Promise.race([
         sb.auth.setSession({
-          access_token:  supabase.access_token,
-          refresh_token: supabase.refresh_token
+          access_token: supabase.access_token,
+          refresh_token: supabase.refresh_token,
         }),
-        new Promise((r) => setTimeout(r, 1500)) // si se cuelga, seguimos igual
+        new Promise((r) => { setTimeout(r, 1500); }), // si se cuelga, seguimos igual
       ]);
     } catch (_) { /* sesión complementaria; no aborta el login */ }
   }

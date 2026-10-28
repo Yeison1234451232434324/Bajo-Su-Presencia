@@ -1,4 +1,6 @@
-﻿/**
+/* global BSPDataTable, BSPModal, BSPVal, NoticiasModel, showAlertConfirm,
+   showAlertError, showAlertSuccess */
+/**
  * ============================================================
  * CONTROLADOR: noticias.controller.js
  * ============================================================
@@ -16,43 +18,47 @@
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
-
   // Control de acceso verificado contra el SERVIDOR (rol tomado del JWT).
   // Unifica el criterio con el resto del panel: antes esta vista solo
   // dependía de localStorage, que el usuario puede editar.
-  const sesion = await window.BSPSession.exigir(['Administrador','Colaborador']);
+  const sesion = await window.BSPSession.exigir(['Administrador', 'Colaborador']);
   if (!sesion) return;
 
   /** Escapa datos de usuario antes de insertarlos con innerHTML (anti-XSS). */
   const esc = (v) => (window.BSPVal?.escapeHtml
     ? window.BSPVal.escapeHtml(String(v ?? ''))
-    : String(v ?? '').replace(/[&<>"'`/]/g, c => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;',
-        '"': '&quot;', "'": '&#39;', '/': '&#x2F;', '`': '&#x60;'
-      }[c])));
+    : String(v ?? '').replace(/[&<>"'`/]/g, (c) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+      '/': '&#x2F;',
+      '`': '&#x60;',
+    }[c])));
 
   // ── Referencias DOM del formulario ──────────────────────────────────────
-  const form         = document.getElementById('form-noticia');
-  const inpTitulo    = document.getElementById('news-titulo');
-  const inpResumen   = document.getElementById('news-resumen');
+  const form = document.getElementById('form-noticia');
+  const inpTitulo = document.getElementById('news-titulo');
+  const inpResumen = document.getElementById('news-resumen');
   const inpContenido = document.getElementById('news-contenido');
-  const inpAutor     = document.getElementById('news-autor');
-  const inpFecha     = document.getElementById('news-fecha');
-  const inpImagen    = document.getElementById('news-imagen');
-  const btnSubmit    = document.getElementById('btn-submit-noticia');
+  const inpAutor = document.getElementById('news-autor');
+  const inpFecha = document.getElementById('news-fecha');
+  const inpImagen = document.getElementById('news-imagen');
+  const btnSubmit = document.getElementById('btn-submit-noticia');
 
   // Filtra dígitos mientras se escribe (antes oninput= inline en el HTML).
-  inpAutor?.addEventListener('input', function () { this.value = this.value.replace(/[0-9]/g, ''); });
-  const btnCancelar  = document.getElementById('btn-cancelar-noticia');
+  inpAutor?.addEventListener('input', function soloLetras() { this.value = this.value.replace(/[0-9]/g, ''); });
+  const btnCancelar = document.getElementById('btn-cancelar-noticia');
 
   // Referencias DOM de la vista previa
-  const previewBox      = document.getElementById('news-preview-box');
-  const prevImg         = document.getElementById('prev-img');
-  const prevImgWrap     = document.getElementById('prev-img-wrap');
-  const prevTitulo      = document.getElementById('prev-titulo');
-  const prevResumen     = document.getElementById('prev-resumen');
-  const prevAutor       = document.getElementById('prev-autor');
-  const prevFecha       = document.getElementById('prev-fecha');
+  const previewBox = document.getElementById('news-preview-box');
+  const prevImg = document.getElementById('prev-img');
+  const prevImgWrap = document.getElementById('prev-img-wrap');
+  const prevTitulo = document.getElementById('prev-titulo');
+  const prevResumen = document.getElementById('prev-resumen');
+  const prevAutor = document.getElementById('prev-autor');
+  const prevFecha = document.getElementById('prev-fecha');
 
   // ID de la noticia que se está editando (null = modo crear)
   let editandoId = null;
@@ -61,18 +67,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   let enviandoNoticia = false;
 
   // ── Rol del usuario activo ────────────────────────────────────────────────
-  const _sesion = JSON.parse(localStorage.getItem('usuarioLogueado') || '{}');
-  const _esColaborador = (_sesion.rol || '') === 'Colaborador';
+  const localSesion = JSON.parse(localStorage.getItem('usuarioLogueado') || '{}');
+  const localEsColaborador = (localSesion.rol || '') === 'Colaborador';
 
   // ── Nombre del usuario logueado (para pre-llenar el campo Autor) ──────────
   // La sesión ya guarda el nombre completo (auth.controller lo toma del perfil).
-  let autorActual = _sesion.nombre || '';
+  const autorActual = localSesion.nombre || '';
   // Auto-llenar el campo Autor al cargar la página
   if (inpAutor && autorActual) inpAutor.value = autorActual;
 
   // ── Helpers de validación DOM (delegados a BSPVal) ──────────────────────
-  const _err = (id, msg) => BSPVal._err(id, msg);
-  const _ok  = (...ids)  => BSPVal._ok(...ids);
+  const localErr = (id, msg) => BSPVal.localErr(id, msg);
+  const localOk = (...ids) => BSPVal.localOk(...ids);
 
   // ════════════════════════════════════════════════════════════════
   // 1. VISTA PREVIA EN TIEMPO REAL
@@ -83,11 +89,11 @@ document.addEventListener('DOMContentLoaded', async () => {
    * escribe en cualquier campo del formulario.
    */
   function actualizarPreview() {
-    const titulo  = inpTitulo.value.trim();
+    const titulo = inpTitulo.value.trim();
     const resumen = inpResumen.value.trim();
-    const autor   = inpAutor.value.trim();
-    const fechaV  = inpFecha.value;
-    const imagen  = inpImagen.value.trim();
+    const autor = inpAutor.value.trim();
+    const fechaV = inpFecha.value;
+    const imagen = inpImagen.value.trim();
 
     // Mostrar la vista previa solo si hay al menos título o resumen
     if (!titulo && !resumen) {
@@ -100,18 +106,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     prevTitulo.textContent = titulo || 'Título de la noticia';
 
     // Resumen (truncado a 120 caracteres en la preview)
-    prevResumen.textContent = resumen
-      ? (resumen.length > 120 ? resumen.substring(0, 120) + '…' : resumen)
-      : 'El resumen aparecerá aquí…';
+    const resumenCorto = resumen && resumen.length > 120 ? `${resumen.substring(0, 120)}…` : resumen;
+    prevResumen.textContent = resumenCorto || 'El resumen aparecerá aquí…';
 
     // Autor
     prevAutor.textContent = autor ? `👤 ${autor}` : '👤 Autor';
 
     // Fecha formateada
     if (fechaV) {
-      const d = new Date(fechaV + 'T00:00:00');
+      const d = new Date(`${fechaV}T00:00:00`);
       prevFecha.textContent = `📅 ${d.toLocaleDateString('es-ES', {
-        day: 'numeric', month: 'short', year: 'numeric'
+        day: 'numeric', month: 'short', year: 'numeric',
       })}`;
     } else {
       prevFecha.textContent = '📅 Fecha';
@@ -119,7 +124,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Imagen
     if (imagen) {
-      prevImg.src               = imagen;
+      prevImg.src = imagen;
       prevImgWrap.style.display = 'block';
       // Si la imagen falla, ocultarla
       prevImg.onerror = () => { prevImgWrap.style.display = 'none'; };
@@ -130,7 +135,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Escuchar cambios en todos los campos del formulario
   [inpTitulo, inpResumen, inpContenido, inpAutor, inpFecha, inpImagen]
-    .forEach(el => el.addEventListener('input', actualizarPreview));
+    .forEach((el) => el.addEventListener('input', actualizarPreview));
 
   // ════════════════════════════════════════════════════════════════
   // 2. PUBLICAR / ACTUALIZAR NOTICIA
@@ -141,51 +146,55 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (enviandoNoticia) return;
 
     /* Leer y limpiar todos los valores antes de validar */
-    const titulo    = BSPVal.cleanText(inpTitulo.value);
-    const resumen   = BSPVal.cleanText(inpResumen.value);
+    const titulo = BSPVal.cleanText(inpTitulo.value);
+    const resumen = BSPVal.cleanText(inpResumen.value);
     const contenido = inpContenido.value.trim();
-    const autor     = BSPVal.cleanText(inpAutor.value);
-    const fechaVal  = inpFecha.value;
+    const autor = BSPVal.cleanText(inpAutor.value);
+    const fechaVal = inpFecha.value;
     const imagenUrl = inpImagen.value.trim();
 
     // ── Limpiar estado previo ─────────────────────────────────────────────
-    _ok('news-titulo','news-resumen','news-contenido','news-autor','news-fecha','news-imagen');
+    localOk('news-titulo', 'news-resumen', 'news-contenido', 'news-autor', 'news-fecha', 'news-imagen');
     let valido = true;
     let err;
 
     /* Título: mínimo 3, máximo 150, debe iniciar con letra */
-    err = BSPVal.txt(titulo, { min: 3, max: 150, label: 'El título', iniciaLetra: true });
-    if (err) { _err('news-titulo', err); valido = false; }
+    err = BSPVal.txt(titulo, {
+      min: 3, max: 150, label: 'El título', iniciaLetra: true,
+    });
+    if (err) { localErr('news-titulo', err); valido = false; }
 
     /* Resumen: mínimo 10, máximo 400 */
     err = BSPVal.txt(resumen, { min: 10, max: 400, label: 'El resumen' });
-    if (err) { _err('news-resumen', err); valido = false; }
+    if (err) { localErr('news-resumen', err); valido = false; }
 
     /* Contenido: opcional pero si se escribe mínimo 20, máximo 10000 */
     if (contenido && contenido.length > 0) {
       err = BSPVal.txt(contenido, { min: 20, max: 10000, label: 'El contenido' });
-      if (err) { _err('news-contenido', err); valido = false; }
+      if (err) { localErr('news-contenido', err); valido = false; }
     }
 
     /* Autor: solo letras, mínimo 2, máximo 100 */
     err = BSPVal.txt(autor, { min: 2, max: 100, label: 'El autor' });
     if (!err) err = BSPVal.soloLetras(autor, { label: 'El autor' });
-    if (err) { _err('news-autor', err); valido = false; }
+    if (err) { localErr('news-autor', err); valido = false; }
 
     /* Fecha: no puede ser anterior a hoy (noticia con fecha pasada no tiene sentido) */
-    const _hoyNews = new Date().toISOString().split('T')[0];
-    err = BSPVal.fecha(fechaVal, { minDate: _hoyNews, label: 'La fecha de publicación' });
-    if (err) { _err('news-fecha', err); valido = false; }
+    const localHoyNews = new Date().toISOString().split('T')[0];
+    err = BSPVal.fecha(fechaVal, { minDate: localHoyNews, label: 'La fecha de publicación' });
+    if (err) { localErr('news-fecha', err); valido = false; }
 
     /* Imagen: URL válida si se proporciona (campo opcional) */
     err = BSPVal.url(imagenUrl, { required: false, label: 'La URL de imagen' });
-    if (err) { _err('news-imagen', err); valido = false; }
+    if (err) { localErr('news-imagen', err); valido = false; }
 
     if (!valido) return;
     // ─────────────────────────────────────────────────────────────────────
 
     /* Datos limpios — nunca usar .value directamente aquí */
-    const data = { titulo, resumen, contenido, autor, fechaISO: fechaVal, imagen: imagenUrl };
+    const data = {
+      titulo, resumen, contenido, autor, fechaISO: fechaVal, imagen: imagenUrl,
+    };
 
     enviandoNoticia = true;
     if (btnSubmit) { btnSubmit.disabled = true; btnSubmit.setAttribute('aria-busy', 'true'); }
@@ -214,7 +223,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await renderHistorial();
 
     showAlertSuccess(
-      `"${resultado.noticia.titulo}" fue ${accion} correctamente.`
+      `"${resultado.noticia.titulo}" fue ${accion} correctamente.`,
     );
 
     editandoId = null;
@@ -236,12 +245,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     editandoId = id;
 
-    inpTitulo.value    = noticia.titulo;
-    inpResumen.value   = noticia.resumen;
+    inpTitulo.value = noticia.titulo;
+    inpResumen.value = noticia.resumen;
     inpContenido.value = noticia.contenido;
-    inpAutor.value     = noticia.autor;
-    inpFecha.value     = noticia.fechaISO;
-    inpImagen.value    = noticia.imagen;
+    inpAutor.value = noticia.autor;
+    inpFecha.value = noticia.fechaISO;
+    inpImagen.value = noticia.imagen;
 
     // Actualizar vista previa con los datos cargados
     actualizarPreview();
@@ -272,14 +281,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ════════════════════════════════════════════════════════════════
 
   async function eliminarNoticia(id) {
-    if (_esColaborador) { showAlertError('Los colaboradores no tienen permiso para eliminar noticias.'); return; }
+    if (localEsColaborador) { showAlertError('Los colaboradores no tienen permiso para eliminar noticias.'); return; }
     const noticia = await NoticiasModel.getById(id);
     if (!noticia) return;
 
     showAlertConfirm(
       'Eliminar noticia',
       `¿Eliminar la noticia "${noticia.titulo}"? Esta acción no se puede deshacer.`,
-      async function() {
+      async () => {
         // Si se estaba editando esta noticia, limpiar el formulario
         if (editandoId === id) {
           limpiarFormulario();
@@ -290,7 +299,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!res.ok) { showAlertError(res.error); return; }
         await renderHistorial();
         showAlertSuccess(`"${noticia.titulo}" fue eliminada del historial.`);
-      }
+      },
     );
   }
 
@@ -312,16 +321,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       modalImgWrap.style.display = 'none';
     }
 
-    document.getElementById('modal-noticia-titulo').textContent   = noticia.titulo;
-    document.getElementById('modal-noticia-meta').innerHTML       =
-      `📅 ${esc(noticia.fecha)} &nbsp;·&nbsp; 👤 ${esc(noticia.autor)}`;
-    document.getElementById('modal-noticia-resumen').textContent  = noticia.resumen;
-    document.getElementById('modal-noticia-contenido').textContent =
-      noticia.contenido || 'Sin contenido adicional.';
+    document.getElementById('modal-noticia-titulo').textContent = noticia.titulo;
+    document.getElementById('modal-noticia-meta').innerHTML = `📅 ${esc(noticia.fecha)} &nbsp;·&nbsp; 👤 ${esc(noticia.autor)}`;
+    document.getElementById('modal-noticia-resumen').textContent = noticia.resumen;
+    document.getElementById('modal-noticia-contenido').textContent = noticia.contenido || 'Sin contenido adicional.';
 
     BSPModal.abrir({
       overlay: document.getElementById('modal-overlay-noticia'),
-      modal:   document.getElementById('modal-ver-noticia')
+      modal: document.getElementById('modal-ver-noticia'),
     });
   }
 
@@ -332,7 +339,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   function cerrarModal() {
     BSPModal.cerrar({
       overlay: document.getElementById('modal-overlay-noticia'),
-      modal:   document.getElementById('modal-ver-noticia')
+      modal: document.getElementById('modal-ver-noticia'),
     });
   }
 
@@ -346,21 +353,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     const noticias = await NoticiasModel.getAll();
 
     // Extraer autores únicos para el filtro
-    const autores = [...new Set(noticias.map(n => n.autor).filter(Boolean))].sort();
+    const autores = [...new Set(noticias.map((n) => n.autor).filter(Boolean))].sort();
 
     function renderCard(noticia) {
       const resumenCorto = noticia.resumen.length > 110
-        ? noticia.resumen.substring(0, 110) + '…'
+        ? `${noticia.resumen.substring(0, 110)}…`
         : noticia.resumen;
 
       return `
         <div class="nt-card" id="nt-card-${noticia.id}">
           ${noticia.imagen
-            ? `<div class="nt-card-img-wrap">
+    ? `<div class="nt-card-img-wrap">
                  <img src="${esc(noticia.imagen)}" alt="${esc(noticia.titulo)}" class="nt-card-img" />
                  <div class="nt-card-img-fade"></div>
                </div>`
-            : `<div class="nt-card-img-placeholder"><i class="bx bx-news" aria-hidden="true"></i></div>`}
+    : '<div class="nt-card-img-placeholder"><i class="bx bx-news" aria-hidden="true"></i></div>'}
           <div class="nt-card-body">
             <div class="nt-card-header">
               <h4 class="nt-card-titulo">${esc(noticia.titulo)}</h4>
@@ -373,7 +380,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                   data-action="editar-noticia" data-id="${noticia.id}" title="Editar noticia">
                   <i class="bx bx-edit" aria-hidden="true"></i>
                 </button>
-                ${!_esColaborador ? `
+                ${!localEsColaborador ? `
                 <button class="btn-accion-nt btn-eliminar-nt"
                   data-action="eliminar-noticia" data-id="${noticia.id}" title="Eliminar noticia">
                   <i class="bx bx-trash" aria-hidden="true"></i>
@@ -391,29 +398,31 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (!dtNoticias) {
       dtNoticias = new BSPDataTable({
-        containerId:  'lista-noticias',
-        data:         noticias,
-        pageSize:     6,
+        containerId: 'lista-noticias',
+        data: noticias,
+        pageSize: 6,
         searchFields: ['titulo', 'resumen', 'autor', 'fecha'],
         filters: [
-          { key: 'autor',    label: 'Autor',   type: 'select', options: autores },
-          { key: 'fechaISO', label: 'Desde',   type: 'date-from' },
-          { key: 'fechaISO', label: 'Hasta',   type: 'date-to' },
+          {
+            key: 'autor', label: 'Autor', type: 'select', options: autores,
+          },
+          { key: 'fechaISO', label: 'Desde', type: 'date-from' },
+          { key: 'fechaISO', label: 'Hasta', type: 'date-to' },
         ],
-        renderRow:    renderCard,
-        exportable:   true,
-        exportName:   'noticias',
+        renderRow: renderCard,
+        exportable: true,
+        exportName: 'noticias',
         exportFields: ['titulo', 'autor', 'fecha', 'resumen'],
         exportLabels: ['Título', 'Autor', 'Fecha', 'Resumen'],
-        emptyHTML:    `<div class="dt-empty"><i class="bx bx-news" aria-hidden="true"></i><p>Aún no hay noticias publicadas.</p></div>`
+        emptyHTML: '<div class="dt-empty"><i class="bx bx-news" aria-hidden="true"></i><p>Aún no hay noticias publicadas.</p></div>',
       });
-      window.__bspDT['lista-noticias'] = dtNoticias;
+      window.bspDataTables['lista-noticias'] = dtNoticias;
       dtNoticias.init();
       const body = document.getElementById('lista-noticias-body');
       body?.addEventListener('click', (e) => {
         const btn = e.target.closest('[data-action]');
         if (!btn) return;
-        const id = btn.dataset.id;
+        const { id } = btn.dataset;
         if (btn.dataset.action === 'ver-noticia') verNoticia(id);
         else if (btn.dataset.action === 'editar-noticia') editarNoticia(id);
         else if (btn.dataset.action === 'eliminar-noticia') eliminarNoticia(id);
@@ -437,7 +446,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     form.reset();
     // Restaurar el autor del usuario logueado tras resetear el formulario
     if (inpAutor && autorActual) inpAutor.value = autorActual;
-    previewBox.style.display  = 'none';
+    previewBox.style.display = 'none';
     btnCancelar.style.display = 'none';
     btnSubmit.innerHTML = `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
@@ -450,7 +459,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // Bloquear fechas anteriores a hoy en el selector
-  if (inpFecha) inpFecha.min = new Date().toISOString().split('T')[0];
+  if (inpFecha) [inpFecha.min] = new Date().toISOString().split('T');
 
   // ── Render inicial del historial ─────────────────────────────────────────
   renderHistorial();

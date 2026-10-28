@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * FRONT CONTROLLER — único punto de entrada del sitio público y del panel.
  *
@@ -23,6 +21,8 @@ declare(strict_types=1);
  *
  * @package App\Front
  */
+
+declare(strict_types=1);
 
 // ============================================================================
 //  Constantes de ubicación

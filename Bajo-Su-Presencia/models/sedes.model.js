@@ -1,3 +1,5 @@
+/* global DB */
+/* exported SedesModel */
 /**
  * ============================================================
  * MODELO: sedes.model.js  (Supabase)
@@ -17,68 +19,75 @@
  */
 
 const SedesModel = (() => {
-
   const TABLA = 'sedes';
-  // Columnas realmente usadas por _fromRow — evita traer filas completas.
+  // Columnas realmente usadas por localFromRow — evita traer filas completas.
   const SEL = 'id, nombre, ciudad, direccion, telefono, pastor_encargado';
 
   // Convierte una fila de la BD al objeto que usa la vista
-  function _fromRow(r) {
+  function localFromRow(r) {
     return {
-      id:        r.id,
-      nombre:    r.nombre    || '',
-      ciudad:    r.ciudad    || '',
+      id: r.id,
+      nombre: r.nombre || '',
+      ciudad: r.ciudad || '',
       direccion: r.direccion || '',
-      telefono:  r.telefono  || '',
-      pastor:    r.pastor_encargado || '',
-      miembros:  0   // columna eliminada del esquema (dato derivado)
+      telefono: r.telefono || '',
+      pastor: r.pastor_encargado || '',
+      miembros: 0, // columna eliminada del esquema (dato derivado)
     };
   }
 
   // Traduce errores de Supabase a mensajes para el usuario
   // Traducción de errores centralizada en db.client.js (window.DB.mensajeError).
-  function _msg(error) { return DB.mensajeError(error); }
+  function localMsg(error) { return DB.mensajeError(error); }
 
   /** Devuelve todas las sedes (ordenadas por nombre) */
   async function getAll() {
     const { data, error } = await DB.from(TABLA).select(SEL).order('nombre', { ascending: true });
-    if (error) { (window.BSPLog ? window.BSPLog.error('SedesModel.getAll', error) : console.error('SedesModel.getAll')); return []; }
-    return (data || []).map(_fromRow);
+    if (error) {
+      if (window.BSPLog) {
+        window.BSPLog.error('SedesModel.getAll', error);
+      } else {
+        console.error('SedesModel.getAll');
+      }
+      return [];
+    }
+    return (data || []).map(localFromRow);
   }
 
   /** Devuelve una sede por id (uuid) o null */
   async function getById(id) {
     const { data, error } = await DB.from(TABLA).select(SEL).eq('id', id).single();
     if (error || !data) return null;
-    return _fromRow(data);
+    return localFromRow(data);
   }
 
   /** Crea una sede */
   async function crear(data) {
-    if (!data.nombre?.trim())    return { ok: false, error: 'El nombre es obligatorio.' };
-    if (!data.ciudad?.trim())    return { ok: false, error: 'La ciudad es obligatoria.' };
+    if (!data.nombre?.trim()) return { ok: false, error: 'El nombre es obligatorio.' };
+    if (!data.ciudad?.trim()) return { ok: false, error: 'La ciudad es obligatoria.' };
     if (!data.direccion?.trim()) return { ok: false, error: 'La dirección es obligatoria.' };
 
     const fila = {
-      nombre:           data.nombre.trim(),
-      ciudad:           data.ciudad.trim(),
-      direccion:        data.direccion.trim(),
-      telefono:         data.telefono?.trim() || null,
-      pastor_encargado: data.pastor?.trim()   || null
+      nombre: data.nombre.trim(),
+      ciudad: data.ciudad.trim(),
+      direccion: data.direccion.trim(),
+      telefono: data.telefono?.trim() || null,
+      pastor_encargado: data.pastor?.trim() || null,
     };
 
     const { data: ins, error } = await DB.from(TABLA).insert(fila).select().single();
-    if (error) return { ok: false, error: _msg(error) };
-    return { ok: true, sede: _fromRow(ins) };
+    if (error) return { ok: false, error: localMsg(error) };
+    return { ok: true, sede: localFromRow(ins) };
   }
 
   /** Elimina una sede por id (uuid) */
   async function eliminar(id) {
     const { error } = await DB.from(TABLA).delete().eq('id', id);
-    if (error) return { ok: false, error: _msg(error) };
+    if (error) return { ok: false, error: localMsg(error) };
     return { ok: true };
   }
 
-  return { getAll, getById, crear, eliminar };
-
+  return {
+    getAll, getById, crear, eliminar,
+  };
 })();

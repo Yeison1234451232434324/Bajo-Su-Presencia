@@ -48,24 +48,30 @@ return static function (Corredor $c): void {
             $c->asegurarIgual(400, $e->httpStatus());
         }
     });
-    $c->prueba('filtro id=neq.<valor> (bypass conocido) → 400, sin tocar Supabase', function (Corredor $c) use ($guard) {
-        // Este es el vector que el propio Red Team encontró: una versión
-        // anterior de este chequeo dejaba pasar id=neq.<uuid> como "sin id".
-        try {
-            $guard->assertNoResuelta('id=neq.' . bin2hex(random_bytes(8)));
-            $c->asegurarCierto(false, 'debió lanzar 400, no dejar pasar el filtro neq.');
-        } catch (ApiException $e) {
-            $c->asegurarIgual(400, $e->httpStatus());
+    $c->prueba(
+        'filtro id=neq.<valor> (bypass conocido) → 400, sin tocar Supabase',
+        function (Corredor $c) use ($guard) {
+            // Este es el vector que el propio Red Team encontró: una versión
+            // anterior de este chequeo dejaba pasar id=neq.<uuid> como "sin id".
+            try {
+                $guard->assertNoResuelta('id=neq.' . bin2hex(random_bytes(8)));
+                $c->asegurarCierto(false, 'debió lanzar 400, no dejar pasar el filtro neq.');
+            } catch (ApiException $e) {
+                $c->asegurarIgual(400, $e->httpStatus());
+            }
         }
-    });
-    $c->prueba('dos filtros distintos sobre id (id=eq.X&id=neq.Y) → 400, sin tocar Supabase', function (Corredor $c) use ($guard) {
-        try {
-            $guard->assertNoResuelta('id=eq.abc&id=neq.def');
-            $c->asegurarCierto(false, 'debió lanzar');
-        } catch (ApiException $e) {
-            $c->asegurarIgual(400, $e->httpStatus());
+    );
+    $c->prueba(
+        'dos filtros distintos sobre id (id=eq.X&id=neq.Y) → 400, sin tocar Supabase',
+        function (Corredor $c) use ($guard) {
+            try {
+                $guard->assertNoResuelta('id=eq.abc&id=neq.def');
+                $c->asegurarCierto(false, 'debió lanzar');
+            } catch (ApiException $e) {
+                $c->asegurarIgual(400, $e->httpStatus());
+            }
         }
-    });
+    );
     $c->prueba(
         '[INTEGRACIÓN, NO CUBIERTA AQUÍ] id=eq.<valor único> exige consultar el '
         . 'estado real de la PQR en Supabase (409 si "Resuelto") — no testeable sin Supabase real.',

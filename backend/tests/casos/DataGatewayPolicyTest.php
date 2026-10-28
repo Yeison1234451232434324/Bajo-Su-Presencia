@@ -31,9 +31,12 @@ return static function (Corredor $c): void {
     $c->prueba('eventos es de lectura pública', function (Corredor $c) use ($policy) {
         $c->asegurarCierto($policy->esLecturaPublica('eventos'));
     });
-    $c->prueba('pqr NO es de lectura pública (RT-01: sin public_insert/public_read)', function (Corredor $c) use ($policy) {
-        $c->asegurarIgual(false, $policy->esLecturaPublica('pqr'));
-    });
+    $c->prueba(
+        'pqr NO es de lectura pública (RT-01: sin public_insert/public_read)',
+        function (Corredor $c) use ($policy) {
+            $c->asegurarIgual(false, $policy->esLecturaPublica('pqr'));
+        }
+    );
 
     $c->grupo('TableAccessPolicy — escritura por rol');
     $c->prueba('Administrador puede escribir eventos', function (Corredor $c) use ($policy) {
@@ -42,21 +45,30 @@ return static function (Corredor $c): void {
     $c->prueba('Voluntario NO puede escribir eventos', function (Corredor $c) use ($policy) {
         $c->asegurarIgual(false, $policy->puedeEscribir('eventos', 'Voluntario'));
     });
-    $c->prueba('Voluntario SÍ puede escribir actividades (con ownership aparte)', function (Corredor $c) use ($policy) {
-        $c->asegurarCierto($policy->puedeEscribir('actividades', 'Voluntario'));
-    });
-    $c->prueba('usuarios: write vacío — nadie puede escribir vía el gateway (solo por UsuariosController)', function (Corredor $c) use ($policy) {
-        $c->asegurarIgual(false, $policy->puedeEscribir('usuarios', 'Administrador'));
-    });
+    $c->prueba(
+        'Voluntario SÍ puede escribir actividades (con ownership aparte)',
+        function (Corredor $c) use ($policy) {
+            $c->asegurarCierto($policy->puedeEscribir('actividades', 'Voluntario'));
+        }
+    );
+    $c->prueba(
+        'usuarios: write vacío — nadie puede escribir vía el gateway (solo por UsuariosController)',
+        function (Corredor $c) use ($policy) {
+            $c->asegurarIgual(false, $policy->puedeEscribir('usuarios', 'Administrador'));
+        }
+    );
     $c->prueba('rol vacío nunca puede escribir', function (Corredor $c) use ($policy) {
         $c->asegurarIgual(false, $policy->puedeEscribir('eventos', ''));
     });
 
     $c->grupo('TableAccessPolicy — lectura por rol (read) y read_select');
-    $c->prueba('actividades sin `read` declarado: cualquier rol autenticado puede leer (comportamiento documentado en OBS-01)', function (Corredor $c) use ($policy) {
-        $c->asegurarIgual(null, $policy->rolesDeLectura('actividades'));
-        $c->asegurarCierto($policy->puedeLeer('actividades', 'Voluntario'));
-    });
+    $c->prueba(
+        'actividades sin `read` declarado: cualquier rol autenticado puede leer (comportamiento documentado en OBS-01)',
+        function (Corredor $c) use ($policy) {
+            $c->asegurarIgual(null, $policy->rolesDeLectura('actividades'));
+            $c->asegurarCierto($policy->puedeLeer('actividades', 'Voluntario'));
+        }
+    );
     $c->prueba('pqr con `read` restringido: Voluntario no puede leer', function (Corredor $c) use ($policy) {
         $c->asegurarIgual(['Administrador', 'Colaborador'], $policy->rolesDeLectura('pqr'));
         $c->asegurarIgual(false, $policy->puedeLeer('pqr', 'Voluntario'));

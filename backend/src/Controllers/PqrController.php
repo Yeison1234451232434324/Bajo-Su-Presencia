@@ -255,7 +255,8 @@ final class PqrController
     {
         if (($pqr['estado'] ?? '') === 'Resuelto') {
             throw new ApiException(
-                'Esta PQR ya fue marcada como resuelta: no se puede responder ni cambiar su estado. Solo puede eliminarse.',
+                'Esta PQR ya fue marcada como resuelta: no se puede responder ni cambiar su estado. '
+                    . 'Solo puede eliminarse.',
                 409
             );
         }
@@ -304,9 +305,11 @@ final class PqrController
                     box-shadow:0 8px 30px rgba(15,30,90,.12)">
         <tr><td style="background:#0F1E5A;padding:28px 24px;text-align:center;">
           <img src="{$logoUrl}" alt="Bajo Su Presencia" width="72"
-            style="width:72px;height:auto;background:#ffffff;border-radius:12px;padding:8px;display:block;margin:0 auto 12px;">
+            style="width:72px;height:auto;background:#ffffff;border-radius:12px;padding:8px;
+              display:block;margin:0 auto 12px;">
           <div style="color:#fff;font-size:22px;font-weight:700;">Bajo Su Presencia B.S.P</div>
-          <div style="color:#cbd5e1;font-size:14px;margin-top:6px;letter-spacing:0.02em;">Hemos recibido tu {$tipo}</div>
+          <div style="color:#cbd5e1;font-size:14px;margin-top:6px;letter-spacing:0.02em;
+            ">Hemos recibido tu {$tipo}</div>
         </td></tr>
         <tr><td style="padding:24px;color:#1a1a2e;">
           <p style="font-size:16px;margin:0 0 12px;">Hola <b>{$nombre}</b>,</p>
@@ -318,7 +321,8 @@ final class PqrController
             <span style="display:inline-block;background:#eef2f8;color:#0F1E5A;font-weight:700;
               font-size:14px;padding:8px 18px;border-radius:999px;">Estado actual: {$estado}</span>
           </p>
-          <p style="font-size:13px;color:#9ca3af;line-height:1.6;border-top:1px dashed #e5e1d8;padding-top:14px;margin:0;">
+          <p style="font-size:13px;color:#9ca3af;line-height:1.6;border-top:1px dashed #e5e1d8;
+            padding-top:14px;margin:0;">
             Este correo fue generado automáticamente al radicar tu solicitud en el sitio de Bajo Su Presencia.
           </p>
         </td></tr>
@@ -353,9 +357,11 @@ HTML;
                     box-shadow:0 8px 30px rgba(15,30,90,.12)">
         <tr><td style="background:#0F1E5A;padding:28px 24px;text-align:center;">
           <img src="{$logoUrl}" alt="Bajo Su Presencia" width="72"
-            style="width:72px;height:auto;background:#ffffff;border-radius:12px;padding:8px;display:block;margin:0 auto 12px;">
+            style="width:72px;height:auto;background:#ffffff;border-radius:12px;padding:8px;
+              display:block;margin:0 auto 12px;">
           <div style="color:#fff;font-size:22px;font-weight:700;">Bajo Su Presencia B.S.P</div>
-          <div style="color:#cbd5e1;font-size:14px;margin-top:6px;letter-spacing:0.02em;">Actualización de tu {$tipo}</div>
+          <div style="color:#cbd5e1;font-size:14px;margin-top:6px;letter-spacing:0.02em;
+            ">Actualización de tu {$tipo}</div>
         </td></tr>
         <tr><td style="padding:24px;color:#1a1a2e;">
           <p style="font-size:16px;margin:0 0 12px;">Hola <b>{$nombre}</b>,</p>
@@ -366,8 +372,10 @@ HTML;
             <span style="display:inline-block;background:#eef2f8;color:#0F1E5A;font-weight:700;
               font-size:14px;padding:8px 18px;border-radius:999px;">Nuevo estado: {$estado}</span>
           </p>
-          <p style="font-size:13px;color:#9ca3af;line-height:1.6;border-top:1px dashed #e5e1d8;padding-top:14px;margin:0;">
-            Este correo fue generado automáticamente al actualizar el estado de tu solicitud desde el panel de Bajo Su Presencia.
+          <p style="font-size:13px;color:#9ca3af;line-height:1.6;border-top:1px dashed #e5e1d8;
+            padding-top:14px;margin:0;">
+            Este correo fue generado automáticamente al actualizar el estado de tu solicitud desde el panel de
+            Bajo Su Presencia.
           </p>
         </td></tr>
       </table>
@@ -397,7 +405,8 @@ HTML;
                     box-shadow:0 8px 30px rgba(15,30,90,.12)">
         <tr><td style="background:#0F1E5A;padding:28px 24px;text-align:center;">
           <img src="{$logoUrl}" alt="Bajo Su Presencia" width="72"
-            style="width:72px;height:auto;background:#ffffff;border-radius:12px;padding:8px;display:block;margin:0 auto 12px;">
+            style="width:72px;height:auto;background:#ffffff;border-radius:12px;padding:8px;
+              display:block;margin:0 auto 12px;">
           <div style="color:#fff;font-size:22px;font-weight:700;">Bajo Su Presencia B.S.P</div>
           <div style="color:#cbd5e1;font-size:14px;margin-top:6px;letter-spacing:0.02em;">Respuesta a tu {$tipo}</div>
         </td></tr>
@@ -406,10 +415,12 @@ HTML;
           <p style="font-size:15px;line-height:1.6;color:#374151;margin:0 0 16px;">
             Hemos respondido tu {$tipo} con asunto <b>{$asunto}</b>:
           </p>
-          <div style="background:#f8f7f3;border-left:3px solid #0F1E5A;padding:14px 16px;margin:0 0 16px;font-size:15px;line-height:1.6;">
+          <div style="background:#f8f7f3;border-left:3px solid #0F1E5A;padding:14px 16px;
+            margin:0 0 16px;font-size:15px;line-height:1.6;">
             {$respuestaEsc}
           </div>
-          <p style="font-size:13px;color:#9ca3af;line-height:1.6;border-top:1px dashed #e5e1d8;padding-top:14px;margin:0;">
+          <p style="font-size:13px;color:#9ca3af;line-height:1.6;border-top:1px dashed #e5e1d8;
+            padding-top:14px;margin:0;">
             Este correo fue generado automáticamente al responder tu solicitud desde el panel de Bajo Su Presencia.
           </p>
         </td></tr>

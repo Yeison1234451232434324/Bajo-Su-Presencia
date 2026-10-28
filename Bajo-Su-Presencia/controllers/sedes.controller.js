@@ -1,3 +1,5 @@
+/* global BSPDataTable, BSPModal, BSPVal, SedesModel, showAlertConfirm, showAlertError,
+   showAlertSuccess */
 /**
  * ============================================================
  * CONTROLADOR: sedes.controller.js
@@ -8,7 +10,6 @@
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
-
   // Control de acceso verificado contra el SERVIDOR (rol tomado del JWT).
   // Unifica el criterio con el resto del panel: antes esta vista solo
   // dependía de localStorage, que el usuario puede editar.
@@ -18,23 +19,28 @@ document.addEventListener('DOMContentLoaded', async () => {
   /** Escapa datos de usuario antes de insertarlos con innerHTML (anti-XSS). */
   const esc = (v) => (window.BSPVal?.escapeHtml
     ? window.BSPVal.escapeHtml(String(v ?? ''))
-    : String(v ?? '').replace(/[&<>"'`/]/g, c => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;',
-        '"': '&quot;', "'": '&#39;', '/': '&#x2F;', '`': '&#x60;'
-      }[c])));
+    : String(v ?? '').replace(/[&<>"'`/]/g, (c) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+      '/': '&#x2F;',
+      '`': '&#x60;',
+    }[c])));
 
-  const modal        = document.getElementById('sed-modal');
+  const modal = document.getElementById('sed-modal');
   const modalOverlay = document.getElementById('sed-modal-overlay');
-  const form         = document.getElementById('form-sede');
+  const form = document.getElementById('form-sede');
 
   // ── DataTable de sedes ───────────────────────────────────────────────────
   let dtSedes = null;
 
   async function render() {
     const sedes = await SedesModel.getAll();
-    const data  = sedes.map(s => ({
+    const data = sedes.map((s) => ({
       ...s,
-      miembrosTexto: s.miembros ? `${s.miembros} miembros` : ''
+      miembrosTexto: s.miembros ? `${s.miembros} miembros` : '',
     }));
 
     function renderRow(s) {
@@ -50,25 +56,25 @@ document.addEventListener('DOMContentLoaded', async () => {
           <div class="sed-item-meta">
             <p><i class="bx bx-map-pin" aria-hidden="true"></i> ${esc(s.direccion)}, ${esc(s.ciudad)}</p>
             ${s.telefono ? `<p><i class="bx bx-phone" aria-hidden="true"></i> ${esc(s.telefono)}</p>` : ''}
-            ${s.pastor   ? `<p><i class="bx bx-user-circle" aria-hidden="true"></i> ${esc(s.pastor)}${s.miembros ? ` · ${esc(s.miembros)} miembros` : ''}</p>` : ''}
+            ${s.pastor ? `<p><i class="bx bx-user-circle" aria-hidden="true"></i> ${esc(s.pastor)}${s.miembros ? ` · ${esc(s.miembros)} miembros` : ''}</p>` : ''}
           </div>
         </div>`;
     }
 
     if (!dtSedes) {
       dtSedes = new BSPDataTable({
-        containerId:  'dt-sedes',
+        containerId: 'dt-sedes',
         data,
-        pageSize:     9,
+        pageSize: 9,
         searchFields: ['nombre', 'ciudad', 'direccion', 'pastor'],
         renderRow,
-        exportable:   true,
-        exportName:   'sedes',
+        exportable: true,
+        exportName: 'sedes',
         exportFields: ['nombre', 'ciudad', 'direccion', 'telefono', 'pastor', 'miembrosTexto'],
         exportLabels: ['Sede', 'Ciudad', 'Dirección', 'Teléfono', 'Pastor/a', 'Miembros'],
-        emptyHTML: `<div class="dt-empty"><i class="bx bx-buildings" aria-hidden="true"></i><p>No hay sedes registradas. Agrega la primera.</p></div>`
+        emptyHTML: '<div class="dt-empty"><i class="bx bx-buildings" aria-hidden="true"></i><p>No hay sedes registradas. Agrega la primera.</p></div>',
       });
-      window.__bspDT['dt-sedes'] = dtSedes;
+      window.bspDataTables['dt-sedes'] = dtSedes;
       dtSedes.init();
       document.getElementById('dt-sedes-body')?.addEventListener('click', (e) => {
         const btn = e.target.closest('[data-action="eliminar-sede"]');
@@ -94,8 +100,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.querySelector('.sed-btn-cancelar')?.addEventListener('click', cerrarModalSede);
 
   // ── Helpers de validación DOM (delegados a BSPVal) ──────────────────────
-  const _err = (id, msg) => BSPVal._err(id, msg);
-  const _ok  = (...ids)  => BSPVal._ok(...ids);
+  const localErr = (id, msg) => BSPVal.localErr(id, msg);
+  const localOk = (...ids) => BSPVal.localOk(...ids);
 
   // Bloquear caracteres peligrosos en el campo numérico de miembros
   BSPVal.blockNumericChars(document.getElementById('sed-miembros'));
@@ -104,51 +110,55 @@ document.addEventListener('DOMContentLoaded', async () => {
   let enviandoSede = false;
 
   // ── Guardar sede ─────────────────────────────────────────────────────────
-  form.addEventListener('submit', async e => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (enviandoSede) return;
 
     /* Leer y limpiar todos los valores */
-    const nombre      = BSPVal.cleanText(document.getElementById('sed-nombre').value);
-    const ciudad      = BSPVal.cleanText(document.getElementById('sed-ciudad').value);
-    const direccion   = BSPVal.cleanText(document.getElementById('sed-direccion').value);
-    const telefono    = document.getElementById('sed-telefono').value.trim();
-    const pastor      = BSPVal.cleanText(document.getElementById('sed-pastor').value);
+    const nombre = BSPVal.cleanText(document.getElementById('sed-nombre').value);
+    const ciudad = BSPVal.cleanText(document.getElementById('sed-ciudad').value);
+    const direccion = BSPVal.cleanText(document.getElementById('sed-direccion').value);
+    const telefono = document.getElementById('sed-telefono').value.trim();
+    const pastor = BSPVal.cleanText(document.getElementById('sed-pastor').value);
     const miembrosRaw = document.getElementById('sed-miembros').value;
 
     // ── Limpiar estado previo ─────────────────────────────────────────────
-    _ok('sed-nombre','sed-ciudad','sed-direccion','sed-telefono','sed-pastor','sed-miembros');
+    localOk('sed-nombre', 'sed-ciudad', 'sed-direccion', 'sed-telefono', 'sed-pastor', 'sed-miembros');
     let valido = true;
     let err;
 
     /* Nombre de la sede: mínimo 2, máximo 100, debe iniciar con letra */
-    err = BSPVal.txt(nombre, { min: 2, max: 100, label: 'El nombre de la sede', iniciaLetra: true });
-    if (err) { _err('sed-nombre', err); valido = false; }
+    err = BSPVal.txt(nombre, {
+      min: 2, max: 100, label: 'El nombre de la sede', iniciaLetra: true,
+    });
+    if (err) { localErr('sed-nombre', err); valido = false; }
 
     /* Ciudad: mínimo 2, máximo 100, solo letras y espacios */
     err = BSPVal.txt(ciudad, { min: 2, max: 100, label: 'La ciudad' });
     if (!err) err = BSPVal.soloLetras(ciudad, { label: 'La ciudad' });
-    if (err) { _err('sed-ciudad', err); valido = false; }
+    if (err) { localErr('sed-ciudad', err); valido = false; }
 
     /* Dirección: mínimo 5, máximo 200 (puede tener números de calle) */
     err = BSPVal.txt(direccion, { min: 5, max: 200, label: 'La dirección' });
-    if (err) { _err('sed-direccion', err); valido = false; }
+    if (err) { localErr('sed-direccion', err); valido = false; }
 
     /* Teléfono: opcional — solo si se ingresó */
     err = BSPVal.tel(telefono, { required: false });
-    if (err) { _err('sed-telefono', err); valido = false; }
+    if (err) { localErr('sed-telefono', err); valido = false; }
 
     /* Pastor/a: opcional, solo letras, máximo 100 */
     if (pastor.length > 0) {
       err = BSPVal.txt(pastor, { min: 2, max: 100, label: 'El nombre del pastor/a' });
       if (!err) err = BSPVal.soloLetras(pastor, { label: 'El nombre del pastor/a' });
-      if (err) { _err('sed-pastor', err); valido = false; }
+      if (err) { localErr('sed-pastor', err); valido = false; }
     }
 
     /* Miembros: entero >= 0, máximo 999999 — bloquea 'e', '+', '-' */
     if (miembrosRaw.trim() !== '') {
-      err = BSPVal.num(miembrosRaw, { min: 0, max: 999999, entero: true, label: 'El número de miembros' });
-      if (err) { _err('sed-miembros', err); valido = false; }
+      err = BSPVal.num(miembrosRaw, {
+        min: 0, max: 999999, entero: true, label: 'El número de miembros',
+      });
+      if (err) { localErr('sed-miembros', err); valido = false; }
     }
 
     if (!valido) return;
@@ -161,7 +171,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       direccion,
       telefono,
       pastor,
-      miembros: miembrosRaw.trim() !== '' ? parseInt(miembrosRaw, 10) : 0
+      miembros: miembrosRaw.trim() !== '' ? parseInt(miembrosRaw, 10) : 0,
     };
 
     /* Llamada async al modelo con try-catch */
@@ -198,12 +208,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     showAlertConfirm(
       'Eliminar sede',
       `¿Eliminar la sede "${s.nombre}"? Esta acción no se puede deshacer.`,
-      async function() {
+      async () => {
         const res = await SedesModel.eliminar(id);
         if (!res.ok) { showAlertError(res.error); return; }
         await render();
         showAlertSuccess(`"${s.nombre}" fue eliminada.`);
-      }
+      },
     );
   }
 

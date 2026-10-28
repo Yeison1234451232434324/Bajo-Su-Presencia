@@ -1,3 +1,4 @@
+/* global BSPVal, PQRModel, showAlertError, showAlertSuccess */
 /**
  * ============================================================
  * CONTROLADOR: pqr.controller.js
@@ -14,16 +15,15 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-
   // ── Referencias DOM ──────────────────────────────────────────────────────
-  const form       = document.getElementById('form-pqr');
+  const form = document.getElementById('form-pqr');
   const successBox = document.getElementById('pqr-success');
-  const btnNueva   = document.getElementById('pqr-btn-nueva');
-  const btnSubmit  = document.getElementById('pqr-btn-submit');
+  const btnNueva = document.getElementById('pqr-btn-nueva');
+  const btnSubmit = document.getElementById('pqr-btn-submit');
 
   // ── Helpers de validación DOM (delegados a BSPVal) ──────────────────────
-  const _err = (id, msg) => BSPVal._err(id, msg);
-  const _ok  = (...ids)  => BSPVal._ok(...ids);
+  const localErr = (id, msg) => BSPVal.localErr(id, msg);
+  const localOk = (...ids) => BSPVal.localOk(...ids);
 
   const TIPOS_PQR_VALIDOS = ['Petición', 'Queja', 'Reclamo', 'Sugerencia'];
 
@@ -36,48 +36,50 @@ document.addEventListener('DOMContentLoaded', () => {
     if (enviandoPQR) return;
 
     /* Leer y limpiar TODOS los valores antes de validar y antes de guardar */
-    const tipo        = document.getElementById('pqr-tipo').value;
-    const nombre      = BSPVal.cleanText(document.getElementById('pqr-nombre').value);
-    const emailVal    = document.getElementById('pqr-email').value.trim().toLowerCase();
-    const telefono    = document.getElementById('pqr-telefono').value.trim();
-    const asunto      = BSPVal.cleanText(document.getElementById('pqr-asunto').value);
+    const tipo = document.getElementById('pqr-tipo').value;
+    const nombre = BSPVal.cleanText(document.getElementById('pqr-nombre').value);
+    const emailVal = document.getElementById('pqr-email').value.trim().toLowerCase();
+    const telefono = document.getElementById('pqr-telefono').value.trim();
+    const asunto = BSPVal.cleanText(document.getElementById('pqr-asunto').value);
     const descripcion = BSPVal.cleanText(document.getElementById('pqr-descripcion').value);
 
     // ── Limpiar estado previo ─────────────────────────────────────────────
-    _ok('pqr-tipo','pqr-nombre','pqr-email','pqr-telefono','pqr-asunto','pqr-descripcion');
+    localOk('pqr-tipo', 'pqr-nombre', 'pqr-email', 'pqr-telefono', 'pqr-asunto', 'pqr-descripcion');
     let valido = true;
     let err;
 
     /* Tipo: validado contra lista blanca — previene manipulación del DOM */
     err = BSPVal.select(tipo, TIPOS_PQR_VALIDOS, { label: 'El tipo de solicitud' });
-    if (err) { _err('pqr-tipo', err); valido = false; }
+    if (err) { localErr('pqr-tipo', err); valido = false; }
 
     /* Nombre: solo letras, mínimo 2, máximo 100 */
     err = BSPVal.txt(nombre, { min: 2, max: 100, label: 'Tu nombre' });
     if (!err) err = BSPVal.soloLetras(nombre, { label: 'Tu nombre' });
-    if (err) { _err('pqr-nombre', err); valido = false; }
+    if (err) { localErr('pqr-nombre', err); valido = false; }
 
     /* Email: regex estricta */
     err = BSPVal.email(emailVal);
-    if (err) { _err('pqr-email', err); valido = false; }
+    if (err) { localErr('pqr-email', err); valido = false; }
 
     /* Teléfono: opcional */
     err = BSPVal.tel(telefono, { required: false });
-    if (err) { _err('pqr-telefono', err); valido = false; }
+    if (err) { localErr('pqr-telefono', err); valido = false; }
 
     /* Asunto: mínimo 5, máximo 200 */
     err = BSPVal.txt(asunto, { min: 5, max: 200, label: 'El asunto' });
-    if (err) { _err('pqr-asunto', err); valido = false; }
+    if (err) { localErr('pqr-asunto', err); valido = false; }
 
     /* Descripción: mínimo 10, máximo 2000 */
     err = BSPVal.txt(descripcion, { min: 10, max: 2000, label: 'La descripción' });
-    if (err) { _err('pqr-descripcion', err); valido = false; }
+    if (err) { localErr('pqr-descripcion', err); valido = false; }
 
     if (!valido) return;
     // ─────────────────────────────────────────────────────────────────────
 
     /* Datos limpios — NUNCA usar .value directamente desde aquí */
-    const data = { tipo, nombre, email: emailVal, telefono, asunto, descripcion };
+    const data = {
+      tipo, nombre, email: emailVal, telefono, asunto, descripcion,
+    };
 
     /* Llamada async al modelo (Supabase) */
     enviandoPQR = true;
@@ -126,5 +128,4 @@ document.addEventListener('DOMContentLoaded', () => {
   function mostrarError(mensaje) {
     showAlertError(mensaje);
   }
-
 });

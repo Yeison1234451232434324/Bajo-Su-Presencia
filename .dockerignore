@@ -35,3 +35,8 @@ backend/psalm.xml
 backend/phpcs.xml
 backend/rector.php
 Bajo-Su-Presencia/dev/
+
+# Herramientas de calidad (no se ejecutan en producción)
+package.json
+package-lock.json
+.eslintrc.cjs

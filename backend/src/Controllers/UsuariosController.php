@@ -145,7 +145,13 @@ final class UsuariosController
             throw $e;
         }
         $identificador = $row['correo_electronico'] ?? $row['username'] ?? $args['id'];
-        AuditLogger::registrar($claims, 'editar', 'usuarios', $args['id'] ?? null, "Editó el usuario \"{$identificador}\".");
+        AuditLogger::registrar(
+            $claims,
+            'editar',
+            'usuarios',
+            $args['id'] ?? null,
+            "Editó el usuario \"{$identificador}\"."
+        );
         Response::success($row, 'Usuario actualizado.');
     }
 
@@ -201,7 +207,13 @@ final class UsuariosController
             );
             throw $e;
         }
-        AuditLogger::registrar($claims, 'eliminar', 'usuarios', $args['id'] ?? null, "Eliminó el usuario con id \"{$args['id']}\".");
+        AuditLogger::registrar(
+            $claims,
+            'eliminar',
+            'usuarios',
+            $args['id'] ?? null,
+            "Eliminó el usuario con id \"{$args['id']}\"."
+        );
         Response::success(null, 'Usuario eliminado.');
     }
 }
