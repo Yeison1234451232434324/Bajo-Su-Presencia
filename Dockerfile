@@ -41,9 +41,10 @@ RUN apt-get update \
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 COPY deploy/php.ini "$PHP_INI_DIR/conf.d/zz-app.ini"
 
-# Apache: mod_rewrite + headers y el VirtualHost del proyecto.
+# Apache: mod_rewrite + headers + remoteip (IP real del visitante tras el proxy)
+# y el VirtualHost del proyecto.
 # Apache escuchará en el puerto que inyecta el host (Render define $PORT).
-RUN a2enmod rewrite headers
+RUN a2enmod rewrite headers remoteip
 COPY deploy/000-default.conf /etc/apache2/sites-available/000-default.conf
 RUN printf 'Listen ${PORT}\n' > /etc/apache2/ports.conf
 ENV PORT=10000
