@@ -49,6 +49,16 @@ if (!headers_sent()) {
 
 Cors::apply();
 
+// TEMPORAL (diagnóstico de IP real tras el proxy de Render): registra qué
+// cabeceras de IP llegan. Eliminar en cuanto se confirme cuál es la fiable.
+error_log('[DIAG-IP] ' . json_encode([
+    'remote_addr' => $_SERVER['REMOTE_ADDR'] ?? null,
+    'x_forwarded_for' => $_SERVER['HTTP_X_FORWARDED_FOR'] ?? null,
+    'cf_connecting_ip' => $_SERVER['HTTP_CF_CONNECTING_IP'] ?? null,
+    'true_client_ip' => $_SERVER['HTTP_TRUE_CLIENT_IP'] ?? null,
+    'x_real_ip' => $_SERVER['HTTP_X_REAL_IP'] ?? null,
+]));
+
 try {
     RateLimiter::assertAllowed((string) ($_SERVER['REMOTE_ADDR'] ?? ''));
 
