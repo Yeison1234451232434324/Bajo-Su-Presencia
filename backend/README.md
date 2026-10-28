@@ -111,7 +111,7 @@ find src public routes -name '*.php' -print0 | xargs -0 -n1 php -l
 ## 4. Configuración del entorno y despliegue
 
 ### Requisitos
-- PHP **8.1+** con extensiones `curl` y `json`.
+- PHP **8.1+** con extensiones `curl` y `json` (producción y CI usan **8.4**).
 - [Composer](https://getcomposer.org/).
 - Un proyecto de Supabase.
 

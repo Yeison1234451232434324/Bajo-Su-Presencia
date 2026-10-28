@@ -1,7 +1,7 @@
 # ─────────────────────────────────────────────────────────────
 #  Bajo Su Presencia — imagen de producción
 #
-#  Un solo contenedor: PHP 8.2 + Apache (mod_php).
+#  Un solo contenedor: PHP 8.4 + Apache (mod_php).
 #    · El front controller raíz (index.php) sirve el sitio y el panel.
 #    · /api/*  lo atiende backend/public/index.php (mismo origen → sin CORS).
 #
@@ -23,7 +23,7 @@ RUN composer install \
       --no-dev --no-interaction --no-progress --no-scripts --ignore-platform-reqs
 
 # ── Etapa 2: runtime ────────────────────────────────────────
-FROM php:8.2-apache
+FROM php:8.4-apache
 
 # Extensiones PHP que el código necesita.
 #   · mbstring  → mb_substr() en la capa de auditoría

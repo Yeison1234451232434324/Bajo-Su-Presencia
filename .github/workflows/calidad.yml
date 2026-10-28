@@ -42,10 +42,10 @@ jobs:
       - name: Descargar el código
         uses: actions/checkout@v4
 
-      - name: Preparar PHP 8.2
+      - name: Preparar PHP 8.4
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: '8.4'
           extensions: curl, json, mbstring
           # pcov habilita la cobertura sin el coste de rendimiento de Xdebug.
           coverage: pcov

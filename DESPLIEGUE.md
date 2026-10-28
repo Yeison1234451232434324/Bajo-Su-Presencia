@@ -28,7 +28,7 @@ Límites del plan free de Render que debes conocer:
 
 | Archivo | Para qué |
 |---|---|
-| `Dockerfile` | Imagen PHP 8.2 + Apache; instala `mbstring`, `apcu` y las dependencias de `backend/` con Composer |
+| `Dockerfile` | Imagen PHP 8.4 + Apache; instala `mbstring`, `apcu` y las dependencias de `backend/` con Composer |
 | `deploy/000-default.conf` | VirtualHost: `/api/*` → `backend/public`, el resto → `index.php` raíz |
 | `deploy/php.ini` | Ajustes de producción (sin `display_errors`, OPcache, zona horaria) |
 | `render.yaml` | Blueprint: crea el Web Service y declara las variables de entorno |
