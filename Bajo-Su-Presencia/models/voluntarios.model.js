@@ -15,7 +15,6 @@
 
 const VoluntariosModel = (() => {
   const EVENTOS = 'eventos';
-  const VE = 'voluntarios_eventos';
   const EVAL = 'evaluaciones';
 
   const SEL_EV = 'id, titulo, fecha, ubicacion, voluntarios_necesarios, '
@@ -154,29 +153,6 @@ const VoluntariosModel = (() => {
     };
   }
 
-  // ── DISPONIBILIDAD ──────────────────────────────────────────────────────────
-  async function estaInscrito(eventoId, voluntarioId) {
-    const { data } = await DB.from(VE).select('id, disponible')
-      .eq('evento_id', eventoId).eq('usuario_id', voluntarioId)
-      .maybeSingle();
-    return data || null;
-  }
-
-  async function unirseEvento(eventoId, voluntarioId, rol) {
-    const { error } = await DB.from(VE).insert({
-      evento_id: eventoId, usuario_id: voluntarioId, rol_en_evento: rol || 'Voluntario General', disponible: true,
-    });
-    if (error) return { ok: false, error: localMsg(error) };
-    return { ok: true };
-  }
-
-  async function setDisponibilidad(eventoId, voluntarioId, disponible) {
-    const { error } = await DB.from(VE).update({ disponible })
-      .eq('evento_id', eventoId).eq('usuario_id', voluntarioId);
-    if (error) return { ok: false, error: localMsg(error) };
-    return { ok: true };
-  }
-
   return {
     getEventos,
     getEventoById,
@@ -185,8 +161,5 @@ const VoluntariosModel = (() => {
     guardarCalificacion,
     getHistorialVoluntario,
     getResumenVoluntario,
-    estaInscrito,
-    unirseEvento,
-    setDisponibilidad,
   };
 })();

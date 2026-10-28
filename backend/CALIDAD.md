@@ -33,7 +33,6 @@ Todos se ejecutan desde `backend/`.
 | Rector | 2.5 | **Aplicado** (8 reglas) | `rector.php` |
 | Suite propia | — | **20/20 correctas** | `tests/` |
 | composer audit | — | **Sin vulnerabilidades** | — |
-| Psalm | — | *No instalado* | `psalm.xml` preparado |
 | Cobertura | — | *No disponible* | Requiere Xdebug o PCOV |
 
 ### Por qué PHPStan está en nivel 8 y no en 9

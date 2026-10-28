@@ -76,13 +76,6 @@ const UsuariosModel = (() => {
     } catch (_) { return null; }
   }
 
-  async function getByUsername(username) {
-    if (!username) return null;
-    const todos = await getAll();
-    const u = todos.find((x) => (x.username || '').toLowerCase() === username.toLowerCase());
-    return u || null;
-  }
-
   // ── Perfil propio (cualquier usuario autenticado) ────────────────────────
   async function getMiPerfil() {
     try {
@@ -143,7 +136,6 @@ const UsuariosModel = (() => {
   return {
     getAll,
     getById,
-    getByUsername,
     getMiPerfil,
     updateMiPerfil,
     crear,

@@ -61,7 +61,7 @@ Límites del plan free de Render que debes conocer:
 
 ```bash
 cd C:/Users/User/Desktop/defbsp
-git add Dockerfile .dockerignore render.yaml deploy/ DESPLIEGUE.md Bajo-Su-Presencia/config/api.config.js
+git add Dockerfile .dockerignore render.yaml deploy/ docs/DESPLIEGUE.md Bajo-Su-Presencia/config/api.config.js
 git commit -m "Configuración de despliegue en Render (Docker)"
 git push origin main
 ```

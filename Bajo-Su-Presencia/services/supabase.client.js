@@ -21,19 +21,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 // El SDK UMD expone el global `supabase`; creamos el cliente como `sb`.
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 window.sb = sb;
-window.SUPABASE_URL = SUPABASE_URL;
-window.SUPABASE_ANON_KEY = SUPABASE_ANON_KEY;
-
-/**
- * Cliente secundario para registrar usuarios (signUp) SIN tocar la sesión del
- * admin actual. Usa persistSession:false para no sobrescribir el token guardado.
- * Lo usa el módulo de usuarios al crear cuentas desde el panel.
- */
-window.sbAuthTmp = function sbAuthTmp() {
-  return supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-};
 
 /**
  * Devuelve el id (de la tabla usuarios) del usuario logueado, o null.

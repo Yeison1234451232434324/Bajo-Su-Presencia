@@ -419,27 +419,6 @@
    */
   global.esc = sanitize;
 
-  /**
-   * Escapa un valor que va dentro de una CADENA JavaScript incrustada en un
-   * atributo HTML, por ejemplo:  onclick="verHistorial('${escJs(nombre)}')"
-   *
-   * Por qué no basta con esc(): en un atributo, el navegador decodifica las
-   * entidades HTML ANTES de parsear el JavaScript. Un esc() convertiría la
-   * comilla en &#39;, que al decodificarse vuelve a ser ' y rompe la cadena.
-   * Aquí se escapa primero para JS (\' y \\) y luego para HTML, de modo que
-   * tras la decodificación quede una comilla ya neutralizada.
-   */
-  function escJs(val) {
-    return sanitize(
-      String(val ?? '')
-        .replace(/\\/g, '\\\\')
-        .replace(/'/g, "\\'")
-        .replace(/\r?\n/g, ' '),
-    );
-  }
-  global.escJs = escJs;
-  global.BSPVal.escJs = escJs;
-
   /* ══════════════════════════════════════════════════════════════
      7. AUTO-CONEXIÓN DE CAMPOS DE TELÉFONO
         La regla "10 dígitos exactos" no debe depender de que cada

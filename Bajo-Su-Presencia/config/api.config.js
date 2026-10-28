@@ -67,7 +67,7 @@ window.BSPLog = (function crearBSPLog() {
     console.warn('[BSP]', mensaje);
   }
 
-  return { error, esDesarrollo: ES_DESARROLLO };
+  return { error };
 }());
 
 /**

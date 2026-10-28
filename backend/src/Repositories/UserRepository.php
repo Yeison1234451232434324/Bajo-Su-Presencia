@@ -44,25 +44,6 @@ final class UserRepository
     }
 
     /**
-     * Busca un usuario por su nombre de usuario (case-insensitive).
-     *
-     * @return array<string,mixed>|null
-     */
-    public function findByUsername(string $username): ?array
-    {
-        // Escapa los comodines de PostgREST (%, _) para que el valor se trate
-        // como texto literal y no permita ampliar la coincidencia (p. ej. un
-        // atacante enviando "%" para intentar enumerar/adivinar usuarios).
-        $literal = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $username);
-        $rows    = $this->sb->select(
-            'usuarios',
-            ['username' => 'ilike.' . $literal, 'limit' => '1'],
-            self::SELECT
-        );
-        return $rows[0] ?? null;
-    }
-
-    /**
      * Lista todos los usuarios ordenados por nombre.
      *
      * @return array<int,array<string,mixed>>

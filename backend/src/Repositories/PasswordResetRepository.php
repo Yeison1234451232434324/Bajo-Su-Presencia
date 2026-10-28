@@ -47,22 +47,6 @@ final class PasswordResetRepository
         );
     }
 
-    /**
-     * Devuelve un token válido (no usado y no expirado) por su hash, o null.
-     *
-     * @return array<string,mixed>|null
-     */
-    public function findValid(string $tokenHash): ?array
-    {
-        $nowIso = gmdate('Y-m-d\TH:i:s\Z');
-        [$status, $data] = $this->sb->rest(
-            'GET',
-            'password_resets',
-            'select=id,usuario_id&token_hash=eq.' . $tokenHash . '&usado=eq.false&expira_en=gt.' . $nowIso . '&limit=1'
-        );
-        return ($status < 400 && is_array($data) && isset($data[0])) ? $data[0] : null;
-    }
-
     /** Marca un token como usado (consumo tras el cambio de contraseña). */
     public function consume(string $id): void
     {

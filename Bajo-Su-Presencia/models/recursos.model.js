@@ -16,7 +16,6 @@
 
 const RecursosModel = (() => {
   const TABLA = 'recursos';
-  const PUENTE = 'evento_recursos';
   // Columnas realmente usadas por localFromRow — evita traer filas completas.
   const SEL = 'id, nombre, categoria, descripcion, cantidad, unidad, disponible, creado_en';
 
@@ -120,60 +119,6 @@ const RecursosModel = (() => {
     };
   }
 
-  // ── Asignaciones recurso ↔ evento (tabla evento_recursos) ──────────────────
-  async function getAsignacionesPorEvento(eventoId) {
-    const { data, error } = await DB
-      .from(PUENTE)
-      .select('id, recurso_id, cantidad, recursos(nombre, unidad)')
-      .eq('evento_id', eventoId);
-    if (error) {
-      if (window.BSPLog) {
-        window.BSPLog.error('getAsignacionesPorEvento', error);
-      } else {
-        console.error('getAsignacionesPorEvento');
-      }
-      return [];
-    }
-    return (data || []).map((a) => ({
-      id: a.id,
-      eventoId,
-      recursoId: a.recurso_id,
-      recursoNombre: a.recursos?.nombre || '',
-      unidad: a.recursos?.unidad || 'unidades',
-      cantidad: a.cantidad,
-    }));
-  }
-
-  async function asignarRecurso(data) {
-    const recurso = await getById(data.recursoId);
-    if (!recurso) return { ok: false, error: 'Recurso no encontrado.' };
-    if (!recurso.disponible) return { ok: false, error: 'El recurso no está disponible.' };
-    if (data.cantidad < 1) return { ok: false, error: 'La cantidad debe ser al menos 1.' };
-    if (data.cantidad > recurso.cantidad) {
-      return { ok: false, error: `Solo hay ${recurso.cantidad} ${recurso.unidad} disponibles.` };
-    }
-    // upsert por (evento_id, recurso_id)
-    const { data: ya } = await DB.from(PUENTE).select('id')
-      .eq('evento_id', data.eventoId).eq('recurso_id', data.recursoId)
-      .maybeSingle();
-    let error;
-    if (ya) {
-      ({ error } = await DB.from(PUENTE).update({ cantidad: parseInt(data.cantidad, 10) }).eq('id', ya.id));
-    } else {
-      ({ error } = await DB.from(PUENTE).insert({
-        evento_id: data.eventoId, recurso_id: data.recursoId, cantidad: parseInt(data.cantidad, 10),
-      }));
-    }
-    if (error) return { ok: false, error: localMsg(error) };
-    return { ok: true };
-  }
-
-  async function quitarAsignacion(eventoId, recursoId) {
-    const { error } = await DB.from(PUENTE).delete().eq('evento_id', eventoId).eq('recurso_id', recursoId);
-    if (error) return { ok: false, error: localMsg(error) };
-    return { ok: true };
-  }
-
   return {
     getAll,
     getById,
@@ -182,8 +127,5 @@ const RecursosModel = (() => {
     toggleDisponible,
     eliminar,
     getEstadisticas,
-    getAsignacionesPorEvento,
-    asignarRecurso,
-    quitarAsignacion,
   };
 })();

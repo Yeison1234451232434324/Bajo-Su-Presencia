@@ -86,11 +86,10 @@ Se usa para **variables y funciones/métodos** en JavaScript y PHP.
 | `no-use-before-define` | `functions: false` | Las funciones declaradas se elevan; reordenar ~120 usos obligaba a reescribir el orden de archivos enteros. Clases y variables siguen sujetas a la regla. |
 | `no-param-reassign` | `props: false` | Los callbacks de DOM mutan el nodo recibido por diseño. Reasignar el parámetro sigue prohibido. |
 | `no-console` | permite `warn` y `error` | Son el canal de diagnóstico de la app; `log`/`info` siguen avisando. |
-| `sb.js` | excluido | Copia local de supabase-js (terceros, ya minificado). |
 
 Además hay `eslint-disable` puntuales y comentados (`no-alert` en el respaldo de
 `alertify`, `no-new` en `new Chart(...)`, `no-loop-func`, `class-methods-use-this`
-en métodos privados, `no-console` en `dev/forense.tracer.js`).
+en métodos privados).
 
 ## 4. PHP (backend) — PSR-12
 
