@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Exceptions\ApiException;
+use App\Http\ClientIp;
 use App\Http\Request;
 use App\Http\Response;
 use App\Security\AuthMiddleware;
@@ -50,7 +51,7 @@ final class PqrController
         // Público y sin autenticación: sin límite, cualquiera podría radicar
         // PQR en bucle usando el correo de un tercero como remitente y
         // bombardearlo de confirmaciones ("email bombing").
-        (new PublicEndpointGuard())->assertAllowed('pqr', (string) ($_SERVER['REMOTE_ADDR'] ?? ''), 5, 15);
+        (new PublicEndpointGuard())->assertAllowed('pqr', ClientIp::resolve($_SERVER), 5, 15);
 
         $tipo        = trim((string) $request->input('tipo', ''));
         $nombre      = trim((string) $request->input('nombre', ''));

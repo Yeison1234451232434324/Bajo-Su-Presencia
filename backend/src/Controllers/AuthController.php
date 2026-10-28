@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Exceptions\ApiException;
+use App\Http\ClientIp;
 use App\Http\Request;
 use App\Http\Response;
 use App\Security\AuthMiddleware;
@@ -164,10 +165,10 @@ final class AuthController
         Response::success(null, 'Contraseña actualizada. Ya puedes iniciar sesión.');
     }
 
-    /** IP del cliente para auditoría (no confía en cabeceras manipulables). */
+    /** IP del cliente para auditoría (ver ClientIp: solo confía en la cabecera tras el proxy). */
     private function clientIp(): string
     {
-        return (string) ($_SERVER['REMOTE_ADDR'] ?? '');
+        return ClientIp::resolve($_SERVER);
     }
 
     /** User-Agent (truncado) para auditoría. */

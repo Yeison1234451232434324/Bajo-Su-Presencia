@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Security;
 
+use App\Config\Env;
 use App\Exceptions\ApiException;
 
 /**
@@ -29,7 +30,8 @@ use App\Exceptions\ApiException;
  */
 final class RateLimiter
 {
-    private const LIMITE            = 60;
+    /** Peticiones por IP y ventana si RATE_LIMIT_PER_MINUTE no está definida. */
+    private const LIMITE_POR_DEFECTO = 60;
     private const VENTANA_SEGUNDOS  = 60;
     private const APCU_PREFIX       = 'ratelimit:';
 
@@ -54,13 +56,21 @@ final class RateLimiter
             return;
         }
 
-        if ($conteo > self::LIMITE) {
+        if ($conteo > self::limite()) {
             header('Retry-After: ' . self::VENTANA_SEGUNDOS);
             throw new ApiException(
                 'Demasiadas solicitudes. Inténtalo de nuevo en un minuto.',
                 429
             );
         }
+    }
+
+    /** Límite vigente: configurable por entorno (RATE_LIMIT_PER_MINUTE). */
+    private static function limite(): int
+    {
+        $configurado = Env::int('RATE_LIMIT_PER_MINUTE', self::LIMITE_POR_DEFECTO);
+
+        return $configurado > 0 ? $configurado : self::LIMITE_POR_DEFECTO;
     }
 
     private static function contarConApcu(string $ip): int
