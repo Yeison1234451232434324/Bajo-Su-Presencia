@@ -89,12 +89,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             ${i} <i class="bx bxs-star u-icono-dorado u-font-085" aria-hidden="true"></i>
           </span>
           <div class="dist-barra-wrap">
-            <div class="dist-barra" style="width:${pct}%"></div>
+            <div class="dist-barra" data-pct="${pct}"></div>
           </div>
           <span class="dist-cant">${cant}</span>
         </div>`;
     }
     distWrap.innerHTML = distHtml;
+    // El CSP bloquea style="" en línea: el ancho se asigna vía CSSOM.
+    distWrap.querySelectorAll('.dist-barra').forEach((barra) => {
+      barra.style.width = `${barra.dataset.pct}%`;
+    });
   }
 
   // ════════════════════════════════════════════════════════════════

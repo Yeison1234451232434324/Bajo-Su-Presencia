@@ -46,7 +46,7 @@
 
 /* Tarjeta de promedio con acento dorado */
 .cal-stat-promedio {
-  border-color: #F5C215;
+  border-color: var(--accent);
   background: linear-gradient(135deg, #fffbeb 0%, #fff 100%);
 }
 
@@ -113,8 +113,8 @@
   height: 100%;
   background: linear-gradient(90deg, var(--primary), var(--accent));
   border-radius: 999px;
+  width: 0;
   transition: width 0.5s ease;
-  min-width: 4px;
 }
 .dist-cant {
   width: 1.75rem; font-size: 0.9375rem; color: var(--muted);
@@ -219,9 +219,15 @@
 }
 
 /* Fase 2B: antes style="" inline en las tarjetas de estadísticas */
-.cal-stat-icon--eventos { background: #dbeafe; color: #1d4ed8; }
-.cal-stat-icon--mejor   { background: #dbeafe; color: #059669; }
-.cal-stat-icon--peor    { background: #dbeafe; color: #dc2626; }
+/* Mismo criterio que las tarjetas del panel admin: ícono "fantasma" de un solo color */
+.cal-stat-icon,
+.cal-stat-icon--eventos,
+.cal-stat-icon--mejor,
+.cal-stat-icon--peor {
+  background: transparent;
+  border: 1.5px solid var(--primary);
+  color: var(--primary);
+}
 
 /* Fase 2C: antes style="" inline (color según nota, 3 niveles fijos) */
 .hist-card--alta  { border-left-color: #059669; }

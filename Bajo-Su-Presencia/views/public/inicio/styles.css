@@ -751,10 +751,15 @@ a    { text-decoration: none; }
 .footer-bottom {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   flex-wrap: wrap;
   gap: 0.5rem;
   padding: 1.25rem 0 2rem;
+}
+
+.footer-versiculo-final {
+  text-align: center;
+  margin-bottom: 1.25rem;
 }
 
 .footer-copy {

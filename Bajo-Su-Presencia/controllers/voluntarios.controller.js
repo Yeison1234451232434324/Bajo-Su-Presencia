@@ -552,12 +552,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="dist-fila">
           <span class="dist-label">${i} <i class="bx bxs-star star-on" aria-hidden="true"></i></span>
           <div class="dist-barra-wrap">
-            <div class="dist-barra" style="width:${pct}%"></div>
+            <div class="dist-barra" data-pct="${pct}"></div>
           </div>
           <span class="dist-cant">${cant}</span>
         </div>`;
     }
     distWrap.innerHTML = distHtml;
+    // El CSP bloquea style="" en línea: el ancho se asigna vía CSSOM.
+    distWrap.querySelectorAll('.dist-barra').forEach((barra) => {
+      barra.style.width = `${barra.dataset.pct}%`;
+    });
 
     // Ocultar historial si estaba abierto y mostrar resumen
     panelHistorial.style.display = 'none';

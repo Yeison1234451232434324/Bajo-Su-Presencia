@@ -551,8 +551,8 @@
 }
 .dist-barra {
   height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent));
+  width: 0;
   border-radius: 999px; transition: width 0.4s ease;
-  min-width: 4px;
 }
 .dist-cant {
   width: 1.5rem; font-size: 0.8125rem; color: var(--muted);
