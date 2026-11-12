@@ -15,7 +15,7 @@
   font-family: var(--font-title);
   font-size: 1.6rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   margin-bottom: 1.5rem;
 }
 
@@ -75,21 +75,21 @@
   width: 52px;
   height: 52px;
   border-radius: 0.875rem;
-  background: var(--success);
+  background: var(--success-solid);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 .rep-ev-icon i { font-size: 1.5rem; color: var(--text-on-primary); }
-.rep-ev-icon--done { background: var(--success); }
+.rep-ev-icon--done { background: var(--success-solid); }
 
 .rep-ev-body { flex: 1; min-width: 0; }
 .rep-ev-titulo {
   font-family: var(--font-title);
   font-size: 1.15rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   margin-bottom: 0.35rem;
 }
 .rep-ev-meta {
@@ -100,7 +100,7 @@
   gap: 0.35rem;
   margin-bottom: 0.2rem;
 }
-.rep-ev-meta i { font-size: 0.95rem; color: var(--primary); }
+.rep-ev-meta i { font-size: 0.95rem; color: var(--text-brand); }
 .rep-ev-cargado {
   font-size: 0.9375rem;
   font-weight: 700;
@@ -128,7 +128,7 @@
   font-family: var(--font-text);
   font-size: 1rem;
   font-weight: 600;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   cursor: pointer;
   transition: background 0.2s;
 }
@@ -187,12 +187,12 @@
   justify-content: center;
   flex-shrink: 0;
 }
-.rep-form-card-icon i { font-size: 1.3rem; color: var(--primary); }
+.rep-form-card-icon i { font-size: 1.3rem; color: var(--text-brand); }
 .rep-form-card-header h3 {
   font-family: var(--font-title);
   font-size: 1.4rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
 }
 
 /* ── Campos del formulario ───────────────────────────────────── */
@@ -209,8 +209,8 @@
 }
 .rep-field label i { font-size: 1.1rem; }
 .rep-field label i.bx-dollar       { color: var(--success); }
-.rep-field label i.bx-error-circle { color: var(--amber); }
-.rep-field label i.bx-comment-detail { color: var(--primary); }
+.rep-field label i.bx-error-circle { color: var(--warning); }
+.rep-field label i.bx-comment-detail { color: var(--text-brand); }
 
 .rep-input, .rep-textarea {
   width: 100%;
@@ -317,7 +317,7 @@
   padding: 3rem 1rem;
   color: var(--muted);
 }
-.rep-empty i { font-size: 3rem; display: block; margin-bottom: 0.75rem; color: var(--border-light); }
+.rep-empty i { font-size: 3rem; display: block; margin-bottom: 0.75rem; color:  var(--icon-muted); }
 .rep-empty p { font-size: 1rem; }
 
 /* ── Responsive ── */

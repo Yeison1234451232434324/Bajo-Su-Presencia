@@ -34,7 +34,7 @@
 
 /* Tarjeta de estadística */
 .cal-stat-card {
-  background: #fff;
+  background: var(--surface);
   border: 2px solid var(--border);
   border-radius: 1.25rem;
   padding: 1.25rem 1.5rem;
@@ -47,7 +47,7 @@
 /* Tarjeta de promedio con acento dorado */
 .cal-stat-promedio {
   border-color: var(--accent);
-  background: linear-gradient(135deg, #fffbeb 0%, #fff 100%);
+  background: linear-gradient(135deg, var(--warning-bg) 0%, var(--surface) 100%);
 }
 
 .cal-stat-icon {
@@ -55,7 +55,7 @@
   border-radius: 0.875rem;
   display: flex; align-items: center; justify-content: center;
   font-size: 1.4rem; flex-shrink: 0;
-  background: #fef3c7; color: #d97706;
+  background: var(--warning-bg); color: var(--warning);
 }
 
 .cal-stat-label {
@@ -67,7 +67,7 @@
 .cal-stat-value {
   font-family: var(--font-title);
   font-size: 2.25rem; font-weight: 700;
-  color: var(--primary-dark); line-height: 1;
+  color: var(--text-brand-strong); line-height: 1;
   margin-bottom: 0.25rem;
 }
 
@@ -79,7 +79,7 @@
 
 /* ── Distribución de estrellas ── */
 .cal-dist-card {
-  background: #fff;
+  background: var(--surface);
   border: 2px solid var(--border);
   border-radius: 1.25rem;
   padding: 1.5rem 2rem;
@@ -90,11 +90,11 @@
 .cal-section-title {
   font-family: var(--font-title);
   font-size: 1.5rem; font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   margin-bottom: 1.25rem;
   display: flex; align-items: center; gap: 0.5rem;
 }
-.cal-section-title i { color: var(--primary); font-size: 1.4rem; }
+.cal-section-title i { color: var(--text-brand); font-size: 1.4rem; }
 
 /* Filas de distribución */
 .dist-fila {
@@ -103,11 +103,11 @@
 }
 .dist-label {
   width: 2.75rem; font-size: 0.9375rem; font-weight: 700;
-  color: #374151; text-align: right; flex-shrink: 0;
+  color: var(--text-secondary); text-align: right; flex-shrink: 0;
   display: flex; align-items: center; gap: 3px; justify-content: flex-end;
 }
 .dist-barra-wrap {
-  flex: 1; background: #f3f0e8; border-radius: 999px; height: 12px; overflow: hidden;
+  flex: 1; background: var(--surface-2); border-radius: 999px; height: 12px; overflow: hidden;
 }
 .dist-barra {
   height: 100%;
@@ -128,7 +128,7 @@
 
 /* Tarjeta individual de calificación */
 .hist-card {
-  background: #fff;
+  background: var(--surface);
   border: 2px solid var(--border);
   border-left: 5px solid #059669; /* color dinámico por JS */
   border-radius: 1.25rem;
@@ -148,7 +148,7 @@
 .hist-evento {
   font-family: var(--font-title);
   font-size: 1.35rem; font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
 }
 .hist-fecha {
   font-size: 0.9375rem; color: var(--muted);
@@ -172,18 +172,18 @@
 /* Bloque de observaciones del admin */
 .hist-observacion {
   display: flex; gap: 0.75rem; align-items: flex-start;
-  background: #faf8f3;
+  background: var(--background);
   border: 1px solid var(--border);
   border-radius: 0.875rem;
   padding: 0.875rem 1rem;
   margin-top: 0.5rem;
 }
 .hist-obs-icon {
-  font-size: 1.2rem; color: var(--primary);
+  font-size: 1.2rem; color: var(--text-brand);
   flex-shrink: 0; margin-top: 2px;
 }
 .hist-observacion p {
-  font-size: 1rem; color: #374151;
+  font-size: 1rem; color: var(--text-secondary);
   font-style: italic; line-height: 1.6;
 }
 
@@ -191,10 +191,10 @@
 .hist-vacio {
   display: flex; flex-direction: column; align-items: center;
   gap: 0.75rem; padding: 3rem;
-  background: #fff; border: 2px dashed var(--border);
-  border-radius: 1.25rem; text-align: center; color: #9ca3af;
+  background: var(--surface); border: 2px dashed var(--border);
+  border-radius: 1.25rem; text-align: center; color: var(--text-faint);
 }
-.hist-vacio i { font-size: 3rem; color: #d1d5db; }
+.hist-vacio i { font-size: 3rem; color: var(--icon-muted); }
 .hist-vacio p { font-size: 1rem; font-weight: 600; }
 .hist-vacio small { font-size: 0.9375rem; }
 
@@ -226,13 +226,13 @@
 .cal-stat-icon--peor {
   background: transparent;
   border: 1.5px solid var(--primary);
-  color: var(--primary);
+  color: var(--text-brand);
 }
 
 /* Fase 2C: antes style="" inline (color según nota, 3 niveles fijos) */
 .hist-card--alta  { border-left-color: #059669; }
-.hist-card--alta  .hist-nota-grande { color: #059669; }
+.hist-card--alta  .hist-nota-grande { color: var(--success); }
 .hist-card--media { border-left-color: #d97706; }
-.hist-card--media .hist-nota-grande { color: #d97706; }
+.hist-card--media .hist-nota-grande { color: var(--warning); }
 .hist-card--baja  { border-left-color: #dc2626; }
-.hist-card--baja  .hist-nota-grande { color: #dc2626; }
+.hist-card--baja  .hist-nota-grande { color: var(--danger); }

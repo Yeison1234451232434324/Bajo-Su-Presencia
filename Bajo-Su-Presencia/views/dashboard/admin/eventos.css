@@ -59,9 +59,9 @@
   font-size: 1rem;
   color: var(--warning);
 }
-.ev-sin-recursos-msg i { font-size: 1.2rem; color: var(--amber); }
+.ev-sin-recursos-msg i { font-size: 1.2rem; color: var(--warning); }
 .ev-sin-recursos-msg a {
-  color: var(--primary);
+  color: var(--text-brand);
   font-weight: 700;
   text-decoration: underline;
   margin-left: 0.25rem;
@@ -123,7 +123,7 @@
 /* Ícono de categoría */
 .ev-rec-icon {
   font-size: 1.1rem;
-  color: var(--primary);
+  color: var(--text-brand);
   flex-shrink: 0;
   grid-row: 1;
   grid-column: 1;
@@ -234,13 +234,13 @@
   font-family: var(--font-title);
   font-size: 1.75rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   margin-bottom: 1.25rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
-.ev-publicados-titulo i { color: var(--primary); }
+.ev-publicados-titulo i { color: var(--text-brand); }
 
 /* Tarjeta de evento publicado */
 .ev-publicado-card {
@@ -268,7 +268,7 @@
   font-family: var(--font-title);
   font-size: 1.35rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
 }
 .ev-pub-meta {
   font-size: 0.9375rem;
@@ -302,7 +302,7 @@
 .ev-pub-recursos-label {
   font-size: 0.8125rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   display: flex;
   align-items: center;
   gap: 0.3rem;
@@ -350,7 +350,7 @@
   color: var(--text-muted);
   text-align: center;
 }
-.ev-lista-vacia i { font-size: 2.5rem; color: var(--border-light); }
+.ev-lista-vacia i { font-size: 2.5rem; color:  var(--icon-muted); }
 
 /* ══════════════════════════════════════════════════
    PLANTILLAS DE EVENTOS
@@ -373,7 +373,7 @@
   letter-spacing: 0.05em;
   margin-bottom: 0.875rem;
 }
-.ev-plantillas-label i { font-size: 1rem; color: var(--primary); }
+.ev-plantillas-label i { font-size: 1rem; color: var(--text-brand); }
 .ev-plantillas-grid {
   display: flex;
   flex-wrap: wrap;
@@ -388,7 +388,7 @@
   border: 2px solid var(--border);
   border-radius: 999px;
   background: var(--surface);
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   font-size: 0.9375rem;
   font-weight: 600;
   cursor: pointer;
@@ -398,7 +398,7 @@
 .ev-plantilla-btn:hover {
   border-color: var(--primary);
   background: var(--info-bg);
-  color: var(--primary);
+  color: var(--text-brand);
 }
 .ev-plantilla-btn.activa {
   border-color: var(--primary);
@@ -511,7 +511,7 @@
 .btn-ev-eliminar {
   background: transparent;
   border: 1.5px solid #1E3A8A;
-  color: #1E3A8A;
+  color: var(--text-brand);
 }
 
 .btn-ev-ver:hover,
@@ -581,7 +581,7 @@
   font-family: var(--font-title);
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -749,7 +749,7 @@
   gap: 0.4rem;
   font-size: 0.8125rem;
   font-weight: 700;
-  color: var(--primary);
+  color: var(--text-brand);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 0.75rem;
@@ -800,7 +800,7 @@
 }
 .ev-preview-empty i {
   font-size: 2.5rem;
-  color: var(--border);
+  color:  var(--icon-muted);
 }
 .ev-preview-empty p {
   font-size: 0.9375rem;
@@ -812,7 +812,7 @@
   font-family: var(--font-title, 'EB Garamond', serif);
   font-size: 1.2rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   margin-bottom: 0.75rem;
   line-height: 1.3;
   word-break: break-word;

@@ -149,7 +149,7 @@
 .btn-ver, .btn-editar, .btn-toggle {
   background: transparent;
   border: 1.5px solid #1E3A8A;
-  color: #1E3A8A;
+  color: var(--text-brand);
 }
 .btn-ver:hover, .btn-editar:hover, .btn-toggle:hover { background: #1E3A8A; color: #fff; }
 
@@ -206,7 +206,7 @@
   font-family: var(--font-title);
   font-size: 1.75rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
 }
 .btn-cerrar-modal {
   background: var(--surface-2);
@@ -326,7 +326,7 @@
 }
 .perfil-row:last-child { border-bottom: none; }
 .perfil-row i {
-  color: var(--primary);
+  color: var(--text-brand);
   font-size: 1.15rem;
   margin-top: 0.1rem;
   flex-shrink: 0;
@@ -435,7 +435,7 @@
   border-radius: 0.75rem;
   font-family: var(--font-text);
   font-size: 0.9375rem;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   background: var(--surface);
   outline: none;
   cursor: pointer;
@@ -459,7 +459,7 @@
 .usr-fecha-label {
   font-size: 0.8125rem;
   font-weight: 700;
-  color: var(--primary);
+  color: var(--text-brand);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   white-space: nowrap;

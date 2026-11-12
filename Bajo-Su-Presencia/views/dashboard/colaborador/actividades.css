@@ -4,7 +4,7 @@
 
 /* ── Grid de eventos ─────────────────────────────────────────── */
 .act-eventos-wrap {
-  background: #fff;
+  background: var(--surface);
   border-radius: 1.25rem;
   padding: 2rem;
   border: 2px solid var(--border);
@@ -16,7 +16,7 @@
   font-family: var(--font-title);
   font-size: 1.6rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   margin-bottom: 1.5rem;
 }
 
@@ -54,7 +54,7 @@
   padding: 1.25rem;
   border: 2px solid var(--border);
   border-radius: 1rem;
-  background: #faf8f3;
+  background: var(--background);
   cursor: pointer;
   transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
 }
@@ -85,7 +85,7 @@
   font-family: var(--font-title);
   font-size: 1.2rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   margin-bottom: 0.4rem;
   line-height: 1.3;
 }
@@ -98,11 +98,11 @@
   gap: 0.35rem;
   margin-bottom: 0.2rem;
 }
-.act-ev-meta i { font-size: 0.95rem; color: var(--primary); }
-.act-ev-vol { color: #059669 !important; }
-.act-ev-vol i { color: #059669 !important; }
-.act-ev-inscritos { color: #1d4ed8 !important; font-weight: 600; }
-.act-ev-inscritos i { color: #1d4ed8 !important; }
+.act-ev-meta i { font-size: 0.95rem; color: var(--text-brand); }
+.act-ev-vol { color: var(--success) !important; }
+.act-ev-vol i { color: var(--success) !important; }
+.act-ev-inscritos { color: var(--info) !important; font-weight: 600; }
+.act-ev-inscritos i { color: var(--info) !important; }
 
 /* ── Barra superior de la vista de actividades ───────────────── */
 .act-topbar {
@@ -119,17 +119,17 @@
   align-items: center;
   gap: 0.4rem;
   padding: 0.6rem 1.2rem;
-  background: #f3f4f6;
+  background: var(--surface-2);
   border: 2px solid var(--border);
   border-radius: 0.75rem;
   font-family: var(--font-text);
   font-size: 1rem;
   font-weight: 600;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   cursor: pointer;
   transition: background 0.2s;
 }
-.btn-volver:hover { background: #e5e7eb; }
+.btn-volver:hover { background: var(--border-light); }
 
 .btn-nueva-actividad {
   display: flex;
@@ -182,7 +182,7 @@
 
 /* ── Sección de actividades ──────────────────────────────────── */
 .act-section {
-  background: #fff;
+  background: var(--surface);
   border-radius: 1.25rem;
   padding: 1.75rem;
   border: 2px solid var(--border);
@@ -199,7 +199,7 @@
   font-family: var(--font-title);
   font-size: 1.4rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
 }
 .act-contador {
   font-size: 0.9375rem;
@@ -216,12 +216,12 @@
   border: 2px solid var(--border);
   border-radius: 0.875rem;
   margin-bottom: 0.875rem;
-  background: #fff;
+  background: var(--surface);
   transition: background 0.2s, border-color 0.2s;
 }
 .act-item--completada {
-  background: #f0fdf4;
-  border-color: #bbf7d0;
+  background: var(--success-bg);
+  border-color: var(--success-border);
 }
 
 .act-check-btn {
@@ -235,11 +235,11 @@
 }
 .act-check-icon {
   font-size: 1.5rem;
-  color: #d1d5db;
+  color: var(--icon-muted);
   transition: color 0.2s;
 }
-.act-check-icon--done { color: #16a34a; }
-.act-check-btn:hover .act-check-icon:not(.act-check-icon--done) { color: var(--primary); }
+.act-check-icon--done { color: var(--success); }
+.act-check-btn:hover .act-check-icon:not(.act-check-icon--done) { color: var(--text-brand); }
 
 .act-item-body { flex: 1; min-width: 0; }
 
@@ -256,11 +256,11 @@
   font-family: var(--font-text);
   font-size: 1.05rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
 }
 .act-titulo--tachado {
   text-decoration: line-through;
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .act-item-desc {
@@ -277,7 +277,7 @@
   align-items: center;
   gap: 0.3rem;
 }
-.act-item-asignado i { color: var(--primary); }
+.act-item-asignado i { color: var(--text-brand); }
 
 /* ── Badges de prioridad ─────────────────────────────────────── */
 .act-prio-badge {
@@ -288,9 +288,9 @@
   white-space: nowrap;
   flex-shrink: 0;
 }
-.act-prio--alta  { background: #fee2e2; color: #dc2626; }
-.act-prio--media { background: #fef3c7; color: #d97706; }
-.act-prio--baja  { background: #dbeafe; color: #1d4ed8; }
+.act-prio--alta  { background: var(--danger-bg); color: var(--danger); }
+.act-prio--media { background: var(--warning-bg); color: var(--warning); }
+.act-prio--baja  { background: var(--info-bg); color: var(--info); }
 
 /* ── Botones de acción del item ──────────────────────────────── */
 .act-item-acciones {
@@ -315,10 +315,10 @@
 }
 .act-btn-accion:active { transform: scale(0.93); }
 
-.act-btn-editar  { background: #dbeafe; color: #1d4ed8; }
-.act-btn-editar:hover  { background: #bfdbfe; }
-.act-btn-eliminar { background: #fee2e2; color: #dc2626; }
-.act-btn-eliminar:hover { background: #fecaca; }
+.act-btn-editar  { background: var(--info-bg); color: var(--info); }
+.act-btn-editar:hover  { background: var(--info-bg); }
+.act-btn-eliminar { background: var(--danger-bg); color: var(--danger); }
+.act-btn-eliminar:hover { background: var(--danger-bg); }
 
 /* ── Estado vacío ────────────────────────────────────────────── */
 .act-empty {
@@ -330,7 +330,7 @@
   font-size: 3rem;
   margin-bottom: 0.75rem;
   display: block;
-  color: #d1d5db;
+  color: var(--icon-muted);
 }
 .act-empty p { font-size: 1rem; }
 
@@ -354,7 +354,7 @@
 }
 
 .act-modal-box {
-  background: #fff;
+  background: var(--surface);
   border-radius: 1.25rem;
   padding: 2rem;
   width: 100%;
@@ -380,7 +380,7 @@
   font-family: var(--font-title);
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
 }
 .act-modal-close {
   background: none;
@@ -393,7 +393,7 @@
   border-radius: 0.4rem;
   transition: background 0.2s;
 }
-.act-modal-close:hover { background: #f3f4f6; color: var(--text-primary); }
+.act-modal-close:hover { background: var(--surface-2); color: var(--text-primary); }
 
 .act-form-row {
   display: grid;
@@ -425,7 +425,7 @@
 
 .btn-act-cancelar {
   padding: 0.875rem 1.5rem;
-  background: #f3f4f6;
+  background: var(--surface-2);
   color: var(--muted);
   border: 2px solid var(--border);
   border-radius: 0.875rem;
@@ -435,7 +435,7 @@
   cursor: pointer;
   transition: background 0.2s;
 }
-.btn-act-cancelar:hover { background: #e5e7eb; }
+.btn-act-cancelar:hover { background: var(--border-light); }
 
 /* ── Responsive ── */
 @media (max-width: 768px) {

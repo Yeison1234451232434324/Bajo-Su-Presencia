@@ -98,7 +98,7 @@
   gap: 0.4rem;
   margin-bottom: 0.6rem;
 }
-.perfil-foto-titulo i { color: var(--primary); font-size: 1.2rem; }
+.perfil-foto-titulo i { color: var(--text-brand); font-size: 1.2rem; }
 .perfil-foto-opcional { font-weight: 400; color: var(--muted); font-size: 0.9375rem; }
 .perfil-foto-botones { display: flex; flex-wrap: wrap; gap: 0.6rem; }
 .perfil-foto-btn {
@@ -122,23 +122,23 @@
   gap: 0.4rem;
   padding: 0.55rem 1.1rem;
   border-radius: 0.75rem;
-  background: #fff;
-  color: #dc2626;
-  border: 2px solid #fecaca;
+  background: var(--surface);
+  color: var(--danger);
+  border: 2px solid var(--danger-border);
   font-family: var(--font-text);
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
   transition: background 0.15s;
 }
-.perfil-foto-quitar:hover { background: #fee2e2; }
+.perfil-foto-quitar:hover { background: var(--danger-bg); }
 
 /* ── Aviso cuando no hay perfil ── */
 .perfil-sin-datos {
   display: none;
-  background: #fee2e2;
-  color: #dc2626;
-  border: 2px solid #fecaca;
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 2px solid var(--danger-border);
   border-radius: 1rem;
   padding: 1.25rem 1.5rem;
   font-weight: 600;
@@ -150,7 +150,7 @@
 
 /* ── Tarjeta del formulario ── */
 .form-card {
-  background: #fff;
+  background: var(--surface);
   border-radius: 1.25rem;
   padding: 2.25rem;
   border: 2px solid var(--border);
@@ -173,20 +173,20 @@
 .form-control {
   width: 100%;
   padding: 0.875rem 1rem;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--border-light);
   border-radius: 0.875rem;
   font-family: var(--font-text);
   font-size: 1rem;
   color: var(--text-primary);
-  background: #fff;
+  background: var(--surface);
   outline: none;
   transition: border-color 0.2s;
   resize: none;
 }
 .form-control:focus { border-color: var(--primary); }
-.form-control::placeholder { color: #9ca3af; }
+.form-control::placeholder { color: var(--text-faint); }
 .form-control:disabled,
-.form-control[readonly] { background: #f3f4f6; color: #6b7280; cursor: not-allowed; }
+.form-control[readonly] { background: var(--surface-2); color: var(--text-muted); cursor: not-allowed; }
 
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
 @media (max-width: 640px) { .form-row { grid-template-columns: 1fr; } }
@@ -247,7 +247,7 @@
 
 /* ── Mensaje de error inline (usado por BSPVal._err) ── */
 .campo-error {
-  color: #dc2626;
+  color: var(--danger);
   font-size: 0.9375rem;
   margin-top: 0.375rem;
   display: block;

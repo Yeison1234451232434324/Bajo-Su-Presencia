@@ -31,7 +31,7 @@
 .stat-icon--danger {
   background: transparent;
   border: 1.5px solid var(--primary);
-  color: var(--primary);
+  color: var(--text-brand);
 }
 
 /* badge-red/badge-purple: usados por el ranking de "Voluntarios Destacados"
@@ -46,10 +46,10 @@
 /* Avatares de "Voluntarios Destacados": fondo SÓLIDO (no el tinte pálido
    de --*-bg, que dejaría el texto blanco del avatar ilegible). */
 .volunteer-avatar--0 { background: var(--primary); }
-.volunteer-avatar--1 { background: var(--warning); }
-.volunteer-avatar--2 { background: var(--success); }
-.volunteer-avatar--3 { background: var(--purple); }
-.volunteer-avatar--4 { background: var(--danger); }
+.volunteer-avatar--1 { background: var(--warning-solid); }
+.volunteer-avatar--2 { background: var(--success-solid); }
+.volunteer-avatar--3 { background: var(--purple-solid); }
+.volunteer-avatar--4 { background: var(--danger-solid); }
 
 /* Subtítulo de contexto real bajo cada valor (reemplaza los porcentajes
    inventados que había antes: aquí solo texto neutro con datos reales). */
@@ -234,10 +234,10 @@
   margin-top: 0.3rem;
   flex-shrink: 0;
 }
-.activity-dot--green  { background: var(--success); }
-.activity-dot--blue   { background: var(--info); }
+.activity-dot--green  { background: var(--success-solid); }
+.activity-dot--blue   { background: var(--info-solid); }
 .activity-dot--amber  { background: var(--amber); }
-.activity-dot--purple { background: var(--purple); }
+.activity-dot--purple { background: var(--purple-solid); }
 
 .activity-body {
   display: flex;
@@ -348,7 +348,7 @@
 .btn-ver-mas {
   font-size: 0.9375rem;
   font-weight: 600;
-  color: var(--primary);
+  color: var(--text-brand);
   background: var(--info-bg);
   padding: 0.35rem 0.875rem;
   border-radius: 999px;
@@ -376,7 +376,7 @@
   text-align: left;
   padding: 0.875rem 1.75rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   font-size: 0.8125rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -445,7 +445,7 @@
   border-radius: 0.5rem;
   font-family: var(--font-text);
   font-size: 0.9375rem;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   background: var(--surface);
   outline: none;
   cursor: pointer;
@@ -462,7 +462,7 @@
   border: 2px solid var(--success-border);
   border-radius: 0.5rem;
   background: var(--surface);
-  color: var(--primary);
+  color: var(--text-brand);
   font-family: var(--font-text);
   font-size: 0.9375rem;
   font-weight: 600;
@@ -470,7 +470,7 @@
   transition: background 0.15s, color 0.15s;
   white-space: nowrap;
 }
-.dash-dt-btn-csv:hover { background: var(--success); color: var(--text-on-primary); border-color: var(--success); }
+.dash-dt-btn-csv:hover { background: var(--success-solid); color: var(--text-on-primary); border-color: var(--success); }
 
 /* Campo de búsqueda */
 .dash-dt-search-wrap {
@@ -490,7 +490,7 @@
   border-radius: 0.625rem;
   font-family: var(--font-text);
   font-size: 0.9375rem;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   background: var(--surface);
   outline: none;
   width: 200px;
@@ -508,7 +508,7 @@
   font-size: 0.9375rem;
   color: var(--muted);
 }
-.dash-dt-info strong { color: var(--primary-dark); }
+.dash-dt-info strong { color: var(--text-brand-strong); }
 
 /* Columnas ordenables */
 .dash-dt-sortable {

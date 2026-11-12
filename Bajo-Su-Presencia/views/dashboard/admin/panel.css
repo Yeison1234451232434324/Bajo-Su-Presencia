@@ -40,50 +40,8 @@ html { font-size: 17px; }
   --font-title:    'EB Garamond', serif;
   --font-text:     'EB Garamond', serif;
 
-  /* ── Design tokens (Light) ──────────────────────────────────
-     Toda superficie/texto/borde del panel debe leer de aquí,
-     nunca un hex suelto. theme.css solo redefine estos mismos
-     nombres bajo [data-theme="dark"]; los componentes no cambian. */
-  --background:      #faf8f3;   /* fondo de página */
-  --surface:          #ffffff;  /* tarjetas, modales, inputs */
-  --surface-2:        #f5f3ee;  /* superficie secundaria (headers de tabla, hover sutil) */
-  --surface-hover:     #f0f4ff; /* hover de filas/items */
-  --border:            #e5e1d8; /* borde estándar (tarjetas) */
-  --border-light:      #e5e7eb; /* borde de inputs/separadores finos */
-  --text-primary:      #1a1a2e;
-  --text-secondary:    #374151;
-  --text-muted:        #6b7280;
-  --text-on-primary:   #ffffff;
-  /* --success y --danger: #047857/#b91c1c en vez de los "puros" #059669/#dc2626.
-     Verificado en QA (módulo 14): como texto de badge sobre --success-bg/
-     --danger-bg (patrón real de uso en toda la app), los tonos puros dan
-     3.32:1 y 3.95:1 — no cumplen WCAG AA para texto normal (mínimo 4.5:1).
-     Estos sí: 4.84:1 y 5.30:1. */
-  --success:           #047857;
-  --success-bg:        #d1fae5;
-  --warning:           #b45309;
-  --warning-bg:        #fef3c7;
-  --warning-border:    #fde68a;
-  --danger:            #b91c1c;
-  --danger-bg:         #fee2e2;
-  --danger-border:     #fecaca;
-  --info:              #1d4ed8;
-  --info-bg:           #dbeafe;
-  --info-border:       #bfdbfe;
-  --success-border:    #a7f3d0;
-  --purple:            #7c3aed;
-  --purple-bg:         #ede9fe;
-
-  /* ── Modales (componente compartido, ver auditoría módulo 11) ── */
-  --modal-overlay-bg:   rgba(15,30,90,0.5);
-  --modal-blur:         3px;
-  --modal-radius:       1.5rem;
-  --modal-shadow:       0 20px 60px rgba(0,0,0,0.2);
-
-  /* Alias retrocompatible: código existente que use var(--bg)/var(--muted)
-     sigue funcionando mientras se termina de migrar a los nombres nuevos. */
-  --bg:    var(--background);
-  --muted: var(--text-muted);
+  /* Los tokens semánticos (superficies, texto, estados, modales) viven en
+     helpers/theme.css — única fuente de verdad para claro y oscuro. */
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -434,7 +392,7 @@ body {
 .panel-header h2 {
   font-family: var(--font-title);
   font-size: 2.75rem; font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
 }
 .panel-header p {
   font-size: 1.15rem;
@@ -467,7 +425,7 @@ body {
 .stat-card .value {
   font-family: var(--font-title);
   font-size: 2.25rem; font-weight: 700;
-  color: var(--primary);
+  color: var(--text-brand);
 }
 .stat-card .sub { font-size: 0.9375rem; color: var(--success); }
 .stat-icon {
@@ -510,7 +468,7 @@ body {
   flex-shrink: 0;
   background: transparent;
   border: 1.5px solid var(--primary);
-  color: var(--primary);
+  color: var(--text-brand);
 }
 .counter-icon--info    { border-color: var(--info);    color: var(--info); }
 .counter-icon--success { border-color: var(--success); color: var(--success); }
@@ -526,7 +484,7 @@ body {
   font-family: var(--font-title);
   font-size: 2rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   line-height: 1.1;
 }
 
@@ -573,7 +531,7 @@ body {
 .chart-card h3 {
   font-family: var(--font-title);
   font-size: 1.35rem; font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   margin-bottom: 1rem;
 }
 
@@ -594,7 +552,7 @@ body {
 .table-card h3 {
   font-family: var(--font-title);
   font-size: 1.25rem; font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
   border-bottom: 2px solid var(--border);
@@ -757,7 +715,7 @@ body {
 .preview-box h3 {
   font-family: var(--font-title);
   font-size: 1.5rem; font-weight: 700;
-  text-align: center; color: var(--primary-dark);
+  text-align: center; color: var(--text-brand-strong);
   margin-bottom: 1rem;
 }
 .preview-text {
@@ -768,7 +726,7 @@ body {
 }
 .preview-verse {
   font-family: var(--font-title);
-  font-size: 1.2rem; color: var(--primary);
+  font-size: 1.2rem; color: var(--text-brand);
   font-weight: 700; text-align: center;
 }
 
@@ -844,7 +802,7 @@ body {
   font-family: var(--font-text);
   font-size: 1rem;
   font-weight: 600;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
 }
 .toast-desc {
   font-family: var(--font-text);
@@ -1242,7 +1200,7 @@ body {
   border-radius: 0.625rem;
   font-family: var(--font-text);
   font-size: 0.9375rem;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   background: var(--surface);
   outline: none;
   cursor: pointer;
@@ -1265,7 +1223,7 @@ body {
   border: 2px solid var(--border-light);
   border-radius: 0.625rem;
   background: var(--surface);
-  color: var(--primary);
+  color: var(--text-brand);
   font-family: var(--font-text);
   font-size: 0.9375rem;
   font-weight: 600;
@@ -1301,7 +1259,7 @@ body {
   border-radius: 0.75rem;
   font-family: var(--font-text);
   font-size: 0.9375rem;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   background: var(--surface);
   outline: none;
   width: 260px;
@@ -1358,7 +1316,7 @@ body {
   border-radius: 1.25rem;
   color: var(--text-muted);
 }
-.bsp-dt-empty svg { color: var(--border-light); }
+.bsp-dt-empty svg { color:  var(--icon-muted); }
 .bsp-dt-empty p { font-size: 1rem; font-weight: 600; color: var(--text-muted); margin: 0; }
 .bsp-dt-empty small { font-size: 0.9375rem; color: var(--text-muted); }
 
@@ -1377,7 +1335,7 @@ body {
   font-size: 0.9375rem;
   color: var(--muted);
 }
-.bsp-dt-info strong { color: var(--primary-dark); }
+.bsp-dt-info strong { color: var(--text-brand-strong); }
 .bsp-dt-info-zero { color: var(--text-muted); font-style: italic; }
 
 /* ── Paginación ── */
@@ -1395,7 +1353,7 @@ body {
   border: 2px solid var(--border-light);
   border-radius: 0.5rem;
   background: var(--surface);
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   font-family: var(--font-text);
   font-size: 0.9375rem;
   font-weight: 600;
@@ -1409,7 +1367,7 @@ body {
 .bsp-dt-pag-btn:hover:not(:disabled):not(.bsp-dt-pag-active) {
   background: var(--info-bg);
   border-color: var(--primary);
-  color: var(--primary);
+  color: var(--text-brand);
 }
 .bsp-dt-pag-active {
   background: linear-gradient(135deg, var(--primary) 0%, var(--amber) 100%);
@@ -1426,7 +1384,7 @@ body {
 .bsp-dt-pag-last,
 .bsp-dt-pag-prev,
 .bsp-dt-pag-next {
-  color: var(--primary);
+  color: var(--text-brand);
 }
 .bsp-dt-pag-ellipsis {
   padding: 0 0.25rem;
@@ -1475,7 +1433,7 @@ body {
 .bsp-dt-filter-label {
   font-size: 0.8125rem;
   font-weight: 700;
-  color: var(--primary);
+  color: var(--text-brand);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -1487,7 +1445,7 @@ body {
   border-radius: 0.625rem;
   font-family: var(--font-text);
   font-size: 0.9375rem;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   background: var(--surface);
   outline: none;
   cursor: pointer;
@@ -1543,7 +1501,7 @@ body {
   font-weight: 600;
   border: 1px solid var(--info-border);
 }
-.bsp-dt-chip strong { color: var(--primary-dark); }
+.bsp-dt-chip strong { color: var(--text-brand-strong); }
 
 .bsp-dt-chip-clear {
   padding: 0.25rem 0.75rem;
@@ -1568,7 +1526,7 @@ body {
   border-color: var(--success-border);
 }
 .bsp-dt-export-csv:hover {
-  background: var(--success) !important;
+  background: var(--success-solid) !important;
   border-color: var(--success) !important;
   color: var(--text-on-primary) !important;
 }
@@ -1578,7 +1536,7 @@ body {
   border-color: var(--info-border);
 }
 .bsp-dt-export-xlsx:hover {
-  background: var(--info) !important;
+  background: var(--info-solid) !important;
   border-color: var(--info) !important;
   color: var(--text-on-primary) !important;
 }

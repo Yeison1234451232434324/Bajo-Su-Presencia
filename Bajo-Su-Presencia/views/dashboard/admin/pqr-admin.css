@@ -55,7 +55,7 @@
   font-family: var(--font-title);
   font-size: 2rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   line-height: 1.2;
 }
 
@@ -104,12 +104,12 @@
   font-size: 1.3rem;
   flex-shrink: 0;
   background: transparent;
-  color: #1e3a8a;
+  color: var(--text-brand);
   border: 1.5px solid #1e3a8a;
 }
-.stat-pqr-icon--warning { color: #1e3a8a; }
-.stat-pqr-icon--info    { color: #1e3a8a; }
-.stat-pqr-icon--success { color: #1e3a8a; }
+.stat-pqr-icon--warning { color: var(--text-brand); }
+.stat-pqr-icon--info    { color: var(--text-brand); }
+.stat-pqr-icon--success { color: var(--text-brand); }
 
 .stat-pqr-label {
   font-size: 0.8125rem;
@@ -123,7 +123,7 @@
   font-family: var(--font-title);
   font-size: 1.9rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   line-height: 1.1;
 }
 
@@ -252,7 +252,7 @@
 }
 
 /* Estado */
-.badge-estado-pendiente  { background: var(--warning-bg); color: var(--amber); }
+.badge-estado-pendiente  { background: var(--warning-bg); color: var(--warning); }
 .badge-estado-enproceso  { background: var(--info-bg); color: var(--info); }
 .badge-estado-resuelto   { background: var(--success-bg); color: var(--success); }
 .badge-estado-cerrado    { background: var(--surface-2); color: var(--text-muted); }
@@ -296,13 +296,13 @@
   transform: scale(0.92);
 }
 
-.btn-ver-pqr      { background: transparent; color: #1e3a8a; border: 1.5px solid #1e3a8a; }
+.btn-ver-pqr      { background: transparent; color: var(--text-brand); border: 1.5px solid #1e3a8a; }
 .btn-ver-pqr:hover { opacity: 0.7; }
 
-.btn-estado-pqr      { background: transparent; color: #1e3a8a; border: 1.5px solid #1e3a8a; }
+.btn-estado-pqr      { background: transparent; color: var(--text-brand); border: 1.5px solid #1e3a8a; }
 .btn-estado-pqr:hover { opacity: 0.7; }
 
-.btn-eliminar-pqr      { background: transparent; color: #1e3a8a; border: 1.5px solid #1e3a8a; }
+.btn-eliminar-pqr      { background: transparent; color: var(--text-brand); border: 1.5px solid #1e3a8a; }
 .btn-eliminar-pqr:hover { opacity: 0.7; }
 
 /* ══════════════════════════════════════════════════
@@ -441,7 +441,7 @@
   font-family: var(--font-title);
   font-size: 1.15rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   margin-bottom: 0.75rem;
   padding-bottom: 0.5rem;
   border-bottom: 2px solid var(--border);
@@ -451,7 +451,7 @@
 }
 
 .pqr-modal-section-title i {
-  color: var(--primary);
+  color: var(--text-brand);
 }
 
 .pqr-descripcion-text {
@@ -506,7 +506,7 @@
 }
 
 .pqr-form-respuesta label i {
-  color: var(--primary);
+  color: var(--text-brand);
 }
 
 .pqr-textarea-respuesta {

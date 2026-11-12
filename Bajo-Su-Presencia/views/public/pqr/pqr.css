@@ -89,7 +89,7 @@
   font-family: var(--font-title);
   font-size: 2.75rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   margin-bottom: 0.75rem;
   line-height: 1.15;
 }
@@ -105,7 +105,7 @@
 
 /* ── Tarjeta del formulario ── */
 .pqr-card {
-  background: #fff;
+  background: var(--surface);
   border-radius: 1.5rem;
   padding: 2.5rem 2.75rem;
   border: 2px solid var(--border);
@@ -124,12 +124,12 @@
   font-family: var(--font-text);
   font-size: 1.05rem;
   font-weight: 600;
-  color: #1a1a2e;
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
 
 .pqr-form-group label i {
-  color: var(--primary);
+  color: var(--text-brand);
   font-size: 1.1rem;
 }
 
@@ -145,12 +145,12 @@
 .pqr-textarea {
   width: 100%;
   padding: 0.875rem 1rem;
-  border: 2px solid #e5e7eb;
+  border: 2px solid var(--border-light);
   border-radius: 0.875rem;
   font-family: var(--font-text);
   font-size: 1rem;
-  color: #1a1a2e;
-  background: #fff;
+  color: var(--text-primary);
+  background: var(--surface);
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
   appearance: none;
@@ -165,7 +165,7 @@
 
 .pqr-input::placeholder,
 .pqr-textarea::placeholder {
-  color: #9ca3af;
+  color: var(--text-faint);
 }
 
 .pqr-select {
@@ -239,7 +239,7 @@
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #10b981, #059669);
+  background: linear-gradient(135deg, #10b981, var(--success-solid));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -256,7 +256,7 @@
   font-family: var(--font-title);
   font-size: 2rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   margin-bottom: 0.75rem;
 }
 
@@ -294,9 +294,9 @@
 /* ── Mensaje de error de validación ── */
 .pqr-error-msg {
   display: none;
-  background: #fee2e2;
-  color: #dc2626;
-  border: 1px solid #fecaca;
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid var(--danger-border);
   border-radius: 0.75rem;
   padding: 0.75rem 1rem;
   font-family: var(--font-text);
@@ -314,15 +314,15 @@
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
+  background: var(--surface-hover);
+  border: 1px solid var(--info-border);
   border-radius: 0.875rem;
   padding: 1rem 1.25rem;
   margin-bottom: 1.75rem;
 }
 
 .pqr-info-note i {
-  color: var(--primary);
+  color: var(--text-brand);
   font-size: 1.25rem;
   flex-shrink: 0;
   margin-top: 0.1rem;
@@ -338,13 +338,13 @@
 
 /* ── Validación de campos ── */
 .campo-invalido {
-  border-color: #e11d48 !important;
+  border-color: var(--danger) !important;
   box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.15) !important;
-  background-color: #fff5f7 !important;
+  background-color: var(--danger-bg) !important;
 }
 .campo-error {
   display: block;
-  color: #e11d48;
+  color: var(--danger);
   font-size: 0.8125rem;
   font-weight: 600;
   margin-top: 5px;

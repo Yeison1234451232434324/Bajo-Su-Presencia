@@ -53,7 +53,7 @@
   font-size: 1.3rem;
   flex-shrink: 0;
   background: transparent;
-  color: #1e3a8a;
+  color: var(--text-brand);
   border: 1.5px solid #1e3a8a;
 }
 .stat-rec-label {
@@ -67,7 +67,7 @@
   font-family: var(--font-title);
   font-size: 1.9rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   line-height: 1.1;
 }
 
@@ -198,19 +198,19 @@
    .acciones-cell base + .btn-accion: componentes compartidos, ver panel.css */
 .acciones-cell { justify-content: center; flex-wrap: wrap; }
 
-.btn-editar-rec   { background: transparent; color: #1e3a8a; border: 1.5px solid #1e3a8a; }
+.btn-editar-rec   { background: transparent; color: var(--text-brand); border: 1.5px solid #1e3a8a; }
 .btn-editar-rec:hover   { opacity: 0.7; }
 
-.btn-toggle-on    { background: transparent; color: #1e3a8a; border: 1.5px solid #1e3a8a; }
+.btn-toggle-on    { background: transparent; color: var(--text-brand); border: 1.5px solid #1e3a8a; }
 .btn-toggle-on:hover    { opacity: 0.7; }
 
-.btn-toggle-off   { background: transparent; color: #1e3a8a; border: 1.5px solid #1e3a8a; }
+.btn-toggle-off   { background: transparent; color: var(--text-brand); border: 1.5px solid #1e3a8a; }
 .btn-toggle-off:hover   { opacity: 0.7; }
 
-.btn-asignar      { background: transparent; color: #1e3a8a; border: 1.5px solid #1e3a8a; }
+.btn-asignar      { background: transparent; color: var(--text-brand); border: 1.5px solid #1e3a8a; }
 .btn-asignar:hover      { opacity: 0.7; }
 
-.btn-eliminar-rec { background: transparent; color: #1e3a8a; border: 1.5px solid #1e3a8a; }
+.btn-eliminar-rec { background: transparent; color: var(--text-brand); border: 1.5px solid #1e3a8a; }
 .btn-eliminar-rec:hover { opacity: 0.7; }
 
 /* ══════════════════════════════════════════════════
@@ -253,7 +253,7 @@
 .modal-header h3 {
   font-family: var(--font-title);
   font-size: 1.75rem; font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
 }
 .btn-cerrar-modal {
   background: var(--surface-2); border: none; border-radius: 0.5rem;

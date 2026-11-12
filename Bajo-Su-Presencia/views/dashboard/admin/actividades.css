@@ -16,7 +16,7 @@
   font-family: var(--font-title);
   font-size: 1.6rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   margin-bottom: 1.5rem;
 }
 
@@ -85,7 +85,7 @@
   font-family: var(--font-title);
   font-size: 1.2rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   margin-bottom: 0.4rem;
   line-height: 1.3;
 }
@@ -98,7 +98,7 @@
   gap: 0.35rem;
   margin-bottom: 0.2rem;
 }
-.act-ev-meta i { font-size: 0.95rem; color: var(--primary); }
+.act-ev-meta i { font-size: 0.95rem; color: var(--text-brand); }
 .act-ev-vol { color: var(--success); }
 .act-ev-vol i { color: var(--success); }
 .act-ev-inscritos { color: var(--info); font-weight: 600; }
@@ -125,7 +125,7 @@
   font-family: var(--font-text);
   font-size: 1rem;
   font-weight: 600;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   cursor: pointer;
   transition: background 0.2s;
 }
@@ -199,7 +199,7 @@
   font-family: var(--font-title);
   font-size: 1.4rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
 }
 .act-contador {
   font-size: 0.9375rem;
@@ -235,11 +235,11 @@
 }
 .act-check-icon {
   font-size: 1.5rem;
-  color: var(--border-light);
+  color:  var(--icon-muted);
   transition: color 0.2s;
 }
 .act-check-icon--done { color: var(--success); }
-.act-check-btn:hover .act-check-icon:not(.act-check-icon--done) { color: var(--primary); }
+.act-check-btn:hover .act-check-icon:not(.act-check-icon--done) { color: var(--text-brand); }
 
 .act-item-body { flex: 1; min-width: 0; }
 
@@ -256,7 +256,7 @@
   font-family: var(--font-text);
   font-size: 1.05rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
 }
 .act-titulo--tachado {
   text-decoration: line-through;
@@ -277,7 +277,7 @@
   align-items: center;
   gap: 0.3rem;
 }
-.act-item-asignado i { color: var(--primary); }
+.act-item-asignado i { color: var(--text-brand); }
 
 /* ── Badges de prioridad ─────────────────────────────────────── */
 .act-prio-badge {
@@ -289,7 +289,7 @@
   flex-shrink: 0;
 }
 .act-prio--alta  { background: var(--danger-bg); color: var(--danger); }
-.act-prio--media { background: var(--warning-bg); color: var(--amber); }
+.act-prio--media { background: var(--warning-bg); color: var(--warning); }
 .act-prio--baja  { background: var(--info-bg); color: var(--info); }
 
 /* ── Botones de acción del item ──────────────────────────────── */
@@ -330,7 +330,7 @@
   font-size: 3rem;
   margin-bottom: 0.75rem;
   display: block;
-  color: var(--border-light);
+  color:  var(--icon-muted);
 }
 .act-empty p { font-size: 1rem; }
 
@@ -381,7 +381,7 @@
   font-family: var(--font-title);
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
 }
 .act-modal-close {
   background: none;

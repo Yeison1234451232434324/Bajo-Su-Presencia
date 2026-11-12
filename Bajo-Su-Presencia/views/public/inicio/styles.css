@@ -1381,7 +1381,7 @@ a    { text-decoration: none; }
 }
 .mobile-lista-menu a:hover {
   background: rgba(30,58,138,0.06);
-  color: var(--primary);
+  color: var(--text-brand);
   padding-left: 2rem;
 }
 

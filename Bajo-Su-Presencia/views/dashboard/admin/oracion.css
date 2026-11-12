@@ -51,13 +51,13 @@
   font-family: var(--font-title);
   font-size: 1.75rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   margin-bottom: 1.25rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
-.or-historial-titulo i { color: var(--primary); }
+.or-historial-titulo i { color: var(--text-brand); }
 
 /* ── Tarjeta de oración ────────────────────────────────────────────────── */
 .or-card {
@@ -108,7 +108,7 @@
   align-items: center;
   gap: 0.3rem;
 }
-.or-card-fecha i { color: var(--primary); }
+.or-card-fecha i { color: var(--text-brand); }
 
 /* Grupo de botones de acción */
 .or-card-acciones {
@@ -137,7 +137,7 @@
 .btn-ver-or, .btn-editar-or, .btn-eliminar-or {
   background: transparent;
   border: 1.5px solid #1E3A8A;
-  color: #1E3A8A;
+  color: var(--text-brand);
 }
 .btn-ver-or:hover, .btn-editar-or:hover, .btn-eliminar-or:hover { background: #1E3A8A; color: #fff; }
 
@@ -160,7 +160,7 @@
   font-family: var(--font-title);
   font-size: 1rem;
   font-weight: 700;
-  color: var(--primary);
+  color: var(--text-brand);
   display: flex;
   align-items: center;
   gap: 0.35rem;
@@ -180,7 +180,7 @@
   color: var(--text-muted);
   text-align: center;
 }
-.or-lista-vacia i    { font-size: 2.5rem; color: var(--border-light); }
+.or-lista-vacia i    { font-size: 2.5rem; color:  var(--icon-muted); }
 .or-lista-vacia p    { font-size: 1rem; font-weight: 600; }
 .or-lista-vacia small { font-size: 0.9375rem; }
 
@@ -244,7 +244,7 @@
   font-family: var(--font-title);
   font-size: 1.65rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
 }
 .modal-or-fecha-badge {
   font-size: 0.9375rem;
@@ -287,7 +287,7 @@
   font-family: var(--font-title);
   font-size: 1.15rem;
   font-weight: 700;
-  color: var(--primary);
+  color: var(--text-brand);
   text-align: center;
   display: flex;
   align-items: center;

@@ -37,7 +37,7 @@
   font-family: var(--font-title);
   font-size: 1.6rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   margin-bottom: 1.5rem;
 }
 .vol-grid-eventos {
@@ -86,7 +86,7 @@
   font-family: var(--font-title);
   font-size: 1.2rem;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   margin-bottom: 0.4rem;
   line-height: 1.3;
 }
@@ -98,7 +98,7 @@
   gap: 0.35rem;
   margin-bottom: 0.2rem;
 }
-.act-ev-meta i { font-size: 0.95rem; color: var(--primary); }
+.act-ev-meta i { font-size: 0.95rem; color: var(--text-brand); }
 .act-ev-inscritos { color: var(--info); font-weight: 600; }
 .act-ev-inscritos i { color: var(--info); }
 
@@ -124,7 +124,7 @@
   color: var(--text-muted);
   text-align: center;
 }
-.act-empty i { font-size: 3rem; color: var(--border-light); }
+.act-empty i { font-size: 3rem; color:  var(--icon-muted); }
 
 /* ── Barra superior de la vista de calificación ── */
 .vol-topbar {
@@ -142,7 +142,7 @@
   font-family: var(--font-text);
   font-size: 1rem;
   font-weight: 600;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   cursor: pointer;
   transition: background 0.2s;
 }
@@ -245,7 +245,7 @@
   gap: 2px;
 }
 .star-on  { color: var(--accent); }
-.star-off { color: var(--border-light); }
+.star-off { color:  var(--icon-muted); }
 .dist-label .star-on { font-size: 0.85rem; } /* Fase 2C: antes style="" inline */
 .estrella-num {
   font-size: 0.82rem;
@@ -283,7 +283,7 @@
 .btn-disp-off:hover { background: var(--danger-border); }
 
 /* Calificar (amarillo) */
-.btn-calificar { background: var(--warning-bg); color: var(--amber); }
+.btn-calificar { background: var(--warning-bg); color: var(--warning); }
 .btn-calificar:hover { filter: brightness(0.94); }
 
 /* Editar calificación (azul) */
@@ -338,7 +338,7 @@
 .modal-header h3 {
   font-family: var(--font-title);
   font-size: 1.65rem; font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
 }
 .btn-cerrar-modal {
   background: var(--surface-2); border: none; border-radius: 0.5rem;
@@ -358,7 +358,7 @@
   display: flex; gap: 0.5rem; flex-direction: column;
 }
 .modal-vol-info p { font-size: 1rem; color: var(--text-secondary); }
-.modal-vol-info strong { color: var(--primary-dark); }
+.modal-vol-info strong { color: var(--text-brand-strong); }
 
 /* Sección de estrellas interactivas */
 .estrellas-section {
@@ -381,11 +381,11 @@
 }
 .estrella-modal:hover { transform: scale(1.2); }
 .estrella-modal.star-on  { color: var(--accent); }
-.estrella-modal.star-off { color: var(--border-light); }
+.estrella-modal.star-off { color:  var(--icon-muted); }
 
 #texto-estrellas {
   font-size: 0.95rem; font-weight: 600;
-  color: var(--primary); min-height: 1.4rem;
+  color: var(--text-brand); min-height: 1.4rem;
 }
 
 /* Error del modal */
@@ -441,7 +441,7 @@
 .panel-lateral-header h3 {
   font-family: var(--font-title);
   font-size: 1.35rem; font-weight: 700;
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
 }
 .panel-lateral-header p {
   font-size: 0.9375rem; color: var(--muted); margin-top: 0.15rem;
@@ -474,7 +474,7 @@
   display: flex; justify-content: space-between; align-items: center;
   margin-bottom: 0.4rem;
 }
-.historial-evento { font-weight: 700; font-size: 0.9375rem; color: var(--primary-dark); }
+.historial-evento { font-weight: 700; font-size: 0.9375rem; color: var(--text-brand-strong); }
 .historial-fecha  { font-size: 0.8125rem; color: var(--muted); }
 .historial-estrellas { margin-bottom: 0.35rem; }
 .historial-comentario {
@@ -487,7 +487,7 @@
   display: flex; flex-direction: column; align-items: center;
   gap: 0.75rem; padding: 2rem; text-align: center; color: var(--text-muted);
 }
-.panel-vacio i { font-size: 2.5rem; color: var(--border-light); } /* Fase 2C */
+.panel-vacio i { font-size: 2.5rem; color:  var(--icon-muted); } /* Fase 2C */
 
 /* ── Resumen estadístico ── */
 .resumen-grid {
@@ -509,7 +509,7 @@
 .resumen-card .res-valor {
   font-family: var(--font-title);
   font-size: 2rem; font-weight: 700;
-  color: var(--primary-dark); line-height: 1;
+  color: var(--text-brand-strong); line-height: 1;
 }
 .resumen-card .res-sub {
   margin-top: 0.35rem;
@@ -535,7 +535,7 @@
 /* Distribución de estrellas */
 .dist-titulo {
   font-weight: 700; font-size: 0.95rem;
-  color: var(--primary-dark); margin-bottom: 0.75rem;
+  color: var(--text-brand-strong); margin-bottom: 0.75rem;
 }
 .dist-fila {
   display: flex; align-items: center; gap: 0.5rem;

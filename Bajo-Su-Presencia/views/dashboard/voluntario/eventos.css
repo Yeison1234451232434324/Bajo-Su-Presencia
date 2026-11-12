@@ -34,7 +34,7 @@
 .vev-header-text h2 {
   margin: 0;
   font-family: var(--font-title);
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   font-size: 1.6rem;
 }
 .vev-header-text p { margin: .15rem 0 0; color: var(--muted); font-size: .95rem; }
@@ -42,12 +42,12 @@
 .vev-header-count {
   display: flex; flex-direction: column; align-items: center;
   padding: .5rem 1.1rem;
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 14px;
   min-width: 92px;
 }
-.vev-count-num { font-size: 1.5rem; font-weight: 800; color: var(--primary); line-height: 1; }
+.vev-count-num { font-size: 1.5rem; font-weight: 800; color: var(--text-brand); line-height: 1; }
 .vev-count-label { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
 
 /* ── Grid de tarjetas ───────────────────────────────────────────── */
@@ -61,7 +61,7 @@
 .vev-card {
   display: flex;
   flex-direction: column;
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 16px;
   overflow: hidden;
@@ -81,7 +81,7 @@
 .vev-card-titulo {
   margin: 0;
   font-family: var(--font-title);
-  color: var(--primary-dark);
+  color: var(--text-brand-strong);
   font-size: 1.2rem;
   line-height: 1.25;
 }
@@ -103,22 +103,22 @@
   flex: 1;
 }
 .vev-meta-item { display: flex; align-items: center; gap: .55rem; color: var(--text-secondary); font-size: .92rem; }
-.vev-meta-item i { color: var(--primary); font-size: 1.1rem; flex-shrink: 0; }
+.vev-meta-item i { color: var(--text-brand); font-size: 1.1rem; flex-shrink: 0; }
 .vev-meta-item.is-muted { color: var(--muted); }
 
 /* Cupos de voluntario */
 .vev-cupos { font-weight: 600; }
-.vev-cupos.is-disponible { color: #059669; }
-.vev-cupos.is-disponible i { color: #059669; }
-.vev-cupos.is-lleno { color: #dc2626; }
-.vev-cupos.is-lleno i { color: #dc2626; }
+.vev-cupos.is-disponible { color: var(--success); }
+.vev-cupos.is-disponible i { color: var(--success); }
+.vev-cupos.is-lleno { color: var(--danger); }
+.vev-cupos.is-lleno i { color: var(--danger); }
 
 /* ── Pie con estado + botón ─────────────────────────────────────── */
 .vev-card-foot {
   display: flex; align-items: center; justify-content: space-between; gap: .75rem;
   padding: .9rem 1.25rem 1.1rem;
   border-top: 1px solid var(--border);
-  background: #fcfbf7;
+  background: var(--surface-2);
 }
 
 .vev-btn {
@@ -138,12 +138,12 @@
 .vev-btn-inscribir { background: var(--primary); color: #fff; }
 .vev-btn-inscribir:hover:not(:disabled) { background: var(--primary-dark); }
 
-.vev-btn-cancelar { background: #fee2e2; color: #dc2626; }
-.vev-btn-cancelar:hover:not(:disabled) { background: #fecaca; }
+.vev-btn-cancelar { background: var(--danger-bg); color: var(--danger); }
+.vev-btn-cancelar:hover:not(:disabled) { background: var(--danger-bg); }
 
 .vev-inscrito-tag {
   display: inline-flex; align-items: center; gap: .35rem;
-  color: #059669; font-weight: 700; font-size: .9rem;
+  color: var(--success); font-weight: 700; font-size: .9rem;
 }
 
 /* ── Estados de carga / vacío ───────────────────────────────────── */
@@ -155,8 +155,8 @@
   color: var(--muted);
   text-align: center;
 }
-.vev-loading i, .vev-empty i { font-size: 2.5rem; color: var(--primary-light); }
-.vev-empty i { color: #cbd5e1; }
+.vev-loading i, .vev-empty i { font-size: 2.5rem; color: var(--text-brand); }
+.vev-empty i { color: var(--icon-muted); }
 
 /* ── Responsivo ─────────────────────────────────────────────────── */
 @media (max-width: 600px) {
