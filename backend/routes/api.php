@@ -8,6 +8,7 @@ use App\Controllers\DataGatewayController;
 use App\Controllers\HealthController;
 use App\Controllers\PqrController;
 use App\Controllers\UsuariosController;
+use App\Controllers\VersiculoController;
 use App\Http\Response;
 use App\Http\Router;
 
@@ -55,6 +56,9 @@ $router->post('/api/db/{table}', [DataGatewayController::class, 'handle']);
 $router->put('/api/db/{table}', [DataGatewayController::class, 'handle']);
 $router->patch('/api/db/{table}', [DataGatewayController::class, 'handle']);
 $router->delete('/api/db/{table}', [DataGatewayController::class, 'handle']);
+
+// ── Versículo del día (público: pie de página del sitio) ───────
+$router->get('/api/versiculo-dia', [VersiculoController::class, 'hoy']);
 
 // ── Salud y diagnóstico ─────────────────────────────────────────
 // Se separan dos sondas siguiendo la práctica habitual de orquestadores:

@@ -739,6 +739,12 @@ a    { text-decoration: none; }
   color: var(--accent);
   font-weight: 600;
 }
+.footer-versiculo .footer-versiculo-credito {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.55);
+}
 
 /* ── Divisor ── */
 .footer-divider {

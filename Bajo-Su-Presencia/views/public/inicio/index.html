@@ -180,8 +180,8 @@
         <span class="hero-heading-accent">Bajo Su Presencia B.S.P</span>
       </h2>
       <p class="hero-verse">
-        "Porque donde están dos o tres congregados en mi nombre,<br />
-        allí estoy yo en medio de ellos."
+        "Porque allí donde dos o tres de ustedes se reúnan en mi nombre,<br />
+        allí estaré yo."
       </p>
       <p class="hero-ref"><span>Mateo</span> 18:20</p>
     </div>
@@ -426,15 +426,17 @@
             <span class="footer-schedule-time">8:00 AM</span>
           </div>
         </div>
-        <div class="footer-versiculo">
-          <p>"Porque donde están dos o tres congregados en mi nombre, allí estoy yo en medio de ellos."</p>
-          <span>— Mateo 18:20</span>
+        <!-- Versículo del día: este texto es el respaldo; versiculo-dia.controller.js lo reemplaza cada día. -->
+        <div class="footer-versiculo" id="footer-versiculo" aria-live="polite">
+          <p id="footer-versiculo-texto">"Porque allí donde dos o tres de ustedes se reúnan en mi nombre, allí estaré yo."</p>
+          <span id="footer-versiculo-ref">— Mateo 18:20</span>
+          <small class="footer-versiculo-credito">Traducción en Lenguaje Actual © Sociedades Bíblicas Unidas</small>
         </div>
       </div>
 
     </div>
 
-    <p class="footer-copy-gold footer-versiculo-final">"En su presencia hay plenitud de gozo" — Salmos 16:11</p>
+    <p class="footer-copy-gold footer-versiculo-final">"En tu presencia soy muy feliz" — Salmos 16:11</p>
 
     <div class="footer-divider"></div>
 
@@ -458,5 +460,6 @@
 
 <!-- ══ SCRIPT: Carruseles + Modal ══════════════════════════════════════════ -->
 <script src="../../../controllers/inicio.controller.js?v=1"></script>
+<script src="../../../controllers/versiculo-dia.controller.js?v=1"></script>
 </body>
 </html>
