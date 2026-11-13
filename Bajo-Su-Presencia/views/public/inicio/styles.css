@@ -1448,7 +1448,7 @@ a    { text-decoration: none; }
 .footer-versiculo p   { font-size: 1.05rem; }     /* 15 → ~17px  versículo */
 .footer-versiculo span{ font-size: 0.95rem; }     /* 13 → ~15px  referencia */
 .footer-copy          { font-size: 1rem; }        /* 15 → 16px   copyright */
-.footer-copy-gold     { font-size: 1rem; }        /* 15 → 16px */
+.footer-copy-gold     { font-size: 20px; }        /* 15 → 16px */
 
 /* ── Ventana emergente (noticias / eventos) ── */
 .mf-badge        { font-size: 0.95rem; }   /* 13 → ~15px  etiqueta */
