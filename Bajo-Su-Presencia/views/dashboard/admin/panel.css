@@ -470,11 +470,14 @@ body {
   border: 1.5px solid var(--primary);
   color: var(--text-brand);
 }
-.counter-icon--info    { border-color: var(--info);    color: var(--info); }
-.counter-icon--success { border-color: var(--success); color: var(--success); }
-.counter-icon--danger  { border-color: var(--danger);  color: var(--danger); }
-.counter-icon--warning { border-color: var(--warning); color: var(--warning); }
-.counter-icon--purple  { border-color: var(--purple);  color: var(--purple); }
+/* En modo CLARO los iconos de contadores son de un solo color (azul de marca): seis
+   colores distintos uno junto al otro se leían "colorete". En modo oscuro se
+   conserva el color por estado, que ahí ayuda a distinguirlos. */
+:root[data-theme="dark"] .counter-icon--info    { border-color: var(--info);    color: var(--info); }
+:root[data-theme="dark"] .counter-icon--success { border-color: var(--success); color: var(--success); }
+:root[data-theme="dark"] .counter-icon--danger  { border-color: var(--danger);  color: var(--danger); }
+:root[data-theme="dark"] .counter-icon--warning { border-color: var(--warning); color: var(--warning); }
+:root[data-theme="dark"] .counter-icon--purple  { border-color: var(--purple);  color: var(--purple); }
 .counter-info .counter-label {
   font-size: 0.9375rem;
   color: var(--muted);
@@ -1531,13 +1534,14 @@ body {
   color: var(--text-on-primary) !important;
 }
 
+/* Excel: verde (mismo criterio que CSV) en todos los paneles. */
 .bsp-dt-export-xlsx {
-  color: var(--info);
-  border-color: var(--info-border);
+  color: var(--success);
+  border-color: var(--success-border);
 }
 .bsp-dt-export-xlsx:hover {
-  background: var(--info-solid) !important;
-  border-color: var(--info) !important;
+  background: var(--success-solid) !important;
+  border-color: var(--success) !important;
   color: var(--text-on-primary) !important;
 }
 

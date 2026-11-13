@@ -58,6 +58,14 @@ html { font-size: 17px; }
 :root[data-theme="dark"] .mobile-lista-menu a:hover {
   color: #93b4ff;
 }
+/* Menú hamburguesa (móvil): fondo y enlaces legibles en oscuro. */
+:root[data-theme="dark"] .header-mobile-menu {
+  background: rgba(15, 21, 35, 0.98);
+  border-top-color: #33405a;
+}
+:root[data-theme="dark"] .mobile-lista-menu li { border-bottom-color: rgba(255, 255, 255, 0.10); }
+:root[data-theme="dark"] .mobile-lista-menu a { color: #e6e8ee; }
+:root[data-theme="dark"] .mobile-lista-menu a:hover { background: rgba(255, 255, 255, 0.06); }
 :root[data-theme="dark"] .modal-flotante { background: #1a2130; }
 :root[data-theme="dark"] .modal-flotante-close {
   background: rgba(255,255,255,0.10); color: #e6e8ee;

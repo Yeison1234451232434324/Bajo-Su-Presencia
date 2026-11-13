@@ -715,8 +715,8 @@ body {
 }
 .bsp-dt-export-csv   { color: var(--success); border-color: var(--success-border); }
 .bsp-dt-export-csv:hover  { background: var(--success-solid) !important; border-color: #059669 !important; color: #fff !important; }
-.bsp-dt-export-xlsx  { color: var(--info); border-color: var(--info-border); }
-.bsp-dt-export-xlsx:hover { background: var(--info-solid) !important; border-color: #1d4ed8 !important; color: #fff !important; }
+.bsp-dt-export-xlsx  { color: var(--success); border-color: var(--success-border); }
+.bsp-dt-export-xlsx:hover { background: var(--success-solid) !important; border-color: #059669 !important; color: #fff !important; }
 .bsp-dt-export-group { display: flex; gap: 0.35rem; }
 
 .bsp-dt-search-wrap { position: relative; display: flex; align-items: center; }

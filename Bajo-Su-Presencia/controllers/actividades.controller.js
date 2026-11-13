@@ -58,9 +58,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     let eventos = [];
     try { eventos = await EventosModel.getAll(); } catch (e) { window.BSPLog?.error('actividades.cargarEventos', e); }
 
+    // Solo eventos vigentes: los que ya vencieron (pasó su hora de fin) no se gestionan.
+    eventos = eventos.filter((ev) => !localEventoTerminado(ev));
+
     gridEventos.innerHTML = '';
     if (!eventos.length) {
-      gridEventos.innerHTML = '<div class="act-empty"><i class="bx bx-calendar-x" aria-hidden="true"></i><p>No hay eventos publicados aún.</p></div>';
+      gridEventos.innerHTML = '<div class="act-empty"><i class="bx bx-calendar-x" aria-hidden="true"></i><p>No hay eventos vigentes.</p></div>';
       return;
     }
 
