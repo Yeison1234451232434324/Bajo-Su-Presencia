@@ -133,7 +133,7 @@ a    { text-decoration: none; }
   display: flex;
   align-items: center;
   gap: 1rem;
-  cursor: pointer;
+  cursor: text;
   flex-shrink: 0;
 }
 .header-logo    {
