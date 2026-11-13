@@ -95,7 +95,7 @@ return static function (Corredor $c): void {
 
     $c->prueba('entradas inválidas se ignoran; las válidas se usan', function (Corredor $c) use ($tmp, $dia): void {
         $valida = ['ref' => 'Salmos 23:1', 'text' => 'Jehová es mi pastor; nada me faltará.'];
-        $f = $tmp(json_encode([['ref' => 'X'], $valida, 'basura']));
+        $f = $tmp(json_encode([['ref' => 'X'], $valida, 'basura'], JSON_THROW_ON_ERROR));
         $v = (new VersiculoDiaService($f))->delDia($dia('2026-11-12'));
         @unlink($f);
         $c->asegurarIgual('Salmos 23:1', $v['referencia']);

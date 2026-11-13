@@ -14,6 +14,7 @@ use App\Support\AuditLogger;
 use App\Support\Logger;
 use App\Support\Mailer;
 use App\Supabase\SupabaseClient;
+use App\Validation\Validator;
 use Throwable;
 
 /**
@@ -73,11 +74,14 @@ final class PqrController
             throw ApiException::validation(['descripcion' => 'La descripción es obligatoria.']);
         }
 
+        // Teléfono obligatorio (10 dígitos): Validator lo normaliza y lanza 422 si falta o es inválido.
+        $telefono = (string) Validator::telefono($telefono, 'telefono', true);
+
         $fila = [
             'tipo'        => in_array($tipo, self::TIPOS, true) ? $tipo : 'Petición',
             'nombre'      => $nombre,
             'correo'      => strtolower($correo),
-            'telefono'    => $telefono !== '' ? $telefono : null,
+            'telefono'    => $telefono,
             'asunto'      => $asunto,
             'descripcion' => $descripcion,
             'estado'      => 'Pendiente',

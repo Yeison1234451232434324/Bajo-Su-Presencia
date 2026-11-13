@@ -61,8 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
     err = BSPVal.email(emailVal);
     if (err) { localErr('pqr-email', err); valido = false; }
 
-    /* Teléfono: opcional */
-    err = BSPVal.tel(telefono, { required: false });
+    /* Teléfono: obligatorio, 10 dígitos */
+    err = BSPVal.tel(telefono, { required: true });
     if (err) { localErr('pqr-telefono', err); valido = false; }
 
     /* Asunto: mínimo 5, máximo 200 */
