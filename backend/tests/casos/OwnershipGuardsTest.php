@@ -78,9 +78,35 @@ return static function (Corredor $c): void {
     $propVoluntario->setValue($voluntarioEvento, new PostgrestQuery());
 
     $c->grupo('VoluntarioEventoOwnershipGuard (RT-03) — ramas sin Supabase');
-    $c->prueba('DELETE se rechaza siempre para este rol', function (Corredor $c) use ($voluntarioEvento) {
-        $c->asegurarLanza(ApiException::class, fn () => $voluntarioEvento->assertPermitido('DELETE', '', [], 'u-1'));
+    $c->prueba('DELETE sin filtro de usuario_id se rechaza', function (Corredor $c) use ($voluntarioEvento) {
+        $c->asegurarLanza(
+            ApiException::class,
+            fn () => $voluntarioEvento->assertPermitido('DELETE', 'evento_id=eq.5', [], 'u-1')
+        );
     });
+    $c->prueba('DELETE de la inscripción de OTRO usuario se rechaza', function (Corredor $c) use ($voluntarioEvento) {
+        $c->asegurarLanza(ApiException::class, function () use ($voluntarioEvento) {
+            $voluntarioEvento->assertPermitido('DELETE', 'evento_id=eq.5&usuario_id=eq.u-2', [], 'u-1');
+        });
+    });
+    $c->prueba('DELETE de la PROPIA inscripción se permite (cancelar)', function (Corredor $c) use ($voluntarioEvento) {
+        $voluntarioEvento->assertPermitido('DELETE', 'evento_id=eq.5&usuario_id=eq.u-1', [], 'u-1');
+        $c->asegurarCierto(true);
+    });
+    $c->prueba(
+        'POST con rol_en_evento null (lo que envía el cliente) NO es rechazado por la lista de campos',
+        function (Corredor $c) use ($voluntarioEvento) {
+            // Sin evento_id llega a "Debes indicar el evento." (posterior a la lista blanca y
+            // anterior a cualquier consulta a Supabase): el campo null no debe estorbar.
+            try {
+                $voluntarioEvento->assertPermitido('POST', '', ['usuario_id' => 'u-1', 'rol_en_evento' => null], 'u-1');
+            } catch (ApiException $e) {
+                $c->asegurarIgual('Debes indicar el evento.', $e->getMessage());
+                return;
+            }
+            throw new RuntimeException('debía lanzar "Debes indicar el evento."');
+        }
+    );
     $c->prueba('POST inscribiendo a OTRO usuario_id se rechaza', function (Corredor $c) use ($voluntarioEvento) {
         $c->asegurarLanza(ApiException::class, function () use ($voluntarioEvento) {
             $voluntarioEvento->assertPermitido('POST', '', ['usuario_id' => 'u-2', 'evento_id' => 5], 'u-1');

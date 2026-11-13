@@ -186,12 +186,11 @@ const EventosModel = (() => {
   // El rol_en_evento queda null (voluntario general); la disponibilidad, true.
   async function inscribir(eventoId, usuarioId, rol = null) {
     if (!eventoId || !usuarioId) return { ok: false, error: 'Datos de inscripción incompletos.' };
-    const { error } = await DB.from(VOL).insert({
-      evento_id: eventoId,
-      usuario_id: usuarioId,
-      rol_en_evento: rol || null,
-      disponible: true,
-    });
+    // `rol_en_evento` solo se envía si hay rol: el gateway rechaza que un
+    // Voluntario fije su propia especialidad (la asigna Admin/Colaborador).
+    const fila = { evento_id: eventoId, usuario_id: usuarioId, disponible: true };
+    if (rol) fila.rol_en_evento = rol;
+    const { error } = await DB.from(VOL).insert(fila);
     if (error) return { ok: false, error: localMsg(error) };
     return { ok: true };
   }

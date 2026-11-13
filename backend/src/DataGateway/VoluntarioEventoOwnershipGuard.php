@@ -26,13 +26,15 @@ use App\Supabase\SupabaseClient;
  *
  * - POST: el `usuario_id` del body debe ser el propio (se rechaza, no se
  *   sobrescribe en silencio). `evento_id` y `disponible` son legítimos
- *   (unirse a un evento e indicar disponibilidad); `rol_en_evento` NO — es
- *   la especialidad que asigna Admin/Colaborador (`eventos.model.js`), no
- *   algo que el propio voluntario deba fijarse.
+ *   (unirse a un evento e indicar disponibilidad); `rol_en_evento` solo se
+ *   tolera VACÍO (null/''): el cliente lo envía en null para un voluntario
+ *   general, pero fijarse una especialidad NO le corresponde (la asigna
+ *   Admin/Colaborador, `eventos.model.js`).
  * - PATCH/PUT: solo el campo `disponible`, y solo sobre su propio registro
  *   (por `id` o por `usuario_id` en el filtro).
- * - DELETE: sin evidencia en el código de que un Voluntario deba poder
- *   eliminar su propia inscripción — se bloquea por completo para este rol.
+ * - DELETE: solo su PROPIA inscripción (cancelarla, `EventosModel.
+ *   cancelarInscripcion`): el filtro debe llevar `usuario_id=eq.<su id>`.
+ *   Sin ese filtro, o con el de otro usuario, se rechaza.
  *
  * @package App\DataGateway
  */
@@ -52,13 +54,27 @@ final class VoluntarioEventoOwnershipGuard implements OwnershipGuardInterface
     public function assertPermitido(string $method, string $query, array $body, string $miId): void
     {
         if ($method === 'DELETE') {
-            throw ApiException::forbidden('Un voluntario no puede eliminar su inscripción a un evento.');
+            // Cancelar la propia inscripción: borra filas filtradas por su usuario_id.
+            $usuarioIdFiltro = $this->query->eqFilterParam($query, 'usuario_id');
+            if ($usuarioIdFiltro === null) {
+                throw ApiException::forbidden('Solo puedes cancelar tu propia inscripción.');
+            }
+            if ($usuarioIdFiltro !== $miId) {
+                throw ApiException::forbidden('No puedes cancelar la inscripción de otro usuario.');
+            }
+            return;
         }
 
         if ($method === 'POST') {
             $usuarioId = isset($body['usuario_id']) ? (string) $body['usuario_id'] : null;
             if ($usuarioId !== $miId) {
                 throw ApiException::forbidden('No puedes inscribir a otro usuario en un evento.');
+            }
+            // `rol_en_evento` vacío (null/'') se ignora: es lo que envía el cliente para un
+            // voluntario general. Con valor, se rechaza (lo asigna el staff).
+            $rol = $body['rol_en_evento'] ?? null;
+            if (array_key_exists('rol_en_evento', $body) && ($rol === null || $rol === '')) {
+                unset($body['rol_en_evento']);
             }
             if (array_diff(array_keys($body), ['evento_id', 'usuario_id', 'disponible']) !== []) {
                 throw ApiException::forbidden('Solo puedes indicar el evento y tu disponibilidad.');
