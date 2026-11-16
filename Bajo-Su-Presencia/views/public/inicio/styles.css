@@ -234,14 +234,26 @@ a    { text-decoration: none; }
 ───────────────────────────────────────────── */
 .hero {
   position: relative;
-  min-height: 70vh;
+  /* La imagen del hero es 16:9 (1600x901). Con aspect-ratio la sección toma esa
+     proporción y la foto se ve completa, sin recortes, en pantallas anchas. */
+  aspect-ratio: 1600 / 901;
+  min-height: 24rem;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
 }
-.hero-bg   { position: absolute; inset: 0; }
-.hero-img  { width: 100%; height: 100%; object-fit: cover; }
+.hero-bg   { position: absolute; inset: 0; background: #0f1e5a; }
+.hero-img  { width: 100%; height: 100%; object-fit: cover; object-position: center; }
+
+/* En móvil una caja 16:9 es demasiado baja para el texto: la sección crece y la
+   imagen se muestra completa (contain) sobre el fondo azul, sin recortarla. */
+@media (max-width: 767px) {
+  /* La foto siempre llena todo el hero (cover), sin franjas ni rellenos a los
+     lados. Se usa una altura baja para recortar lo mínimo posible. */
+  .hero { aspect-ratio: auto; min-height: 22rem; }
+  .hero-img { object-fit: cover; object-position: center; }
+}
 
 .hero-overlay {
   position: absolute; inset: 0;
@@ -251,8 +263,8 @@ a    { text-decoration: none; }
      muy por debajo del mínimo WCAG 1.4.3 (4.5:1). */
   background: linear-gradient(
     to bottom,
-    rgba(30, 58, 138, 0.86) 0%,
-    rgba(30, 58, 138, 0.80) 88%,
+    rgba(30, 58, 138, 0.74) 0%,
+    rgba(30, 58, 138, 0.72) 88%,
     #F2F6FF 100%
   );
 }

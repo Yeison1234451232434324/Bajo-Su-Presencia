@@ -24,10 +24,11 @@
 -->
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <!-- Favicon oficial (logo de Bajo Su Presencia) — rutas absolutas: mismas en toda vista -->
   <link rel="icon" href="/Bajo-Su-Presencia/assets/images/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="/Bajo-Su-Presencia/assets/images/favicon-32x32.png">
@@ -37,8 +38,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bajo Su Presencia B.S.P | Iglesia Cristiana en Bogotá</title>
   <meta name="google-site-verification" content="NBdxqSzaWwEOdT65v0riAmsZuuHpDxIB6puP7nDaFIg" />
-  <meta name="description" content="Bajo Su Presencia (B.S.P) es una comunidad cristiana en Kennedy, Bogotá, fundada en 1995. Únete a nuestros cultos, estudios bíblicos y actividades de fe." />
-  <meta name="keywords" content="Bajo Su Presencia, BSP, iglesia cristiana Bogotá, iglesia Kennedy Bogotá, culto dominical, estudio bíblico" />
+  <meta name="description"
+    content="Bajo Su Presencia (B.S.P) es una comunidad cristiana en Kennedy, Bogotá, fundada en 1995. Únete a nuestros cultos, estudios bíblicos y actividades de fe." />
+  <meta name="keywords"
+    content="Bajo Su Presencia, BSP, iglesia cristiana Bogotá, iglesia Kennedy Bogotá, culto dominical, estudio bíblico" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://bajo-su-presencia.onrender.com/" />
 
@@ -46,15 +49,18 @@
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Bajo Su Presencia B.S.P" />
   <meta property="og:title" content="Bajo Su Presencia B.S.P | Iglesia Cristiana en Bogotá" />
-  <meta property="og:description" content="Comunidad cristiana en Kennedy, Bogotá, fundada en 1995. Conoce nuestros horarios, noticias y eventos." />
+  <meta property="og:description"
+    content="Comunidad cristiana en Kennedy, Bogotá, fundada en 1995. Conoce nuestros horarios, noticias y eventos." />
   <meta property="og:url" content="https://bajo-su-presencia.onrender.com/" />
   <meta property="og:image" content="https://bajo-su-presencia.onrender.com/Bajo-Su-Presencia/assets/images/logo.png" />
   <meta property="og:locale" content="es_CO" />
 
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="Bajo Su Presencia B.S.P" />
-  <meta name="twitter:description" content="Iglesia cristiana en Kennedy, Bogotá. Cultos, estudios bíblicos y actividades de fe." />
-  <meta name="twitter:image" content="https://bajo-su-presencia.onrender.com/Bajo-Su-Presencia/assets/images/logo.png" />
+  <meta name="twitter:description"
+    content="Iglesia cristiana en Kennedy, Bogotá. Cultos, estudios bíblicos y actividades de fe." />
+  <meta name="twitter:image"
+    content="https://bajo-su-presencia.onrender.com/Bajo-Su-Presencia/assets/images/logo.png" />
 
   <!-- Datos estructurados: ayuda a Google a mostrar horarios, dirección y logo -->
   <script type="application/ld+json">
@@ -83,383 +89,403 @@
   </script>
 
   <link rel="stylesheet" href="styles.css" />
-  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap"
+    rel="stylesheet" />
   <!-- Modo oscuro: tema + botón flotante (rutas absolutas, todas las vistas) -->
   <link rel="stylesheet" href="/Bajo-Su-Presencia/helpers/theme.css">
   <script src="/Bajo-Su-Presencia/helpers/theme.js"></script>
 </head>
+
 <body>
 
-<!-- ══════════════════════════════════════════
+  <!-- ══════════════════════════════════════════
      HEADER (fijo)
 ══════════════════════════════════════════ -->
-<header class="site-header">
-  <div class="header-inner">
+  <header class="site-header">
+    <div class="header-inner">
 
-    <!-- Logo + nombre -->
-    <div class="header-brand">
-      <img src="../../../assets/images/logo.png" alt="Bajo Su Presencia" class="header-logo" />
-      <div>
-        <h1 class="header-title">Bajo Su Presencia B.S.P</h1>
-        <p class="header-subtitle">Donde mora su espíritu</p>
+      <!-- Logo + nombre -->
+      <div class="header-brand">
+        <img src="../../../assets/images/logo.png" alt="Bajo Su Presencia" class="header-logo" />
+        <div>
+          <h1 class="header-title">Bajo Su Presencia B.S.P</h1>
+          <p class="header-subtitle">Donde mora su espíritu</p>
+        </div>
       </div>
+
+      <!-- Menú desktop -->
+      <div class="header-menu" id="header-menu">
+        <ul class="lista-menu">
+          <li><a href="#Inicio">Inicio</a></li>
+          <li><a href="#Oracion">Oración</a></li>
+          <li><a href="#Noticias">Noticias</a></li>
+          <li><a href="#Eventos">Eventos</a></li>
+          <li><a href="../pqr/pqr.html">PQR</a></li>
+        </ul>
+      </div>
+
+      <!-- Botones desktop -->
+      <div class="header-actions">
+        <a href="../../public/login/login.html">
+          <button class="btn btn-outline">Iniciar Sesión</button>
+        </a>
+        <a href="#Contacto">
+          <button class="btn btn-primary">Contacto</button>
+        </a>
+      </div>
+
+      <!-- Botón hamburguesa (solo móvil) -->
+      <button class="header-hamburger" id="header-hamburger" aria-label="Abrir menú" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
     </div>
 
-    <!-- Menú desktop -->
-    <div class="header-menu" id="header-menu">
-      <ul class="lista-menu">
+    <!-- Menú móvil desplegable -->
+    <div class="header-mobile-menu" id="header-mobile-menu" aria-hidden="true">
+      <ul class="mobile-lista-menu">
         <li><a href="#Inicio">Inicio</a></li>
         <li><a href="#Oracion">Oración</a></li>
         <li><a href="#Noticias">Noticias</a></li>
         <li><a href="#Eventos">Eventos</a></li>
+        <li><a href="#Contacto">Contacto</a></li>
         <li><a href="../pqr/pqr.html">PQR</a></li>
       </ul>
+      <div class="mobile-menu-actions">
+        <a href="../../public/login/login.html" class="mobile-btn-login">
+          Iniciar Sesión
+        </a>
+      </div>
     </div>
 
-    <!-- Botones desktop -->
-    <div class="header-actions">
-      <a href="../../public/login/login.html">
-        <button class="btn btn-outline">Iniciar Sesión</button>
-      </a>
-      <a href="#Contacto">
-        <button class="btn btn-primary">Contacto</button>
-      </a>
-    </div>
+  </header>
 
-    <!-- Botón hamburguesa (solo móvil) -->
-    <button class="header-hamburger" id="header-hamburger" aria-label="Abrir menú" aria-expanded="false">
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
+  <main class="u-pt-80">
 
-  </div>
-
-  <!-- Menú móvil desplegable -->
-  <div class="header-mobile-menu" id="header-mobile-menu" aria-hidden="true">
-    <ul class="mobile-lista-menu">
-      <li><a href="#Inicio">Inicio</a></li>
-      <li><a href="#Oracion">Oración</a></li>
-      <li><a href="#Noticias">Noticias</a></li>
-      <li><a href="#Eventos">Eventos</a></li>
-      <li><a href="#Contacto">Contacto</a></li>
-      <li><a href="../pqr/pqr.html">PQR</a></li>
-    </ul>
-    <div class="mobile-menu-actions">
-      <a href="../../public/login/login.html" class="mobile-btn-login">
-        Iniciar Sesión
-      </a>
-    </div>
-  </div>
-
-</header>
-
-<main class="u-pt-80">
-
-  <!-- ══════════════════════════════════════════
+    <!-- ══════════════════════════════════════════
        HERO
   ══════════════════════════════════════════ -->
-  <section class="hero" id="Inicio">
-    <div class="hero-bg">
-      <img
-        src="https://images.unsplash.com/photo-1769590280436-41d1e2252e50?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
-        alt="Fondo espiritual"
-        class="hero-img"
-      />
-      <!-- Overlay azul gradiente hacia abajo -->
-      <div class="hero-overlay"></div>
-    </div>
+    <section class="hero" id="Inicio">
+      <div class="hero-bg">
+        <img src="../../../assets/images/Inagen-Homepage.jpeg" alt="Santuario de la Iglesia Cristiana Bajo Su Presencia"
+          class="hero-img" width="1600" height="901" fetchpriority="high" />
+        <!-- Overlay azul gradiente hacia abajo -->
+        <div class="hero-overlay"></div>
+      </div>
 
-    <!-- Luz dorada central animada -->
-    <div class="hero-light"></div>
+      <!-- Luz dorada central animada -->
+      <div class="hero-light"></div>
 
-    <!-- Contenido centrado -->
-    <div class="hero-content">
-      <h2 class="hero-heading">
-        Bienvenidos a<br />
-        <span class="hero-heading-accent">Bajo Su Presencia B.S.P</span>
-      </h2>
-      <p class="hero-verse">
-        "Porque allí donde dos o tres de ustedes se reúnan en mi nombre,<br />
-        allí estaré yo."
-      </p>
-      <p class="hero-ref"><span>Mateo</span> 18:20</p>
-    </div>
-  </section>
+      <!-- Contenido centrado -->
+      <div class="hero-content">
+        <h2 class="hero-heading">
+          Bienvenidos a<br />
+          <span class="hero-heading-accent">Bajo Su Presencia B.S.P</span>
+        </h2>
+        <p class="hero-verse">
+          "Porque allí donde dos o tres de ustedes se reúnan en mi nombre,<br />
+          allí estaré yo."
+        </p>
+        <p class="hero-ref"><span>Mateo</span> 18:20</p>
+      </div>
+    </section>
 
-  <!-- ══════════════════════════════════════════
+    <!-- ══════════════════════════════════════════
        ORACIÓN DEL DÍA
   ══════════════════════════════════════════ -->
-  <section class="prayer-section" id="Oracion">
-    <!-- Círculos decorativos -->
+    <section class="prayer-section" id="Oracion">
+      <!-- Círculos decorativos -->
 
-    <div class="section-container">
-      <div class="section-header">
-        <div class="section-title-row">
-          <span class="icon-star">✦</span>
-          <h3 class="section-title">Oración del Día</h3>
-          <span class="icon-star">✦</span>
+      <div class="section-container">
+        <div class="section-header">
+          <div class="section-title-row">
+            <span class="icon-star">✦</span>
+            <h3 class="section-title">Oración del Día</h3>
+            <span class="icon-star">✦</span>
+          </div>
+          <div class="section-divider"></div>
         </div>
-        <div class="section-divider"></div>
-      </div>
 
-      <!-- Tarjeta de oración -->
-      <div class="prayer-card">
-        <div class="prayer-corner prayer-corner--tl"></div>
-        <div class="prayer-corner prayer-corner--br"></div>
-        <img
-          id="prayer-imagen-dia"
-          src=""
-          alt="Imagen inspiradora de la oración"
-        />
-        <p class="prayer-text" id="prayer-texto-dia">
-          "Señor, guía nuestros pasos en tu camino de luz y amor.
-          Que tu paz que sobrepasa todo entendimiento guarde nuestros corazones
-          y nuestras mentes en Cristo Jesús."
-        </p>
-        <p class="prayer-verse-ref" id="prayer-versiculo-dia">Filipenses 4:7</p>
+        <!-- Tarjeta de oración -->
+        <div class="prayer-card">
+          <div class="prayer-corner prayer-corner--tl"></div>
+          <div class="prayer-corner prayer-corner--br"></div>
+          <img id="prayer-imagen-dia" src="" alt="Imagen inspiradora de la oración" />
+          <p class="prayer-text" id="prayer-texto-dia">
+            "Señor, guía nuestros pasos en tu camino de luz y amor.
+            Que tu paz que sobrepasa todo entendimiento guarde nuestros corazones
+            y nuestras mentes en Cristo Jesús."
+          </p>
+          <p class="prayer-verse-ref" id="prayer-versiculo-dia">Filipenses 4:7</p>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ══════════════════════════════════════════
+    <!-- ══════════════════════════════════════════
        NOTICIAS Y ANUNCIOS — Carrusel dinámico
   ══════════════════════════════════════════ -->
-  <section class="news-section" id="Noticias">
-    <div class="section-container">
-      <div class="section-header">
-        <div class="section-title-row">
-          <span class="section-icon">📰</span>
-          <h3 class="section-title">Noticias y Anuncios</h3>
-        </div>
-        <p class="section-desc">Mantente informado sobre lo que sucede en nuestra comunidad</p>
-      </div>
-
-      <!-- Carrusel de noticias -->
-      <div class="carousel-wrap">
-        <button class="carousel-btn carousel-btn--prev" id="news-prev" aria-label="Anterior">&#8249;</button>
-        <div class="carousel-viewport" id="news-viewport">
-          <div class="carousel-track" id="news-track">
-            <!-- Tarjetas generadas por JS -->
+    <section class="news-section" id="Noticias">
+      <div class="section-container">
+        <div class="section-header">
+          <div class="section-title-row">
+            <span class="section-icon">📰</span>
+            <h3 class="section-title">Noticias y Anuncios</h3>
           </div>
+          <p class="section-desc">Mantente informado sobre lo que sucede en nuestra comunidad</p>
         </div>
-        <button class="carousel-btn carousel-btn--next" id="news-next" aria-label="Siguiente">&#8250;</button>
-      </div>
-      <!-- Indicadores de puntos -->
-      <div class="carousel-dots" id="news-dots"></div>
 
-      <!-- Mensaje cuando no hay noticias recientes -->
-      <div class="carousel-empty" id="news-empty" hidden>
-        <span>�</span>
-        <p>No hay noticias publicadas hoy.</p>
-      </div>
-    </div>
-  </section>
+        <!-- Carrusel de noticias -->
+        <div class="carousel-wrap">
+          <button class="carousel-btn carousel-btn--prev" id="news-prev" aria-label="Anterior">&#8249;</button>
+          <div class="carousel-viewport" id="news-viewport">
+            <div class="carousel-track" id="news-track">
+              <!-- Tarjetas generadas por JS -->
+            </div>
+          </div>
+          <button class="carousel-btn carousel-btn--next" id="news-next" aria-label="Siguiente">&#8250;</button>
+        </div>
+        <!-- Indicadores de puntos -->
+        <div class="carousel-dots" id="news-dots"></div>
 
-  <!-- ══════════════════════════════════════════
+        <!-- Mensaje cuando no hay noticias recientes -->
+        <div class="carousel-empty" id="news-empty" hidden>
+          <span>�</span>
+          <p>No hay noticias publicadas hoy.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════
        PRÓXIMOS EVENTOS — Carrusel dinámico
   ══════════════════════════════════════════ -->
-  <section class="events-section" id="Eventos">
-    <div class="events-dots"></div>
-    <div class="section-container">
-      <div class="section-header">
-        <div class="section-title-row">
-          <span class="section-icon">📅</span>
-          <h3 class="section-title">Próximos Eventos</h3>
-        </div>
-        <p class="section-desc">Únete a nosotros en estas experiencias espirituales</p>
-      </div>
-
-      <!-- Carrusel de eventos -->
-      <div class="carousel-wrap">
-        <button class="carousel-btn carousel-btn--prev" id="ev-prev" aria-label="Anterior">&#8249;</button>
-        <div class="carousel-viewport" id="ev-viewport">
-          <div class="carousel-track" id="ev-track">
-            <!-- Tarjetas generadas por JS -->
+    <section class="events-section" id="Eventos">
+      <div class="events-dots"></div>
+      <div class="section-container">
+        <div class="section-header">
+          <div class="section-title-row">
+            <span class="section-icon">📅</span>
+            <h3 class="section-title">Próximos Eventos</h3>
           </div>
+          <p class="section-desc">Únete a nosotros en estas experiencias espirituales</p>
         </div>
-        <button class="carousel-btn carousel-btn--next" id="ev-next" aria-label="Siguiente">&#8250;</button>
-      </div>
-      <div class="carousel-dots" id="ev-dots"></div>
 
-      <div class="carousel-empty" id="ev-empty" hidden>
-        <span>📅</span>
-        <p>No hay eventos publicados en los próximos 7 días.</p>
-      </div>
-    </div>
-  </section>
+        <!-- Carrusel de eventos -->
+        <div class="carousel-wrap">
+          <button class="carousel-btn carousel-btn--prev" id="ev-prev" aria-label="Anterior">&#8249;</button>
+          <div class="carousel-viewport" id="ev-viewport">
+            <div class="carousel-track" id="ev-track">
+              <!-- Tarjetas generadas por JS -->
+            </div>
+          </div>
+          <button class="carousel-btn carousel-btn--next" id="ev-next" aria-label="Siguiente">&#8250;</button>
+        </div>
+        <div class="carousel-dots" id="ev-dots"></div>
 
-  <!-- ══════════════════════════════════════════
+        <div class="carousel-empty" id="ev-empty" hidden>
+          <span>📅</span>
+          <p>No hay eventos publicados en los próximos 7 días.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════
        MODAL FLOTANTE (noticias y eventos)
   ══════════════════════════════════════════ -->
-  <div class="modal-blur-overlay" id="modal-blur-overlay"></div>
-  <div class="modal-flotante" id="modal-flotante" role="dialog" aria-modal="true">
-    <button class="modal-flotante-close" id="modal-flotante-close" aria-label="Cerrar">✕</button>
+    <div class="modal-blur-overlay" id="modal-blur-overlay"></div>
+    <div class="modal-flotante" id="modal-flotante" role="dialog" aria-modal="true">
+      <button class="modal-flotante-close" id="modal-flotante-close" aria-label="Cerrar">✕</button>
 
-    <!-- Cabecera con imagen (noticias) -->
-    <div class="modal-flotante-img-wrap" id="mf-img-wrap">
-      <img id="mf-img" src="" alt="" class="modal-flotante-img" />
-      <div class="modal-flotante-img-fade"></div>
-      <!-- Badge sobre la imagen -->
-      <span class="mf-badge mf-badge--over" id="mf-badge-over"></span>
-    </div>
+      <!-- Cabecera con imagen (noticias) -->
+      <div class="modal-flotante-img-wrap" id="mf-img-wrap">
+        <img id="mf-img" src="" alt="" class="modal-flotante-img" />
+        <div class="modal-flotante-img-fade"></div>
+        <!-- Badge sobre la imagen -->
+        <span class="mf-badge mf-badge--over" id="mf-badge-over"></span>
+      </div>
 
-    <!-- Cabecera visual para eventos (sin imagen) -->
-    <div class="mf-ev-header" id="mf-ev-header" hidden>
-      <div class="mf-ev-header-icon" id="mf-ev-header-icon">📅</div>
-      <div class="mf-ev-header-info">
-        <span class="mf-badge" id="mf-badge-ev">📅 Evento</span>
-        <h2 class="mf-titulo mf-titulo--over" id="mf-titulo-ev"></h2>
-        <p class="mf-meta mf-meta--over" id="mf-meta-ev"></p>
+      <!-- Cabecera visual para eventos (sin imagen) -->
+      <div class="mf-ev-header" id="mf-ev-header" hidden>
+        <div class="mf-ev-header-icon" id="mf-ev-header-icon">📅</div>
+        <div class="mf-ev-header-info">
+          <span class="mf-badge" id="mf-badge-ev">📅 Evento</span>
+          <h2 class="mf-titulo mf-titulo--over" id="mf-titulo-ev"></h2>
+          <p class="mf-meta mf-meta--over" id="mf-meta-ev"></p>
+        </div>
+      </div>
+
+      <div class="modal-flotante-body">
+        <!-- Badge + título para noticias (debajo de imagen) -->
+        <span class="mf-badge" id="mf-badge" hidden></span>
+        <h2 class="mf-titulo" id="mf-titulo"></h2>
+        <p class="mf-meta" id="mf-meta"></p>
+        <p class="mf-texto" id="mf-texto"></p>
+        <div class="mf-extra" id="mf-extra"></div>
       </div>
     </div>
 
-    <div class="modal-flotante-body">
-      <!-- Badge + título para noticias (debajo de imagen) -->
-      <span class="mf-badge" id="mf-badge" hidden></span>
-      <h2 class="mf-titulo" id="mf-titulo"></h2>
-      <p class="mf-meta" id="mf-meta"></p>
-      <p class="mf-texto" id="mf-texto"></p>
-      <div class="mf-extra" id="mf-extra"></div>
-    </div>
-  </div>
+  </main>
 
-</main>
-
-<!-- ══════════════════════════════════════════
+  <!-- ══════════════════════════════════════════
      FOOTER
 ══════════════════════════════════════════ -->
-<footer class="site-footer" id="Contacto">
-  <div class="footer-top-line"></div>
+  <footer class="site-footer" id="Contacto">
+    <div class="footer-top-line"></div>
 
-  <div class="section-container">
-    <div class="footer-grid">
+    <div class="section-container">
+      <div class="footer-grid">
 
-      <!-- Columna 1: Logo + descripción + redes -->
-      <div class="footer-col footer-col--brand">
-        <img src="../../../assets/images/logo.png" alt="Bajo Su Presencia" class="footer-logo" />
-        <h4 class="footer-col-title">Bajo Su Presencia</h4>
-        <p class="footer-tagline">Iglesia Cristiana · B.S.P</p>
-        <p class="footer-text">
-          Somos una comunidad de fe fundada en 1995, dedicada a llevar el mensaje
-          de amor y esperanza de Cristo a todas las personas. Un espacio donde cada
-          alma encuentra refugio, sanación y propósito bajo la presencia divina.
-        </p>
-        <div class="footer-social">
-          <!-- Facebook -->
-          <a href="https://www.facebook.com" class="footer-social-btn footer-social-btn--fb"
-             target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-              <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.267h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/>
-            </svg>
-          </a>
+        <!-- Columna 1: Logo + descripción + redes -->
+        <div class="footer-col footer-col--brand">
+          <img src="../../../assets/images/logo.png" alt="Bajo Su Presencia" class="footer-logo" />
+          <h4 class="footer-col-title">Bajo Su Presencia</h4>
+          <p class="footer-tagline">Iglesia Cristiana · B.S.P</p>
+          <p class="footer-text">
+            Nuestra iglesia nació en 2018, cuando los pastores Guillermo y Martha regresaron a Colombia con el propósito
+            de iniciar una nueva obra cristiana en Bogotá. En enero de 2019 comenzaron este ministerio con reuniones en
+            una casa en la localidad de Kennedy, contando inicialmente con 28 personas.
+
+            Desde entonces, Dios ha permitido que esta congregación crezca y se fortalezca, consolidándose como una
+            comunidad de fe, esperanza y amor.
+          </p>
+          <div class="footer-social">
+            <!-- Facebook -->
+            <a href="https://www.facebook.com/guillermo.portelazabala" class="footer-social-btn footer-social-btn--fb" target="_blank"
+              rel="noopener noreferrer" aria-label="Facebook">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path
+                  d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.267h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z" />
+              </svg>
+            </a>
+          </div>
         </div>
+
+        <!-- Columna 2: Contacto -->
+        <div class="footer-col">
+          <h4 class="footer-col-title footer-col-title--accent">Contacto</h4>
+          <div class="footer-contact-list">
+
+            <!-- Dirección → Google Maps -->
+            <a href="https://maps.app.goo.gl/jG1hi21TMxBWdu729" target="_blank" rel="noopener noreferrer"
+              class="footer-contact-item footer-contact-item--link">
+              <span class="footer-contact-icon-wrap">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+              </span>
+              <span class="footer-contact-text">Cra. 77r Bis #50-28<br />Localidad de Kennedy<br />Bogotá,
+                Colombia</span>
+            </a>
+
+            <!-- Teléfono -->
+            <a href="tel:+5716012345" class="footer-contact-item footer-contact-item--link">
+              <span class="footer-contact-icon-wrap">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path
+                    d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
+                </svg>
+              </span>
+              <span class="footer-contact-text">+57 (601) 234-5678</span>
+            </a>
+
+            <!-- Email → mailto -->
+            <a href="mailto:contacto@bajosupresencia.org" class="footer-contact-item footer-contact-item--link">
+              <span class="footer-contact-icon-wrap">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                  <polyline points="22,6 12,13 2,6" />
+                </svg>
+              </span>
+              <span class="footer-contact-text">contacto@bajosupresencia.org</span>
+            </a>
+
+            <!-- PQR -->
+            <a href="../pqr/pqr.html" class="footer-contact-item footer-contact-item--link">
+              <span class="footer-contact-icon-wrap">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+                </svg>
+              </span>
+              <span class="footer-contact-text">Peticiones, Quejas y Reclamos</span>
+            </a>
+
+          </div>
+        </div>
+
+        <!-- Columna 3: Horarios + versículo -->
+        <div class="footer-col">
+          <h4 class="footer-col-title footer-col-title--accent">Horarios de Servicio</h4>
+          <div class="footer-schedule">
+            <div class="footer-schedule-row">
+              <span>Domingo · Culto Principal</span>
+              <span class="footer-schedule-time">10:00 AM - 12:00 PM</span>
+            </div>
+            <div class="footer-schedule-row">
+              <span>Martes · Estudio Bíblico Virtual</span>
+              <span class="footer-schedule-time">7:00 PM - 8:00 PM</span>
+            </div>
+            <div class="footer-schedule-row">
+              <span>Miércoles · Estudio de Guerra Espiritual</span>
+              <span class="footer-schedule-time">7:00 PM - 8:00 PM</span>
+            </div>
+            <div class="footer-schedule-row">
+              <span>Viernes · Reunión de Damas</span>
+              <span class="footer-schedule-time">5:00 PM - 6:00 PM</span>
+            </div>
+             <div class="footer-schedule-row">
+              <span>Viernes · Estudio de Homiletica</span>
+              <span class="footer-schedule-time">7:00 PM - 8:00 PM</span>
+            </div>
+            <div class="footer-schedule-row u-border-bottom-none">
+              <span>Sábado · Ayuno/Ensayo</span>
+              <span class="footer-schedule-time">9:00 AM - 5:00 PM</span>
+            </div>
+          </div>
+          <!-- Versículo del día: este texto es el respaldo; versiculo-dia.controller.js lo reemplaza cada día. -->
+          <div class="footer-versiculo" id="footer-versiculo" aria-live="polite">
+            <p id="footer-versiculo-texto">"Porque allí donde dos o tres de ustedes se reúnan en mi nombre, allí estaré
+              yo."</p>
+            <span id="footer-versiculo-ref">— Mateo 18:20</span>
+            <small class="footer-versiculo-credito">Traducción en Lenguaje Actual © Sociedades Bíblicas Unidas</small>
+          </div>
+        </div>
+
       </div>
 
-      <!-- Columna 2: Contacto -->
-      <div class="footer-col">
-        <h4 class="footer-col-title footer-col-title--accent">Contacto</h4>
-        <div class="footer-contact-list">
+      <p class="footer-copy-gold footer-versiculo-final">"En tu presencia soy muy feliz" — Salmos 16:11</p>
 
-          <!-- Dirección → Google Maps -->
-          <a href="https://maps.app.goo.gl/jG1hi21TMxBWdu729"
-             target="_blank" rel="noopener noreferrer" class="footer-contact-item footer-contact-item--link">
-            <span class="footer-contact-icon-wrap">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
-              </svg>
-            </span>
-            <span class="footer-contact-text">Cra. 77r Bis #50-28<br/>Localidad de Kennedy<br/>Bogotá, Colombia</span>
-          </a>
+      <div class="footer-divider"></div>
 
-          <!-- Teléfono -->
-          <a href="tel:+5716012345" class="footer-contact-item footer-contact-item--link">
-            <span class="footer-contact-icon-wrap">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
-              </svg>
-            </span>
-            <span class="footer-contact-text">+57 (601) 234-5678</span>
-          </a>
-
-          <!-- Email → mailto -->
-          <a href="mailto:contacto@bajosupresencia.org" class="footer-contact-item footer-contact-item--link">
-            <span class="footer-contact-icon-wrap">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
-              </svg>
-            </span>
-            <span class="footer-contact-text">contacto@bajosupresencia.org</span>
-          </a>
-
-          <!-- PQR -->
-          <a href="../pqr/pqr.html" class="footer-contact-item footer-contact-item--link">
-            <span class="footer-contact-icon-wrap">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-              </svg>
-            </span>
-            <span class="footer-contact-text">Peticiones, Quejas y Reclamos</span>
-          </a>
-
-        </div>
+      <div class="footer-bottom">
+        <p class="footer-copy">© 2026 Iglesia Bajo Su Presencia · Todos los derechos reservados</p>
       </div>
-
-      <!-- Columna 3: Horarios + versículo -->
-      <div class="footer-col">
-        <h4 class="footer-col-title footer-col-title--accent">Horarios de Servicio</h4>
-        <div class="footer-schedule">
-          <div class="footer-schedule-row">
-            <span>Domingo · Culto Principal</span>
-            <span class="footer-schedule-time">10:00 AM</span>
-          </div>
-          <div class="footer-schedule-row">
-            <span>Miércoles · Estudio Bíblico</span>
-            <span class="footer-schedule-time">7:00 PM</span>
-          </div>
-          <div class="footer-schedule-row">
-            <span>Viernes · Reunión Jóvenes</span>
-            <span class="footer-schedule-time">6:00 PM</span>
-          </div>
-          <div class="footer-schedule-row u-border-bottom-none">
-            <span>Sábado · Oración Matutina</span>
-            <span class="footer-schedule-time">8:00 AM</span>
-          </div>
-        </div>
-        <!-- Versículo del día: este texto es el respaldo; versiculo-dia.controller.js lo reemplaza cada día. -->
-        <div class="footer-versiculo" id="footer-versiculo" aria-live="polite">
-          <p id="footer-versiculo-texto">"Porque allí donde dos o tres de ustedes se reúnan en mi nombre, allí estaré yo."</p>
-          <span id="footer-versiculo-ref">— Mateo 18:20</span>
-          <small class="footer-versiculo-credito">Traducción en Lenguaje Actual © Sociedades Bíblicas Unidas</small>
-        </div>
-      </div>
-
     </div>
+  </footer>
 
-    <p class="footer-copy-gold footer-versiculo-final">"En tu presencia soy muy feliz" — Salmos 16:11</p>
+  <!-- ══ SCRIPT: Menú hamburguesa ═══════════════════════════════════════════ -->
+  <script src="../../../controllers/menu-movil-inicio.controller.js?v=1"></script>
 
-    <div class="footer-divider"></div>
+  <!-- Supabase: SDK + cliente + modelos (para leer contenido público) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8"
+    integrity="sha384-Tve8O+C6PBzsIMK/IRCwHbi8fyEzXIlIs6OfVBZHubplwYhaQF/4Mzxqgg+pp/oy" crossorigin="anonymous"
+    referrerpolicy="no-referrer"></script>
+  <script src="../../../services/supabase.client.js"></script>
+  <script src="../../../config/api.config.js"></script>
+  <script src="../../../services/db.client.js"></script>
+  <script src="../../../models/noticias.model.js"></script>
+  <script src="../../../models/oracion.model.js"></script>
+  <script src="../../../models/eventos.model.js"></script>
 
-    <div class="footer-bottom">
-      <p class="footer-copy">© 2026 Iglesia Bajo Su Presencia · Todos los derechos reservados</p>
-    </div>
-  </div>
-</footer>
-
-<!-- ══ SCRIPT: Menú hamburguesa ═══════════════════════════════════════════ -->
-<script src="../../../controllers/menu-movil-inicio.controller.js?v=1"></script>
-
-<!-- Supabase: SDK + cliente + modelos (para leer contenido público) -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.8" integrity="sha384-Tve8O+C6PBzsIMK/IRCwHbi8fyEzXIlIs6OfVBZHubplwYhaQF/4Mzxqgg+pp/oy" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="../../../services/supabase.client.js"></script>
-<script src="../../../config/api.config.js"></script>
-<script src="../../../services/db.client.js"></script>
-<script src="../../../models/noticias.model.js"></script>
-<script src="../../../models/oracion.model.js"></script>
-<script src="../../../models/eventos.model.js"></script>
-
-<!-- ══ SCRIPT: Carruseles + Modal ══════════════════════════════════════════ -->
-<script src="../../../controllers/inicio.controller.js?v=1"></script>
-<script src="../../../controllers/versiculo-dia.controller.js?v=1"></script>
+  <!-- ══ SCRIPT: Carruseles + Modal ══════════════════════════════════════════ -->
+  <script src="../../../controllers/inicio.controller.js?v=1"></script>
+  <script src="../../../controllers/versiculo-dia.controller.js?v=1"></script>
 </body>
+
 </html>
