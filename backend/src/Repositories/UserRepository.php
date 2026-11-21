@@ -65,6 +65,19 @@ final class UserRepository
     }
 
     /**
+     * Usernames existentes que empiezan por `$base` (sin distinguir mayúsculas).
+     * Lo usa el generador de usernames para resolver colisiones.
+     *
+     * @return array<int,string>
+     */
+    public function usernamesConPrefijo(string $base): array
+    {
+        // `$base` ya viene normalizado a [a-z0-9]: no hay comodines que escapar.
+        $rows = $this->sb->select('usuarios', ['username' => 'ilike.' . $base . '*'], 'username');
+        return array_values(array_map(static fn(array $r): string => (string) $r['username'], $rows));
+    }
+
+    /**
      * Resuelve el id de un rol por su nombre.
      */
     public function roleIdByName(?string $name): ?string

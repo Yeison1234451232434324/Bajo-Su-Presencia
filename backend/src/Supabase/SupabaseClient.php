@@ -218,19 +218,43 @@ final class SupabaseClient
      *
      * @param string $authId   ID de la cuenta en auth.users (usuarios.auth_id).
      * @param string $password Nueva contraseña en claro (viaja por TLS).
+     * @param array<string,mixed> $metadata user_metadata a fusionar (opcional).
      * @throws ApiException 502 si la operación falla.
      */
-    public function authAdminUpdatePassword(string $authId, string $password): void
+    public function authAdminUpdatePassword(string $authId, string $password, array $metadata = []): void
     {
+        $body = ['password' => $password];
+        if ($metadata !== []) {
+            $body['user_metadata'] = $metadata; // se fusiona con el existente
+        }
         [$status] = $this->request(
             'PUT',
             $this->url . '/auth/v1/admin/users/' . rawurlencode($authId),
             $this->serviceHeaders(),
-            ['password' => $password]
+            $body
         );
         if ($status >= 400) {
             throw new ApiException('No se pudo actualizar la contraseña.', 502);
         }
+    }
+
+    /**
+     * Lee el user_metadata de una cuenta de Auth (vacío si falla).
+     *
+     * @return array<string,mixed>
+     */
+    public function authAdminGetMetadata(string $authId): array
+    {
+        [$status, $data] = $this->request(
+            'GET',
+            $this->url . '/auth/v1/admin/users/' . rawurlencode($authId),
+            $this->serviceHeaders()
+        );
+        if ($status >= 400 || !is_array($data)) {
+            return [];
+        }
+        $meta = $data['user_metadata'] ?? [];
+        return is_array($meta) ? $meta : [];
     }
 
     /**

@@ -21,6 +21,7 @@ use App\Http\Router;
 // ── Autenticación ───────────────────────────────────────────────
 $router->post('/api/auth/login', [AuthController::class, 'login']);
 $router->post('/api/auth/refresh', [AuthController::class, 'refresh']);
+$router->post('/api/auth/logout', [AuthController::class, 'logout']); // protegido (JWT)
 $router->get('/api/auth/me', [AuthController::class, 'me']); // protegido (JWT)
 $router->post('/api/auth/password/forgot', [AuthController::class, 'forgotPassword']);
 $router->post('/api/auth/password/verify-otp', [AuthController::class, 'verifyOtp']);

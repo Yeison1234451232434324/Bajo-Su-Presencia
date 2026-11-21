@@ -202,13 +202,132 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  // ── Username autogenerado (vista previa) ─────────────────────────────────
+  // Espeja la regla de backend/src/Support/UsernameGenerator.php: primer nombre
+  // + primer apellido, minúsculas, sin tildes/ñ ni símbolos, máx. 30. Es solo
+  // una vista previa: el servidor es quien garantiza la unicidad (sufijo 2, 3…).
+  function slugUsername(texto) {
+    return String(texto || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9]+/g, '');
+  }
+
+  function primeraPalabra(texto) {
+    const partes = String(texto || '').trim().split(/\s+/);
+    return partes.map(slugUsername).find(Boolean) || '';
+  }
+
+  function previsualizarUsername() {
+    if (editandoId !== null) return; // al editar se conserva el existente
+    const base = (primeraPalabra(document.getElementById('campo-nombre').value)
+      + primeraPalabra(document.getElementById('campo-apellidos').value)).slice(0, 30);
+    document.getElementById('campo-username').value = base;
+  }
+
+  ['campo-nombre', 'campo-apellidos'].forEach((id) => {
+    document.getElementById(id).addEventListener('input', previsualizarUsername);
+  });
+
+  // ── Contraseña temporal (se muestra UNA sola vez al administrador) ───────
+  function mostrarPasswordTemporal(nombre, username, clave) {
+    const capa = document.createElement('div');
+    capa.setAttribute('role', 'dialog');
+    capa.setAttribute('aria-modal', 'true');
+    capa.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:10000;padding:16px';
+    const caja = document.createElement('div');
+    caja.style.cssText = 'background:#fff;color:#222;max-width:440px;width:100%;border-radius:12px;padding:24px;font-family:inherit';
+    const titulo = document.createElement('h3');
+    titulo.textContent = 'Usuario creado';
+    const info = document.createElement('p');
+    info.textContent = `Entrega estas credenciales a ${nombre}. La contraseña es temporal y no se volverá a mostrar: debe entrar a «Olvidé mi contraseña» para definir la suya.`;
+    const datos = document.createElement('p');
+    datos.style.cssText = 'font-family:monospace;font-size:1.05rem;background:#f3f3f3;padding:12px;border-radius:8px;word-break:break-all';
+    datos.textContent = `Usuario: ${username || ''}
+Contraseña: ${clave}`;
+    datos.style.whiteSpace = 'pre-line';
+    const copiar = document.createElement('button');
+    copiar.type = 'button';
+    copiar.className = 'btn-nuevo';
+    copiar.textContent = 'Copiar';
+    copiar.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(`Usuario: ${username || ''}
+Contraseña: ${clave}`);
+        copiar.textContent = 'Copiado';
+      } catch {
+        copiar.textContent = 'Copia manual';
+      }
+    });
+    const cerrar = document.createElement('button');
+    cerrar.type = 'button';
+    cerrar.className = 'btn-nuevo';
+    cerrar.style.marginLeft = '8px';
+    cerrar.textContent = 'Cerrar';
+    cerrar.addEventListener('click', () => capa.remove());
+    caja.append(titulo, info, datos, copiar, cerrar);
+    capa.appendChild(caja);
+    document.body.appendChild(capa);
+    cerrar.focus();
+  }
+
+  // ── Contraseña temporal visible al crear ─────────────────────────────────
+  // Se genera aquí (CSPRNG del navegador) para que el admin la VEA y la copie
+  // antes de guardar; el servidor la valida y la marca como temporal: se
+  // invalida al cerrar sesión y el usuario debe usar «Olvidé mi contraseña».
+  function generarPasswordTemporal() {
+    const mayus = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+    const minus = 'abcdefghijkmnpqrstuvwxyz';
+    const digitos = '23456789';
+    const todos = mayus + minus + digitos;
+    const azar = (max) => {
+      const buf = new Uint32Array(1);
+      const limite = Math.floor(4294967296 / max) * max;
+      do { crypto.getRandomValues(buf); } while (buf[0] >= limite);
+      return buf[0] % max;
+    };
+    const tomar = (a) => a[azar(a.length)];
+    const chars = [tomar(mayus), tomar(minus), tomar(digitos)];
+    while (chars.length < 12) chars.push(tomar(todos));
+    for (let i = chars.length - 1; i > 0; i -= 1) {
+      const j = azar(i + 1);
+      [chars[i], chars[j]] = [chars[j], chars[i]];
+    }
+    return chars.join('');
+  }
+
+  function prepararPasswordTemporal() {
+    const campo = document.getElementById('campo-password');
+    campo.closest('.form-group').style.display = '';
+    campo.closest('.form-group').querySelector('label').textContent = 'Contraseña temporal';
+    campo.type = 'text';
+    campo.readOnly = true;
+    campo.required = false;
+    campo.value = generarPasswordTemporal();
+    const btn = document.getElementById('btn-copiar-password');
+    btn.style.display = '';
+    btn.textContent = 'Copiar contraseña';
+  }
+
+  document.getElementById('btn-copiar-password').addEventListener('click', async (ev) => {
+    const btn = ev.currentTarget;
+    try {
+      await navigator.clipboard.writeText(document.getElementById('campo-password').value);
+      btn.textContent = 'Copiada';
+    } catch {
+      btn.textContent = 'Selecciona y copia manualmente';
+    }
+  });
+
   // ── Modal CREAR ──────────────────────────────────────────────────────────
   function abrirCrear() {
     editandoId = null;
     modalTitle.textContent = 'Nuevo Usuario';
     formUsuario.reset();
+    previsualizarUsername();
     passHint.style.display = 'none';
-    document.getElementById('campo-password').required = true;
+    prepararPasswordTemporal();
     modalError.style.display = 'none';
     BSPModal.abrir({ overlay: modalOverlay, modal, trigger: btnNuevo });
   }
@@ -230,7 +349,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('campo-especialidad').value = u.especialidad || '';
     document.getElementById('campo-bio').value = u.bio || '';
     document.getElementById('campo-password').value = '';
-    document.getElementById('campo-password').required = false;
+    const campoPass = document.getElementById('campo-password');
+    campoPass.required = false;
+    campoPass.type = 'password';
+    campoPass.readOnly = false;
+    campoPass.closest('.form-group').style.display = '';
+    campoPass.closest('.form-group').querySelector('label').textContent = 'Contraseña';
+    document.getElementById('btn-copiar-password').style.display = 'none';
     passHint.style.display = 'block';
     modalError.style.display = 'none';
     BSPModal.abrir({ overlay: modalOverlay, modal });
@@ -290,13 +415,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (err) { localErr('campo-apellidos', err); valido = false; }
     }
 
-    /* Username: mínimo 3, máximo 30, solo alfanumérico + _ */
-    if (!username || username.length < 3) {
-      localErr('campo-username', 'El usuario debe tener al menos 3 caracteres.'); valido = false;
-    } else if (!RX_USERNAME.test(username)) {
-      localErr('campo-username', 'Solo letras, números y guión bajo (_). Sin espacios.'); valido = false;
-    } else if (username.length > 30) {
-      localErr('campo-username', 'El usuario no puede superar 30 caracteres.'); valido = false;
+    /* Username: al crear lo genera el servidor; al editar es de solo lectura
+       y solo se revalida el que ya existe. */
+    if (editandoId !== null && !RX_USERNAME.test(username)) {
+      localErr('campo-username', 'El usuario guardado no es válido.'); valido = false;
     }
 
     /* Email: regex estricta, máximo 254 chars */
@@ -311,8 +433,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     err = BSPVal.select(rol, ROLES_VALIDOS, { label: 'El rol' });
     if (err) { localErr('campo-rol', err); valido = false; }
 
-    /* Contraseña (solo obligatoria al crear): mínimo 6, mezcla letras+números, sin espacios */
-    if (editandoId === null) {
+    /* Contraseña: al crear la genera el servidor (temporal, de un solo uso). */
+    if (editandoId !== null && password) {
       err = BSPVal.password(password, { min: 6 });
       if (err) { localErr('campo-password', err); valido = false; }
     }
@@ -369,10 +491,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     enviandoUsuario = false;
     if (btnSubmitUsuario) { btnSubmitUsuario.disabled = false; btnSubmitUsuario.removeAttribute('aria-busy'); }
+    const eraAlta = editandoId === null;
     cerrarModal();
     await renderTabla();
+    if (eraAlta && resultado.passwordTemporal) {
+      mostrarPasswordTemporal(data.nombre, resultado.user?.username, resultado.passwordTemporal);
+    }
     showAlertSuccess(
-      editandoId === null
+      eraAlta
         ? `El usuario "${data.nombre}" fue creado exitosamente.`
         : `Los datos de "${data.nombre}" fueron actualizados.`,
     );

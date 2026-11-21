@@ -103,6 +103,14 @@ window.bspAuth = {
    * @returns {Promise<void>}
    */
   async logout(redirectTo = '../../public/login/login.html') {
+    // 0. Avisa al backend: invalida la contraseña temporal si la cuenta aún la
+    //    usa (best-effort; debe ir ANTES de borrar el JWT local).
+    try {
+      if (typeof window.apiFetch === 'function') {
+        await window.apiFetch('/api/auth/logout', { method: 'POST' });
+      }
+    } catch (_) { /* sin red o token vencido: se cierra igual */ }
+
     // 1. Invalida la sesión en el servidor de Supabase (best-effort).
     try {
       if (window.sb?.auth?.signOut) await window.sb.auth.signOut();

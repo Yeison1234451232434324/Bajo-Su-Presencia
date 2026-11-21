@@ -94,10 +94,9 @@ const UsuariosModel = (() => {
   // ── Crear (cuenta Auth + perfil, vía backend) ────────────────────────────
   async function crear(data) {
     if (!data.email?.trim()) return { ok: false, error: 'El correo es obligatorio.' };
-    if (!data.password) return { ok: false, error: 'La contraseña es obligatoria.' };
     try {
       const row = await apiFetch('/api/usuarios', { method: 'POST', body: data });
-      return { ok: true, user: row ? localFromRow(row) : null };
+      return { ok: true, user: row ? localFromRow(row) : null, passwordTemporal: row?.password_temporal || '' };
     } catch (e) { return { ok: false, error: e.message }; }
   }
 

@@ -7,6 +7,8 @@ namespace App\Services;
 use App\Exceptions\ApiException;
 use App\Repositories\UserRepository;
 use App\Supabase\SupabaseClient;
+use App\Support\PasswordTemporal;
+use App\Support\UsernameGenerator;
 use App\Validation\Validator;
 
 /**
@@ -64,25 +66,36 @@ final class UsuariosService
     public function create(array $data): array
     {
         $email    = strtolower(trim((string) ($data['email'] ?? '')));
-        $password = (string) ($data['password'] ?? '');
+        // Contraseña temporal de un solo uso, generada por el servidor: el
+        // usuario debe cambiarla con «Olvidé mi contraseña». Nunca se guarda ni se registra en logs.
+        // Si el formulario ya mostró una (la que el admin copió) se respeta si
+        // cumple la política; si no, se genera aquí.
+        $enviada  = (string) ($data['password'] ?? '');
+        $password = (strlen($enviada) >= 8 && strlen($enviada) <= 64 && preg_match('/^(?=.*[A-Za-z])(?=.*\d)\S+$/', $enviada))
+            ? $enviada
+            : PasswordTemporal::generar();
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             throw ApiException::validation(['email' => 'Correo electrónico inválido.']);
         }
-        if (strlen($password) < 6) {
-            throw ApiException::validation(['password' => 'La contraseña debe tener al menos 6 caracteres.']);
-        }
-
         // 1) Crear la cuenta en Auth (servicio). El trigger crea la fila base.
         [$nombres, $apellidos] = $this->splitNombre($data);
         $authId = $this->sb->authAdminCreateUser($email, $password, [
             'nombres'   => $nombres ?? '',
             'apellidos' => $apellidos ?? '',
+            'password_temporal' => true, // se invalida al cerrar sesión
         ]);
 
         // 2) Completar el perfil por auth_id.
         $fields = $this->mapFields($data);
         $fields['activo'] = true;
+        // El username de un alta SIEMPRE lo genera el servidor (único y válido),
+        // ignorando lo que mande el cliente.
+        $fields['username'] = UsernameGenerator::generar(
+            $nombres,
+            $apellidos,
+            fn(string $base): array => $this->users->usernamesConPrefijo($base)
+        );
         $row = $this->users->updateByAuthId($authId, $fields);
 
         // 3) Sincronizar la especialidad en el catálogo N:M.
@@ -91,7 +104,10 @@ final class UsuariosService
             $row = $this->users->findById((string) $row['id']) ?? $row;
         }
 
-        return $row ?? ['id' => null, 'auth_id' => $authId, 'correo_electronico' => $email];
+        $row ??= ['id' => null, 'auth_id' => $authId, 'correo_electronico' => $email];
+        // Se devuelve UNA sola vez para que el administrador la entregue.
+        $row['password_temporal'] = $password;
+        return $row;
     }
 
     /**

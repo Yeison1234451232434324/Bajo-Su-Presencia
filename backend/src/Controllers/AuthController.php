@@ -178,6 +178,19 @@ final class AuthController
     }
 
     /**
+     * POST /api/auth/logout — cierre de sesión (protegido).
+     * Invalida la contraseña temporal de cuentas recién creadas por un admin.
+     *
+     * @param array<string,string> $args
+     */
+    public function logout(Request $request, array $args): void
+    {
+        $claims = AuthMiddleware::authenticate($request);
+        $this->auth->cerrarSesion((string) ($claims['sub'] ?? ''));
+        Response::success(null, 'Sesión cerrada.');
+    }
+
+    /**
      * GET /api/auth/me — devuelve la identidad del usuario autenticado.
      *
      * Endpoint protegido: requiere `Authorization: Bearer <jwt>`.

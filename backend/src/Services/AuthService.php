@@ -14,6 +14,7 @@ use App\Security\OtpGuard;
 use App\Supabase\SupabaseClient;
 use App\Support\Logger;
 use App\Support\Mailer;
+use App\Support\PasswordTemporal;
 use DateTimeImmutable;
 use DateTimeZone;
 
@@ -159,6 +160,28 @@ final class AuthService
     }
 
     /**
+     * Cierre de sesión: si la cuenta aún usa la contraseña temporal entregada
+     * por el administrador, la invalida (se reemplaza por una aleatoria
+     * desconocida). El usuario debe entrar por «Olvidé mi contraseña».
+     *
+     * @return bool true si la contraseña temporal fue invalidada.
+     */
+    public function cerrarSesion(string $usuarioId): bool
+    {
+        $user   = $this->users->findById($usuarioId);
+        $authId = (string) ($user['auth_id'] ?? '');
+        if ($authId === '') {
+            return false;
+        }
+        $meta = $this->sb->authAdminGetMetadata($authId);
+        if (($meta['password_temporal'] ?? false) !== true) {
+            return false;
+        }
+        $this->sb->authAdminUpdatePassword($authId, PasswordTemporal::generar(32), ['password_temporal' => false]);
+        return true;
+    }
+
+    /**
      * Paso 6/7 — cambia la contraseña con un token verificado y consume todo.
      *
      * @throws ApiException 400 token inválido/expirado · 422 contraseña débil.
@@ -182,7 +205,8 @@ final class AuthService
         }
 
         // Cambia la contraseña en Supabase Auth.
-        $this->sb->authAdminUpdatePassword((string) $authId, $newPassword);
+        // Al definir su propia clave deja de ser una cuenta con contraseña temporal.
+        $this->sb->authAdminUpdatePassword((string) $authId, $newPassword, ['password_temporal' => false]);
 
         // Invalidación total: consume la solicitud, anula las previas y limpia
         // el contador de intentos del OTP (anti reutilización/replay).

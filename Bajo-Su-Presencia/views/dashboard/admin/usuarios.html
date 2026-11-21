@@ -156,10 +156,11 @@
             type="text"
             id="campo-username"
             class="form-control"
-            placeholder="Ej: mgonzalez"
-            required
-            minlength="3"
+            placeholder="Se genera automáticamente"
+            readonly
+            aria-describedby="ayuda-username"
           />
+          <small id="ayuda-username" class="form-hint">Se crea a partir del nombre (primer nombre + primer apellido).</small>
         </div>
         <div class="form-group">
           <label for="campo-email">Correo Electrónico</label>
@@ -192,6 +193,7 @@
             placeholder="Mínimo 6 caracteres"
             minlength="6"
           />
+          <button type="button" id="btn-copiar-password" class="btn-nuevo" style="display:none;margin-top:6px">Copiar contraseña</button>
           <p class="pass-hint" id="pass-hint">Deja en blanco para mantener la contraseña actual.</p>
         </div>
       </div>
