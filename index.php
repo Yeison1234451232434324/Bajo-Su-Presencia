@@ -233,6 +233,11 @@ function servirVista(string $rutaVista): void
     // Se inserta inmediatamente después de <head> (antes de cualquier enlace).
     $html = preg_replace('/(<head[^>]*>)/i', '$1' . "\n  " . $base, $html, 1) ?? $html;
 
+    // Solo estas vistas deben indexarse; el resto (login, paneles) lleva noindex
+    // también por cabecera, como refuerzo de la meta robots de cada vista.
+    if (!in_array($rutaVista, ['views/public/inicio/index.html', 'views/public/pqr/pqr.html'], true)) {
+        header('X-Robots-Tag: noindex, nofollow');
+    }
     header('Content-Type: text/html; charset=utf-8');
     header('Cache-Control: no-store, must-revalidate');
     echo $html;

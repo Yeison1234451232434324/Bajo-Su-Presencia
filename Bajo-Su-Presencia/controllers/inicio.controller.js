@@ -378,6 +378,37 @@
       imagenEl.style.display = 'none';
     }
   }
+  /* ─── SEO: datos estructurados Schema.org/Event de los próximos eventos ─ */
+  // Se inyecta tras cargar los eventos públicos; Google ejecuta JS y lo lee.
+  const SEO_ORIGEN = location.origin;
+  function inyectarSchemaEventos(eventos) {
+    if (!eventos.length) return;
+    const lista = eventos.slice(0, 10).map((ev) => {
+      const f = parseISO(ev.fecha);
+      if (!f) return null;
+      const iso = [f.getFullYear(), String(f.getMonth() + 1).padStart(2, '0'), String(f.getDate()).padStart(2, '0')].join('-');
+      return {
+        '@type': 'Event',
+        name: ev.titulo,
+        startDate: iso,
+        eventStatus: 'https://schema.org/EventScheduled',
+        eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+        location: {
+          '@type': 'Place',
+          name: ev.ubicacion || 'Bajo Su Presencia',
+          address: { '@type': 'PostalAddress', addressLocality: 'Bogotá', addressCountry: 'CO' },
+        },
+        organizer: { '@type': 'Church', name: 'Bajo Su Presencia', url: SEO_ORIGEN + '/' },
+        url: SEO_ORIGEN + '/#Eventos',
+      };
+    }).filter(Boolean);
+    if (!lista.length) return;
+    const tag = document.createElement('script');
+    tag.type = 'application/ld+json';
+    tag.textContent = JSON.stringify({ '@context': 'https://schema.org', '@graph': lista });
+    document.head.appendChild(tag);
+  }
+
   /* ─── Inicializar (noticias y oración desde Supabase) ─────────────────── */
   (async () => {
     // Las 3 operaciones son independientes entre sí (ninguna depende del
@@ -401,6 +432,8 @@
     } else {
       document.getElementById('news-empty').style.display = 'flex';
     }
+
+    inyectarSchemaEventos(eventos);
 
     if (eventos.length) {
       initCarrusel('ev-track', 'ev-prev', 'ev-next', 'ev-dots', eventos, crearTarjetaEvento);

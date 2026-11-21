@@ -1,5 +1,24 @@
 User-agent: *
 Allow: /
 Disallow: /api/
+Disallow: /login
+Disallow: /recuperar
+Disallow: /ayuda
+Disallow: /dashboard
+Disallow: /usuarios
+Disallow: /noticias
+Disallow: /eventos
+Disallow: /recursos
+Disallow: /sedes
+Disallow: /voluntarios
+Disallow: /actividades
+Disallow: /oracion
+Disallow: /pqr-admin
+Disallow: /reportes
+Disallow: /generar-reportes
+Disallow: /auditoria
+Disallow: /colaborador
+Disallow: /voluntario
+Disallow: /perfil
 
 Sitemap: https://bajo-su-presencia.onrender.com/sitemap.xml
