@@ -71,9 +71,9 @@ final class UsuariosService
         // Si el formulario ya mostró una (la que el admin copió) se respeta si
         // cumple la política; si no, se genera aquí.
         $enviada  = (string) ($data['password'] ?? '');
-        $password = (strlen($enviada) >= 8 && strlen($enviada) <= 64 && preg_match('/^(?=.*[A-Za-z])(?=.*\d)\S+$/', $enviada))
-            ? $enviada
-            : PasswordTemporal::generar();
+        $valida   = strlen($enviada) >= 8 && strlen($enviada) <= 64
+            && preg_match('/^(?=.*[A-Za-z])(?=.*\d)\S+$/', $enviada) === 1;
+        $password = $valida ? $enviada : PasswordTemporal::generar();
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             throw ApiException::validation(['email' => 'Correo electrónico inválido.']);

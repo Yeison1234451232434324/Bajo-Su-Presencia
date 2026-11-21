@@ -81,7 +81,7 @@ final class UsernameGenerator
         if (!isset($usados[$base])) {
             return $base;
         }
-        for ($n = 2; ; $n++) {
+        for ($n = 2;; $n++) {
             $sufijo    = (string) $n;
             $candidato = substr($base, 0, self::MAX - strlen($sufijo)) . $sufijo;
             if (!isset($usados[$candidato])) {
