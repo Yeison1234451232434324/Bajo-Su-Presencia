@@ -380,7 +380,7 @@
   }
   /* ─── SEO: datos estructurados Schema.org/Event de los próximos eventos ─ */
   // Se inyecta tras cargar los eventos públicos; Google ejecuta JS y lo lee.
-  const SEO_ORIGEN = location.origin;
+  const SEO_ORIGEN = window.location.origin;
   function inyectarSchemaEventos(eventos) {
     if (!eventos.length) return;
     const lista = eventos.slice(0, 10).map((ev) => {
@@ -398,8 +398,8 @@
           name: ev.ubicacion || 'Bajo Su Presencia',
           address: { '@type': 'PostalAddress', addressLocality: 'Bogotá', addressCountry: 'CO' },
         },
-        organizer: { '@type': 'Church', name: 'Bajo Su Presencia', url: SEO_ORIGEN + '/' },
-        url: SEO_ORIGEN + '/#Eventos',
+        organizer: { '@type': 'Church', name: 'Bajo Su Presencia', url: `${SEO_ORIGEN}/` },
+        url: `${SEO_ORIGEN}/#Eventos`,
       };
     }).filter(Boolean);
     if (!lista.length) return;
