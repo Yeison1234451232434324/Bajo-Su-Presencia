@@ -107,6 +107,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Éxito: notificación alertify + mostrar sección de éxito
     showAlertSuccess('¡Tu solicitud fue enviada exitosamente! Te contactaremos pronto.');
+
+    // Google Ads: registra la conversión "Enviar formulario de clientes potenciales".
+    // Solo se dispara con el envío ya guardado; si gtag no cargó (p. ej. bloqueador), no hace nada.
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'conversion', {
+        send_to: 'AW-18582865569/SuL3CJHO-bwdEKGNgJ1F',
+        value: 1.0,
+        currency: 'COP',
+      });
+    }
+
     form.style.display = 'none';
     successBox.classList.add('visible');
     successBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
