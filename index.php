@@ -58,7 +58,8 @@ function enviarCabecerasSeguridad(): void
     header('Cross-Origin-Opener-Policy: same-origin');
 
     $csp = "default-src 'self'; "
-         . "script-src 'self' https://cdn.jsdelivr.net https://www.googletagmanager.com https://googleads.g.doubleclick.net https://www.googleadservices.com; "
+         . "script-src 'self' https://cdn.jsdelivr.net https://www.googletagmanager.com "
+         . "https://googleads.g.doubleclick.net https://www.googleadservices.com; "
          . "style-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com https://unpkg.com; "
          . "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net https://unpkg.com data:; "
          . "img-src 'self' data: https:; "
